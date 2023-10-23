@@ -1,0 +1,54 @@
+{{template "head" .}}
+<script 
+    src="https://unpkg.com/htmx.org@1.9.6" 
+    integrity="sha384-FhXw7b6AlE/jyjlZH5iHa/tTe9EpJ1Y55RjcgPbjeWMskSxZt1v9qkxLJWNJaGni" 
+    crossorigin="anonymous">
+</script>
+{{template "body" .}}
+{{template "content" .}}
+
+<h1>Enregistrement de Cookie</h1>
+
+<section id="infos">
+    <h3>Instructions</h3>
+    <p>
+        Ce formulaire va ensuite permettre à l'application d'accéder 
+        et également d'enregistrer l'identifiant de l'application dans un <strong><u>Cookie</u></strong> lié 
+        à ce navigateur web.
+    </p>
+    <p id="hx-swap-oob1">Cookie déjà enregistré : {{.Cookie}}</p>
+</section>
+
+<section id="form">
+    <h3>Formulaire</h3>
+    <form hx-post="/cookie-setup"
+        hx-swap="outerHTML" hx-indicator="#spinner">
+        
+        <!-- Text -->
+        <label for="gofiID">Feuille</label>
+        <input type="text" id="gofiID" name="gofiID" placeholder="Identifiant de la feuille Google Sheets" required />
+
+        <!-- Select -->
+        <label for="cookieDuration">Durée de conservation du cookie (mini 1 heure, maxi 1 an)</label>
+        <select id="cookieDuration" name="cookieDuration" required>
+            <option value="3600" selected>1 heure</option>
+            <option value="86400">1 jour</option>
+            <option value="604800">1 semaine</option>
+            <option value="2592000">1 mois</option>
+            <option value="31536000">1 an</option>
+        </select>
+
+        <!-- Buttons -->
+        <button type="submit" value="Submit">
+            <span id="spinner" class="htmx-indicator" aria-busy="true"></span>
+            Envoyer
+        </button>
+    </form>
+</section>
+
+<p>
+    <a href="/insertrows">Etape suivante</a>: 
+    insérer des données.
+</p>
+
+{{template "footer" .}}
