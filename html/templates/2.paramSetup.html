@@ -1,0 +1,92 @@
+{{template "head" .}}
+<!-- avoid CDN https://blog.wesleyac.com/posts/why-not-javascript-cdn -->
+<!-- Subresource Integrity, SRI hash : https://www.srihash.org/ -->
+<script 
+    src="https://unpkg.com/htmx.org@1.9.6" 
+    integrity="sha384-FhXw7b6AlE/jyjlZH5iHa/tTe9EpJ1Y55RjcgPbjeWMskSxZt1v9qkxLJWNJaGni" 
+    crossorigin="anonymous">
+</script>
+{{template "body" .}}
+{{template "content" .}}
+
+<h1>Gérer les listes de données</h1>
+<p>L'ordre dans lequel se trouve les données dans les listes sera repris lors de l'affichage en reprenant le 1er élément en choix par défaut.</p>
+<hr>
+<section id="form">
+    <div id="forbidden"> <!-- via header: "HX-Retarget", "#forbidden" -->
+        <form hx-post="/param-setup" 
+            hx-target="#accountListRecap" 
+            hx-sync="this:drop"
+            hx-indicator="#spinnerA"
+            hx-on::after-request="if(event.detail.successful) this.reset()">
+
+            <!-- Text -->
+            <label for="accountList">Liste des comptes (séparer par des , sans espaces)</label>
+            <input type="text" id="accountList" name="accountList" placeholder="ex: CB,A,PEL,PEA" required />
+
+            <!-- Buttons -->
+            <button type="submit" value="Submit">
+                <span id="spinnerA" class="htmx-indicator" aria-busy="true"></span>
+                Envoyer la liste des comptes
+            </button>
+        </form>
+        <hr>
+        <form hx-post="/param-setup" 
+            hx-target="#categoryListRecap" 
+            hx-sync="this:drop"
+            hx-indicator="#spinnerB"
+            hx-on::after-request="if(event.detail.successful) this.reset()">
+
+            <!-- Text -->
+            <label for="categoryList">Liste des catégories (séparer par des , sans espaces)</label>
+            <input type="text" id="categoryList" name="categoryList" placeholder="ex: Supermarche,Restaurant,Loisir,Voiture" required />
+
+            <!-- Buttons -->
+            <button type="submit" value="Submit">
+                <span id="spinnerB" class="htmx-indicator" aria-busy="true"></span>
+                Envoyer la liste des catégories
+            </button>
+        </form>
+    </div> <!-- via header: "HX-Retarget", "#forbidden" -->
+</section>
+
+<section id="recap">
+    <div>
+        <figure>
+            <table role="grid">
+                <thead>
+                    <tr>
+                        <th scope="col">Nom</th>
+                        <th scope="col">Valeur</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr id="accountListRecap"></tr>
+                    <tr id="categoryListRecap"></tr>
+                </tbody>
+            </table>
+        </figure>
+    </div>
+</section>
+
+<section id="info">
+    <p>
+        Un récapitulatif des enregistrements est disponible ci-dessus. 
+    </p>
+    <p>
+        <a href="/insertrows">Etape suivante</a>: 
+        insérer des données.
+    </p>
+</section>
+
+{{template "footer" .}}
+
+<script>
+    // this script handle the forbidden(http403) error triggered when no gofiID Cookie is found and still use HTMX
+    document.body.addEventListener('htmx:beforeOnLoad', function (evt) {
+        if (evt.detail.xhr.status === 403) {
+            evt.detail.shouldSwap = true;
+            evt.detail.isError = false;
+        }
+    });
+</script>

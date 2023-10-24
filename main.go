@@ -16,6 +16,34 @@ import (
     // "github.com/gin-gonic/gin/render"
 )
 
+// FUNC check cookieGofiID
+func checkCookie(c *gin.Context) (string) {
+    // try to read if a cookie exists, return to setup cookie otherwise
+    cookieGofiID, err := c.Cookie("gofiID")
+    if err != nil {
+        if c.Request.Method == "GET" {
+            c.Redirect(http.StatusSeeOther, "/cookie-setup")
+            c.Abort()
+            return ""
+        } else if c.Request.Method == "POST" {
+            c.Header("HX-Retarget", "#forbidden")
+            c.Header("HX-Reswap", "innerHTML")
+            c.String(http.StatusForbidden, `
+                <div id="forbidden">
+                    <p>
+                        ERREUR: Aucun identifiant trouvé (Cookie gofiID).<br> 
+                        Requête annulée, il est nécessaire de réenregistrer un identifiant pour reprendre.<br> 
+                        C'est par ici: <a href="/cookie-setup">Setup Gofi Cookie</a>
+                    </p>
+                </div>
+            `)
+            c.Abort()
+            return ""
+        }
+    } 
+    return cookieGofiID
+}
+
 // index.html
 func index(c *gin.Context) {
     c.HTML(http.StatusOK, "0.index.html", "")
@@ -24,12 +52,12 @@ func index(c *gin.Context) {
 // GET cookie
 func getCookieSetup(c *gin.Context) {
     // try to read if a cookie exists, return "Aucun" otherwise
-    cookie, err := c.Cookie("gofiID")
+    cookieGofiID, err := c.Cookie("gofiID")
     if err != nil {
-        cookie = "Aucun"
+        cookieGofiID = "Aucun"
     }    
     c.HTML(http.StatusOK, "1.cookieSetup.html", gin.H{
-        "Cookie": cookie,
+        "Cookie": cookieGofiID,
     })
 }
 // POST cookie
@@ -60,60 +88,67 @@ func postCookieSetup(c *gin.Context) {
     c.String(200, `<p>Cookie: %s</p><p id="hx-swap-oob1" hx-swap-oob="true">Nouveau Cookie enregistré.</p>`, gofiID)
 }
 
+// GET ParamSetup.html
+func getParamSetup(c *gin.Context) {
+    cookieGofiID := checkCookie(c)
+    if c.IsAborted() {return}
+
+    c.HTML(http.StatusOK, "2.paramSetup.html", gin.H{
+        "Cookie": cookieGofiID,
+    })
+}
+
+// POST ParamSetup.html
+func postParamSetup(c *gin.Context) {
+    cookieGofiID := checkCookie(c)
+    if c.IsAborted() {return}
+
+    var Form sqlite.Param
+    var returnedString string
+    Form.GofiID = cookieGofiID
+    accountList := c.PostForm("accountList")
+    categoryList := c.PostForm("categoryList")
+    if accountList != "" {
+        Form.ParamName = "accountList"
+        Form.ParamJSONstringData = accountList
+        Form.ParamInfo = "Liste des comptes (séparer par des , sans espaces)"
+        returnedString = `<td>Comptes</td><td>` + accountList + `</td>`
+    }
+    if categoryList != "" {
+        Form.ParamName = "categoryList"
+        Form.ParamJSONstringData = categoryList
+        Form.ParamInfo = "Liste des catégories (séparer par des , sans espaces)"
+        returnedString = `<td>Catégories</td><td>` + categoryList + `</td>`
+    }
+    _, err := sqlite.InsertRowInParam(&Form)
+	if err != nil { // Always check errors even if they should not happen.
+		panic(err)
+	}
+    c.String(200, returnedString)
+}
+
 // GET InsertRows.html
 func getinsertrows(c *gin.Context) {
+    cookieGofiID := checkCookie(c)
+    if c.IsAborted() {return}
+
+    var Form sqlite.FinanceTracker
+    Form.GofiID = cookieGofiID
+    const DateOnly = "2006-01-02" // YYYY-MM-DD
     currentTime := time.Now()
-    currentDate := currentTime.Format("2006-01-02") // YYYY-MM-DD
-    _, err := c.Cookie("gofiID")
-    if err != nil {
-        c.Redirect(http.StatusSeeOther, "/cookie-setup")
-        return
-    }    
+    Form.Date = currentTime.Format(DateOnly) // YYYY-MM-DD
+    sqlite.GetList(&Form)
+	// fmt.Printf("\naccountList: %v\n", Form.AccountList)
+	// fmt.Printf("\ncategoryList: %v\n", Form.CategoryList)
     c.HTML(http.StatusOK, "3.insertrows.html", gin.H{
-        "currentDate": currentDate,
+        "Form": Form,
     })
 }
 
 // POST InsertRows.html
 func postinsertrows(c *gin.Context) {
-    cookieGofiID, err := c.Cookie("gofiID")
-    if err != nil {
-        // cookieGofiID = "Aucun"
-        // <tr><td>ERREUR</td><td>ERREUR</td><td>ERREUR</td><td>ERREUR</td></tr>
-
-        //FONCTIONNEL avec oob
-        // c.String(http.StatusOK, `
-        //     <p>ERREUR</p>
-        //     <p id="hx-swap-oob1" hx-swap-oob="true">Aucun identifiant, requête annulée, <a href="/cookie-setup">Setup Gofi Cookie</a></p>
-        // `)
-
-        c.Header("HX-Retarget", "#forbidden")
-        c.Header("HX-Reswap", "innerHTML")
-        c.String(http.StatusForbidden, `
-            <div id="forbidden">
-                <p>
-                    ERREUR: Aucun identifiant trouvé (Cookie gofiID).<br> 
-                    Requête annulée, il est nécessaire de réenregistrer un identifiant pour reprendre.<br> 
-                    C'est par ici: <a href="/cookie-setup">Setup Gofi Cookie</a>
-                </p>
-            </div>
-        `)
-        
-        // response := `<div id="forbidden">ERREUR: Aucun identifiant</div>`
-        // c.Render(
-        //     http.StatusForbidden, render.Data{
-        //         "HX-Retarget": "#forbidden",
-        //         "HX-Reswap": "innerHTML",
-        //         Data:        []byte(response),
-        // })
-
-        // c.Redirect(http.StatusSeeOther, "/cookie-setup")
-        // r.HandleContext(c)
-        // c.HTML(http.StatusOK, "1.cookieSetup.html", gin.H{
-        //     "Cookie": cookieGofiID,
-        // })
-        return
-    }  
+    cookieGofiID := checkCookie(c)
+    if c.IsAborted() {return}
 
     // time.Sleep(299999999 * time.Nanosecond) // to simulate 300ms of loading in the front when submiting form
     var Form sqlite.FinanceTracker // PostInsertRows
@@ -134,11 +169,12 @@ func postinsertrows(c *gin.Context) {
     Form.Year, _ = strconv.Atoi(t.Format("2006")) // YYYY
     Form.Month, _ = strconv.Atoi(t.Format("01")) // MM
     Form.Day, _ = strconv.Atoi(t.Format("02")) // DD
-    Form.PaymentMethod = "CBtest"
     Form.GofiID = cookieGofiID
     fmt.Printf("before sqlite insert, form: %#s \n", &Form) // form: {2023-09-13 désig Supermarche 5.03}
     _, err = sqlite.InsertRowInFinanceTracker(&Form)
-
+	if err != nil { // Always check errors even if they should not happen.
+		panic(err)
+	}
     tmpl := template.Must(template.ParseFiles("./html/templates/3.insertrows.html"))
     tmpl.ExecuteTemplate(c.Writer, "lastInsert", Form)
 }
@@ -166,6 +202,9 @@ func main() {
 
     router.GET("/cookie-setup", getCookieSetup)
     router.POST("/cookie-setup", postCookieSetup)
+
+    router.GET("/param-setup", getParamSetup)
+    router.POST("/param-setup", postParamSetup)
 
     router.GET("/insertrows", getinsertrows)
     router.POST("/insertrows", postinsertrows)

@@ -34,7 +34,8 @@ The HTML files are currently only in french.
 
 ## TODO
 - Améliorer page Insert Rows
-    - variable sur la liste des catégories
+    - gérer l'ajout de param par défaut à la création d'un nouveau gofiID
+    - afficher les params actuels lors de l'affichage de la page param setup
 - Ajout sauvegarde sur Drive
     - avec table SQLite qui garde les ID de fichiers + le statut de l'upload
 - Tester HTMX sur différents type de réponse : 200, 400, 500 ... : https://htmx.org/extensions/response-targets/ 
@@ -43,6 +44,7 @@ The HTML files are currently only in french.
 
 
 ## Changelog
+- 2023-10-23 : rework + add list of parameters in DB + handle accounts
 - 2023-10-15 : remove gsheet to swap for SQLite
 - 2023-09-24 : add read all gsheet, start to use params in a new gsheet.
 - 2023-09-13 : initialize project
