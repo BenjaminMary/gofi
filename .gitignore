@@ -23,3 +23,8 @@ go.work
 
 # specific part
 *.env
+gofi.db*
+
+# to block/resume the update of a file that is already tracked, like an empty database file
+# git update-index --assume-unchanged sqlite/gofi.db
+# git update-index --no-assume-unchanged sqlite/gofi.db

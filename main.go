@@ -82,6 +82,9 @@ func postCookieSetup(c *gin.Context) {
     }	
     cookieDurationInt = int(cookieDurationInt64)
 
+    //read existing param with this gofiID, and create default param if none 
+    sqlite.CheckIfIdExists(gofiID)
+
     c.SetSameSite(http.SameSiteLaxMode)
     c.SetCookie("gofiID", "", -1, "/", "", false, true)
     c.SetCookie("gofiID", gofiID, cookieDurationInt, "/", "", false, true)
@@ -93,11 +96,28 @@ func getParamSetup(c *gin.Context) {
     cookieGofiID := checkCookie(c)
     if c.IsAborted() {return}
 
+    var Form sqlite.FinanceTracker
+    Form.GofiID = cookieGofiID
+    sqlite.GetList(&Form)
     c.HTML(http.StatusOK, "2.paramSetup.html", gin.H{
-        "Cookie": cookieGofiID,
+        "Form": Form,
     })
 }
 
+func cleanStringList(stringList string) string {
+    var list []string
+    var cleanedString string
+    var cleanedStringResult string = ""
+    list = strings.Split(stringList, ",")
+    for _, element := range list {
+        cleanedString = strings.Trim(element, " ,")
+        if len(cleanedString) > 0 {
+            if cleanedStringResult != "" {cleanedStringResult += ","}
+            cleanedStringResult += cleanedString
+        }
+    }
+    return cleanedStringResult
+}
 // POST ParamSetup.html
 func postParamSetup(c *gin.Context) {
     cookieGofiID := checkCookie(c)
@@ -110,15 +130,15 @@ func postParamSetup(c *gin.Context) {
     categoryList := c.PostForm("categoryList")
     if accountList != "" {
         Form.ParamName = "accountList"
-        Form.ParamJSONstringData = accountList
+        Form.ParamJSONstringData = cleanStringList(accountList)
         Form.ParamInfo = "Liste des comptes (séparer par des , sans espaces)"
-        returnedString = `<td>Comptes</td><td>` + accountList + `</td>`
+        returnedString = `<input type="text" id="accountList" name="accountList" value="` + accountList + `" aria-invalid="false" disabled />`
     }
     if categoryList != "" {
         Form.ParamName = "categoryList"
-        Form.ParamJSONstringData = categoryList
+        Form.ParamJSONstringData = cleanStringList(categoryList)
         Form.ParamInfo = "Liste des catégories (séparer par des , sans espaces)"
-        returnedString = `<td>Catégories</td><td>` + categoryList + `</td>`
+        returnedString = `<input type="text" id="categoryList" name="categoryList" value="` + categoryList + `" aria-invalid="false" disabled />`
     }
     _, err := sqlite.InsertRowInParam(&Form)
 	if err != nil { // Always check errors even if they should not happen.

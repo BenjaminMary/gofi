@@ -10,68 +10,46 @@
 {{template "content" .}}
 
 <h1>Gérer les listes de données</h1>
-<p>L'ordre dans lequel se trouve les données dans les listes sera repris lors de l'affichage en reprenant le 1er élément en choix par défaut.</p>
-<hr>
+
 <section id="form">
     <div id="forbidden"> <!-- via header: "HX-Retarget", "#forbidden" -->
         <form hx-post="/param-setup" 
-            hx-target="#accountListRecap" 
+            hx-target="#accountList" 
+            hx-swap="outerHTML"
             hx-sync="this:drop"
-            hx-indicator="#spinnerA"
-            hx-on::after-request="if(event.detail.successful) this.reset()">
+            hx-on::after-request="if(event.detail.successful) document.getElementById('disapear1').remove()">
 
             <!-- Text -->
-            <label for="accountList">Liste des comptes (séparer par des , sans espaces)</label>
-            <input type="text" id="accountList" name="accountList" placeholder="ex: CB,A,PEL,PEA" required />
+            <label for="accountList">Liste des comptes (séparer par des , sans espaces, ordre repris à l'identique)</label>
+            <input type="text" id="accountList" name="accountList" value="{{.Form.Account}}" required />
 
             <!-- Buttons -->
-            <button type="submit" value="Submit">
-                <span id="spinnerA" class="htmx-indicator" aria-busy="true"></span>
+            <button id="disapear1" type="submit" value="Submit">
                 Envoyer la liste des comptes
             </button>
         </form>
         <hr>
         <form hx-post="/param-setup" 
-            hx-target="#categoryListRecap" 
+            hx-target="#categoryList" 
+            hx-swap="outerHTML"
             hx-sync="this:drop"
-            hx-indicator="#spinnerB"
-            hx-on::after-request="if(event.detail.successful) this.reset()">
+            hx-on::after-request="if(event.detail.successful) document.getElementById('disapear2').remove()">
 
             <!-- Text -->
-            <label for="categoryList">Liste des catégories (séparer par des , sans espaces)</label>
-            <input type="text" id="categoryList" name="categoryList" placeholder="ex: Supermarche,Restaurant,Loisir,Voiture" required />
+            <label for="categoryList">Liste des catégories (séparer par des , sans espaces, ordre repris à l'identique)</label>
+            <input type="text" id="categoryList" name="categoryList" value="{{.Form.Category}}" required />
 
             <!-- Buttons -->
-            <button type="submit" value="Submit">
-                <span id="spinnerB" class="htmx-indicator" aria-busy="true"></span>
+            <button id="disapear2" type="submit" value="Submit">
                 Envoyer la liste des catégories
             </button>
         </form>
     </div> <!-- via header: "HX-Retarget", "#forbidden" -->
 </section>
 
-<section id="recap">
-    <div>
-        <figure>
-            <table role="grid">
-                <thead>
-                    <tr>
-                        <th scope="col">Nom</th>
-                        <th scope="col">Valeur</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr id="accountListRecap"></tr>
-                    <tr id="categoryListRecap"></tr>
-                </tbody>
-            </table>
-        </figure>
-    </div>
-</section>
-
 <section id="info">
     <p>
-        Un récapitulatif des enregistrements est disponible ci-dessus. 
+        <a href="">Rafraichir la page</a> si besoin de refaire de nouvelles modifications.
     </p>
     <p>
         <a href="/insertrows">Etape suivante</a>: 

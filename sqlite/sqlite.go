@@ -73,6 +73,74 @@ func InitDatabase(DbPath string) error {
 }
 
 
+func CheckIfIdExists(gofiID string) {
+	//if new ID, create default params
+	err := InitDatabase(DbPath)
+	if err != nil {
+		log.Fatal("error initializing DB connection: ", err)
+		panic("database init error")
+	}
+	db.Close()
+	var nbRows int = 0
+
+	db, err = sql.Open("sqlite", DbPath)
+	defer db.Close()
+	qA := ` 
+		SELECT COUNT(1)
+		FROM param
+		WHERE gofiID = ?
+			AND paramName = 'accountList';
+	`
+	err = db.QueryRow(qA, gofiID).Scan(&nbRows)
+	switch {
+		case err == sql.ErrNoRows:
+			nbRows = 0
+		case err != nil:
+			log.Fatalf("query error: %v\n", err)
+		//default:
+	}
+	if nbRows != 1 {
+		db.QueryRow("DELETE FROM param WHERE gofiID = ? AND paramName = 'accountList';", gofiID)
+		var P1 Param
+		P1.GofiID = gofiID
+        P1.ParamName = "accountList"
+        P1.ParamJSONstringData = "CB,A"
+        P1.ParamInfo = "Liste des comptes (séparer par des , sans espaces)"
+		InsertRowInParam(&P1)
+		db, err = sql.Open("sqlite", DbPath)
+		defer db.Close()
+	}
+
+	qB := ` 
+		SELECT COUNT(1)
+		FROM param
+		WHERE gofiID = ?
+			AND paramName = 'categoryList';
+	`
+	err = db.QueryRow(qB, gofiID).Scan(&nbRows)
+	// defer db.Close()
+	switch {
+		case err == sql.ErrNoRows:
+			nbRows = 0
+		case err != nil:
+			log.Fatalf("query error param categoryList: %v\n", err)
+		//default:
+	}
+	if nbRows != 1 {
+		db.QueryRow("DELETE FROM param WHERE gofiID = ? AND paramName = 'categoryList';", gofiID)
+		var P2 Param
+		P2.GofiID = gofiID
+        P2.ParamName = "categoryList"
+        P2.ParamJSONstringData = "Supermarché,Restaurant,Loisir"
+        P2.ParamInfo = "Liste des catégories (séparer par des , sans espaces)"
+		InsertRowInParam(&P2)
+		db, err = sql.Open("sqlite", DbPath)
+		defer db.Close()
+	}
+
+	return
+}
+
 func GetList(ft *FinanceTracker) {
 	err := InitDatabase(DbPath)
 	if err != nil {
@@ -84,7 +152,7 @@ func GetList(ft *FinanceTracker) {
 		WHERE gofiID = ?
 			AND paramName = ?;
 	`
-	rows, err := db.Query(q, ft.GofiID, "accountList", "test", "categoryList")
+	rows, err := db.Query(q, ft.GofiID, "accountList")
 	defer rows.Close()
 
 	rows.Next()
@@ -92,6 +160,7 @@ func GetList(ft *FinanceTracker) {
 	if err := rows.Scan(&accountList); err != nil {
 		log.Fatal(err)
 	}
+	ft.Account = accountList
 	ft.AccountList = strings.Split(accountList, ",")
 	// fmt.Printf("\naccountList: %v\n", ft.AccountList)
 
@@ -105,6 +174,7 @@ func GetList(ft *FinanceTracker) {
 	if err := rows.Err(); err != nil {
 		log.Fatal(err)
 	}
+	ft.Category = categoryList
 	ft.CategoryList = strings.Split(categoryList, ",")
 	// fmt.Printf("\ncategoryList: %v\n", ft.CategoryList)
 	return
