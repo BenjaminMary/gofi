@@ -154,15 +154,18 @@ func getinsertrows(c *gin.Context) {
     if c.IsAborted() {return}
 
     var Form sqlite.FinanceTracker
+    var FTlist []sqlite.FinanceTracker
     Form.GofiID = cookieGofiID
     const DateOnly = "2006-01-02" // YYYY-MM-DD
     currentTime := time.Now()
     Form.Date = currentTime.Format(DateOnly) // YYYY-MM-DD
     sqlite.GetList(&Form)
+    FTlist = sqlite.GetLastRowsInFinanceTracker(cookieGofiID)
 	// fmt.Printf("\naccountList: %v\n", Form.AccountList)
 	// fmt.Printf("\ncategoryList: %v\n", Form.CategoryList)
     c.HTML(http.StatusOK, "3.insertrows.html", gin.H{
         "Form": Form,
+        "FTlist": FTlist,
     })
 }
 

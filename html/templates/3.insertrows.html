@@ -65,8 +65,9 @@
                 <thead>
                     <tr>
                         <th scope="col">Date</th>
-                        <th scope="col">Designation</th>
+                        <th scope="col">Compte</th>
                         <th scope="col">Categorie</th>
+                        <th scope="col">Designation</th>
                         <th scope="col">Prix</th>
                     </tr>
                 </thead>
@@ -74,10 +75,20 @@
                     {{define "lastInsert"}}
                     <tr>
                         <td>{{.Date}}</td>
-                        <td>{{.Product}}</td>
+                        <td>{{.Account}}</td>
                         <td>{{.Category}}</td>
+                        <td>{{.Product}}</td>
                         <td>{{.FormPriceStr2Decimals}}</td>
                     </tr>
+                    {{end}}
+                    {{range $FT := .FTlist}}
+                        <tr>
+                            <td>{{$FT.Date}}</td>
+                            <td>{{$FT.Account}}</td>
+                            <td>{{$FT.Category}}</td>
+                            <td>{{$FT.Product}}</td>
+                            <td>{{$FT.FormPriceStr2Decimals}}</td>
+                        </tr>
                     {{end}}
                 </tbody>
             </table>
@@ -87,9 +98,10 @@
 
 <section id="info">
     <p>
-        Un récapitulatif des enregistrements est disponible ci-dessus. 
-        Le dernier enregistrement effectué se 
-        trouve toujours tout en haut.
+        Un récapitulatif des enregistrements est disponible ci-dessus.<br>
+        Le dernier enregistrement effectué se trouve toujours tout en haut.<br>
+        Les 5 derniers enregistrements effectués sont disponible à l'ouverture de cette page, attention, 
+        ils ne sont pas dans forcément dans l'ordre chronologique si une date a été modifiée.
     </p>
 </section>
 

@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"log"
 	"strings"
+	"strconv"
 
 	_ "modernc.org/sqlite"
 )
@@ -139,6 +140,50 @@ func InsertRowInParam(p *Param) (int64, error) {
 		return 0, err
 	}
 	return id, nil
+}
+
+func GetLastRowsInFinanceTracker(gofiID string) []FinanceTracker {
+	var ftList []FinanceTracker
+	db, err := sql.Open("sqlite", DbPath)
+	if err != nil {
+		log.Fatal("error opening DB file: ", err)
+		return ftList
+	}
+	defer db.Close()
+	defer db.Exec("PRAGMA optimize;") // to run just before closing each database connection.
+	defer fmt.Println("defer : optimize then close DB")
+	
+	q := ` 
+		SELECT year || '-' || month || '-' || day AS date, 
+			account, product, priceIntx100, category
+		FROM financeTracker
+		WHERE gofiID = ?
+		ORDER BY id DESC
+		LIMIT 5;
+	`
+	rows, err := db.Query(q, gofiID)
+
+	for rows.Next() {
+		var ft FinanceTracker
+		var i int
+		if err := rows.Scan(&ft.Date, &ft.Account, &ft.Product, &ft.PriceIntx100, &ft.Category); err != nil {
+			log.Fatal(err)
+		}
+		i = ft.PriceIntx100
+		switch {
+			case i > 99:
+				// fmt.Printf("ft.FormPriceStr2Decimals: %v\n", strconv.Itoa(i)[:len(strconv.Itoa(i))-2]) // all except last 2 (stop at x-2)
+				// fmt.Printf("ft.FormPriceStr2Decimals: %v\n", strconv.Itoa(i)[len(strconv.Itoa(i))-2:]) // last 2 only (start at x-2)
+				ft.FormPriceStr2Decimals = strconv.Itoa(i)[:len(strconv.Itoa(i))-2] + "." + strconv.Itoa(i)[len(strconv.Itoa(i))-2:]
+			case i > 9:
+				ft.FormPriceStr2Decimals = "0." + strconv.Itoa(i)
+			default:
+				ft.FormPriceStr2Decimals = "0.0" + strconv.Itoa(i)
+		}
+		// fmt.Printf("ft: %#v\n", ft)
+		ftList = append(ftList, ft)
+	}
+	return ftList
 }
 
 func InsertRowInFinanceTracker(ft *FinanceTracker) (int64, error) {

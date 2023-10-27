@@ -42,6 +42,7 @@ The HTML files are currently only in french.
 
 
 ## Changelog
+- 2023-10-27 : add last 5 rows registered in the list on insertrows GET page, also add account info 
 - 2023-10-27 : optimize database connections
 - 2023-10-26 : add default parameters for new gofiID and new route to edit them
 - 2023-10-23 : rework + add list of parameters in DB + handle accounts
