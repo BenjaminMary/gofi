@@ -1,8 +1,9 @@
 package main
 
 import (
+    _ "fmt"
+
     "net/http"
-    "fmt"
     "time"
     "strings"
     "strconv"
@@ -190,19 +191,13 @@ func postinsertrows(c *gin.Context) {
     Form.Month, _ = strconv.Atoi(t.Format("01")) // MM
     Form.Day, _ = strconv.Atoi(t.Format("02")) // DD
     Form.GofiID = cookieGofiID
-    fmt.Printf("before sqlite insert, form: %#s \n", &Form) // form: {2023-09-13 désig Supermarche 5.03}
+    // fmt.Printf("before sqlite insert, form: %#s \n", &Form) // form: {2023-09-13 désig Supermarche 5.03}
     _, err = sqlite.InsertRowInFinanceTracker(&Form)
 	if err != nil { // Always check errors even if they should not happen.
 		panic(err)
 	}
     tmpl := template.Must(template.ParseFiles("./html/templates/3.insertrows.html"))
     tmpl.ExecuteTemplate(c.Writer, "lastInsert", Form)
-}
-
-// sqlite
-func sqliteInit(c *gin.Context) {
-    sqlite.RunSQLite()
-    c.HTML(http.StatusOK, "0.index.html", "")
 }
 
 func main() {
@@ -228,8 +223,6 @@ func main() {
 
     router.GET("/insertrows", getinsertrows)
     router.POST("/insertrows", postinsertrows)
-
-    router.GET("/sqlite", sqliteInit)
 
     router.Run("0.0.0.0:8082")
 }
