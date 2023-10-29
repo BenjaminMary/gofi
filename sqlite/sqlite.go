@@ -8,6 +8,9 @@ import (
 	"strings"
 	"strconv"
 
+	"encoding/csv"
+	"os"
+
 	_ "modernc.org/sqlite"
 )
 
@@ -165,21 +168,10 @@ func GetLastRowsInFinanceTracker(gofiID string) []FinanceTracker {
 
 	for rows.Next() {
 		var ft FinanceTracker
-		var i int
 		if err := rows.Scan(&ft.Date, &ft.Account, &ft.Product, &ft.PriceIntx100, &ft.Category); err != nil {
 			log.Fatal(err)
 		}
-		i = ft.PriceIntx100
-		switch {
-			case i > 99:
-				// fmt.Printf("ft.FormPriceStr2Decimals: %v\n", strconv.Itoa(i)[:len(strconv.Itoa(i))-2]) // all except last 2 (stop at x-2)
-				// fmt.Printf("ft.FormPriceStr2Decimals: %v\n", strconv.Itoa(i)[len(strconv.Itoa(i))-2:]) // last 2 only (start at x-2)
-				ft.FormPriceStr2Decimals = strconv.Itoa(i)[:len(strconv.Itoa(i))-2] + "." + strconv.Itoa(i)[len(strconv.Itoa(i))-2:]
-			case i > 9:
-				ft.FormPriceStr2Decimals = "0." + strconv.Itoa(i)
-			default:
-				ft.FormPriceStr2Decimals = "0.0" + strconv.Itoa(i)
-		}
+		ft.FormPriceStr2Decimals = ConvertPriceIntToStr(ft.PriceIntx100)
 		// fmt.Printf("ft: %#v\n", ft)
 		ftList = append(ftList, ft)
 	}
@@ -207,4 +199,65 @@ func InsertRowInFinanceTracker(ft *FinanceTracker) (int64, error) {
 		return 0, err
 	}
 	return id, nil
+}
+
+func ExportCSV(gofiID string, csvSeparator rune, csvDecimalDelimiter string) {
+	/* take all data from the DB for a specific gofiID and put it in a csv file 
+		1. read database with gofiID
+		2. write row by row in a csv (include headers)
+	*/
+	db, err := sql.Open("sqlite", DbPath)
+	if err != nil {
+		log.Fatal("error opening DB file: ", err)
+		return
+	}
+	defer db.Close()
+	defer db.Exec("PRAGMA optimize;") // to run just before closing each database connection.
+	defer fmt.Println("defer : optimize then close DB")
+	
+	q := ` 
+		SELECT id, gofiID, year || '-' || month || '-' || day AS date,
+			account, product, priceIntx100, category, 
+			commentInt, commentString, checked, dateChecked, sentToSheets
+		FROM financeTracker
+		WHERE gofiID = ?
+		ORDER BY id
+		LIMIT 10000;
+	`
+	rows, err := db.Query(q, gofiID)
+
+	file, err := os.Create(CsvPath)
+	defer file.Close()
+	w := csv.NewWriter(file)
+	w.Comma = csvSeparator //french CSV file = ;
+    defer w.Flush()
+
+	//write csv headers
+	row := []string{"ID", "GofiID", "Date",
+		"Account", "Product", "PriceStr", "Category", 
+		"CommentInt", "CommentString", "Checked", "DateChecked", "SentToSheets"}
+	if err := w.Write(row); err != nil {
+		fmt.Printf("row error: %v\n", row)
+		log.Fatalln("error writing record to file", err)
+	}
+	for rows.Next() {
+		var ft FinanceTracker
+		if err := rows.Scan(
+				&ft.ID, &ft.GofiID, &ft.Date,
+				&ft.Account, &ft.Product, &ft.PriceIntx100, &ft.Category,
+				&ft.CommentInt, &ft.CommentString, &ft.Checked, &ft.DateChecked, &ft.SentToSheets,
+			); err != nil {
+			log.Fatal(err)
+		}
+		ft.FormPriceStr2Decimals = strings.Replace(ConvertPriceIntToStr(ft.PriceIntx100), ".", csvDecimalDelimiter, 1) //replace . to , for french CSV files
+	
+        row = []string{strconv.Itoa(ft.ID), ft.GofiID, ft.Date, 
+			ft.Account, ft.Product, ft.FormPriceStr2Decimals, ft.Category, 
+			strconv.Itoa(ft.CommentInt), ft.CommentString, strconv.FormatBool(ft.Checked), ft.DateChecked, strconv.FormatBool(ft.SentToSheets)}
+        if err := w.Write(row); err != nil {
+			fmt.Printf("row error: %v\n", row)
+            log.Fatalln("error writing record to file", err)
+        }
+
+	}
 }

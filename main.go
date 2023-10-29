@@ -1,7 +1,7 @@
 package main
 
 import (
-    _ "fmt"
+    // "fmt"
 
     "net/http"
     "time"
@@ -203,6 +203,32 @@ func postinsertrows(c *gin.Context) {
     tmpl.ExecuteTemplate(c.Writer, "lastInsert", Form)
 }
 
+// GET exportCsv.html
+func getExportCsv(c *gin.Context) {
+    checkCookie(c)
+    if c.IsAborted() {return}
+
+    c.HTML(http.StatusOK, "100.exportCsv.html", "")
+}
+
+// POST exportCsv.html
+func postExportCsv(c *gin.Context) {
+    cookieGofiID := checkCookie(c)
+    if c.IsAborted() {return}
+
+    csvSeparator := c.PostForm("csvSeparator")
+    csvDecimalDelimiter := c.PostForm("csvDecimalDelimiter")
+
+    var csvSeparatorRune rune
+    for _, runeValue := range csvSeparator {csvSeparatorRune = runeValue}
+
+    sqlite.ExportCSV(cookieGofiID, csvSeparatorRune, csvDecimalDelimiter)
+
+    c.Header("Content-Disposition", "attachment; filename=db.csv")
+    c.Header("Content-Type", "text/plain")
+    c.FileAttachment(sqlite.CsvPath, "db.csv")
+}
+
 func main() {
     router := gin.Default()
 
@@ -226,6 +252,9 @@ func main() {
 
     router.GET("/insertrows", getinsertrows)
     router.POST("/insertrows", postinsertrows)
+
+    router.GET("/export-csv", getExportCsv)
+    router.POST("/export-csv", postExportCsv)
 
     router.Run("0.0.0.0:8082")
 }

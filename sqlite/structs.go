@@ -22,7 +22,7 @@ type FinanceTracker struct {
 	PriceIntx100 int
 	CategoryList []string
 	Category string `form:"categorie" binding:"required"`
-	CommentFloat float32
+	CommentInt int
 	CommentString string
 	Checked bool
 	DateChecked string

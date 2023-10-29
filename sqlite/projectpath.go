@@ -17,5 +17,6 @@ var (
     _, currentFilePath, _, _ = runtime.Caller(0)
     dirpath = path.Dir(currentFilePath)
     DbPath = filepath.Join(dirpath, os.Getenv("SQLITE_DB_FILENAME"))
+    CsvPath = filepath.Join(dirpath, "gofi.csv")
 
 )

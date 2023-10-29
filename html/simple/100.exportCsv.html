@@ -1,0 +1,85 @@
+{{template "head" .}}
+<!-- avoid CDN https://blog.wesleyac.com/posts/why-not-javascript-cdn -->
+<!-- Subresource Integrity, SRI hash : https://www.srihash.org/ -->
+<script 
+    src="https://unpkg.com/htmx.org@1.9.6" 
+    integrity="sha384-FhXw7b6AlE/jyjlZH5iHa/tTe9EpJ1Y55RjcgPbjeWMskSxZt1v9qkxLJWNJaGni" 
+    crossorigin="anonymous">
+</script>
+{{template "body" .}}
+{{template "content" .}}
+
+<h1>Export CSV</h1>
+
+<section id="form">
+    <h3>Options</h3>
+    <form hx-post="/export-csv"
+        hx-target="#textarea"
+        hx-indicator="#spinner"
+        hx-on::after-request="if(event.detail.successful) document.getElementById('form').remove()">
+    <!-- <form> -->
+        <!-- Select -->
+        <label for="csvSeparator">Séparateur de colonne</label>
+        <select id="csvSeparator" name="csvSeparator" required>
+            <option value=";" selected>";" : exemple A;B;C</option>
+            <option value=",">"," : exemple A,B,C</option>
+            <option value="|">"|" : exemple A|B|C</option>
+            <option value="" disabled> </option>
+        </select>
+
+        <!-- Select -->
+        <label for="csvDecimalDelimiter">Séparateur de décimale</label>
+        <select id="csvDecimalDelimiter" name="csvDecimalDelimiter" required>
+            <option value="," selected>"," : exemple 1,99</option>
+            <option value=".">"." : exemple 1.99</option>
+            <option value="" disabled> </option>
+        </select>
+
+        <!-- Buttons -->
+        <button id="disapear" type="submit" value="Submit">
+            <span id="spinner" class="htmx-indicator" aria-busy="true"></span>
+            Visualiser les données
+        </button>
+    </form>
+    <hr>
+</section>
+
+<section id="dl">
+    <h3>Téléchargement</h3>
+    <button id="download">Télécharger le fichier csv</button>
+    <textarea id="textarea" rows="10"></textarea>
+    <p>
+        Le fichier téléchargé est au format UTF-8 avec une fin de ligne LF (Unix), les données sont limités aux 10 000 derniers enregistrements.
+        <hr>
+        Pour ouverture dans Excel sans avoir de problème d'affichage concernant les accents:
+        <ol>
+            <li>utiliser l'option <code>Fichier Texte</code> qui se trouve dans le ruban <code>Données</code>, partie <code>Données externes</code></li>
+            <li>modifier le paramètre <code>Origine du fichier</code> en <code>65001 : Unicode (UTF-8)</code></li>
+        </ol>
+    </p>
+</section>
+
+{{template "footer" .}}
+
+<script>
+    function download(filename, text) {
+        var element = document.createElement('a');
+        element.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(text));
+        element.setAttribute('download', filename);
+    
+        element.style.display = 'none';
+        document.body.appendChild(element);
+    
+        element.click();
+    
+        document.body.removeChild(element);
+    }
+
+    // Start file download.
+    document.getElementById("download").addEventListener("click", function(){
+        // Generate download of csv file with content
+        var text = document.getElementById("textarea").value;
+        var filename = "gofi.csv";
+        download(filename, text);
+    }, false);
+</script>
