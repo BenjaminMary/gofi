@@ -25,7 +25,6 @@ go.work
 *.env
 gofi.db*
 *.ps1
-gofi.csv
 
 # to block/resume the update of a file that is already tracked, like an empty database file
 # git update-index --assume-unchanged sqlite/gofi.db

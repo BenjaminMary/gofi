@@ -33,16 +33,18 @@ The HTML files are currently only in french.
     ```
 
 ## TODO
-- Ajout sauvegarde sur Drive
-    - avec table SQLite qui garde les ID de fichiers + le statut de l'upload
-- Tester HTMX sur différents type de réponse : 200, 400, 500 ... : https://htmx.org/extensions/response-targets/ 
-- Ajout import/export csv
-- Ajout SQLite en WebAssembly
+- Ajout sauvegarde DB SQLite sur Drive
+    - avec table SQLite qui garde les ID + nom + date de fichiers sauvegardés + le statut de l'upload
+- Ajout import csv
+- PWA
+    - Ajout SQLite en WebAssembly ?
 
+- Tester HTMX sur différents type de réponse : 200, 400, 500 ... : https://htmx.org/extensions/response-targets/ 
 - Amélioration download fichier csv : voir si possible de faire mieux directement via le serveur à la place du js
 
 
 ## Changelog
+- 2023-11-04 : improve export csv with ID in filename, can handle different IDs in // and delete the file
 - 2023-10-29 : add export csv 
 - 2023-10-27 : add last 5 rows registered in the list on insertrows GET page, also add account info 
 - 2023-10-27 : optimize database connections

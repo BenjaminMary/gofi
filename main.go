@@ -8,7 +8,7 @@ import (
     "strings"
     "strconv"
     "html/template"
-    // "os"
+    "os"
     // "encoding/json"
 
     "example.com/sqlite"
@@ -222,11 +222,14 @@ func postExportCsv(c *gin.Context) {
     var csvSeparatorRune rune
     for _, runeValue := range csvSeparator {csvSeparatorRune = runeValue}
 
+    fileName := "gofi-" + cookieGofiID + ".csv"
+    filePathWithName := sqlite.FilePath(fileName)
+    defer os.Remove(filePathWithName)
     sqlite.ExportCSV(cookieGofiID, csvSeparatorRune, csvDecimalDelimiter)
 
-    c.Header("Content-Disposition", "attachment; filename=db.csv")
+    c.Header("Content-Disposition", "attachment; filename=" + fileName)
     c.Header("Content-Type", "text/plain")
-    c.FileAttachment(sqlite.CsvPath, "db.csv")
+    c.FileAttachment(filePathWithName, fileName)
 }
 
 func main() {

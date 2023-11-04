@@ -15,8 +15,11 @@ var (
 
     // this method also handle the call of the variable from other packages
     _, currentFilePath, _, _ = runtime.Caller(0)
-    dirpath = path.Dir(currentFilePath)
-    DbPath = filepath.Join(dirpath, os.Getenv("SQLITE_DB_FILENAME"))
-    CsvPath = filepath.Join(dirpath, "gofi.csv")
+    Dirpath = path.Dir(currentFilePath)
+    DbPath = filepath.Join(Dirpath, os.Getenv("SQLITE_DB_FILENAME"))
 
 )
+
+func FilePath(fileName string) string {
+	return filepath.Join(Dirpath, fileName)
+}

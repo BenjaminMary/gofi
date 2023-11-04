@@ -226,7 +226,7 @@ func ExportCSV(gofiID string, csvSeparator rune, csvDecimalDelimiter string) {
 	`
 	rows, err := db.Query(q, gofiID)
 
-	file, err := os.Create(CsvPath)
+	file, err := os.Create(FilePath("gofi-" + gofiID + ".csv"))
 	defer file.Close()
 	w := csv.NewWriter(file)
 	w.Comma = csvSeparator //french CSV file = ;
