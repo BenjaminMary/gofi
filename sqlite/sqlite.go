@@ -11,7 +11,7 @@ import (
 	"encoding/csv"
 	"os"
 	"mime/multipart"
-	"time"
+	// "time"
 
 	_ "modernc.org/sqlite"
 )
@@ -306,7 +306,8 @@ func ImportCSV(gofiID string, csvSeparator rune, csvDecimalDelimiter string, csv
     }
 
 	var ft FinanceTracker
-	var lineInfo string
+	var lineInfo, unsuccessfullReason string
+	var successfull bool
 	ft.GofiID = gofiID
 	stringList += "ID;Date;CommentInt;Checked;SentToSheets;NewID;Updated;\n"
 	for index, row := range rows {
@@ -317,17 +318,13 @@ func ImportCSV(gofiID string, csvSeparator rune, csvDecimalDelimiter string, csv
 			ft.ID = 0
 			lineInfo += "default 0;"
 		} else { lineInfo += row[0] + ";" }
-		ft.Date = row[1]
-		const DateOnly = "2006-01-02" // YYYY-MM-DD
-		t, err := time.Parse(DateOnly, ft.Date)
-		if err != nil {
-			lineInfo += "error YYYY-MM-DD;;;;;false;"
+
+		ft.Year, ft.Month, ft.Day, successfull, unsuccessfullReason = ConvertDateStrToInt(row[1], "EN", "-")
+		if !successfull {
+			lineInfo += "error " + unsuccessfullReason + ";;;;;false;"
 			stringList += lineInfo + "\n"
 			continue //skip this row because wrong date format
-		} else { lineInfo += ";" }
-		ft.Year, _ = strconv.Atoi(t.Format("2006")) // YYYY
-		ft.Month, _ = strconv.Atoi(t.Format("01")) // MM
-		ft.Day, _ = strconv.Atoi(t.Format("02")) // DD
+		}
 
 		ft.Account = row[2] 
 		ft.Product = row[3]

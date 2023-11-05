@@ -33,6 +33,7 @@ The HTML files are currently only in french.
     ```
 
 ## TODO
+- ajout gestion différents formats de dates EN + FR avec / ou -
 - Ajout sauvegarde DB SQLite sur Drive
     - avec table SQLite qui garde les ID + nom + date de fichiers sauvegardés + le statut de l'upload
 - PWA
@@ -43,6 +44,7 @@ The HTML files are currently only in french.
 
 
 ## Changelog
+- 2023-11-05 : improve date handle mostly for csv import
 - 2023-11-05 : add import csv + small update on export + add leading 0 on some dates
 - 2023-11-04 : improve export csv with ID in filename, can handle different IDs in // and delete the file
 - 2023-10-29 : add export csv 

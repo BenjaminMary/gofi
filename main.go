@@ -180,22 +180,19 @@ func postinsertrows(c *gin.Context) {
         c.String(http.StatusBadRequest, "bad request: %v", err)
         return
     }
-    const DateOnly = "2006-01-02" // YYYY-MM-DD
-    t, err := time.Parse(DateOnly, Form.Date)
-	if err != nil { // Always check errors even if they should not happen.
-		panic(err)
-	}
     if !strings.Contains(Form.FormPriceStr2Decimals, "."){ // add .00 if "." not present in string, equivalent of *100 with next step
         Form.FormPriceStr2Decimals = Form.FormPriceStr2Decimals + ".00"
     }
     safeInteger, _ := strconv.Atoi(strings.Replace(Form.FormPriceStr2Decimals, ".", "", 1))
     Form.PriceIntx100 = safeInteger
-    Form.Year, _ = strconv.Atoi(t.Format("2006")) // YYYY
-    Form.Month, _ = strconv.Atoi(t.Format("01")) // MM
-    Form.Day, _ = strconv.Atoi(t.Format("02")) // DD
+
+    var successfull bool
+    Form.Year, Form.Month, Form.Day, successfull, _ = sqlite.ConvertDateStrToInt(Form.Date, "EN", "-")
+    if !successfull {return}
+
     Form.GofiID = cookieGofiID
     // fmt.Printf("before sqlite insert, form: %#s \n", &Form) // form: {2023-09-13 désig Supermarche 5.03}
-    _, err = sqlite.InsertRowInFinanceTracker(&Form)
+    _, err := sqlite.InsertRowInFinanceTracker(&Form)
 	if err != nil { // Always check errors even if they should not happen.
 		panic(err)
 	}
