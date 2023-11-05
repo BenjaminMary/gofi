@@ -9,11 +9,12 @@
 {{template "body" .}}
 {{template "content" .}}
 
-<h1>Export CSV</h1>
+<h1>Import CSV</h1>
 
 <section id="form">
     <h3>Options</h3>
-    <form hx-post="/export-csv"
+    <form enctype="multipart/form-data"
+        hx-post="/import-csv"
         hx-target="#textarea"
         hx-indicator="#spinner"
         hx-on::after-request="if(event.detail.successful) document.getElementById('form').remove()">
@@ -35,51 +36,19 @@
             <option value="" disabled> </option>
         </select>
 
+        <!-- File -->
+        <label for="csvFile">Charger le fichier csv</label>
+        <input type="file" id="csvFile" name="csvFile">
+
         <!-- Buttons -->
         <button id="disapear" type="submit" value="Submit">
             <span id="spinner" class="htmx-indicator" aria-busy="true"></span>
-            Visualiser les données
+            Importer les données
         </button>
     </form>
     <hr>
 </section>
 
-<section id="dl">
-    <h3>Téléchargement</h3>
-    <button id="download">Télécharger le fichier csv</button>
-    <textarea id="textarea" rows="10"></textarea>
-    <p>
-        Le fichier téléchargé est au format UTF-8 avec une fin de ligne LF (Unix), les données sont limités aux 10 000 derniers enregistrements.
-        <hr>
-        Pour ouverture dans Excel sans avoir de problème d'affichage concernant les accents:
-        <ol>
-            <li>utiliser l'option <code>Fichier Texte</code> qui se trouve dans le ruban <code>Données</code>, partie <code>Données externes</code></li>
-            <li>modifier le paramètre <code>Origine du fichier</code> en <code>65001 : Unicode (UTF-8)</code></li>
-        </ol>
-    </p>
-</section>
+<textarea id="textarea" rows="10"></textarea>
 
 {{template "footer" .}}
-
-<script>
-    function download(filename, text) {
-        var element = document.createElement('a');
-        element.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(text));
-        element.setAttribute('download', filename);
-    
-        element.style.display = 'none';
-        document.body.appendChild(element);
-    
-        element.click();
-    
-        document.body.removeChild(element);
-    }
-
-    // Start file download.
-    document.getElementById("download").addEventListener("click", function(){
-        // Generate download of csv file with content
-        var text = document.getElementById("textarea").value;
-        var filename = "{{.FileName}}";
-        download(filename, text);
-    }, false);
-</script>

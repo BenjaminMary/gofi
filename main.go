@@ -205,10 +205,13 @@ func postinsertrows(c *gin.Context) {
 
 // GET exportCsv.html
 func getExportCsv(c *gin.Context) {
-    checkCookie(c)
+    cookieGofiID := checkCookie(c)
     if c.IsAborted() {return}
 
-    c.HTML(http.StatusOK, "100.exportCsv.html", "")
+    FileName := "gofi-" + cookieGofiID + ".csv"
+    c.HTML(http.StatusOK, "100.exportCsv.html", gin.H{
+        "FileName": FileName,
+    })
 }
 
 // POST exportCsv.html
@@ -230,6 +233,40 @@ func postExportCsv(c *gin.Context) {
     c.Header("Content-Disposition", "attachment; filename=" + fileName)
     c.Header("Content-Type", "text/plain")
     c.FileAttachment(filePathWithName, fileName)
+}
+
+// GET importCsv.html
+func getImportCsv(c *gin.Context) {
+    cookieGofiID := checkCookie(c)
+    if c.IsAborted() {return}
+
+    c.HTML(http.StatusOK, "101.importCsv.html", gin.H{
+        "cookieGofiID": cookieGofiID,
+    })
+}
+
+// POST importCsv.html
+func postImportCsv(c *gin.Context) {
+    cookieGofiID := checkCookie(c)
+    if c.IsAborted() {return}
+
+    csvSeparator := c.PostForm("csvSeparator")
+    csvDecimalDelimiter := c.PostForm("csvDecimalDelimiter")
+    csvFile, err := c.FormFile("csvFile")
+	if err != nil { // Always check errors even if they should not happen.
+        c.String(http.StatusBadRequest, `
+            ERREUR: Problème de chargement du fichier csv.
+            Merci de vérifier le format du fichier et réessayer.
+        `)
+        return
+	}
+
+    var csvSeparatorRune rune
+    for _, runeValue := range csvSeparator {csvSeparatorRune = runeValue}
+
+    stringList := sqlite.ImportCSV(cookieGofiID, csvSeparatorRune, csvDecimalDelimiter, csvFile)
+
+    c.String(http.StatusOK, stringList)
 }
 
 func main() {
@@ -258,6 +295,9 @@ func main() {
 
     router.GET("/export-csv", getExportCsv)
     router.POST("/export-csv", postExportCsv)
+
+    router.GET("/import-csv", getImportCsv)
+    router.POST("/import-csv", postImportCsv)
 
     router.Run("0.0.0.0:8082")
 }

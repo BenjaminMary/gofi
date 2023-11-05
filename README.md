@@ -35,7 +35,6 @@ The HTML files are currently only in french.
 ## TODO
 - Ajout sauvegarde DB SQLite sur Drive
     - avec table SQLite qui garde les ID + nom + date de fichiers sauvegardés + le statut de l'upload
-- Ajout import csv
 - PWA
     - Ajout SQLite en WebAssembly ?
 
@@ -44,6 +43,7 @@ The HTML files are currently only in french.
 
 
 ## Changelog
+- 2023-11-05 : add import csv + small update on export + add leading 0 on some dates
 - 2023-11-04 : improve export csv with ID in filename, can handle different IDs in // and delete the file
 - 2023-10-29 : add export csv 
 - 2023-10-27 : add last 5 rows registered in the list on insertrows GET page, also add account info 
