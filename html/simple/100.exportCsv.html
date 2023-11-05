@@ -35,6 +35,32 @@
             <option value="" disabled> </option>
         </select>
 
+        <!-- Radio buttons -->
+        <fieldset>
+            <legend>Format des dates</legend>
+            <label for="FR">
+                <input type="radio" id="FR" name="dateFormat" value="FR" checked />
+                FR : DD/MM/YYYY, DD-MM-YYYY
+            </label>
+            <label for="EN">
+                <input type="radio" id="EN" name="dateFormat" value="EN" />
+                EN : YYYY-MM-DD, YYYY/MM/DD
+            </label>
+        </fieldset>
+
+        <!-- Radio buttons -->
+        <fieldset>
+            <legend>Séparateur des dates</legend>
+            <label for="/">
+                <input type="radio" id="/" name="dateSeparator" value="/" checked />
+                / : DD/MM/YYYY, YYYY/MM/DD
+            </label>
+            <label for="-">
+                <input type="radio" id="-" name="dateSeparator" value="-" />
+                - : DD-MM-YYYY, YYYY-MM-DD
+            </label>
+        </fieldset>
+
         <!-- Buttons -->
         <button id="disapear" type="submit" value="Submit">
             <span id="spinner" class="htmx-indicator" aria-busy="true"></span>

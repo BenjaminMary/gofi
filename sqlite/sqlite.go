@@ -159,7 +159,7 @@ func GetLastRowsInFinanceTracker(gofiID string) []FinanceTracker {
 	defer fmt.Println("defer : optimize then close DB")
 	
 	q := ` 
-		SELECT year || '-' || SUBSTR('00'||month, -2, 2) || '-' || SUBSTR('00'||day, -2, 2) AS date, 
+		SELECT year, month, day, 
 			account, product, priceIntx100, category
 		FROM financeTracker
 		WHERE gofiID = ?
@@ -170,10 +170,15 @@ func GetLastRowsInFinanceTracker(gofiID string) []FinanceTracker {
 
 	for rows.Next() {
 		var ft FinanceTracker
-		if err := rows.Scan(&ft.Date, &ft.Account, &ft.Product, &ft.PriceIntx100, &ft.Category); err != nil {
+		var successfull bool
+		var unsuccessfullReason string
+		if err := rows.Scan(&ft.Year, &ft.Month, &ft.Day, &ft.Account, &ft.Product, &ft.PriceIntx100, &ft.Category); err != nil {
 			log.Fatal(err)
 		}
 		ft.FormPriceStr2Decimals = ConvertPriceIntToStr(ft.PriceIntx100)
+		ft.Date, successfull, unsuccessfullReason = ConvertDateIntToStr(ft.Year, ft.Month, ft.Day, "FR", "/")
+		if !successfull {ft.Date = "ERROR " + unsuccessfullReason}
+
 		// fmt.Printf("ft: %#v\n", ft)
 		ftList = append(ftList, ft)
 	}
@@ -203,7 +208,7 @@ func InsertRowInFinanceTracker(ft *FinanceTracker) (int64, error) {
 	return id, nil
 }
 
-func ExportCSV(gofiID string, csvSeparator rune, csvDecimalDelimiter string) {
+func ExportCSV(gofiID string, csvSeparator rune, csvDecimalDelimiter string, dateFormat string, dateSeparator string) {
 	/* take all data from the DB for a specific gofiID and put it in a csv file 
 		1. read database with gofiID
 		2. write row by row in a csv (include headers)
@@ -218,7 +223,7 @@ func ExportCSV(gofiID string, csvSeparator rune, csvDecimalDelimiter string) {
 	defer fmt.Println("defer : optimize then close DB")
 	
 	q := ` 
-		SELECT id, year || '-' || SUBSTR('00'||month, -2, 2) || '-' || SUBSTR('00'||day, -2, 2) AS date,
+		SELECT id, year, month, day,
 			account, product, priceIntx100, category, 
 			commentInt, commentString, checked, dateChecked, sentToSheets
 		FROM financeTracker
@@ -244,15 +249,19 @@ func ExportCSV(gofiID string, csvSeparator rune, csvDecimalDelimiter string) {
 	}
 	for rows.Next() {
 		var ft FinanceTracker
+		var successfull bool
+		var unsuccessfullReason string
 		if err := rows.Scan(
-				&ft.ID, &ft.Date,
+				&ft.ID, &ft.Year, &ft.Month, &ft.Day,
 				&ft.Account, &ft.Product, &ft.PriceIntx100, &ft.Category,
 				&ft.CommentInt, &ft.CommentString, &ft.Checked, &ft.DateChecked, &ft.SentToSheets,
 			); err != nil {
 			log.Fatal(err)
 		}
 		ft.FormPriceStr2Decimals = strings.Replace(ConvertPriceIntToStr(ft.PriceIntx100), ".", csvDecimalDelimiter, 1) //replace . to , for french CSV files
-	
+		ft.Date, successfull, unsuccessfullReason = ConvertDateIntToStr(ft.Year, ft.Month, ft.Day, dateFormat, dateSeparator)
+		if !successfull {ft.Date = "ERROR " + unsuccessfullReason}
+
         row = []string{strconv.Itoa(ft.ID), ft.Date, 
 			ft.Account, ft.Product, ft.FormPriceStr2Decimals, ft.Category, 
 			strconv.Itoa(ft.CommentInt), ft.CommentString, strconv.FormatBool(ft.Checked), ft.DateChecked, strconv.FormatBool(ft.SentToSheets)}
@@ -265,7 +274,7 @@ func ExportCSV(gofiID string, csvSeparator rune, csvDecimalDelimiter string) {
 }
 
 
-func ImportCSV(gofiID string, csvSeparator rune, csvDecimalDelimiter string, csvFile *multipart.FileHeader) string {
+func ImportCSV(gofiID string, csvSeparator rune, csvDecimalDelimiter string, dateFormat string, dateSeparator string, csvFile *multipart.FileHeader) string {
 	/* take all data from the csv and put it in the DB with a specific gofiID
 		1. rows without ID are new ones (INSERT)
 		2. rows with ID are existing ones (UPDATE)
@@ -319,7 +328,7 @@ func ImportCSV(gofiID string, csvSeparator rune, csvDecimalDelimiter string, csv
 			lineInfo += "default 0;"
 		} else { lineInfo += row[0] + ";" }
 
-		ft.Year, ft.Month, ft.Day, successfull, unsuccessfullReason = ConvertDateStrToInt(row[1], "EN", "-")
+		ft.Year, ft.Month, ft.Day, successfull, unsuccessfullReason = ConvertDateStrToInt(row[1], dateFormat, dateSeparator)
 		if !successfull {
 			lineInfo += "error " + unsuccessfullReason + ";;;;;false;"
 			stringList += lineInfo + "\n"

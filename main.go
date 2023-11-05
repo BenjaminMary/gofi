@@ -218,6 +218,8 @@ func postExportCsv(c *gin.Context) {
 
     csvSeparator := c.PostForm("csvSeparator")
     csvDecimalDelimiter := c.PostForm("csvDecimalDelimiter")
+    dateFormat := c.PostForm("dateFormat")
+    dateSeparator := c.PostForm("dateSeparator")
 
     var csvSeparatorRune rune
     for _, runeValue := range csvSeparator {csvSeparatorRune = runeValue}
@@ -225,7 +227,7 @@ func postExportCsv(c *gin.Context) {
     fileName := "gofi-" + cookieGofiID + ".csv"
     filePathWithName := sqlite.FilePath(fileName)
     defer os.Remove(filePathWithName)
-    sqlite.ExportCSV(cookieGofiID, csvSeparatorRune, csvDecimalDelimiter)
+    sqlite.ExportCSV(cookieGofiID, csvSeparatorRune, csvDecimalDelimiter, dateFormat, dateSeparator)
 
     c.Header("Content-Disposition", "attachment; filename=" + fileName)
     c.Header("Content-Type", "text/plain")
@@ -249,6 +251,8 @@ func postImportCsv(c *gin.Context) {
 
     csvSeparator := c.PostForm("csvSeparator")
     csvDecimalDelimiter := c.PostForm("csvDecimalDelimiter")
+    dateFormat := c.PostForm("dateFormat")
+    dateSeparator := c.PostForm("dateSeparator")
     csvFile, err := c.FormFile("csvFile")
 	if err != nil { // Always check errors even if they should not happen.
         c.String(http.StatusBadRequest, `
@@ -261,7 +265,7 @@ func postImportCsv(c *gin.Context) {
     var csvSeparatorRune rune
     for _, runeValue := range csvSeparator {csvSeparatorRune = runeValue}
 
-    stringList := sqlite.ImportCSV(cookieGofiID, csvSeparatorRune, csvDecimalDelimiter, csvFile)
+    stringList := sqlite.ImportCSV(cookieGofiID, csvSeparatorRune, csvDecimalDelimiter, dateFormat, dateSeparator, csvFile)
 
     c.String(http.StatusOK, stringList)
 }

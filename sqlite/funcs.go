@@ -22,6 +22,61 @@ func ConvertPriceIntToStr(i int) string {
 	return FormPriceStr2Decimals
 }
 
+
+func ConvertDateIntToStr(yearInt int, monthInt int, dayInt int, dateLanguageFormat string, dateSeparator string) (string, bool, string) {
+	/*
+		input integers : Year, Month, Day
+		output date string : YYYY-MM-DD, YYYY/MM/DD, DD/MM/YYYY, DD-MM-YYYY
+		output boolean true if successfull, false otherwise
+	*/
+	var dateStr string = "1900-12-31"
+	var successfull bool = false
+	var unsuccessfullReason string = ""
+	var monthStr, dayStr string
+	var dateStrSplitted []string
+
+	switch dateSeparator {
+		case "-","/":
+			dateStr = "1900-12-31"
+		default:
+			unsuccessfullReason = "wrong separator"
+			return dateStr, successfull, unsuccessfullReason
+	}
+	// coherence control on basic stuff, will let a 2011-02-31 valid (the time.Date func would have put it as 2011-03-03)
+	if (yearInt < 1900) || (yearInt > 2200) {
+		unsuccessfullReason = "year not between 1900 and 2200"
+		return dateStr, successfull, unsuccessfullReason
+	} else {dateStrSplitted = append(dateStrSplitted,strconv.Itoa(yearInt))}
+	if (monthInt < 1) || (monthInt > 12) {
+		unsuccessfullReason = "month not between 1 and 12"
+		return dateStr, successfull, unsuccessfullReason
+	} else {
+		if (monthInt < 10) {monthStr = "0" + strconv.Itoa(monthInt)} else {monthStr = strconv.Itoa(monthInt)}
+		dateStrSplitted = append(dateStrSplitted, monthStr)
+	}
+	if (dayInt < 1) || (dayInt > 31) {
+		unsuccessfullReason = "day not between 1 and 31"
+		return dateStr, successfull, unsuccessfullReason
+	} else {
+		if (dayInt < 10) {dayStr = "0" + strconv.Itoa(dayInt)} else {dayStr = strconv.Itoa(dayInt)}
+		dateStrSplitted = append(dateStrSplitted, dayStr)
+	}
+	switch dateLanguageFormat {
+		case "FR": // DD/MM/YYYY
+			dateStr = dateStrSplitted[2] + dateSeparator + dateStrSplitted[1] + dateSeparator + dateStrSplitted[0]
+		case "EN":
+			dateStr = dateStrSplitted[0] + dateSeparator + dateStrSplitted[1] + dateSeparator + dateStrSplitted[2]
+		default:
+			unsuccessfullReason = "wrong date language format"
+			return dateStr, successfull, unsuccessfullReason
+	}
+
+	// fmt.Println(time.Date(yearInt, time.Month(monthInt), dayInt, 0, 0, 0, 0, time.UTC))
+	// fmt.Printf("yearInt, monthInt, dayInt: %v, %v, %v\n", yearInt, monthInt, dayInt)
+	successfull = true
+	return dateStr, successfull, unsuccessfullReason
+}
+
 func ConvertDateStrToInt(dateStr string, dateLanguageFormat string, dateSeparator string) (int, int, int, bool, string) {
 	/*
 		input date string : YYYY-MM-DD, YYYY/MM/DD, DD/MM/YYYY, DD-MM-YYYY

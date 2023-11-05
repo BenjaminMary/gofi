@@ -33,7 +33,10 @@ The HTML files are currently only in french.
     ```
 
 ## TODO
-- ajout gestion différents formats de dates EN + FR avec / ou -
+- ajout préférences utilisateur:
+    - gestion des préférences de format de date EN + FR avec / ou -
+    - gestion des préférences de format csv séparateur colonne + separateur décimal
+    - laisser l'overide possible dans les parties import/export csv, mais préselectionner la préférence
 - Ajout sauvegarde DB SQLite sur Drive
     - avec table SQLite qui garde les ID + nom + date de fichiers sauvegardés + le statut de l'upload
 - PWA
@@ -44,6 +47,7 @@ The HTML files are currently only in french.
 
 
 ## Changelog
+- 2023-11-05 : add different date formats to allow YYYY-MM-DD, DD/MM/YYYY, YYYY/MM/DD, DD-MM-YYYY
 - 2023-11-05 : improve date handle mostly for csv import
 - 2023-11-05 : add import csv + small update on export + add leading 0 on some dates
 - 2023-11-04 : improve export csv with ID in filename, can handle different IDs in // and delete the file
