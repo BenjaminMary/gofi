@@ -51,6 +51,7 @@ The HTML files are currently only in french.
 
 
 ## Changelog
+- 2023-11-12 : reorganize main, split funcs in another file
 - 2023-11-12 : add session management in DB and transform gofiID to INT + cookie to random STR
 - 2023-11-05 : add different date formats to allow YYYY-MM-DD, DD/MM/YYYY, YYYY/MM/DD, DD-MM-YYYY
 - 2023-11-05 : improve date handle mostly for csv import

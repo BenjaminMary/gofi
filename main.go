@@ -11,70 +11,11 @@ import (
     "os"
     "encoding/hex"
     "crypto/sha256"
-    "crypto/rand"
-    "math/big"
-    // "encoding/json"
 
     "example.com/sqlite"
 
     "github.com/gin-gonic/gin"
-    // "github.com/gin-gonic/gin/render"
 )
-
-// FUNC generateRandomString returns a securely generated random string
-func generateRandomString(n int) (string, error) {
-	const letters = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz-_.~"
-	ret := make([]byte, n)
-	for i := 0; i < n; i++ {
-		num, err := rand.Int(rand.Reader, big.NewInt(int64(len(letters))))
-		if err != nil { return "", err }
-		ret[i] = letters[num.Int64()]
-	}
-	return string(ret), nil
-}
-
-// FUNC set cookie
-func setCookie(c *gin.Context, cookie string) {
-    c.SetSameSite(http.SameSiteLaxMode)
-    c.SetCookie("gofiID", "", -1, "/", "", true, true)
-    c.SetCookie("gofiID", cookie, 2592000, "/", "", true, true) // 30d duration
-    return
-}
-
-// FUNC check cookie sessionID to get the gofiID
-func checkCookie(c *gin.Context) (int) {
-    // try to read if a cookie exists, return to login otherwise
-    sessionID, err := c.Cookie("gofiID")
-    if err != nil {
-        if c.Request.Method == "GET" {
-            c.Redirect(http.StatusSeeOther, "/login")
-            c.Abort()
-            return 0
-        } else if c.Request.Method == "POST" {
-            c.Header("HX-Retarget", "#forbidden")
-            c.Header("HX-Reswap", "innerHTML")
-            c.String(http.StatusForbidden, `
-                <div id="forbidden">
-                    <p>
-                        ERREUR: Aucun identifiant trouvé (Cookie gofiID).<br> 
-                        Requête annulée, il est nécessaire de réenregistrer un identifiant pour reprendre.<br> 
-                        C'est par ici: <a href="/cookie-setup">Setup Gofi Cookie</a>
-                    </p>
-                </div>
-            `)
-            c.Abort()
-            return 0
-        }
-    }
-    gofiID, errorStrReason, err := sqlite.GetGofiID(sessionID)
-    if (gofiID > 0) { return gofiID } else {
-        fmt.Printf("errorStrReason: %v\n", errorStrReason)
-        fmt.Printf("err: %v\n", err)
-        c.Redirect(http.StatusSeeOther, "/login")
-        c.Abort()
-        return 0
-    }
-}
 
 // index.html
 func index(c *gin.Context) {
@@ -135,7 +76,7 @@ func postLogin(c *gin.Context) {
 	byteSlice := h.Sum(nil)
     User.PwHash = hex.EncodeToString(byteSlice)
 
-    sessionID, err := generateRandomString(32)
+    sessionID, err := GenerateRandomString(32)
     if err != nil {
         fmt.Printf("err: %v\n", err)
         c.Header("HX-Retarget", "#forbidden")
@@ -179,13 +120,13 @@ func postLogin(c *gin.Context) {
     }
     User.GofiID = gofiID
 
-    setCookie(c, User.SessionID)
+    SetCookie(c, User.SessionID)
     c.String(http.StatusOK, "<div>Login terminé.</div>")
 }
 
 // GET ParamSetup.html
 func getParamSetup(c *gin.Context) {
-    cookieGofiID := checkCookie(c)
+    cookieGofiID := CheckCookie(c)
     if c.IsAborted() {return}
 
     var Form sqlite.FinanceTracker
@@ -212,7 +153,7 @@ func cleanStringList(stringList string) string {
 }
 // POST ParamSetup.html
 func postParamSetup(c *gin.Context) {
-    cookieGofiID := checkCookie(c)
+    cookieGofiID := CheckCookie(c)
     if c.IsAborted() {return}
 
     var Form sqlite.Param
@@ -241,7 +182,7 @@ func postParamSetup(c *gin.Context) {
 
 // GET InsertRows.html
 func getinsertrows(c *gin.Context) {
-    cookieGofiID := checkCookie(c)
+    cookieGofiID := CheckCookie(c)
     if c.IsAborted() {return}
 
     var Form sqlite.FinanceTracker
@@ -262,7 +203,7 @@ func getinsertrows(c *gin.Context) {
 
 // POST InsertRows.html
 func postinsertrows(c *gin.Context) {
-    cookieGofiID := checkCookie(c)
+    cookieGofiID := CheckCookie(c)
     if c.IsAborted() {return}
 
     // time.Sleep(299999999 * time.Nanosecond) // to simulate 300ms of loading in the front when submiting form
@@ -298,7 +239,7 @@ func postinsertrows(c *gin.Context) {
 
 // GET exportCsv.html
 func getExportCsv(c *gin.Context) {
-    cookieGofiID := checkCookie(c)
+    cookieGofiID := CheckCookie(c)
     if c.IsAborted() {return}
 
     FileName := "gofi-" + strconv.Itoa(cookieGofiID) + ".csv"
@@ -309,7 +250,7 @@ func getExportCsv(c *gin.Context) {
 
 // POST exportCsv.html
 func postExportCsv(c *gin.Context) {
-    cookieGofiID := checkCookie(c)
+    cookieGofiID := CheckCookie(c)
     if c.IsAborted() {return}
 
     csvSeparator := c.PostForm("csvSeparator")
@@ -332,7 +273,7 @@ func postExportCsv(c *gin.Context) {
 
 // GET importCsv.html
 func getImportCsv(c *gin.Context) {
-    cookieGofiID := checkCookie(c)
+    cookieGofiID := CheckCookie(c)
     if c.IsAborted() {return}
 
     c.HTML(http.StatusOK, "101.importCsv.html", gin.H{
@@ -342,7 +283,7 @@ func getImportCsv(c *gin.Context) {
 
 // POST importCsv.html
 func postImportCsv(c *gin.Context) {
-    cookieGofiID := checkCookie(c)
+    cookieGofiID := CheckCookie(c)
     if c.IsAborted() {return}
 
     csvSeparator := c.PostForm("csvSeparator")
