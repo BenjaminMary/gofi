@@ -1,7 +1,7 @@
 package main
 
 import (
-    // "fmt"
+    "fmt"
 
     "net/http"
     "time"
@@ -9,6 +9,10 @@ import (
     "strconv"
     "html/template"
     "os"
+    "encoding/hex"
+    "crypto/sha256"
+    "crypto/rand"
+    "math/big"
     // "encoding/json"
 
     "example.com/sqlite"
@@ -17,15 +21,35 @@ import (
     // "github.com/gin-gonic/gin/render"
 )
 
-// FUNC check cookieGofiID
-func checkCookie(c *gin.Context) (string) {
-    // try to read if a cookie exists, return to setup cookie otherwise
-    cookieGofiID, err := c.Cookie("gofiID")
+// FUNC generateRandomString returns a securely generated random string
+func generateRandomString(n int) (string, error) {
+	const letters = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz-_.~"
+	ret := make([]byte, n)
+	for i := 0; i < n; i++ {
+		num, err := rand.Int(rand.Reader, big.NewInt(int64(len(letters))))
+		if err != nil { return "", err }
+		ret[i] = letters[num.Int64()]
+	}
+	return string(ret), nil
+}
+
+// FUNC set cookie
+func setCookie(c *gin.Context, cookie string) {
+    c.SetSameSite(http.SameSiteLaxMode)
+    c.SetCookie("gofiID", "", -1, "/", "", true, true)
+    c.SetCookie("gofiID", cookie, 2592000, "/", "", true, true) // 30d duration
+    return
+}
+
+// FUNC check cookie sessionID to get the gofiID
+func checkCookie(c *gin.Context) (int) {
+    // try to read if a cookie exists, return to login otherwise
+    sessionID, err := c.Cookie("gofiID")
     if err != nil {
         if c.Request.Method == "GET" {
-            c.Redirect(http.StatusSeeOther, "/cookie-setup")
+            c.Redirect(http.StatusSeeOther, "/login")
             c.Abort()
-            return ""
+            return 0
         } else if c.Request.Method == "POST" {
             c.Header("HX-Retarget", "#forbidden")
             c.Header("HX-Reswap", "innerHTML")
@@ -39,10 +63,17 @@ func checkCookie(c *gin.Context) (string) {
                 </div>
             `)
             c.Abort()
-            return ""
+            return 0
         }
-    } 
-    return cookieGofiID
+    }
+    gofiID, errorStrReason, err := sqlite.GetGofiID(sessionID)
+    if (gofiID > 0) { return gofiID } else {
+        fmt.Printf("errorStrReason: %v\n", errorStrReason)
+        fmt.Printf("err: %v\n", err)
+        c.Redirect(http.StatusSeeOther, "/login")
+        c.Abort()
+        return 0
+    }
 }
 
 // index.html
@@ -50,46 +81,107 @@ func index(c *gin.Context) {
     c.HTML(http.StatusOK, "0.index.html", "")
 }
 
-// GET cookie
-func getCookieSetup(c *gin.Context) {
-    // try to read if a cookie exists, return "Aucun" otherwise
-    cookieGofiID, err := c.Cookie("gofiID")
-    if err != nil {
-        cookieGofiID = "Aucun"
-    }    
-    c.HTML(http.StatusOK, "1.cookieSetup.html", gin.H{
-        "Cookie": cookieGofiID,
-    })
+// GET createUser.html
+func getCreateUser(c *gin.Context) {
+    c.HTML(http.StatusOK, "0.createUser.html", "")
 }
-// POST cookie
-func postCookieSetup(c *gin.Context) {
-    // name (string): The name of the cookie to be set.
-    // value (string): The value of the cookie.
-    // maxAge (int): The maximum age of the cookie in seconds. If set to 0, the cookie will be deleted immediately. If set to a negative value, the cookie will be a session cookie and will be deleted when the browser is closed.
-    // path (string): The URL path for which the cookie is valid. Defaults to "/", meaning the cookie is valid for all URLs.
-    // domain (string): The domain for which the cookie is valid. Defaults to the current domain with "".
-    // secure (bool): If set to true, the cookie will only be sent over secure (HTTPS) connections.
-    // httpOnly (bool): If set to true, the cookie will be inaccessible to JavaScript and can only be sent over HTTP(S) connections.
-    
-    // set a cookie
-    gofiID := c.PostForm("gofiID")
-    cookieDurationStr := c.PostForm("cookieDuration")
-    var cookieDurationInt64 int64
-    var cookieDurationInt int
-	cookieDurationInt64, err := strconv.ParseInt(cookieDurationStr, 10, 0)
+
+// POST createUser.html
+func postCreateUser(c *gin.Context) {
+    var User sqlite.User
+    User.Email = c.PostForm("email")
+    User.DateCreated = time.Now().Format(time.DateOnly)
+
+    password := c.PostForm("password")
+	h := sha256.New()
+	h.Write([]byte(password))
+	byteSlice := h.Sum(nil)
+    User.PwHash = hex.EncodeToString(byteSlice)
+
+    gofiID, errorStrReason, err := sqlite.CreateUser(User)
     if err != nil {
-        c.String(http.StatusBadRequest, "cookieDurationStr conversion en int64 KO: %v", err)
+        fmt.Printf("errorStrReason: %v\n", errorStrReason)
+        fmt.Printf("err: %v\n", err)
+        c.Header("HX-Retarget", "#forbidden")
+        c.Header("HX-Reswap", "innerHTML settle:500ms")
+        c.String(http.StatusForbidden, `
+            <div id="forbidden">
+                <p>
+                    ERREUR: Impossible de créer le compte.<br> 
+                    Requête annulée, merci de recommencer.<br> 
+                    Si l'erreur persiste, merci de changer d'email.
+                </p>
+            </div>
+        `)
         return
-    }	
-    cookieDurationInt = int(cookieDurationInt64)
+    }
+    sqlite.CheckIfIdExists(int(gofiID))
+    c.String(http.StatusOK, "<div>Création du compte terminée.<br>Merci de procéder à la connexion.</div>")
+}
 
-    //read existing param with this gofiID, and create default param if none 
-    sqlite.CheckIfIdExists(gofiID)
+// GET login.html
+func getLogin(c *gin.Context) {
+    c.HTML(http.StatusOK, "1.login.html", "")
+}
 
-    c.SetSameSite(http.SameSiteLaxMode)
-    c.SetCookie("gofiID", "", -1, "/", "", false, true)
-    c.SetCookie("gofiID", gofiID, cookieDurationInt, "/", "", false, true)
-    c.String(200, `<p>Cookie: %s</p><p id="hx-swap-oob1" hx-swap-oob="true">Nouveau Cookie enregistré.</p>`, gofiID)
+// POST login.html
+func postLogin(c *gin.Context) {
+    var User sqlite.User
+    User.Email = c.PostForm("email")
+
+    password := c.PostForm("password")
+	h := sha256.New()
+	h.Write([]byte(password))
+	byteSlice := h.Sum(nil)
+    User.PwHash = hex.EncodeToString(byteSlice)
+
+    //todo crypto rand d'un session ID + le check unique se fait dans la DB à l'insert
+    sessionID, err := generateRandomString(32)
+    if err != nil {
+        fmt.Printf("err: %v\n", err)
+        c.Header("HX-Retarget", "#forbidden")
+        c.Header("HX-Reswap", "innerHTML settle:500ms")
+        c.String(http.StatusForbidden, `
+            <div id="forbidden">
+                <p>
+                    ERREUR: problème interne à l'application.<br> 
+                    Requête annulée, merci de recommencer.
+                </p>
+            </div>
+        `)
+        return
+    }
+    User.SessionID = sessionID
+
+    currentTimeStr := time.Now().Format(time.RFC3339)
+    User.LastLoginTime = currentTimeStr
+    User.LastActivityTime = currentTimeStr
+
+	User.LastActivityIPaddress = c.Request.RemoteAddr
+	User.LastActivityUserAgent = c.Request.Header.Get("User-Agent")
+	User.LastActivityAcceptLanguage = c.Request.Header.Get("Accept-Language")
+
+    gofiID, errorStrReason, err := sqlite.CheckUserLogin(User)
+    if err != nil {
+        fmt.Printf("errorStrReason: %v\n", errorStrReason)
+        fmt.Printf("err: %v\n", err)
+        c.Header("HX-Retarget", "#forbidden")
+        c.Header("HX-Reswap", "innerHTML settle:500ms")
+        c.String(http.StatusForbidden, `
+            <div id="forbidden">
+                <p>
+                    ERREUR: email ou mot de passe incorrect.<br> 
+                    Requête annulée, merci de recommencer.<br> 
+                    Si l'erreur persiste, merci de réessayer plus tard, il pourrait y avoir un problème sur le serveur.
+                </p>
+            </div>
+        `)
+        return
+    }
+    User.GofiID = gofiID
+
+    setCookie(c, User.SessionID)
+    c.String(http.StatusOK, "<div>Login terminé.</div>")
 }
 
 // GET ParamSetup.html
@@ -180,11 +272,16 @@ func postinsertrows(c *gin.Context) {
         c.String(http.StatusBadRequest, "bad request: %v", err)
         return
     }
+    fmt.Printf("before FormPriceStr2Decimals: %s \n", Form.FormPriceStr2Decimals)
     if !strings.Contains(Form.FormPriceStr2Decimals, "."){ // add .00 if "." not present in string, equivalent of *100 with next step
         Form.FormPriceStr2Decimals = Form.FormPriceStr2Decimals + ".00"
+    } else {
+        decimalPart := strings.Split(Form.FormPriceStr2Decimals, ".")
+        if len(decimalPart[1]) == 1 { Form.FormPriceStr2Decimals = Form.FormPriceStr2Decimals + "0" }
     }
     safeInteger, _ := strconv.Atoi(strings.Replace(Form.FormPriceStr2Decimals, ".", "", 1))
     Form.PriceIntx100 = safeInteger
+    fmt.Printf("after PriceIntx100: %s \n", Form.PriceIntx100)
 
     var successfull bool
     Form.Year, Form.Month, Form.Day, successfull, _ = sqlite.ConvertDateStrToInt(Form.Date, "EN", "-")
@@ -205,7 +302,7 @@ func getExportCsv(c *gin.Context) {
     cookieGofiID := checkCookie(c)
     if c.IsAborted() {return}
 
-    FileName := "gofi-" + cookieGofiID + ".csv"
+    FileName := "gofi-" + strconv.Itoa(cookieGofiID) + ".csv"
     c.HTML(http.StatusOK, "100.exportCsv.html", gin.H{
         "FileName": FileName,
     })
@@ -224,7 +321,7 @@ func postExportCsv(c *gin.Context) {
     var csvSeparatorRune rune
     for _, runeValue := range csvSeparator {csvSeparatorRune = runeValue}
 
-    fileName := "gofi-" + cookieGofiID + ".csv"
+    fileName := "gofi-" + strconv.Itoa(cookieGofiID) + ".csv"
     filePathWithName := sqlite.FilePath(fileName)
     defer os.Remove(filePathWithName)
     sqlite.ExportCSV(cookieGofiID, csvSeparatorRune, csvDecimalDelimiter, dateFormat, dateSeparator)
@@ -270,6 +367,7 @@ func postImportCsv(c *gin.Context) {
     c.String(http.StatusOK, stringList)
 }
 
+
 func main() {
     router := gin.Default()
 
@@ -285,9 +383,6 @@ func main() {
 
     router.GET("/", index)
 
-    router.GET("/cookie-setup", getCookieSetup)
-    router.POST("/cookie-setup", postCookieSetup)
-
     router.GET("/param-setup", getParamSetup)
     router.POST("/param-setup", postParamSetup)
 
@@ -299,6 +394,12 @@ func main() {
 
     router.GET("/import-csv", getImportCsv)
     router.POST("/import-csv", postImportCsv)
+
+    router.GET("/login", getLogin)
+    router.POST("/login", postLogin)
+
+    router.GET("/createUser", getCreateUser)
+    router.POST("/createUser", postCreateUser)
 
     router.Run("0.0.0.0:8082")
 }

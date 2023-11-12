@@ -18,7 +18,7 @@ import (
 
 var db *sql.DB
 
-func CheckIfIdExists(gofiID string) {
+func CheckIfIdExists(gofiID int) {
 	//if new ID, create default params
 	var nbRows int = 0
 
@@ -82,6 +82,85 @@ func CheckIfIdExists(gofiID string) {
 	return
 }
 
+func CreateUser(user User) (int64, string, error) {
+	db, err := sql.Open("sqlite", DbPath)
+	if err != nil { return 0, "error opening DB file", err }
+	defer db.Close()
+	defer db.Exec("PRAGMA optimize;") // to run just before closing each database connection.
+	defer fmt.Println("defer : optimize then close DB")
+
+	result, err := db.Exec(`
+		INSERT INTO user (email, pwHash, dateCreated)
+		VALUES (?,?,?);
+		`, 
+		user.Email, user.PwHash, user.DateCreated,
+	)
+	if err != nil { return 0, "error inserting row in DB", err }
+	id, err := result.LastInsertId()
+	if err != nil { return 0, "error to get last inserted id in DB", err }
+	return id, "", nil
+}
+
+func CheckUserLogin(user User) (int, string, error) {
+	db, err := sql.Open("sqlite", DbPath)
+	if err != nil { return 0, "error opening DB file", err }
+	defer db.Close()
+	defer db.Exec("PRAGMA optimize;") // to run just before closing each database connection.
+	defer fmt.Println("defer : optimize then close DB")
+
+	q := ` 
+		SELECT gofiID
+		FROM user
+		WHERE email = ?
+			AND pwHash = ?;
+	`
+	rows, err := db.Query(q, user.Email, user.PwHash)
+	if err != nil { return 0, "error querying DB", err }
+
+	rows.Next()
+	var gofiID int = 0
+	if err := rows.Scan(&gofiID); err != nil { return 0, "error on SELECT gofiID", err }
+	if (gofiID > 0) {
+		_, err := db.Exec(`
+			UPDATE user 
+			SET numberOfRequests = numberOfRequests + 1,
+				idleTimeout = strftime('%Y-%m-%dT%H:%M:%SZ', DATETIME('now', 'utc', idleDateModifier)),
+				absoluteTimeout = strftime('%Y-%m-%dT%H:%M:%SZ', DATETIME('now', 'utc', absoluteDateModifier)),
+				lastLoginTime = strftime('%Y-%m-%dT%H:%M:%SZ', DATETIME('now', 'utc')), 
+				lastActivityTime = strftime('%Y-%m-%dT%H:%M:%SZ', DATETIME('now', 'utc')), 
+				sessionID = ?, lastActivityIPaddress = ?, lastActivityUserAgent = ?, lastActivityAcceptLanguage = ?
+			WHERE gofiID = ?;
+			`, 
+			user.SessionID, user.LastActivityIPaddress, user.LastActivityUserAgent, user.LastActivityAcceptLanguage,
+			gofiID,
+		)
+		if err != nil { return gofiID, "error on UPDATE after login", err }
+	}
+	
+	return gofiID, "", nil
+}
+
+func GetGofiID(sessionID string) (int, string, error) {
+	db, err := sql.Open("sqlite", DbPath)
+	if err != nil { return 0, "error opening DB file", err }
+	defer db.Close()
+	defer db.Exec("PRAGMA optimize;") // to run just before closing each database connection.
+	defer fmt.Println("defer : optimize then close DB")
+
+	q := ` 
+		SELECT gofiID
+		FROM user
+		WHERE sessionID = ?;
+	`
+	rows, err := db.Query(q, sessionID)
+	if err != nil { return 0, "error querying DB", err }
+
+	rows.Next()
+	var gofiID int = 0
+	if err := rows.Scan(&gofiID); err != nil { return 0, "error on SELECT gofiID", err }
+	if (gofiID > 0) { return gofiID, "", nil } else { return 0, "error no gofiID found from sessionID cookie", err }
+}
+
 func GetList(ft *FinanceTracker) {
 	db, err := sql.Open("sqlite", DbPath)
 	if err != nil {
@@ -104,6 +183,7 @@ func GetList(ft *FinanceTracker) {
 	var accountList string
 	if err := rows.Scan(&accountList); err != nil {
 		log.Fatal(err)
+		return
 	}
 	ft.Account = accountList
 	ft.AccountList = strings.Split(accountList, ",")
@@ -147,7 +227,7 @@ func InsertRowInParam(p *Param) (int64, error) {
 	return id, nil
 }
 
-func GetLastRowsInFinanceTracker(gofiID string) []FinanceTracker {
+func GetLastRowsInFinanceTracker(gofiID int) []FinanceTracker {
 	var ftList []FinanceTracker
 	db, err := sql.Open("sqlite", DbPath)
 	if err != nil {
@@ -208,7 +288,7 @@ func InsertRowInFinanceTracker(ft *FinanceTracker) (int64, error) {
 	return id, nil
 }
 
-func ExportCSV(gofiID string, csvSeparator rune, csvDecimalDelimiter string, dateFormat string, dateSeparator string) {
+func ExportCSV(gofiID int, csvSeparator rune, csvDecimalDelimiter string, dateFormat string, dateSeparator string) {
 	/* take all data from the DB for a specific gofiID and put it in a csv file 
 		1. read database with gofiID
 		2. write row by row in a csv (include headers)
@@ -233,7 +313,7 @@ func ExportCSV(gofiID string, csvSeparator rune, csvDecimalDelimiter string, dat
 	`
 	rows, err := db.Query(q, gofiID)
 
-	file, err := os.Create(FilePath("gofi-" + gofiID + ".csv"))
+	file, err := os.Create(FilePath("gofi-" + strconv.Itoa(gofiID) + ".csv"))
 	defer file.Close()
 	w := csv.NewWriter(file)
 	w.Comma = csvSeparator //french CSV file = ;
@@ -274,7 +354,7 @@ func ExportCSV(gofiID string, csvSeparator rune, csvDecimalDelimiter string, dat
 }
 
 
-func ImportCSV(gofiID string, csvSeparator rune, csvDecimalDelimiter string, dateFormat string, dateSeparator string, csvFile *multipart.FileHeader) string {
+func ImportCSV(gofiID int, csvSeparator rune, csvDecimalDelimiter string, dateFormat string, dateSeparator string, csvFile *multipart.FileHeader) string {
 	/* take all data from the csv and put it in the DB with a specific gofiID
 		1. rows without ID are new ones (INSERT)
 		2. rows with ID are existing ones (UPDATE)
@@ -282,7 +362,7 @@ func ImportCSV(gofiID string, csvSeparator rune, csvDecimalDelimiter string, dat
 		4. write row by row in DB
 	*/
 	var stringList string
-	stringList += "traitement fichier avec ID : " + gofiID + "\n"
+	stringList += "traitement fichier avec ID : " + strconv.Itoa(gofiID) + "\n"
 	db, err := sql.Open("sqlite", DbPath)
 	if err != nil {
 		log.Fatal("error opening DB file: ", err)

@@ -36,10 +36,29 @@ func main() {
 		// REAL are not exacts, even 0.01 through a form is 0.00999999977648258 in DB
 		// instead, store money as cents, so 0.01 = 1 and 1.01 = 101
 		`
+		--DROP TABLE IF EXISTS user;
+		CREATE TABLE IF NOT EXISTS user (
+			gofiID INTEGER PRIMARY KEY AUTOINCREMENT, 
+			email TEXT NOT NULL UNIQUE,
+			sessionID TEXT UNIQUE,
+			pwHash TEXT NOT NULL,
+			numberOfRequests INTEGER DEFAULT 0,
+			idleDateModifier TEXT DEFAULT '5 minutes',
+			absoluteDateModifier TEXT DEFAULT '1 months',
+			idleTimeout TEXT,
+			absoluteTimeout TEXT,
+			lastLoginTime TEXT DEFAULT '1999-12-31T00:01:01Z',
+			lastActivityTime TEXT DEFAULT '1999-12-31T00:01:01',
+			lastActivityIPaddress TEXT,
+			lastActivityUserAgent TEXT,
+			lastActivityAcceptLanguage TEXT,
+			dateCreated TEXT NOT NULL
+		);
+
 		--DROP TABLE IF EXISTS param;
 		CREATE TABLE IF NOT EXISTS param (
 			id INTEGER PRIMARY KEY AUTOINCREMENT, 
-			gofiID TEXT NOT NULL,
+			gofiID INTEGER NOT NULL,
 			paramName TEXT NOT NULL,
 			paramJSONstringData TEXT NOT NULL,
 			paramInfo TEXT NOT NULL,
@@ -49,7 +68,7 @@ func main() {
 		--DROP TABLE IF EXISTS financeTracker;
 		CREATE TABLE IF NOT EXISTS financeTracker (
 			id INTEGER PRIMARY KEY AUTOINCREMENT, 
-			gofiID TEXT NOT NULL,
+			gofiID INTEGER NOT NULL,
 			year INTEGER DEFAULT (strftime('%Y','now')),
 			month INTEGER DEFAULT (strftime('%m','now')),
 			day INTEGER DEFAULT (strftime('%d','now')),

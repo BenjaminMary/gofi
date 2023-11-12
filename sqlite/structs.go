@@ -2,7 +2,7 @@ package sqlite
 
 type Param struct {
 	ID int
-	GofiID string
+	GofiID int
 	ParamName string
 	ParamJSONstringData string
 	ParamInfo string
@@ -10,7 +10,7 @@ type Param struct {
 
 type FinanceTracker struct {
 	ID int
-	GofiID string
+	GofiID int
 	Date string `form:"date" binding:"required"`
 	Year int
 	Month int
@@ -27,4 +27,22 @@ type FinanceTracker struct {
 	Checked bool
 	DateChecked string
 	SentToSheets bool
+}
+
+type User struct {
+	GofiID int // UNIQUE
+	Email string // UNIQUE
+	SessionID string // UNIQUE
+	PwHash string
+	NumberOfRequests int
+	IdleDateModifier string
+	AbsoluteDateModifier string
+	IdleTimeout string
+	AbsoluteTimeout string
+	LastLoginTime string
+	LastActivityTime string
+	LastActivityIPaddress string
+	LastActivityUserAgent string
+	LastActivityAcceptLanguage string
+	DateCreated string
 }

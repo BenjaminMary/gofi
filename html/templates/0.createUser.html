@@ -1,0 +1,64 @@
+{{template "head" .}}
+<!-- avoid CDN https://blog.wesleyac.com/posts/why-not-javascript-cdn -->
+<!-- Subresource Integrity, SRI hash : https://www.srihash.org/ -->
+<script 
+    src="https://unpkg.com/htmx.org@1.9.6" 
+    integrity="sha384-FhXw7b6AlE/jyjlZH5iHa/tTe9EpJ1Y55RjcgPbjeWMskSxZt1v9qkxLJWNJaGni" 
+    crossorigin="anonymous">
+</script>
+<style>
+    #forbidden.htmx-added {
+      opacity: 0;
+    }
+    #forbidden {
+      opacity: 1;
+      transition: opacity 1s ease-out;
+    }
+</style>
+{{template "body" .}}
+{{template "content" .}}
+
+<h1>Création de compte</h1>
+
+<section id="form">
+    <form hx-post="/createUser"
+        hx-target="#form" 
+        hx-swap="outerHTML"
+        hx-sync="this:drop"
+        hx-indicator="#spinner"
+        hx-on::after-request="if(event.detail.successful) document.getElementById('disapear1').remove()">
+        
+        <!-- Text -->
+        <label for="email">Email</label>
+        <input type="email" id="email" name="email" placeholder="exemple@gmail.com" required />
+
+        <!-- Password -->
+        <label for="password">Mot de passe</label>
+        <input type="password" id="password" name="password" required>
+
+        <div id="forbidden"></div>
+
+        <!-- Buttons -->
+        <button type="submit" value="Submit">
+            <span id="spinner" class="htmx-indicator" aria-busy="true"></span>
+            Envoyer
+        </button>
+    </form>
+</section>
+
+<p>
+    <a href="/login">Etape suivante</a>: 
+    Login.
+</p>
+
+{{template "footer" .}}
+
+<script>
+    // this script handle the forbidden(http403) error triggered when no gofiID Cookie is found and still use HTMX
+    document.body.addEventListener('htmx:beforeOnLoad', function (evt) {
+        if (evt.detail.xhr.status === 403) {
+            evt.detail.shouldSwap = true;
+            evt.detail.isError = false;
+        }
+    });
+</script>
