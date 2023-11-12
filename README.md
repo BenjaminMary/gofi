@@ -1,5 +1,5 @@
 # Gofi
-![Gopher](/img/favicon.png)
+![Gopher](/img/android-chrome-192x192.png)
 
 ## General informations
 The purpose of this web app is to record expenses.
@@ -28,6 +28,7 @@ The HTML files are currently only in french.
 - generate environment variables :
     ```bash
     export SQLITE_DB_FILENAME="gofi.db"
+    export COOKIE_LENGTH=64
     ```
 - locally :
     ```bash
@@ -42,7 +43,6 @@ The HTML files are currently only in french.
 
 ## TODO
 - auth
-    - ajout logout + redirect vers login si pas co
     - ajout gestion si déjà login pour pages login + createUser 
     - ajout check des dates de timeout du cookie à chaque requête + réinit du cookie quand 5 min sont passés
 - ajout préférences utilisateur:
@@ -63,6 +63,7 @@ The HTML files are currently only in french.
 
 
 ## Changelog
+- 2023-11-12 : logo update + logout feature + cookie length param + rework some html
 - 2023-11-12 : reorganize main, split funcs in another file
 - 2023-11-12 : add session management in DB and transform gofiID to INT + cookie to random STR
 - 2023-11-05 : add different date formats to allow YYYY-MM-DD, DD/MM/YYYY, YYYY/MM/DD, DD-MM-YYYY

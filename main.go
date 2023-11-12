@@ -19,7 +19,12 @@ import (
 
 // index.html
 func index(c *gin.Context) {
-    c.HTML(http.StatusOK, "0.index.html", "")
+    gofiID := CheckCookie(c)
+    var Logged bool
+    if gofiID > 0 {Logged = true} else {Logged = false}
+    c.HTML(http.StatusOK, "0.index.html", gin.H{
+        "Logged": Logged,
+    })
 }
 
 // GET createUser.html
@@ -60,6 +65,23 @@ func postCreateUser(c *gin.Context) {
     c.String(http.StatusOK, "<div>Création du compte terminée.<br>Merci de procéder à la connexion.</div>")
 }
 
+// GET logout.html
+func getLogout(c *gin.Context) {
+    gofiID := CheckCookie(c)
+
+    SetCookie(c, "logged-out")
+    successfull, errorStrReason, err := sqlite.ForceNewLogin(gofiID)
+    var Info string
+    if successfull {Info = "Déconnexion réussie."} else {
+        fmt.Printf("errorStrReason: %v\n", errorStrReason)
+        fmt.Printf("err: %v\n", err)
+        Info = "Déjà déconnecté au moment de la demande."
+    }
+    c.HTML(http.StatusOK, "1.logout.html", gin.H{
+        "Info": Info,
+    })
+}
+
 // GET login.html
 func getLogin(c *gin.Context) {
     c.HTML(http.StatusOK, "1.login.html", "")
@@ -76,7 +98,7 @@ func postLogin(c *gin.Context) {
 	byteSlice := h.Sum(nil)
     User.PwHash = hex.EncodeToString(byteSlice)
 
-    sessionID, err := GenerateRandomString(32)
+    sessionID, err := GenerateRandomString(CookieLength)
     if err != nil {
         fmt.Printf("err: %v\n", err)
         c.Header("HX-Retarget", "#forbidden")
@@ -337,6 +359,7 @@ func main() {
 
     router.GET("/login", getLogin)
     router.POST("/login", postLogin)
+    router.GET("/logout", getLogout)
 
     router.GET("/createUser", getCreateUser)
     router.POST("/createUser", postCreateUser)

@@ -7,29 +7,36 @@
 </figure>
 
 <section id="links">
-    <h2>LINKS!</h2>
+    <h2>Fonctionnalités!</h2>
     <ol>
-        <li><a href="/createUser">Create Account</a></li>
-        <li><a href="/login">Login</a></li>
-        <li><a href="/param-setup">Setup Data Lists</a></li>
-        <li><a href="/insertrows">Insert Rows</a></li>
+        {{if .Logged}}
+            <li><a href="/param-setup">Paramétrer les listes et les préférences de l'application</a></li>
+            <li><a href="/insertrows">Enregistrer des dépenses</a></li>
+        {{else}}
+            <li><a href="/createUser">Créer un compte</a></li>
+            <li><a href="/login">Se connecter</a></li>
+        {{end}}
     </ol>
-    <ul>
-        <li><a href="/export-csv">Export CSV</a></li>
-        <li><a href="/import-csv">Import CSV</a></li>
-    </ul>
+    {{if .Logged}}
+        <ul>
+            <li><a href="/export-csv">Exporter les dépenses en fichier CSV</a></li>
+            <li><a href="/import-csv">Importer un fichier CSV de dépenses</a></li>
+        </ul>
+        <a href="/logout">Se déconnecter</a>
+    {{end}}
 </section>
-
+<hr>
 <section id="tools">
     <small>
-        Built with
+        Fait avec
             • <a target="_blank" href="https://go.dev/">golang </a>
             • <a target="_blank" href="https://htmx.org/">htmx</a>
             • <a target="_blank" href="https://picocss.com/">picocss</a>
         <br>
-        Gopher image from 
+        Logo 
         <a target="_blank" href="https://gopherize.me/">gopherize.me</a>
         <br>
-        <a target="_blank" href="https://github.com/BenjaminMary/gosheets/">Github</a>
+        Code source
+        <a target="_blank" href="https://github.com/BenjaminMary/gofi/">Github</a>
     </small>
 </section>

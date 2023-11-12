@@ -6,10 +6,18 @@ import (
     "net/http"
     "crypto/rand"
     "math/big"
+    "os"
+    "strconv"
+    "slices"
 
     "example.com/sqlite"
 
     "github.com/gin-gonic/gin"
+)
+
+var (
+    cookieLengthOs = os.Getenv("COOKIE_LENGTH")
+    CookieLength, _ = strconv.Atoi(cookieLengthOs)
 )
 
 // FUNC generateRandomString returns a securely generated random string
@@ -36,7 +44,9 @@ func SetCookie(c *gin.Context, cookie string) {
 func CheckCookie(c *gin.Context) (int) {
     // try to read if a cookie exists, return to login otherwise
     sessionID, err := c.Cookie("gofiID")
-    if err != nil {
+    uriList := []string{"/", "/logout"}
+    if ( err != nil || len(sessionID) != CookieLength ) {
+        if slices.Contains(uriList, c.Request.RequestURI) {return 0}
         if c.Request.Method == "GET" {
             c.Redirect(http.StatusSeeOther, "/login")
             c.Abort()
@@ -48,8 +58,8 @@ func CheckCookie(c *gin.Context) (int) {
                 <div id="forbidden">
                     <p>
                         ERREUR: Aucun identifiant trouvé (Cookie gofiID).<br> 
-                        Requête annulée, il est nécessaire de réenregistrer un identifiant pour reprendre.<br> 
-                        C'est par ici: <a href="/cookie-setup">Setup Gofi Cookie</a>
+                        Requête annulée, il est nécessaire de se reconnecter pour reprendre.<br> 
+                        C'est par ici: <a href="/login">Login</a>
                     </p>
                 </div>
             `)

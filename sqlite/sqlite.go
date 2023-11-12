@@ -140,6 +140,30 @@ func CheckUserLogin(user User) (int, string, error) {
 	return gofiID, "", nil
 }
 
+func ForceNewLogin(gofiID int) (bool, string, error) {
+	db, err := sql.Open("sqlite", DbPath)
+	if err != nil { return false, "error opening DB file", err }
+	defer db.Close()
+	defer db.Exec("PRAGMA optimize;") // to run just before closing each database connection.
+	defer fmt.Println("defer : optimize then close DB")
+
+	if (gofiID > 0) {
+		_, err := db.Exec(`
+			UPDATE user 
+			SET numberOfRequests = numberOfRequests + 1,
+				idleTimeout = '1999-12-31T00:01:01Z',
+				absoluteTimeout = '1999-12-31T00:01:01Z',
+				lastActivityTime = strftime('%Y-%m-%dT%H:%M:%SZ', DATETIME('now', 'utc')), 
+				sessionID = 'logged-out'
+			WHERE gofiID = ?;
+			`, 
+			gofiID,
+		)
+		if err != nil { return false, "error on UPDATE after login", err }
+	}
+	return true, "", nil
+}
+
 func GetGofiID(sessionID string) (int, string, error) {
 	db, err := sql.Open("sqlite", DbPath)
 	if err != nil { return 0, "error opening DB file", err }
