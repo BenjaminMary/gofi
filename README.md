@@ -36,6 +36,7 @@ The HTML files are currently only in french.
 - auth
     - ajout logout + redirect vers login si pas co
     - ajout gestion si déjà login pour pages login + createUser 
+    - ajout check des dates de timeout du cookie à chaque requête + réinit du cookie quand 5 min sont passés
 - ajout préférences utilisateur:
     - gestion des préférences de format de date EN + FR avec / ou -
     - gestion des préférences de format csv séparateur colonne + separateur décimal

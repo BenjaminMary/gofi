@@ -135,7 +135,6 @@ func postLogin(c *gin.Context) {
 	byteSlice := h.Sum(nil)
     User.PwHash = hex.EncodeToString(byteSlice)
 
-    //todo crypto rand d'un session ID + le check unique se fait dans la DB à l'insert
     sessionID, err := generateRandomString(32)
     if err != nil {
         fmt.Printf("err: %v\n", err)
