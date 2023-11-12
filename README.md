@@ -42,9 +42,6 @@ The HTML files are currently only in french.
     ```
 
 ## TODO
-- auth
-    - ajout gestion si déjà login pour pages login + createUser 
-    - ajout check des dates de timeout du cookie à chaque requête + réinit du cookie quand 5 min sont passés
 - ajout préférences utilisateur:
     - gestion des préférences de format de date EN + FR avec / ou -
     - gestion des préférences de format csv séparateur colonne + separateur décimal
@@ -60,9 +57,12 @@ The HTML files are currently only in french.
     - voir pour créer des packages mieux définis et pouvoir les sortir complètement de cet app (exemple partie auth/session)
     - Tester HTMX sur différents type de réponse : 200, 400, 500 ... : https://htmx.org/extensions/response-targets/ 
     - Amélioration download fichier csv : voir si possible de faire mieux directement via le serveur à la place du js
+    - auth
+        - check des changements d'IP / user agent pour forcer un relogin
 
 
 ## Changelog
+- 2023-11-13 : auto update cookie when idle timeout reached, force new login when absolute timeout reached (all dates are generated with SQLite)
 - 2023-11-12 : logo update + logout feature + cookie length param + rework some html
 - 2023-11-12 : reorganize main, split funcs in another file
 - 2023-11-12 : add session management in DB and transform gofiID to INT + cookie to random STR

@@ -68,7 +68,28 @@ func CheckCookie(c *gin.Context) (int) {
         }
     }
     gofiID, errorStrReason, err := sqlite.GetGofiID(sessionID)
-    if (gofiID > 0) { return gofiID } else {
+    if (gofiID > 0) { 
+        if (errorStrReason == "idleTimeout, change cookie") {
+            newSessionID, err := GenerateRandomString(CookieLength)
+            if (err != nil) {
+                fmt.Printf("err GenerateRandomString: %v\n", err)
+                c.Redirect(http.StatusSeeOther, "/login")
+                c.Abort()
+                return 0                
+            }
+            errorStrReason, err := sqlite.UpdateSessionID(gofiID, newSessionID)
+            if (err != nil) {
+                fmt.Printf("errorStrReason: %v\n", errorStrReason)
+                fmt.Printf("err: %v\n", err)
+                c.Redirect(http.StatusSeeOther, "/login")
+                c.Abort()
+                return 0                
+            }
+            SetCookie(c, newSessionID)
+            fmt.Println("auto cookie update")
+        }
+        return gofiID 
+    } else {
         fmt.Printf("errorStrReason: %v\n", errorStrReason)
         fmt.Printf("err: %v\n", err)
         c.Redirect(http.StatusSeeOther, "/login")

@@ -11,7 +11,7 @@ import (
 	"encoding/csv"
 	"os"
 	"mime/multipart"
-	// "time"
+	"time"
 
 	_ "modernc.org/sqlite"
 )
@@ -140,6 +140,29 @@ func CheckUserLogin(user User) (int, string, error) {
 	return gofiID, "", nil
 }
 
+func UpdateSessionID(gofiID int, sessionID string) (string, error) {
+	db, err := sql.Open("sqlite", DbPath)
+	if err != nil { return "error opening DB file", err }
+	defer db.Close()
+	defer db.Exec("PRAGMA optimize;") // to run just before closing each database connection.
+	defer fmt.Println("defer : optimize then close DB")
+
+	_, err = db.Exec(`
+		UPDATE user 
+		SET idleTimeout = strftime('%Y-%m-%dT%H:%M:%SZ', DATETIME('now', 'utc', idleDateModifier)),
+			lastActivityTime = strftime('%Y-%m-%dT%H:%M:%SZ', DATETIME('now', 'utc')), 
+			sessionID = ?
+			--, lastActivityIPaddress = ?, lastActivityUserAgent = ?, lastActivityAcceptLanguage = ?
+		WHERE gofiID = ?;
+		`, 
+		sessionID, //user.LastActivityIPaddress, user.LastActivityUserAgent, user.LastActivityAcceptLanguage,
+		gofiID,
+	)
+	if err != nil { return "error on UPDATE for UpdateSessionID", err }
+
+	return "", nil
+}
+
 func ForceNewLogin(gofiID int) (bool, string, error) {
 	db, err := sql.Open("sqlite", DbPath)
 	if err != nil { return false, "error opening DB file", err }
@@ -172,7 +195,7 @@ func GetGofiID(sessionID string) (int, string, error) {
 	defer fmt.Println("defer : optimize then close DB")
 
 	q := ` 
-		SELECT gofiID
+		SELECT gofiID, idleTimeout, absoluteTimeout, strftime('%Y-%m-%dT%H:%M:%SZ', DATETIME('now', 'utc')) AS currentTimeUTC
 		FROM user
 		WHERE sessionID = ?;
 	`
@@ -181,7 +204,27 @@ func GetGofiID(sessionID string) (int, string, error) {
 
 	rows.Next()
 	var gofiID int = 0
-	if err := rows.Scan(&gofiID); err != nil { return 0, "error on SELECT gofiID", err }
+	var idleTimeout, absoluteTimeout, currentTimeUTC string
+	if err := rows.Scan(&gofiID,&idleTimeout,&absoluteTimeout,&currentTimeUTC); err != nil { return 0, "error on SELECT gofiID", err }
+
+	timeCurrentTimeUTC, err := time.Parse(time.RFC3339, currentTimeUTC)
+	// fmt.Printf("timeCurrentTimeUTC: %v\n", timeCurrentTimeUTC)
+	if err != nil { return -1, "error parsing currentTimeUTC, force new login", err }
+
+	timeAbsoluteTimeout, err := time.Parse(time.RFC3339, absoluteTimeout)
+	// fmt.Printf("timeAbsoluteTimeout: %v\n", timeAbsoluteTimeout)
+	if err != nil { return -1, "error parsing absoluteTimeout, force new login", err }
+	differenceAbsolute := timeCurrentTimeUTC.Sub(timeAbsoluteTimeout)
+	// fmt.Printf("differenceAbsolute: %v\n", differenceAbsolute)
+	if (differenceAbsolute > 0) { return -1, "absoluteTimeout, force new login", nil }
+
+	timeIdleTimeout, err := time.Parse(time.RFC3339, idleTimeout)
+	// fmt.Printf("timeIdleTimeout: %v\n", timeIdleTimeout)
+	if err != nil { return -1, "error parsing idleTimeout, force new login", err }
+	differenceIdle := timeCurrentTimeUTC.Sub(timeIdleTimeout)
+	// fmt.Printf("differenceIdle: %v\n", differenceIdle)
+	if (differenceIdle > 0) { return gofiID, "idleTimeout, change cookie", nil }
+
 	if (gofiID > 0) { return gofiID, "", nil } else { return 0, "error no gofiID found from sessionID cookie", err }
 }
 
