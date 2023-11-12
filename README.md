@@ -4,6 +4,14 @@
 ## General informations
 The purpose of this web app is to record expenses.
 
+Features supported (all the data are registered in a local SQLite DB):
+- create users
+- auth + 1 active session per user
+- save general paramaters preferences per user
+- record expenses per user
+- import CSV files to insert/update data in bulk
+- export CSV files to keep/use all the data with other apps 
+
 The HTML files are currently only in french.
 
 
@@ -41,13 +49,17 @@ The HTML files are currently only in french.
     - gestion des préférences de format de date EN + FR avec / ou -
     - gestion des préférences de format csv séparateur colonne + separateur décimal
     - laisser l'overide possible dans les parties import/export csv, mais préselectionner la préférence
+- Ajout de statistiques sur les dépenses
 - Ajout sauvegarde DB SQLite sur Drive
     - avec table SQLite qui garde les ID + nom + date de fichiers sauvegardés + le statut de l'upload
 - PWA
     - Ajout SQLite en WebAssembly ?
-
-- Tester HTMX sur différents type de réponse : 200, 400, 500 ... : https://htmx.org/extensions/response-targets/ 
-- Amélioration download fichier csv : voir si possible de faire mieux directement via le serveur à la place du js
+- autres améliorations non prioritaires
+    - voir pour split le SQL dans des fichiers .sql (exemple: https://github.com/qustavo/dotsql)
+    - voir pour split le HTML dans des fichiers séparés (via templating par block?) OU mieux gérer le HTML directement dans go: https://github.com/a-h/templ
+    - voir pour créer des packages mieux définis et pouvoir les sortir complètement de cet app (exemple partie auth/session)
+    - Tester HTMX sur différents type de réponse : 200, 400, 500 ... : https://htmx.org/extensions/response-targets/ 
+    - Amélioration download fichier csv : voir si possible de faire mieux directement via le serveur à la place du js
 
 
 ## Changelog
