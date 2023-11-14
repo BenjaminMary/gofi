@@ -27,6 +27,7 @@ The HTML files are currently only in french.
 #### To run the app
 - generate environment variables :
     ```bash
+    export GIN_MODE="release"
     export SQLITE_DB_FILENAME="gofi.db"
     export COOKIE_LENGTH=64
     ```
@@ -46,11 +47,21 @@ The HTML files are currently only in french.
     - gestion des préférences de format de date EN + FR avec / ou -
     - gestion des préférences de format csv séparateur colonne + separateur décimal
     - laisser l'overide possible dans les parties import/export csv, mais préselectionner la préférence
-- Ajout de statistiques sur les dépenses
+- Ajout de statistiques 
+    - sur les dépenses
+    - sur le nombre de requêtes
 - Ajout sauvegarde DB SQLite sur Drive
     - avec table SQLite qui garde les ID + nom + date de fichiers sauvegardés + le statut de l'upload
+    - voir pour fermer le server et faire la sauvegarde au restart après quelques commandes de nettoyage de DB ?
+    - voir si la gestion d'une seule ouverture/fermeture DB ferait fonctionner le PRAGMA wal_checkpoint(TRUNCATE) sans retourner BUSY
 - PWA
     - Ajout SQLite en WebAssembly ?
+- voir pour réduire le nombre d'ouverture/fermeture de DB
+    - en go, open démarre un pool de connexion, mettre en place une route DB.Stats pour avoir des infos en temps réel
+    - https://go.dev/doc/database/open-handle
+    - https://go.dev/doc/database/manage-connections
+    - tuto DB in Go : https://dev.to/techschoolguru/how-to-handle-db-errors-in-golang-correctly-11ek
+    - DB test case : https://stackoverflow.com/questions/48196746/using-ping-to-find-out-if-db-connection-is-alive-in-golang
 - autres améliorations non prioritaires
     - voir pour split le SQL dans des fichiers .sql (exemple: https://github.com/qustavo/dotsql)
     - voir pour split le HTML dans des fichiers séparés (via templating par block?) OU mieux gérer le HTML directement dans go: https://github.com/a-h/templ
