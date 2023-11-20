@@ -30,6 +30,7 @@ The HTML files are currently only in french.
     export GIN_MODE="release"
     export SQLITE_DB_FILENAME="gofi.db"
     export COOKIE_LENGTH=64
+    export EXE_PATH="/gofi"
     ```
 - locally :
     ```bash
@@ -54,6 +55,7 @@ The HTML files are currently only in french.
     - avec table SQLite qui garde les ID + nom + date de fichiers sauvegardés + le statut de l'upload
     - voir pour fermer le server et faire la sauvegarde au restart après quelques commandes de nettoyage de DB ?
     - voir si la gestion d'une seule ouverture/fermeture DB ferait fonctionner le PRAGMA wal_checkpoint(TRUNCATE) sans retourner BUSY
+        - obj nettoyer les fichiers wal + shm avant sauvegarde
 - PWA
     - Ajout SQLite en WebAssembly ?
 - voir pour réduire le nombre d'ouverture/fermeture de DB
@@ -73,6 +75,7 @@ The HTML files are currently only in french.
 
 
 ## Changelog
+- 2023-11-20 : add var env for the executable file path + change port used
 - 2023-11-13 : auto update cookie when idle timeout reached, force new login when absolute timeout reached (all dates are generated with SQLite)
 - 2023-11-12 : logo update + logout feature + cookie length param + rework some html
 - 2023-11-12 : reorganize main, split funcs in another file
