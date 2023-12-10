@@ -23,7 +23,7 @@ go.work
 
 # specific part
 *.env
-gofi.db*
+*gofi.db*
 *.ps1
 gofi
 

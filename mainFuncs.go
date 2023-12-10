@@ -2,6 +2,8 @@ package main
 
 import (
     "fmt"
+	"database/sql"
+    "context"
 
     "net/http"
     "crypto/rand"
@@ -41,16 +43,16 @@ func SetCookie(c *gin.Context, cookie string) {
 }
 
 // FUNC check cookie sessionID to get the gofiID
-func CheckCookie(c *gin.Context) (int) {
+func CheckCookie(ctx context.Context, c *gin.Context, db *sql.DB) (int, string) {
     // try to read if a cookie exists, return to login otherwise
     sessionID, err := c.Cookie("gofiID")
     uriList := []string{"/", "/logout"}
     if ( err != nil || len(sessionID) != CookieLength ) {
-        if slices.Contains(uriList, c.Request.RequestURI) {return 0}
+        if slices.Contains(uriList, c.Request.RequestURI) {return 0, ""}
         if c.Request.Method == "GET" {
             c.Redirect(http.StatusSeeOther, "/login")
             c.Abort()
-            return 0
+            return 0, ""
         } else if c.Request.Method == "POST" {
             c.Header("HX-Retarget", "#forbidden")
             c.Header("HX-Reswap", "innerHTML")
@@ -64,10 +66,10 @@ func CheckCookie(c *gin.Context) (int) {
                 </div>
             `)
             c.Abort()
-            return 0
+            return 0, ""
         }
     }
-    gofiID, errorStrReason, err := sqlite.GetGofiID(sessionID)
+    gofiID, email, errorStrReason, err := sqlite.GetGofiID(ctx, db, sessionID)
     if (gofiID > 0) { 
         if (errorStrReason == "idleTimeout, change cookie") {
             newSessionID, err := GenerateRandomString(CookieLength)
@@ -75,25 +77,25 @@ func CheckCookie(c *gin.Context) (int) {
                 fmt.Printf("err GenerateRandomString: %v\n", err)
                 c.Redirect(http.StatusSeeOther, "/login")
                 c.Abort()
-                return 0                
+                return 0, ""
             }
-            errorStrReason, err := sqlite.UpdateSessionID(gofiID, newSessionID)
+            errorStrReason, err := sqlite.UpdateSessionID(ctx, db, gofiID, newSessionID)
             if (err != nil) {
                 fmt.Printf("errorStrReason: %v\n", errorStrReason)
                 fmt.Printf("err: %v\n", err)
                 c.Redirect(http.StatusSeeOther, "/login")
                 c.Abort()
-                return 0                
+                return 0, ""
             }
             SetCookie(c, newSessionID)
             fmt.Println("auto cookie update")
         }
-        return gofiID 
+        return gofiID, email
     } else {
         fmt.Printf("errorStrReason: %v\n", errorStrReason)
         fmt.Printf("err: %v\n", err)
         c.Redirect(http.StatusSeeOther, "/login")
         c.Abort()
-        return 0
+        return 0, ""
     }
 }

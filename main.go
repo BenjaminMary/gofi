@@ -2,6 +2,8 @@ package main
 
 import (
     "fmt"
+	"database/sql"
+    "context"
 
     "net/http"
     "time"
@@ -13,17 +15,96 @@ import (
     "crypto/sha256"
 
     "example.com/sqlite"
+    "example.com/drive"
 
     "github.com/gin-gonic/gin"
 )
 
+var db *sql.DB
+/*  //deadline with gin context
+	deadline := time.Now().Add(1500 * time.Millisecond)
+	ctx, cancelCtx := context.WithDeadline(ctx, deadline)
+*/
+
+//checkpoint
+func getCheckpoint(c *gin.Context) {
+    ctx, cancel := context.WithTimeout(context.TODO(), 9*time.Second)
+    defer cancel()
+
+    _, email := CheckCookie(ctx, c, db)
+    //reserved admin page
+    if (email != os.Getenv("ADMIN_EMAIL")) {
+        c.Redirect(http.StatusSeeOther, "/")
+        c.Abort()
+        return
+    }
+    backup := c.DefaultQuery("backup", "0")
+
+    driveSaveEnabledStr := os.Getenv("DRIVE_SAVE_ENABLED")
+    driveSaveEnabled, _ := strconv.Atoi(driveSaveEnabledStr)
+    var DriveFileMetaData drive.DriveFileMetaData
+    DriveFileMetaData.DriveFileID = ""
+    DriveFileMetaData.Name = ""
+    var DriveFileMetaDataList drive.DriveFileMetaDataList
+
+    // checkpointReturn = 0 if OK
+    checkpointReturn := sqlite.WalCheckpoint(ctx)
+    if (checkpointReturn == 0 && driveSaveEnabled == 1 && backup == "1") {
+        //backup db
+        DriveFileMetaData = drive.UploadWithDrivePostRequestAPI(sqlite.DbPath)
+        today := time.Now().Format(time.DateOnly)
+        DriveFileMetaData.Name = today + "-gofi.db"
+        drive.UpdateMetaDataDriveFile(DriveFileMetaData)
+    }
+    if (driveSaveEnabled == 1) {
+        DriveFileMetaDataList = drive.ListFileInDrive()
+    }
+    db = sqlite.OpenDbCon()
+
+    c.HTML(http.StatusOK, "1.checkpoint.html", gin.H{
+        "DriveFileMetaData": DriveFileMetaData,
+        "DriveFileMetaDataList": DriveFileMetaDataList,
+    })
+}
+func postCheckpoint(c *gin.Context) {
+    method := c.PostForm("method")
+    driveID := c.PostForm("driveID")
+    fmt.Println("method: ", method)
+    // fmt.Println("driveID: ", driveID)
+
+    if (method == "DELETE" && driveID != "none") {
+        drive.DeleteFileInDrive(driveID)
+        c.String(http.StatusOK, "Suppression effectuée")
+        return
+    }
+    if (method == "DOWNLOAD" && driveID != "none") {
+        filePathWithName := sqlite.FilePath("downloaded-gofi.db")
+        fileName := "downloaded-gofi.db"
+        drive.GetFileInDrive(driveID, filePathWithName)
+        //c.String(http.StatusOK, "Téléchargement terminé")
+        c.Header("Content-Disposition", "attachment; filename=" + fileName)
+        c.File(filePathWithName)
+        return
+    }
+    c.String(http.StatusBadRequest, "Erreur")
+}
+
 // index.html
 func index(c *gin.Context) {
-    gofiID := CheckCookie(c)
-    var Logged bool
-    if gofiID > 0 {Logged = true} else {Logged = false}
+    ctx, cancel := context.WithTimeout(context.TODO(), 2*time.Second)
+    defer cancel()
+
+    gofiID, Email := CheckCookie(ctx, c, db)
+    var Logged, Admin bool
+    Admin = false
+    if gofiID > 0 {
+        Logged = true
+        if Email == os.Getenv("ADMIN_EMAIL") {Admin = true}
+    } else {Logged = false}
     c.HTML(http.StatusOK, "0.index.html", gin.H{
         "Logged": Logged,
+        "Admin": Admin,
+        "Email": Email,
     })
 }
 
@@ -67,18 +148,22 @@ func postCreateUser(c *gin.Context) {
 
 // GET logout.html
 func getLogout(c *gin.Context) {
-    gofiID := CheckCookie(c)
+    ctx, cancel := context.WithTimeout(context.TODO(), 2*time.Second)
+    defer cancel()
+
+    gofiID, Email := CheckCookie(ctx, c, db)
 
     SetCookie(c, "logged-out")
     successfull, errorStrReason, err := sqlite.ForceNewLogin(gofiID)
     var Info string
-    if successfull {Info = "Déconnexion réussie."} else {
+    if successfull {Info = "Déconnexion réussie, à très vite"} else {
         fmt.Printf("errorStrReason: %v\n", errorStrReason)
         fmt.Printf("err: %v\n", err)
-        Info = "Déjà déconnecté au moment de la demande."
+        Info = "Déjà déconnecté au moment de la demande"
     }
     c.HTML(http.StatusOK, "1.logout.html", gin.H{
         "Info": Info,
+        "Email": Email,
     })
 }
 
@@ -143,17 +228,20 @@ func postLogin(c *gin.Context) {
     User.GofiID = gofiID
 
     SetCookie(c, User.SessionID)
-    c.String(http.StatusOK, "<div>Login terminé.</div>")
+    c.String(http.StatusOK, "<div>Login terminé, bienvenue <code>" + User.Email + "</code>.</div>")
 }
 
 // GET ParamSetup.html
 func getParamSetup(c *gin.Context) {
-    cookieGofiID := CheckCookie(c)
+    ctx, cancel := context.WithTimeout(context.TODO(), 2*time.Second)
+    defer cancel()
+
+    cookieGofiID, _ := CheckCookie(ctx, c, db)
     if c.IsAborted() {return}
 
     var Form sqlite.FinanceTracker
     Form.GofiID = cookieGofiID
-    sqlite.GetList(&Form)
+    sqlite.GetList(ctx, db, &Form)
     c.HTML(http.StatusOK, "2.paramSetup.html", gin.H{
         "Form": Form,
     })
@@ -175,7 +263,10 @@ func cleanStringList(stringList string) string {
 }
 // POST ParamSetup.html
 func postParamSetup(c *gin.Context) {
-    cookieGofiID := CheckCookie(c)
+    ctx, cancel := context.WithTimeout(context.TODO(), 2*time.Second)
+    defer cancel()
+
+    cookieGofiID, _ := CheckCookie(ctx, c, db)
     if c.IsAborted() {return}
 
     var Form sqlite.Param
@@ -204,7 +295,10 @@ func postParamSetup(c *gin.Context) {
 
 // GET InsertRows.html
 func getinsertrows(c *gin.Context) {
-    cookieGofiID := CheckCookie(c)
+    ctx, cancel := context.WithTimeout(context.TODO(), 2*time.Second)
+    defer cancel()
+
+    cookieGofiID, _ := CheckCookie(ctx, c, db)
     if c.IsAborted() {return}
 
     var Form sqlite.FinanceTracker
@@ -213,8 +307,16 @@ func getinsertrows(c *gin.Context) {
     const DateOnly = "2006-01-02" // YYYY-MM-DD
     currentTime := time.Now()
     Form.Date = currentTime.Format(DateOnly) // YYYY-MM-DD
-    sqlite.GetList(&Form)
-    FTlist = sqlite.GetLastRowsInFinanceTracker(cookieGofiID)
+    sqlite.GetList(ctx, db, &Form)
+    // select {
+    //     case <-ctx.Done():
+    //         fmt.Println("ctx Done")
+    //     default:
+    //         fmt.Println("ctx still up")
+    //         time, ok := ctx.Deadline()
+    //         fmt.Printf("Deadline time= %v, ok=%v\n", time, ok)
+    // }
+    FTlist = sqlite.GetLastRowsInFinanceTracker(ctx, db, cookieGofiID)
 	// fmt.Printf("\naccountList: %v\n", Form.AccountList)
 	// fmt.Printf("\ncategoryList: %v\n", Form.CategoryList)
     c.HTML(http.StatusOK, "3.insertrows.html", gin.H{
@@ -225,7 +327,10 @@ func getinsertrows(c *gin.Context) {
 
 // POST InsertRows.html
 func postinsertrows(c *gin.Context) {
-    cookieGofiID := CheckCookie(c)
+    ctx, cancel := context.WithTimeout(context.TODO(), 2*time.Second)
+    defer cancel()
+
+    cookieGofiID, _ := CheckCookie(ctx, c, db)
     if c.IsAborted() {return}
 
     // time.Sleep(299999999 * time.Nanosecond) // to simulate 300ms of loading in the front when submiting form
@@ -234,7 +339,7 @@ func postinsertrows(c *gin.Context) {
         c.String(http.StatusBadRequest, "bad request: %v", err)
         return
     }
-    fmt.Printf("before FormPriceStr2Decimals: %s \n", Form.FormPriceStr2Decimals)
+    // fmt.Printf("before FormPriceStr2Decimals: %s \n", Form.FormPriceStr2Decimals)
     if !strings.Contains(Form.FormPriceStr2Decimals, "."){ // add .00 if "." not present in string, equivalent of *100 with next step
         Form.FormPriceStr2Decimals = Form.FormPriceStr2Decimals + ".00"
     } else {
@@ -243,7 +348,7 @@ func postinsertrows(c *gin.Context) {
     }
     safeInteger, _ := strconv.Atoi(strings.Replace(Form.FormPriceStr2Decimals, ".", "", 1))
     Form.PriceIntx100 = safeInteger
-    fmt.Printf("after PriceIntx100: %s \n", Form.PriceIntx100)
+    // fmt.Printf("after PriceIntx100: %s \n", Form.PriceIntx100)
 
     var successfull bool
     Form.Year, Form.Month, Form.Day, successfull, _ = sqlite.ConvertDateStrToInt(Form.Date, "EN", "-")
@@ -251,7 +356,7 @@ func postinsertrows(c *gin.Context) {
 
     Form.GofiID = cookieGofiID
     // fmt.Printf("before sqlite insert, form: %#s \n", &Form) // form: {2023-09-13 désig Supermarche 5.03}
-    _, err := sqlite.InsertRowInFinanceTracker(&Form)
+    _, err := sqlite.InsertRowInFinanceTracker(ctx, db, &Form)
 	if err != nil { // Always check errors even if they should not happen.
 		panic(err)
 	}
@@ -261,7 +366,10 @@ func postinsertrows(c *gin.Context) {
 
 // GET exportCsv.html
 func getExportCsv(c *gin.Context) {
-    cookieGofiID := CheckCookie(c)
+    ctx, cancel := context.WithTimeout(context.TODO(), 2*time.Second)
+    defer cancel()
+
+    cookieGofiID, _ := CheckCookie(ctx, c, db)
     if c.IsAborted() {return}
 
     FileName := "gofi-" + strconv.Itoa(cookieGofiID) + ".csv"
@@ -272,7 +380,10 @@ func getExportCsv(c *gin.Context) {
 
 // POST exportCsv.html
 func postExportCsv(c *gin.Context) {
-    cookieGofiID := CheckCookie(c)
+    ctx, cancel := context.WithTimeout(context.TODO(), 2*time.Second)
+    defer cancel()
+
+    cookieGofiID, _ := CheckCookie(ctx, c, db)
     if c.IsAborted() {return}
 
     csvSeparator := c.PostForm("csvSeparator")
@@ -295,7 +406,10 @@ func postExportCsv(c *gin.Context) {
 
 // GET importCsv.html
 func getImportCsv(c *gin.Context) {
-    cookieGofiID := CheckCookie(c)
+    ctx, cancel := context.WithTimeout(context.TODO(), 2*time.Second)
+    defer cancel()
+
+    cookieGofiID, _ := CheckCookie(ctx, c, db)
     if c.IsAborted() {return}
 
     c.HTML(http.StatusOK, "101.importCsv.html", gin.H{
@@ -305,7 +419,10 @@ func getImportCsv(c *gin.Context) {
 
 // POST importCsv.html
 func postImportCsv(c *gin.Context) {
-    cookieGofiID := CheckCookie(c)
+    ctx, cancel := context.WithTimeout(context.TODO(), 2*time.Second)
+    defer cancel()
+
+    cookieGofiID, _ := CheckCookie(ctx, c, db)
     if c.IsAborted() {return}
 
     csvSeparator := c.PostForm("csvSeparator")
@@ -329,9 +446,14 @@ func postImportCsv(c *gin.Context) {
     c.String(http.StatusOK, stringList)
 }
 
-
 func main() {
     router := gin.Default()
+
+    fmt.Println("------------------ROUTER START HERE------------------")
+    fmt.Println("start db from main")
+    db = sqlite.OpenDbCon()
+	defer db.Close()
+	defer fmt.Println("defer : db.Close() from main")
 
     // render HTML
     // https://gin-gonic.com/docs/examples/html-rendering/
@@ -356,6 +478,9 @@ func main() {
 
     router.GET("/import-csv", getImportCsv)
     router.POST("/import-csv", postImportCsv)
+
+    router.GET("/checkpoint", getCheckpoint)
+    router.POST("/checkpoint", postCheckpoint)
 
     router.GET("/login", getLogin)
     router.POST("/login", postLogin)

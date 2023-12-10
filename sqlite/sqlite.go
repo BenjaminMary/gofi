@@ -1,8 +1,9 @@
 package sqlite
 
 import (
-	// "context"
+	"context"
 	"database/sql"
+
 	"fmt"
 	"log"
 	"strings"
@@ -16,7 +17,104 @@ import (
 	_ "modernc.org/sqlite"
 )
 
-var db *sql.DB
+func OpenDbCon() *sql.DB {
+	db, err := sql.Open("sqlite", DbPath)
+	if err != nil {
+		log.Fatal("error opening DB file: ", err)
+	}
+	db.SetMaxIdleConns(1) //default 2
+	db.SetMaxOpenConns(3) //default 0 = infinite
+	return db
+}
+
+// func WalCheckpointB() {
+// 	sql.Open("sqlite", "file:///gofi.db?_pragma=foreign_keys(1)&_time_format=sqlite")
+// 	// sqlite.Open("file:///tmp/mydata.sqlite?_pragma=foreign_keys(1)&_time_format=sqlite")
+// }
+
+func WalCheckpoint(ctx context.Context) int {
+	db, err := sql.Open("sqlite", DbPath)
+	if err != nil {
+		log.Fatal("error opening DB file: ", err)
+		return -1
+	}
+	defer db.Close()
+	defer fmt.Println("defer : db.Close()")
+	db.SetMaxIdleConns(1) //default 2
+	db.SetMaxOpenConns(1) //default 0 = infinite
+
+	conn, err := db.Conn(ctx)
+	if err != nil {
+		log.Fatal("error connecting to DB file: ", err)
+		return -1
+	}
+	defer conn.Close() // Return the connection to the pool.
+	defer fmt.Println("defer : conn.Close()")
+
+	// fmt.Println("optimize, vacuum, checkpoint TRUNCATE then close DB")
+	fmt.Println("optimize, vacuum, checkpoint TRUNCATE")
+	conn.ExecContext(ctx, "PRAGMA optimize;") // to run just before closing each database connection.
+
+	var journalMode string
+	err = conn.QueryRowContext(ctx, "PRAGMA journal_mode;").Scan(&journalMode)
+	if err != nil {
+		log.Fatal("error PRAGMA journal_mode: ", err)
+		return -1
+	}
+	fmt.Printf("journalMode: %v\n", journalMode)
+
+	conn.ExecContext(ctx, "VACUUM;") // to run just before closing each database connection.
+
+	var busyTimeout string
+	err = conn.QueryRowContext(ctx, "PRAGMA busy_timeout;").Scan(&busyTimeout)
+	if err != nil {
+		log.Fatal("error PRAGMA busyTimeout 1: ", err)
+		return -1
+	}
+	fmt.Printf("busyTimeout 1: %v\n", busyTimeout)
+	err = conn.QueryRowContext(ctx, "PRAGMA busy_timeout = 2000;").Scan(&busyTimeout)
+	if err != nil {
+		log.Fatal("error PRAGMA busyTimeout 2: ", err)
+		return -1
+	}
+	fmt.Printf("busyTimeout 2: %v\n", busyTimeout)
+
+	db.SetConnMaxIdleTime(100 * time.Millisecond)
+	db.SetConnMaxLifetime(100 * time.Millisecond)
+	time.Sleep(3 * time.Second)
+
+	stats := db.Stats()
+	fmt.Printf("stats: %#v\n", stats)
+
+	conn.ExecContext(ctx, "COMMIT;")
+	conn.Close()
+	conn, err = db.Conn(ctx)
+	if err != nil {
+		log.Fatal("error connecting to DB file: ", err)
+		return -1
+	}
+
+	// wal_checkpoint doc: https://www.sqlite.org/pragma.html#pragma_wal_checkpoint
+	// checkpointReturn = 0 if OK, pagestoWal AND pagesFromWalToDb -1 if not in WAL mode
+	var checkpointReturn, pagestoWal, pagesFromWalToDb int
+	err = conn.QueryRowContext(ctx, "PRAGMA wal_checkpoint(TRUNCATE);").Scan(&checkpointReturn, &pagestoWal, &pagesFromWalToDb)
+	if err != nil {
+		log.Fatal("error PRAGMA wal_checkpoint(TRUNCATE): ", err)
+		return -1
+	}
+	fmt.Printf("checkpointReturn: %v\n", strconv.Itoa(checkpointReturn))
+	fmt.Printf("pagestoWal: %v\n", strconv.Itoa(pagestoWal))
+	fmt.Printf("pagesFromWalToDb: %v\n", strconv.Itoa(pagesFromWalToDb))
+	if checkpointReturn == 1 {
+		// conn.Close()
+		return 1
+	}
+	conn.Close()
+	db.Close()
+	time.Sleep(1 * time.Second)
+
+	return checkpointReturn
+}
 
 func CheckIfIdExists(gofiID int) {
 	//if new ID, create default params
@@ -120,6 +218,7 @@ func CheckUserLogin(user User) (int, string, error) {
 	rows.Next()
 	var gofiID int = 0
 	if err := rows.Scan(&gofiID); err != nil { return 0, "error on SELECT gofiID", err }
+	rows.Close()
 	if (gofiID > 0) {
 		_, err := db.Exec(`
 			UPDATE user 
@@ -140,14 +239,8 @@ func CheckUserLogin(user User) (int, string, error) {
 	return gofiID, "", nil
 }
 
-func UpdateSessionID(gofiID int, sessionID string) (string, error) {
-	db, err := sql.Open("sqlite", DbPath)
-	if err != nil { return "error opening DB file", err }
-	defer db.Close()
-	defer db.Exec("PRAGMA optimize;") // to run just before closing each database connection.
-	defer fmt.Println("defer : optimize then close DB")
-
-	_, err = db.Exec(`
+func UpdateSessionID(ctx context.Context, db *sql.DB, gofiID int, sessionID string) (string, error) {
+	_, err := db.ExecContext(ctx, `
 		UPDATE user 
 		SET idleTimeout = strftime('%Y-%m-%dT%H:%M:%SZ', DATETIME('now', 'utc', idleDateModifier)),
 			lastActivityTime = strftime('%Y-%m-%dT%H:%M:%SZ', DATETIME('now', 'utc')), 
@@ -187,64 +280,50 @@ func ForceNewLogin(gofiID int) (bool, string, error) {
 	return true, "", nil
 }
 
-func GetGofiID(sessionID string) (int, string, error) {
-	db, err := sql.Open("sqlite", DbPath)
-	if err != nil { return 0, "error opening DB file", err }
-	defer db.Close()
-	defer db.Exec("PRAGMA optimize;") // to run just before closing each database connection.
-	defer fmt.Println("defer : optimize then close DB")
-
+func GetGofiID(ctx context.Context, db *sql.DB, sessionID string) (int, string, string, error) {
 	q := ` 
-		SELECT gofiID, idleTimeout, absoluteTimeout, strftime('%Y-%m-%dT%H:%M:%SZ', DATETIME('now', 'utc')) AS currentTimeUTC
+		SELECT gofiID, email, idleTimeout, absoluteTimeout, strftime('%Y-%m-%dT%H:%M:%SZ', DATETIME('now', 'utc')) AS currentTimeUTC
 		FROM user
 		WHERE sessionID = ?;
 	`
-	rows, err := db.Query(q, sessionID)
-	if err != nil { return 0, "error querying DB", err }
+	rows, err := db.QueryContext(ctx, q, sessionID)
+	if err != nil { return 0, "", "error querying DB", err }
 
 	rows.Next()
 	var gofiID int = 0
-	var idleTimeout, absoluteTimeout, currentTimeUTC string
-	if err := rows.Scan(&gofiID,&idleTimeout,&absoluteTimeout,&currentTimeUTC); err != nil { return 0, "error on SELECT gofiID", err }
+	var email, idleTimeout, absoluteTimeout, currentTimeUTC string
+	if err := rows.Scan(&gofiID,&email,&idleTimeout,&absoluteTimeout,&currentTimeUTC); err != nil { return 0, "", "error on SELECT gofiID", err }
+	rows.Close()
 
 	timeCurrentTimeUTC, err := time.Parse(time.RFC3339, currentTimeUTC)
 	// fmt.Printf("timeCurrentTimeUTC: %v\n", timeCurrentTimeUTC)
-	if err != nil { return -1, "error parsing currentTimeUTC, force new login", err }
+	if err != nil { return -1, "", "error parsing currentTimeUTC, force new login", err }
 
 	timeAbsoluteTimeout, err := time.Parse(time.RFC3339, absoluteTimeout)
 	// fmt.Printf("timeAbsoluteTimeout: %v\n", timeAbsoluteTimeout)
-	if err != nil { return -1, "error parsing absoluteTimeout, force new login", err }
+	if err != nil { return -1, "", "error parsing absoluteTimeout, force new login", err }
 	differenceAbsolute := timeCurrentTimeUTC.Sub(timeAbsoluteTimeout)
 	// fmt.Printf("differenceAbsolute: %v\n", differenceAbsolute)
-	if (differenceAbsolute > 0) { return -1, "absoluteTimeout, force new login", nil }
+	if (differenceAbsolute > 0) { return -1, "", "absoluteTimeout, force new login", nil }
 
 	timeIdleTimeout, err := time.Parse(time.RFC3339, idleTimeout)
 	// fmt.Printf("timeIdleTimeout: %v\n", timeIdleTimeout)
-	if err != nil { return -1, "error parsing idleTimeout, force new login", err }
+	if err != nil { return -1, "", "error parsing idleTimeout, force new login", err }
 	differenceIdle := timeCurrentTimeUTC.Sub(timeIdleTimeout)
 	// fmt.Printf("differenceIdle: %v\n", differenceIdle)
-	if (differenceIdle > 0) { return gofiID, "idleTimeout, change cookie", nil }
+	if (differenceIdle > 0) { return gofiID, email, "idleTimeout, change cookie", nil }
 
-	if (gofiID > 0) { return gofiID, "", nil } else { return 0, "error no gofiID found from sessionID cookie", err }
+	if (gofiID > 0) { return gofiID, email, "", nil } else { return 0, "", "error no gofiID found from sessionID cookie", err }
 }
 
-func GetList(ft *FinanceTracker) {
-	db, err := sql.Open("sqlite", DbPath)
-	if err != nil {
-		log.Fatal("error opening DB file: ", err)
-		return
-	}
-	defer db.Close()
-	defer db.Exec("PRAGMA optimize;") // to run just before closing each database connection.
-	defer fmt.Println("defer : optimize then close DB")
-	
+func GetList(ctx context.Context, db *sql.DB, ft *FinanceTracker) {
 	q := ` 
 		SELECT paramJSONstringData
 		FROM param
 		WHERE gofiID = ?
 			AND paramName = ?;
 	`
-	rows, err := db.Query(q, ft.GofiID, "accountList")
+	rows, _ := db.QueryContext(ctx, q, ft.GofiID, "accountList")
 
 	rows.Next()
 	var accountList string
@@ -255,8 +334,9 @@ func GetList(ft *FinanceTracker) {
 	ft.Account = accountList
 	ft.AccountList = strings.Split(accountList, ",")
 	// fmt.Printf("\naccountList: %v\n", ft.AccountList)
+	rows.Close()
 
-	rows, err = db.Query(q, ft.GofiID, "categoryList")
+	rows, _ = db.QueryContext(ctx, q, ft.GofiID, "categoryList")
 	rows.Next()
 	var categoryList string
 	if err := rows.Scan(&categoryList); err != nil {
@@ -267,6 +347,7 @@ func GetList(ft *FinanceTracker) {
 	}
 	ft.Category = categoryList
 	ft.CategoryList = strings.Split(categoryList, ",")
+	rows.Close()
 	// fmt.Printf("\ncategoryList: %v\n", ft.CategoryList)
 	return
 }
@@ -294,17 +375,8 @@ func InsertRowInParam(p *Param) (int64, error) {
 	return id, nil
 }
 
-func GetLastRowsInFinanceTracker(gofiID int) []FinanceTracker {
+func GetLastRowsInFinanceTracker(ctx context.Context, db *sql.DB, gofiID int) []FinanceTracker {
 	var ftList []FinanceTracker
-	db, err := sql.Open("sqlite", DbPath)
-	if err != nil {
-		log.Fatal("error opening DB file: ", err)
-		return ftList
-	}
-	defer db.Close()
-	defer db.Exec("PRAGMA optimize;") // to run just before closing each database connection.
-	defer fmt.Println("defer : optimize then close DB")
-	
 	q := ` 
 		SELECT year, month, day, 
 			account, product, priceIntx100, category
@@ -313,8 +385,10 @@ func GetLastRowsInFinanceTracker(gofiID int) []FinanceTracker {
 		ORDER BY id DESC
 		LIMIT 5;
 	`
-	rows, err := db.Query(q, gofiID)
-
+	rows, err := db.QueryContext(ctx, q, gofiID)
+	if err != nil {
+		log.Fatal("error on DB query: ", err)
+	}
 	for rows.Next() {
 		var ft FinanceTracker
 		var successfull bool
@@ -329,20 +403,12 @@ func GetLastRowsInFinanceTracker(gofiID int) []FinanceTracker {
 		// fmt.Printf("ft: %#v\n", ft)
 		ftList = append(ftList, ft)
 	}
+	rows.Close()
 	return ftList
 }
 
-func InsertRowInFinanceTracker(ft *FinanceTracker) (int64, error) {
-	db, err := sql.Open("sqlite", DbPath)
-	if err != nil {
-		log.Fatal("error opening DB file: ", err)
-		return 0, err
-	}
-	defer db.Close()
-	defer db.Exec("PRAGMA optimize;") // to run just before closing each database connection.
-	defer fmt.Println("defer : optimize then close DB")
-
-	result, err := db.Exec(`
+func InsertRowInFinanceTracker(ctx context.Context, db *sql.DB, ft *FinanceTracker) (int64, error) {
+	result, err := db.ExecContext(ctx, `
 		INSERT INTO financeTracker (gofiID, year, month, day, account, product, priceIntx100, category)
 		VALUES (?,?,?,?,?,?,?,?);
 		`, 
@@ -418,6 +484,7 @@ func ExportCSV(gofiID int, csvSeparator rune, csvDecimalDelimiter string, dateFo
         }
 
 	}
+	rows.Close()
 }
 
 

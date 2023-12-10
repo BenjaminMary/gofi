@@ -1,0 +1,105 @@
+{{template "head" .}}
+<!-- avoid CDN https://blog.wesleyac.com/posts/why-not-javascript-cdn -->
+<!-- Subresource Integrity, SRI hash : https://www.srihash.org/ -->
+<script 
+    src="https://unpkg.com/htmx.org@1.9.6" 
+    integrity="sha384-FhXw7b6AlE/jyjlZH5iHa/tTe9EpJ1Y55RjcgPbjeWMskSxZt1v9qkxLJWNJaGni" 
+    crossorigin="anonymous">
+</script>
+{{template "body" .}}
+{{template "content" .}}
+
+<h1>Checkpoint and Backup</h1>
+
+<section id="info">
+    <h3>Fichier sauvegardé</h3>
+    <p>
+        ID: {{ .DriveFileMetaData.DriveFileID }}<br>
+        Name: {{ .DriveFileMetaData.Name }}<br>
+        Pour activer la sauvegarde, ajouter en param dans l'URL <code>?backup=1</code>
+    </p>
+    <hr>
+    <h3>Liste des fichiers</h3>
+    <div>
+        <figure>
+            <table role="grid">
+                <thead>
+                    <tr>
+                        <th scope="col">Drive ID</th>
+                        <th scope="col">Nom</th>
+                    </tr>
+                </thead>
+                <tbody id="lastInsert">
+                    {{range $DFMD := .DriveFileMetaDataList.Files}}
+                        <tr>
+                            <td>{{$DFMD.DriveFileID}}</td>
+                            <td>{{$DFMD.Name}}</td>
+                        </tr>
+                    {{end}}
+                </tbody>
+            </table>
+        </figure>
+    </div>
+</section>
+
+<hr>
+
+<section id="formDelete">
+    <h3>Supprimer un fichier sauvegardé</h3>
+    <form hx-post="/checkpoint" 
+        hx-swap="innerHTML settle:500ms"
+        hx-target="#deleteTarget" 
+        hx-indicator="#spinner">
+        
+        <!-- Text -->
+        <input type="text" id="method" name="method" value="DELETE" readonly />
+
+        <!-- Select -->
+        <label for="driveID">Drive ID</label>
+        <select id="driveID" name="driveID" required>
+            {{range $DFMD := .DriveFileMetaDataList.Files}}
+                    <option value="{{$DFMD.DriveFileID}}">{{$DFMD.DriveFileID}}, {{$DFMD.Name}}</option>
+            {{end}}
+        </select>
+
+        <!-- Buttons -->
+        <button type="submit" value="Submit">
+            <span id="spinner" class="htmx-indicator" aria-busy="true"></span>
+            Supprimer
+        </button>
+    </form>
+    <div id="deleteTarget"></div>
+</section>
+
+<hr>
+
+<!-- <form hx-post="/checkpoint" 
+hx-swap="innerHTML settle:500ms"
+hx-target="#downloadTarget" 
+hx-indicator="#spinner"> -->
+
+<section id="formDownload">
+    <h3>Télécharger un fichier sauvegardé</h3>
+    <form action="/checkpoint" method="post">
+        
+        <!-- Text -->
+        <input type="text" id="method" name="method" value="DOWNLOAD" readonly />
+
+        <!-- Select -->
+        <label for="driveID">Drive ID</label>
+        <select id="driveID" name="driveID" required>
+            {{range $DFMD := .DriveFileMetaDataList.Files}}
+                    <option value="{{$DFMD.DriveFileID}}">{{$DFMD.DriveFileID}}, {{$DFMD.Name}}</option>
+            {{end}}
+        </select>
+
+        <!-- Buttons -->
+        <button type="submit" value="Submit">
+            <span id="spinner" class="htmx-indicator" aria-busy="true"></span>
+            Télécharger
+        </button>
+    </form>
+    <div id="downloadTarget"></div>
+</section>
+
+{{template "footer" .}}

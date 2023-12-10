@@ -31,10 +31,13 @@ The HTML files are currently only in french.
     export SQLITE_DB_FILENAME="gofi.db"
     export COOKIE_LENGTH=64
     export EXE_PATH="/gofi"
+    export ADMIN_EMAIL="example@gmail.com"
+    export DRIVE_SAVE_ENABLED=0
     ```
 - locally :
     ```bash
-    # exec initDB first
+    # exec initDB first to create required tables
+    # only the first time.
     cd /gofi/initDB
     go run .
     ```
@@ -43,19 +46,44 @@ The HTML files are currently only in french.
     go run .
     ```
 
+#### OPTIONAL: Generate Backups on Google Drive
+This optional feature adds some prerequisites:
+- enable it with env var: `DRIVE_SAVE_ENABLED=1`
+- only the `ADMIN_EMAIL` (also set with env var) will be able to use this feature
+- you need to make a [Google Service Account](https://developers.google.com/workspace/guides/create-credentials#service-account) to get the following credentials.
+- add these credentials as environment variables:
+    ```bash
+    export type="service_account"
+    export project_id="project"
+    export private_key_id="XY"
+    export private_key="-----BEGIN PRIVATE KEY-----\nXYZ\n-----END PRIVATE KEY-----\n"
+    export client_email="X@Y.iam.gserviceaccount.com"
+    export client_id="1"
+    export auth_uri="https://accounts.google.com/o/oauth2/auth"
+    export token_uri="https://oauth2.googleapis.com/token"
+    export auth_provider_x509_cert_url="https://www.googleapis.com/oauth2/v1/certs"
+    export client_x509_cert_url="https://www.googleapis.com/robot/v1/metadata/x509/X%Y.iam.gserviceaccount.com"
+    export universe_domain="googleapis.com" 
+    ```
+
 ## TODO
+&#x2611;&#x2610;&#x2612;
 - ajout préférences utilisateur:
     - gestion des préférences de format de date EN + FR avec / ou -
     - gestion des préférences de format csv séparateur colonne + separateur décimal
     - laisser l'overide possible dans les parties import/export csv, mais préselectionner la préférence
+- ajout validation des dépenses
+    - système qui ramène l'ensemble des lignes encore non validées
+    - voir pour permettre de la validation de groupe en saisissant une date unique et en sélectionnant X lignes
 - Ajout de statistiques 
     - sur les dépenses
     - sur le nombre de requêtes
 - Ajout sauvegarde DB SQLite sur Drive
-    - avec table SQLite qui garde les ID + nom + date de fichiers sauvegardés + le statut de l'upload
-    - voir pour fermer le server et faire la sauvegarde au restart après quelques commandes de nettoyage de DB ?
-    - voir si la gestion d'une seule ouverture/fermeture DB ferait fonctionner le PRAGMA wal_checkpoint(TRUNCATE) sans retourner BUSY
-        - obj nettoyer les fichiers wal + shm avant sauvegarde
+    - &#x2611; avec table SQLite qui garde les ID + nom + date de fichiers sauvegardés + le statut de l'upload (pas besoin l'API Google redonne toutes les infos)
+    - &#x2611; voir pour fermer le server et faire la sauvegarde au restart après quelques commandes de nettoyage de DB (semble ok)
+    - &#x2611; voir si la gestion d'une seule ouverture/fermeture DB ferait fonctionner le PRAGMA wal_checkpoint(TRUNCATE) sans retourner BUSY
+        - &#x2611; obj nettoyer les fichiers wal + shm avant sauvegarde
+    - &#x2610; cron based backup : https://litestream.io/alternatives/cron/ + monitoring : https://deadmanssnitch.com/account/sign_up?plan=the_lone_snitch
 - PWA
     - Ajout SQLite en WebAssembly ?
 - voir pour réduire le nombre d'ouverture/fermeture de DB
@@ -75,6 +103,7 @@ The HTML files are currently only in french.
 
 
 ## Changelog
+- 2023-12-10 : add optional backup saves with Google Drive API. Also add context with timeout everywhere and simplify DB open.
 - 2023-11-20 : add var env for the executable file path + change port used
 - 2023-11-13 : auto update cookie when idle timeout reached, force new login when absolute timeout reached (all dates are generated with SQLite)
 - 2023-11-12 : logo update + logout feature + cookie length param + rework some html

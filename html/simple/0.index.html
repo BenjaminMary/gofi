@@ -8,6 +8,9 @@
 
 <section id="links">
     <h2>Fonctionnalités!</h2>
+    {{if .Logged}}
+        <p>Bienvenue <code>{{.Email}}</code> !</p>
+    {{end}}
     <ol>
         {{if .Logged}}
             <li><a href="/param-setup">Paramétrer les listes et les préférences de l'application</a></li>
@@ -19,6 +22,11 @@
     </ol>
     {{if .Logged}}
         <ul>
+            {{if .Admin}}
+                <li><a href="/checkpoint">Page d'administration</a></li>
+                <li><a href="/checkpoint?backup=1">Générer un backup DB SQLite</a></li>
+                <br>
+            {{end}}
             <li><a href="/export-csv">Exporter les dépenses en fichier CSV</a></li>
             <li><a href="/import-csv">Importer un fichier CSV de dépenses</a></li>
         </ul>
