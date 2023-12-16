@@ -10,6 +10,7 @@
 {{template "content" .}}
 
 <h1>Import CSV</h1>
+<p>Un exemple d'import est disponible <a href="#example">en bas de page</a>.</p>
 
 <section id="form">
     <h3>Options</h3>
@@ -76,5 +77,69 @@
 </section>
 
 <textarea id="textarea" rows="10"></textarea>
+
+<hr>
+
+<section id="example">
+    <h3>Exemple</h3>
+    <h5>La liste des champs à renseigner:</h5>
+    <ol>
+        <li><code>ID</code>: laisser vide pour créer un enregistrement ou spécifier un ID d'enregistrement existant pour le mettre à jour.</li>
+        <li><code>Date</code>: doit respecter le format spécifié, dans l'exemple <code>JJ/MM/AAAA</code>, ne pas laisser vide</li>
+        <li><code>Account</code>: le compte utilisé pour l'enregistrement</li>
+        <li><code>Product</code>: la désignation de l'enregistrement</li>
+        <li><code>PriceStr</code>: doit respecter le séparateur de décimale spécifié, dans l'exemple <code>,</code> avec un maximum de 2 décimales prises en compte</li>
+        <li><code>Category</code>: la catégorie de l'enregistrement</li>
+        <li><code>CommentInt</code>: un commentaire chiffré sans décimale (si besoin de faire des stats)</li>
+        <li><code>CommentString</code>: un commentaire en texte libre</li>
+        <li><code>Checked</code>: valeurs <code>true</code> ou <code>false</code></li>
+        <li><code>DateChecked</code>: doit respecter le format spécifié, dans l'exemple <code>JJ/MM/AAAA</code>. Si vide, sera enregistré à <code>31/12/9999</code></li>
+        <li><code>SentToSheets</code>: valeurs <code>true</code> ou <code>false</code></li>
+    </ol>
+
+    <h5>Exemple d'un fichier .csv de 3 lignes à importer:</h5>
+    <ul>
+        <li>séparateur csv <code>;</code></li>
+        <li>séparateur décimale <code>,</code></li>
+        <li>format date FR <code>JJ/MM/AAAA</code></li>
+    </ul>
+    <ol>
+        <li><code>ID;Date;Account;Product;PriceStr;Category;CommentInt;CommentString;Checked;DateChecked;SentToSheets</code></li>        
+        <li><code>1;12/11/2023;CB;Exemple 1 avec ID 1;2,03;Supermarché;0;;true;02/12/2023;false</code></li>
+        <li><code>;10/12/2024;CB;Exemple 2 sans ID;9,00;Supermarché;0;;false;;false</code></li>
+        <li><code>156979;10/12/2024;CB;Exemple 3 avec ID inconnu;87,50;Supermarché;0;;false;31/12/2200;false</code></li>
+    </ol>
+    <ol>
+        <li>La 1ere ligne sert pour les en-têtes et sera toujours ignorée lors du traitement</li>
+        <li>Dans l'exemple 1, avec un ID on fait un <code>UPDATE</code> des données de la ligne qui a cet ID <code>1</code></li>
+        <li>Dans l'exemple 2, sans ID, on fait un <code>INSERT</code> d'une nouvelle ligne sur laquelle on va attribuer un ID</li>
+        <li>Dans l'exemple 3, avec un ID inconnu, on fait une tentative d'<code>UPDATE</code> des données de la ligne qui a cet ID <code>156979</code>, mais qui sera rejetée</li>
+    </ol>
+
+    <h5>Les résultats de l'import:</h5>
+    <ol>
+        <li>En-têtes de retour: <code>ID;Date;CommentInt;Checked;SentToSheets;NewID;Updated;</code></li>
+        <li>
+            Pour l'exemple 1, <code>UPDATE</code> de l'ID <code>1</code> validé avec l'info de l'en-tête de retour <code>Updated</code> à <code>true</code>:<br> 
+            <code>UPDATE 1;;;;;true;</code>
+        </li>
+        <li>
+            Pour l'exemple 2, <code>INSERT</code> d'une nouvelle ligne validé avec l'info de l'ID attribué via en-tête retour <code>NewID</code> à <code>3</code>, 
+            on pourra donc mettre à jour cette ligne plus tard en utilisant cet ID:<br> 
+            <code>INSERT;;;;3;true;</code>
+        </li>
+        <li>
+            Pour l'exemple 3, <code>UPDATE</code> de l'ID inconnu <code>156979</code> invalide avec l'info de l'en-tête de retour <code>NewID</code> à <code>unknown ID</code>
+            ainsi que <code>Updated</code> à <code>false</code>:<br> 
+            <code>UPDATE 156979;;;;unknown ID;false;</code>
+        </li>
+    </ol>
+    <hr>
+    <h5>INFOS:</h5> 
+    <ul>
+        <li>Tous les ID sont attribués par l'application, il est impossible d'en changer ou d'en forcer un spécifique.</li>
+        <li>Années valides entre 1900 et 2200</li>
+    </ul>
+</section>
 
 {{template "footer" .}}

@@ -14,9 +14,14 @@
 <section id="info">
     <h3>Fichier sauvegardé</h3>
     <p>
+        {{if .DriveSaveEnabled}}
+            Sauvegarde Drive activée! Pour déclencher une sauvegarde, ajouter en param dans l'URL <code>?save=1</code>.
+        {{else}}
+            Sauvegarde Drive désactivée, utiliser le paramètre <code>DRIVE_SAVE_ENABLED=1</code> si besoin.
+        {{end}}<br>
+        {{ .CheckpointReturnInfo }}<br>
         ID: {{ .DriveFileMetaData.DriveFileID }}<br>
-        Name: {{ .DriveFileMetaData.Name }}<br>
-        Pour activer la sauvegarde, ajouter en param dans l'URL <code>?backup=1</code>
+        Name: {{ .DriveFileMetaData.Name }}
     </p>
     <hr>
     <h3>Liste des fichiers</h3>

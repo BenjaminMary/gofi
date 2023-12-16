@@ -26,22 +26,23 @@ var db *sql.DB
 	ctx, cancelCtx := context.WithDeadline(ctx, deadline)
 */
 
-//checkpoint
-func getCheckpoint(c *gin.Context) {
+//getBackup
+func getBackup(c *gin.Context) {
     ctx, cancel := context.WithTimeout(context.TODO(), 9*time.Second)
     defer cancel()
 
     _, email := CheckCookie(ctx, c, db)
+    if c.IsAborted() {return}
+
     //reserved admin page
-    if (email != os.Getenv("ADMIN_EMAIL")) {
-        c.Redirect(http.StatusSeeOther, "/")
-        c.Abort()
-        return
-    }
-    backup := c.DefaultQuery("backup", "0")
+    CheckAdmin(c, email)
+    if c.IsAborted() {return}
+
+    //get the URL param value named "save"
+    backup := c.DefaultQuery("save", "0")
 
     driveSaveEnabledStr := os.Getenv("DRIVE_SAVE_ENABLED")
-    driveSaveEnabled, _ := strconv.Atoi(driveSaveEnabledStr)
+    DriveSaveEnabled, _ := strconv.Atoi(driveSaveEnabledStr)
     var DriveFileMetaData drive.DriveFileMetaData
     DriveFileMetaData.DriveFileID = ""
     DriveFileMetaData.Name = ""
@@ -49,14 +50,18 @@ func getCheckpoint(c *gin.Context) {
 
     // checkpointReturn = 0 if OK
     checkpointReturn := sqlite.WalCheckpoint(ctx)
-    if (checkpointReturn == 0 && driveSaveEnabled == 1 && backup == "1") {
+    var CheckpointReturnInfo string
+    if (checkpointReturn == 0) {
+        CheckpointReturnInfo = "Checkpoint réalisé avec succès!"
+    } else {CheckpointReturnInfo = "Checkpoint non réalisé."}
+    if (checkpointReturn == 0 && DriveSaveEnabled == 1 && backup == "1") {
         //backup db
         DriveFileMetaData = drive.UploadWithDrivePostRequestAPI(sqlite.DbPath)
         today := time.Now().Format(time.DateOnly)
         DriveFileMetaData.Name = today + "-gofi.db"
         drive.UpdateMetaDataDriveFile(DriveFileMetaData)
     }
-    if (driveSaveEnabled == 1) {
+    if (DriveSaveEnabled == 1) {
         DriveFileMetaDataList = drive.ListFileInDrive()
     }
     db = sqlite.OpenDbCon()
@@ -64,9 +69,21 @@ func getCheckpoint(c *gin.Context) {
     c.HTML(http.StatusOK, "1.checkpoint.html", gin.H{
         "DriveFileMetaData": DriveFileMetaData,
         "DriveFileMetaDataList": DriveFileMetaDataList,
+        "CheckpointReturnInfo": CheckpointReturnInfo,
+        "DriveSaveEnabled": DriveSaveEnabled,
     })
 }
-func postCheckpoint(c *gin.Context) {
+func postBackup(c *gin.Context) {
+    ctx, cancel := context.WithTimeout(context.TODO(), 2*time.Second)
+    defer cancel()
+
+    _, email := CheckCookie(ctx, c, db)
+    if c.IsAborted() {return}
+
+    //reserved admin page
+    CheckAdmin(c, email)
+    if c.IsAborted() {return}
+
     method := c.PostForm("method")
     driveID := c.PostForm("driveID")
     fmt.Println("method: ", method)
@@ -339,16 +356,7 @@ func postinsertrows(c *gin.Context) {
         c.String(http.StatusBadRequest, "bad request: %v", err)
         return
     }
-    // fmt.Printf("before FormPriceStr2Decimals: %s \n", Form.FormPriceStr2Decimals)
-    if !strings.Contains(Form.FormPriceStr2Decimals, "."){ // add .00 if "." not present in string, equivalent of *100 with next step
-        Form.FormPriceStr2Decimals = Form.FormPriceStr2Decimals + ".00"
-    } else {
-        decimalPart := strings.Split(Form.FormPriceStr2Decimals, ".")
-        if len(decimalPart[1]) == 1 { Form.FormPriceStr2Decimals = Form.FormPriceStr2Decimals + "0" }
-    }
-    safeInteger, _ := strconv.Atoi(strings.Replace(Form.FormPriceStr2Decimals, ".", "", 1))
-    Form.PriceIntx100 = safeInteger
-    // fmt.Printf("after PriceIntx100: %s \n", Form.PriceIntx100)
+    Form.PriceIntx100 = sqlite.ConvertPriceStrToInt(Form.FormPriceStr2Decimals, ".") // always "." as decimal separator from the form
 
     var successfull bool
     Form.Year, Form.Month, Form.Day, successfull, _ = sqlite.ConvertDateStrToInt(Form.Date, "EN", "-")
@@ -479,8 +487,8 @@ func main() {
     router.GET("/import-csv", getImportCsv)
     router.POST("/import-csv", postImportCsv)
 
-    router.GET("/checkpoint", getCheckpoint)
-    router.POST("/checkpoint", postCheckpoint)
+    router.GET("/admin/backup", getBackup)
+    router.POST("/admin/backup", postBackup)
 
     router.GET("/login", getLogin)
     router.POST("/login", postLogin)

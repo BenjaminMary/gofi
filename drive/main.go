@@ -35,7 +35,7 @@ func UploadWithDrivePostRequestAPI(fileToUpload string) DriveFileMetaData {
         }
 
         url := "https://www.googleapis.com/upload/drive/v3/files?uploadType=media"
-        fmt.Println("URL: ", url)
+        //fmt.Println("URL: ", url)
         req, err := http.NewRequest("POST", url, bytes.NewBuffer(file))
 
         resp, err := client.Do(req)
@@ -44,16 +44,16 @@ func UploadWithDrivePostRequestAPI(fileToUpload string) DriveFileMetaData {
         }
         defer resp.Body.Close()
 
-        fmt.Println("response Status: ", resp.Status)
+        //fmt.Println("response Status: ", resp.Status)
         // fmt.Println("response Headers:", resp.Header)
         body, _ := io.ReadAll(resp.Body)
-        fmt.Println("-----------------------------\nresponse Body POST:\n", string(body))
+        //fmt.Println("-----------------------------\nresponse Body POST:\n", string(body))
 
         var driveFileMetaData DriveFileMetaData
         json.Unmarshal(body, &driveFileMetaData)
 
-        fmt.Printf("-----------------------------\n json: %#v\n", driveFileMetaData)
-        fmt.Printf("-----------------------------\n json id: %v\n", driveFileMetaData.DriveFileID)
+        //fmt.Printf("-----------------------------\n json: %#v\n", driveFileMetaData)
+        //fmt.Printf("-----------------------------\n json id: %v\n", driveFileMetaData.DriveFileID)
 
         return driveFileMetaData
 }
@@ -78,9 +78,8 @@ func ListFileInDrive() DriveFileMetaDataList {
         if err != nil {
                 log.Fatal(err)
         }
-        fmt.Println("-----------------------------\nresponse Body LIST:\n", string(bytesR))
+        //fmt.Println("-----------------------------\nresponse Body LIST:\n", string(bytesR))
 
-        //return string(bytesR)
         var driveFileMetaDataList DriveFileMetaDataList
         json.Unmarshal(bytesR, &driveFileMetaDataList)
 
@@ -101,13 +100,13 @@ func DeleteFileInDrive(driveID string) {
         if err != nil {
                 log.Fatal(err)
         }
-        bytesR, err := io.ReadAll(resp.Body)
+        _, err = io.ReadAll(resp.Body) // bytesR, err :=
         if err != nil {
                 log.Fatal(err)
         }
-        fmt.Println("URL: ", requestURL)
-        fmt.Println("response Status: ", resp.Status)
-        fmt.Println("-----------------------------\nresponse Body DELETE:\n", string(bytesR))
+        //fmt.Println("URL: ", requestURL)
+        //fmt.Println("response Status: ", resp.Status)
+        //fmt.Println("-----------------------------\nresponse Body DELETE:\n", string(bytesR))
 }
 
 
@@ -119,7 +118,7 @@ func UpdateMetaDataDriveFile(dfmd DriveFileMetaData) {
         url := "https://www.googleapis.com/drive/v3/files/" + dfmd.DriveFileID
         dfmd.DriveFileID = "" // remove the id for the JSON sent with omitempty
 
-        fmt.Println("URL: ", url)
+        //fmt.Println("URL: ", url)
 
         jsonB, err := json.Marshal(dfmd)
         req, err := http.NewRequest("PATCH", url, bytes.NewBuffer(jsonB))
@@ -130,10 +129,10 @@ func UpdateMetaDataDriveFile(dfmd DriveFileMetaData) {
         }
         defer resp.Body.Close()
 
-        fmt.Println("response Status: ", resp.Status)
+        //fmt.Println("response Status: ", resp.Status)
         // fmt.Println("response Headers:", resp.Header)
-        body, _ := io.ReadAll(resp.Body)
-        fmt.Println("-----------------------------\nresponse Body PATCH:\n", string(body))
+        //body, _ := io.ReadAll(resp.Body)
+        //fmt.Println("-----------------------------\nresponse Body PATCH:\n", string(body))
 }
 
 func GetFileInDrive(driveID string, pathAndFileName string) {
@@ -161,12 +160,12 @@ func GetFileInDrive(driveID string, pathAndFileName string) {
         }
         defer output.Close()
 
-	n, err := io.Copy(output, resp.Body)
+	_, err = io.Copy(output, resp.Body) // n, err :
 	if err != nil {
 	        fmt.Println("Error while downloading")
                 log.Fatal(err)
 	}
-        fmt.Println(n, "bytes downloaded.")
+        //fmt.Println(n, "bytes downloaded.")
 
         return
 }

@@ -99,3 +99,14 @@ func CheckCookie(ctx context.Context, c *gin.Context, db *sql.DB) (int, string) 
         return 0, ""
     }
 }
+
+
+// FUNC check admin 
+func CheckAdmin(c *gin.Context, email string) {
+    // check if user is an admin to access the required page, redirect otherwise
+    if (email != os.Getenv("ADMIN_EMAIL")) {
+        c.Redirect(http.StatusSeeOther, "/")
+        c.Abort()
+        return
+    }
+}

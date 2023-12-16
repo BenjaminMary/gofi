@@ -1,6 +1,7 @@
 {{template "head" .}}
 <link rel="shortcut icon" href="https://gofi.benjamin-mary.com/img/favicon-32x32.png" />
 <link rel="apple-touch-icon" href="https://gofi.benjamin-mary.com/img/apple-touch-icon.png" />
+<link rel="icon" sizes="192x192" href="https://gofi.benjamin-mary.com/img/android-chrome-192x192.png">
 <link rel="android-chrome" sizes="192x192" href="https://gofi.benjamin-mary.com/img/android-chrome-192x192.png" />
 <link rel="android-chrome" sizes="512x512" href="https://gofi.benjamin-mary.com/img/android-chrome-512x512.png" />
 <link rel="favicon" href="https://gofi.benjamin-mary.com/img/favicon-32x32.png" />
@@ -27,15 +28,18 @@
     </ol>
     {{if .Logged}}
         <ul>
-            {{if .Admin}}
-                <li><a href="/checkpoint">Page d'administration</a></li>
-                <li><a href="/checkpoint?backup=1">Générer un backup DB SQLite</a></li>
-                <br>
-            {{end}}
             <li><a href="/export-csv">Exporter les dépenses en fichier CSV</a></li>
             <li><a href="/import-csv">Importer un fichier CSV de dépenses</a></li>
         </ul>
         <a href="/logout">Se déconnecter</a>
+        {{if .Admin}}
+            <hr>
+            <h5>Administration</h5>
+            <ul>
+                <li><a href="/admin/backup">Gérer les backups</a></li>
+                <li><a href="/admin/backup?save=1">Générer un backup DB SQLite</a></li>
+            </ul>
+        {{end}}
     {{end}}
 </section>
 <hr>
@@ -53,3 +57,8 @@
         <a target="_blank" href="https://github.com/BenjaminMary/gofi/">Github</a>
     </small>
 </section>
+
+<!-- end main, body, html section usually ended with the footer template -->
+</main>
+</body>
+</html>

@@ -71,20 +71,20 @@ func WalCheckpoint(ctx context.Context) int {
 		log.Fatal("error PRAGMA busyTimeout 1: ", err)
 		return -1
 	}
-	fmt.Printf("busyTimeout 1: %v\n", busyTimeout)
+	//fmt.Printf("busyTimeout 1: %v\n", busyTimeout)
 	err = conn.QueryRowContext(ctx, "PRAGMA busy_timeout = 2000;").Scan(&busyTimeout)
 	if err != nil {
 		log.Fatal("error PRAGMA busyTimeout 2: ", err)
 		return -1
 	}
-	fmt.Printf("busyTimeout 2: %v\n", busyTimeout)
+	//fmt.Printf("busyTimeout 2: %v\n", busyTimeout)
 
 	db.SetConnMaxIdleTime(100 * time.Millisecond)
 	db.SetConnMaxLifetime(100 * time.Millisecond)
 	time.Sleep(3 * time.Second)
 
-	stats := db.Stats()
-	fmt.Printf("stats: %#v\n", stats)
+	//stats := db.Stats()
+	//fmt.Printf("stats: %#v\n", stats)
 
 	conn.ExecContext(ctx, "COMMIT;")
 	conn.Close()
@@ -102,9 +102,9 @@ func WalCheckpoint(ctx context.Context) int {
 		log.Fatal("error PRAGMA wal_checkpoint(TRUNCATE): ", err)
 		return -1
 	}
-	fmt.Printf("checkpointReturn: %v\n", strconv.Itoa(checkpointReturn))
-	fmt.Printf("pagestoWal: %v\n", strconv.Itoa(pagestoWal))
-	fmt.Printf("pagesFromWalToDb: %v\n", strconv.Itoa(pagesFromWalToDb))
+	//fmt.Printf("checkpointReturn: %v\n", strconv.Itoa(checkpointReturn))
+	//fmt.Printf("pagestoWal: %v\n", strconv.Itoa(pagestoWal))
+	//fmt.Printf("pagesFromWalToDb: %v\n", strconv.Itoa(pagesFromWalToDb))
 	if checkpointReturn == 1 {
 		// conn.Close()
 		return 1
@@ -507,9 +507,9 @@ func ImportCSV(gofiID int, csvSeparator rune, csvDecimalDelimiter string, dateFo
 	defer db.Exec("PRAGMA optimize;") // to run just before closing each database connection.
 	defer fmt.Println("defer : optimize then close DB")
 
-	if (csvFile.Size > 200000) {
+	if (csvFile.Size > 1000000) {
 		stringList += "Fichier trop lourd: " + strconv.FormatInt(csvFile.Size, 10)
-		stringList += " octets.\nLa limite actuelle est fixée à 200 000 octets par fichier.\nMerci de découper le fichier et faire plusieurs traitements."
+		stringList += " octets.\nLa limite actuelle est fixée à 1 000 000 octets par fichier.\nMerci de découper le fichier et faire plusieurs traitements."
 		return stringList
 	}
 	file, err := csvFile.Open() // For read access.
@@ -539,8 +539,8 @@ func ImportCSV(gofiID int, csvSeparator rune, csvDecimalDelimiter string, dateFo
 		ft.ID, err = strconv.Atoi(row[0])
 		if err != nil { // Always check errors even if they should not happen.
 			ft.ID = 0
-			lineInfo += "default 0;"
-		} else { lineInfo += row[0] + ";" }
+			lineInfo += "INSERT;"
+		} else { lineInfo += "UPDATE " + row[0] + ";" }
 
 		ft.Year, ft.Month, ft.Day, successfull, unsuccessfullReason = ConvertDateStrToInt(row[1], dateFormat, dateSeparator)
 		if !successfull {
@@ -552,26 +552,40 @@ func ImportCSV(gofiID int, csvSeparator rune, csvDecimalDelimiter string, dateFo
 		ft.Account = row[2] 
 		ft.Product = row[3]
 		ft.FormPriceStr2Decimals = row[4]
-		safeInteger, _ := strconv.Atoi(strings.Replace(ft.FormPriceStr2Decimals, csvDecimalDelimiter, "", 1))
-		ft.PriceIntx100 = safeInteger
+		ft.PriceIntx100 = ConvertPriceStrToInt(ft.FormPriceStr2Decimals, csvDecimalDelimiter)
 
 		ft.Category = row[5]
 		ft.CommentInt, err = strconv.Atoi(row[6])
 		if err != nil {
 			ft.CommentInt = 0
-			lineInfo += "default 0;"
+			lineInfo += "comment i 0;"
 		} else { lineInfo += ";" }
 		ft.CommentString = row[7]
+
+		// Checked
 		ft.Checked, err = strconv.ParseBool(row[8])
 		if err != nil {
 			ft.Checked = false
-			lineInfo += "default 0;"
+			lineInfo += "checked 0;"
 		} else { lineInfo += ";" }
-		ft.DateChecked = row[9]
+
+		// DateChecked
+		ft.DateChecked = "9999-12-31"
+		if len(row[9]) == 10 {
+			yearInt, monthInt, dayInt, successfull, unsuccessfullReason := ConvertDateStrToInt(row[9], dateFormat, dateSeparator)
+			fmt.Println("---------------")
+			fmt.Printf("ft.DateChecked: %v\n", ft.DateChecked)
+			fmt.Printf("yearInt %v, monthInt %v, dayInt %v, successfull %v, unsuccessfullReason %v\n", yearInt, monthInt, dayInt, successfull, unsuccessfullReason)
+			if successfull {
+				dateForDB, successfull, unsuccessfullReason := ConvertDateIntToStr(yearInt, monthInt, dayInt, "EN", "-") //force YYYY-MM-DD inside DB
+				fmt.Printf("dateForDB %v, successfull %v, unsuccessfullReason %v\n", dateForDB, successfull, unsuccessfullReason)
+				if successfull {ft.DateChecked = dateForDB}
+			}	
+		}
 		ft.SentToSheets, err = strconv.ParseBool(row[10])
 		if err != nil {
 			ft.SentToSheets = false
-			lineInfo += "default 0;"
+			lineInfo += "sent 0;"
 		} else { lineInfo += ";" }
 
 		if (ft.ID == 0) {
@@ -590,7 +604,7 @@ func ImportCSV(gofiID int, csvSeparator rune, csvDecimalDelimiter string, dateFo
 			}
 		} else {
 			// UPDATE
-			_, err := db.Exec(`
+			result, err := db.Exec(`
 				UPDATE financeTracker 
 				SET year = ?, month = ?, day = ?, account = ?, product = ?, priceIntx100 = ?, category = ?,
 					commentInt = ?, commentString = ?, checked = ?, dateChecked = ?, sentToSheets = ?
@@ -601,7 +615,12 @@ func ImportCSV(gofiID int, csvSeparator rune, csvDecimalDelimiter string, dateFo
 				ft.CommentInt, ft.CommentString, ft.Checked, ft.DateChecked, ft.SentToSheets,
 				ft.ID, ft.GofiID,
 			)
-			if err != nil {lineInfo += "error3;false;"} else {lineInfo += ";true;"}
+			if err != nil {lineInfo += "error3;false;"} else {
+				rows, err := result.RowsAffected()
+				if err != nil {lineInfo += "error4;false;"} else {
+					if rows != 1 {lineInfo += "unknown ID;false;"} else {lineInfo += ";true;"}
+				}
+			}
 		}
 		stringList += lineInfo + "\n"
 	}

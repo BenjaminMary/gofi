@@ -8,18 +8,43 @@ import (
 )
 
 func ConvertPriceIntToStr(i int) string {
-	var FormPriceStr2Decimals string
+	var PriceStr2Decimals string
 	switch {
 		case i > 99:
-			// fmt.Printf("FormPriceStr2Decimals: %v\n", strconv.Itoa(i)[:len(strconv.Itoa(i))-2]) // all except last 2 (stop at x-2)
-			// fmt.Printf("FormPriceStr2Decimals: %v\n", strconv.Itoa(i)[len(strconv.Itoa(i))-2:]) // last 2 only (start at x-2)
-			FormPriceStr2Decimals = strconv.Itoa(i)[:len(strconv.Itoa(i))-2] + "." + strconv.Itoa(i)[len(strconv.Itoa(i))-2:]
+			// fmt.Printf("PriceStr2Decimals: %v\n", strconv.Itoa(i)[:len(strconv.Itoa(i))-2]) // all except last 2 (stop at x-2)
+			// fmt.Printf("PriceStr2Decimals: %v\n", strconv.Itoa(i)[len(strconv.Itoa(i))-2:]) // last 2 only (start at x-2)
+			PriceStr2Decimals = strconv.Itoa(i)[:len(strconv.Itoa(i))-2] + "." + strconv.Itoa(i)[len(strconv.Itoa(i))-2:]
 		case i > 9:
-			FormPriceStr2Decimals = "0." + strconv.Itoa(i)
+			PriceStr2Decimals = "0." + strconv.Itoa(i)
 		default:
-			FormPriceStr2Decimals = "0.0" + strconv.Itoa(i)
+			PriceStr2Decimals = "0.0" + strconv.Itoa(i)
 	}
-	return FormPriceStr2Decimals
+	return PriceStr2Decimals
+}
+
+func ConvertPriceStrToInt(s string, csvDecimalDelimiter string) int {
+	var PriceIntx100 int
+	//fmt.Println("---------------")
+	//fmt.Printf("s: %v\n", s)
+	//fmt.Printf("csvDecimalDelimiter: %v\n", csvDecimalDelimiter)
+	if !strings.Contains(s, csvDecimalDelimiter){ // add .00 if "." not present in string, equivalent of *100 with next step
+        s = s + csvDecimalDelimiter + "00"
+    } else {
+        decimalPart := strings.Split(s, csvDecimalDelimiter)
+		i := len(decimalPart[1])
+		switch {
+			case i == 1:
+				s = s + "0"
+			case i == 2:
+				s = s
+			default:
+				// i > 2
+				s = decimalPart[0] + decimalPart[1][:2] //we only keep the first 2 decimals
+		}
+    }
+    PriceIntx100, _ = strconv.Atoi(strings.Replace(s, csvDecimalDelimiter, "", 1))
+	//fmt.Printf("PriceIntx100: %v\n", PriceIntx100)
+	return PriceIntx100
 }
 
 

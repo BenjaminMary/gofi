@@ -7,10 +7,12 @@ The purpose of this web app is to record expenses.
 Features supported (all the data are registered in a local SQLite DB):
 - create users
 - auth + 1 active session per user
-- save general paramaters preferences per user
+- save general parameters preferences per user
 - record expenses per user
 - import CSV files to insert/update data in bulk
 - export CSV files to keep/use all the data with other apps 
+- admin features
+    - generate and manage backup
 
 The HTML files are currently only in french.
 
@@ -68,6 +70,9 @@ This optional feature adds some prerequisites:
 
 ## TODO
 &#x2611;&#x2610;&#x2612;
+- &#x2611; FIX import csv lorsque pas de décimale HS, tester également avec 1 seule décimale puis 3
+    - &#x2611; ajouter un peu de doc pour l'import pour expliquer l'attendu + les résultats
+    - &#x2611; revoir format des dates qui changent via import csv ou enregistrement via form, en DB figer YYYY-MM-DD
 - ajout préférences utilisateur:
     - gestion des préférences de format de date EN + FR avec / ou -
     - gestion des préférences de format csv séparateur colonne + separateur décimal
@@ -103,6 +108,7 @@ This optional feature adds some prerequisites:
 
 
 ## Changelog
+- 2023-12-15 : fix import CSV, add some doc on how it works. Also improve admin backup part.
 - 2023-12-10 : add optional backup saves with Google Drive API. Also add context with timeout everywhere and simplify DB open.
 - 2023-11-20 : add var env for the executable file path + change port used
 - 2023-11-13 : auto update cookie when idle timeout reached, force new login when absolute timeout reached (all dates are generated with SQLite)
