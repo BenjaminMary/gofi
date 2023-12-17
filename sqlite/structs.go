@@ -46,3 +46,15 @@ type User struct {
 	LastActivityAcceptLanguage string
 	DateCreated string
 }
+
+type FilterRows struct {
+	GofiID int // UNIQUE
+	WhereAccount string
+	WhereCategory string
+	WhereYear int
+	WhereMonth int
+	WhereChecked int // 0 default don't use, 1 = True, 2 = False
+	OrderBy string
+	OrderByType string
+	Limit int
+}

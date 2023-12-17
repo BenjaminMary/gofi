@@ -1,0 +1,165 @@
+{{template "head" .}}
+<!-- avoid CDN https://blog.wesleyac.com/posts/why-not-javascript-cdn -->
+<!-- Subresource Integrity, SRI hash : https://www.srihash.org/ -->
+<script 
+    src="https://unpkg.com/htmx.org@1.9.6" 
+    integrity="sha384-FhXw7b6AlE/jyjlZH5iHa/tTe9EpJ1Y55RjcgPbjeWMskSxZt1v9qkxLJWNJaGni" 
+    crossorigin="anonymous">
+</script>
+<link rel="shortcut icon" href="https://gofi.benjamin-mary.com/img/favicon-32x32.png" />
+<link rel="apple-touch-icon" href="https://gofi.benjamin-mary.com/img/apple-touch-icon.png" />
+<link rel="icon" sizes="192x192" href="https://gofi.benjamin-mary.com/img/android-chrome-192x192.png">
+<link rel="android-chrome" sizes="192x192" href="https://gofi.benjamin-mary.com/img/android-chrome-192x192.png" />
+<link rel="android-chrome" sizes="512x512" href="https://gofi.benjamin-mary.com/img/android-chrome-512x512.png" />
+<link rel="favicon" href="https://gofi.benjamin-mary.com/img/favicon-32x32.png" />
+{{template "body" .}}
+{{template "content" .}}
+
+<h1>Visualiser et modifier les dépenses</h1>
+<p><a href="#recap">Tableau</a> disponible ci-dessous.</p>
+
+<section id="form">
+    <div id="forbidden"> <!-- via header: "HX-Retarget", "#forbidden" -->
+            <!-- hx-swap="innerHTML" -->
+
+        <form hx-post="/editrows" 
+            hx-target="#listEditRows" 
+            hx-swap="innerHTML"
+            hx-indicator="#spinner">
+
+            <h5>Filtrer</h5>
+            <!-- Select -->
+            <label for="compte">Compte</label>
+            <select id="compte" name="compte">
+                <option value="" selected>Tous</option>
+                {{range $valA := .Form.AccountList}}
+                     <option value="{{$valA}}">{{$valA}}</option>
+                {{end}}
+            </select>
+
+            <!-- Select -->
+            <label for="categorie">Catégorie</label>
+            <select id="categorie" name="categorie">
+                <option value="" selected>Toutes</option>
+                {{range $valB := .Form.CategoryList}}
+                     <option value="{{$valB}}">{{$valB}}</option>
+                {{end}}
+            </select>
+            
+            <!-- Number -->
+            <label for="annee">Année (1900-2200)</label>
+            <input type="number" id="annee" name="annee" min="1900" max="2200" step="1" value="" />
+
+            <!-- Select -->
+            <label for="mois">Mois</label>
+            <select id="mois" name="mois">
+                <option value="" selected>Tous</option>
+                <option value="1">Janvier</option>
+                <option value="2">Février</option>
+                <option value="3">Mars</option>
+                <option value="4">Avril</option>
+                <option value="5">Mai</option>
+                <option value="6">Juin</option>
+                <option value="7">Juillet</option>
+                <option value="8">Août</option>
+                <option value="9">Septembre</option>
+                <option value="10">Octobre</option>
+                <option value="11">Novembre</option>
+                <option value="12">Décembre</option>
+            </select>
+
+            <!-- Select -->
+            <label for="checked">Lignes validés</label>
+            <select id="checked" name="checked">
+                <option value="0" selected>Toutes</option>
+                <option value="1">Oui</option>
+                <option value="2">Non</option>
+            </select>
+
+            <hr>
+            <h5>Trier</h5>
+            <!-- Select -->
+            <label for="orderBy">Trier par</label>
+            <select id="orderBy" name="orderBy" required>
+                <option value="id" selected>Identifiant</option>
+                <option value="date">Date</option>
+                <option value="price">Prix</option>
+            </select>
+
+            <!-- Select -->
+            <label for="orderByType">Ordre</label>
+            <select id="orderByType" name="orderByType" required>
+                <option value="DESC" selected>Décroissant</option>
+                <option value="ASC">Croissant</option>
+            </select>
+
+            <hr>
+            <!-- Number -->
+            <label for="limit">Nombre max d'enregistrements (1-500)</label>
+            <input type="number" id="limit" name="limit" min="1" max="500" step="1" value="20" required />
+
+            <!-- Buttons -->
+            <!-- <input type="reset" value="Réinitialiser"/> -->
+            <button type="submit" value="Submit">
+                <span id="spinner" class="htmx-indicator" aria-busy="true"></span>
+                Voir
+            </button>
+        </form>
+    </div> <!-- via header: "HX-Retarget", "#forbidden" -->
+</section>
+
+<section id="recap">
+    <div>
+        <figure>
+            <table role="grid">
+                <thead>
+                    <tr>
+                        <th scope="col">ID</th>
+                        <th scope="col">Date</th>
+                        <th scope="col">Compte</th>
+                        <th scope="col">Categorie</th>
+                        <th scope="col">Designation</th>
+                        <th scope="col">Prix</th>
+                    </tr>
+                </thead>
+                <tbody id="listEditRows">
+                    {{define "listEditRows"}}
+                    {{range $index, $data := . }}
+                        <tr>
+                            <td>{{$data.ID}}</td>
+                            <td>{{$data.Date}}</td>
+                            <td>{{$data.Account}}</td>
+                            <td>{{$data.Category}}</td>
+                            <td>{{$data.Product}}</td>
+                            <td>{{$data.FormPriceStr2Decimals}}</td>
+                        </tr>
+                    {{end}}
+                    {{end}}
+                    {{range $FT := .FTlist}}
+                        <tr>
+                            <td>{{$FT.ID}}</td>
+                            <td>{{$FT.Date}}</td>
+                            <td>{{$FT.Account}}</td>
+                            <td>{{$FT.Category}}</td>
+                            <td>{{$FT.Product}}</td>
+                            <td>{{$FT.FormPriceStr2Decimals}}</td>
+                        </tr>
+                    {{end}}
+                </tbody>
+            </table>
+        </figure>
+    </div>
+</section>
+
+
+{{template "footer" .}}
+
+<script>
+    // this script handle the forbidden(http403) error triggered when no gofiID Cookie is found and still use HTMX
+    document.body.addEventListener('htmx:beforeOnLoad', function (evt) {
+        if (evt.detail.xhr.status === 403) {
+            evt.detail.shouldSwap = true;
+            evt.detail.isError = false;
+        }
+    });
+</script>

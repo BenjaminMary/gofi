@@ -325,15 +325,13 @@ func getinsertrows(c *gin.Context) {
     currentTime := time.Now()
     Form.Date = currentTime.Format(DateOnly) // YYYY-MM-DD
     sqlite.GetList(ctx, db, &Form)
-    // select {
-    //     case <-ctx.Done():
-    //         fmt.Println("ctx Done")
-    //     default:
-    //         fmt.Println("ctx still up")
-    //         time, ok := ctx.Deadline()
-    //         fmt.Printf("Deadline time= %v, ok=%v\n", time, ok)
-    // }
-    FTlist = sqlite.GetLastRowsInFinanceTracker(ctx, db, cookieGofiID)
+
+    var Filter sqlite.FilterRows
+    Filter.GofiID = cookieGofiID
+    Filter.OrderBy = "id"
+    Filter.OrderByType = "DESC"
+    Filter.Limit = 5
+    FTlist = sqlite.GetRowsInFinanceTracker(ctx, db, &Filter)
 	// fmt.Printf("\naccountList: %v\n", Form.AccountList)
 	// fmt.Printf("\ncategoryList: %v\n", Form.CategoryList)
     c.HTML(http.StatusOK, "3.insertrows.html", gin.H{
@@ -370,6 +368,84 @@ func postinsertrows(c *gin.Context) {
 	}
     tmpl := template.Must(template.ParseFiles("./html/templates/3.insertrows.html"))
     tmpl.ExecuteTemplate(c.Writer, "lastInsert", Form)
+}
+
+
+// GET EditRows.html
+func getEditRows(c *gin.Context) {
+    ctx, cancel := context.WithTimeout(context.TODO(), 2*time.Second)
+    defer cancel()
+
+    cookieGofiID, _ := CheckCookie(ctx, c, db)
+    if c.IsAborted() {return}
+
+    var Form sqlite.FinanceTracker
+    var FTlist []sqlite.FinanceTracker
+    Form.GofiID = cookieGofiID
+    sqlite.GetList(ctx, db, &Form)
+
+    var Filter sqlite.FilterRows
+    Filter.GofiID = cookieGofiID
+    Filter.OrderBy = "id"
+    Filter.OrderByType = "DESC"
+    Filter.Limit = 20
+    FTlist = sqlite.GetRowsInFinanceTracker(ctx, db, &Filter)
+
+    c.HTML(http.StatusOK, "4.editrows.html", gin.H{
+        "Form": Form,
+        "FTlist": FTlist,
+    })
+}
+// POST EditRows.html
+func postEditRows(c *gin.Context) {
+    ctx, cancel := context.WithTimeout(context.TODO(), 2*time.Second)
+    defer cancel()
+
+    cookieGofiID, _ := CheckCookie(ctx, c, db)
+    if c.IsAborted() {return}
+
+    var FTlistPost []sqlite.FinanceTracker
+    var Filter sqlite.FilterRows
+    Filter.GofiID = cookieGofiID
+
+    Filter.WhereAccount = c.PostForm("compte")
+    Filter.WhereCategory = c.PostForm("categorie")
+
+    whereYearStr := c.PostForm("annee")
+	fmt.Printf("whereYearStr: %#v, type:%T\n", whereYearStr, whereYearStr) // check default value and type
+    if whereYearStr != "" {Filter.WhereYear, _ = strconv.Atoi(whereYearStr)}
+    whereMonthStr := c.PostForm("mois")
+    if whereMonthStr != "" {Filter.WhereMonth, _ = strconv.Atoi(whereMonthStr)}
+    whereCheckedStr := c.PostForm("checked")
+    if whereCheckedStr != "" {Filter.WhereChecked, _ = strconv.Atoi(whereCheckedStr)}
+
+    Filter.OrderBy = c.PostForm("orderBy")
+    Filter.OrderByType = c.PostForm("orderByType")
+
+    limitStr := c.PostForm("limit")
+    Filter.Limit, _ = strconv.Atoi(limitStr)
+
+	//fmt.Printf("Filter: %#v\n", Filter)
+    FTlistPost = sqlite.GetRowsInFinanceTracker(ctx, db, &Filter)
+	//fmt.Printf("FTlistPost: %#v\n", FTlistPost)
+
+    // tmpl := `
+    // {{range $index, $data := . }}
+    //     <tr>
+    //         <td>{{$data.ID}}</td>
+    //         <td>{{$data.Date}}</td>
+    //         <td>{{$data.Account}}</td>
+    //         <td>{{$data.Category}}</td>
+    //         <td>{{$data.Product}}</td>
+    //         <td>{{$data.FormPriceStr2Decimals}}</td>
+    //     </tr>
+    // {{end}}
+    // `
+    // t := template.Must(template.New("tmpl").Parse(tmpl))
+    // t.ExecuteTemplate(c.Writer, "tmpl", FTlistPost)
+
+    tmpl := template.Must(template.ParseFiles("./html/templates/4.editrows.html"))
+    tmpl.ExecuteTemplate(c.Writer, "listEditRows", FTlistPost)
 }
 
 // GET exportCsv.html
@@ -480,6 +556,9 @@ func main() {
 
     router.GET("/insertrows", getinsertrows)
     router.POST("/insertrows", postinsertrows)
+
+    router.GET("/editrows", getEditRows)
+    router.POST("/editrows", postEditRows)
 
     router.GET("/export-csv", getExportCsv)
     router.POST("/export-csv", postExportCsv)

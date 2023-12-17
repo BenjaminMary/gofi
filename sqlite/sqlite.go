@@ -375,17 +375,103 @@ func InsertRowInParam(p *Param) (int64, error) {
 	return id, nil
 }
 
-func GetLastRowsInFinanceTracker(ctx context.Context, db *sql.DB, gofiID int) []FinanceTracker {
+func GetRowsInFinanceTracker(ctx context.Context, db *sql.DB, filter *FilterRows) []FinanceTracker {
 	var ftList []FinanceTracker
+	var queryValues int = 0
+	var err error
+	if filter.Limit > 100 {filter.Limit = 100}
+	//fmt.Printf("filter.WhereAccount: %#v, type:%T\n", filter.WhereAccount, filter.WhereAccount) // check default value and type
+	//fmt.Printf("filter.WhereYear: %#v, type:%T\n", filter.WhereYear, filter.WhereYear) // check default value and type
+	
+	// start building query 
+	// (golang sql package does not support dynamic sql on other things than values)
 	q := ` 
-		SELECT year, month, day, 
-			account, product, priceIntx100, category
+		SELECT id, year, month, day, 
+			account, product, priceIntx100, category, checked, dateChecked
 		FROM financeTracker
 		WHERE gofiID = ?
-		ORDER BY id DESC
-		LIMIT 5;
 	`
-	rows, err := db.QueryContext(ctx, q, gofiID)
+	// others where on 3 fields max = 7 possibilities
+	if filter.WhereAccount != "" { //1
+		queryValues += 1
+		fmt.Println("filter.WhereAccount is used")
+		q += ` AND account = ? `
+	} 
+	if filter.WhereCategory != "" { //2
+		queryValues += 2
+		fmt.Println("filter.WhereCategory is used")
+		q += ` AND category = ? `
+	} 
+	if filter.WhereYear != 0 { //4
+		queryValues += 4
+		fmt.Println("filter.WhereYear is used")
+		q += ` AND year = ? `
+	}
+	if filter.WhereMonth != 0 { // month used alone
+		switch filter.WhereMonth {
+			case  1: q += ` AND month =  1 `
+			case  2: q += ` AND month =  2 `
+			case  3: q += ` AND month =  3 `
+			case  4: q += ` AND month =  4 `
+			case  5: q += ` AND month =  5 `
+			case  6: q += ` AND month =  6 `
+			case  7: q += ` AND month =  7 `
+			case  8: q += ` AND month =  8 `
+			case  9: q += ` AND month =  9 `
+			case 10: q += ` AND month = 10 `
+			case 11: q += ` AND month = 11 `
+			case 12: q += ` AND month = 12 `
+			default: q += ` `
+		}
+		fmt.Println("filter.WhereMonth is used")
+	} 
+	if filter.WhereChecked != 0 { // checked used alone
+		if filter.WhereChecked == 2 {q += ` AND checked = 0 `} else {q += ` AND checked = 1 `}
+		fmt.Println("filter.WhereChecked is used", filter.WhereChecked)
+	} 
+
+	// order by column
+	q += ` ORDER BY `
+	switch filter.OrderBy {
+		case "id":
+			q += ` id `
+		case "date":
+			q += ` year*10000 + month*100 + day `
+		case "price":
+			q += ` priceIntx100 `
+		default:
+			q += ` id `
+	}
+	// order by type
+	if (filter.OrderByType == "DESC") {q += ` DESC `} else {q += ` ASC `}
+
+	// finally, add limit
+	q += ` LIMIT ?;`
+	//fmt.Printf("q: %v\n", q)
+	// end building query
+
+	var rows *sql.Rows
+	switch queryValues {
+		case 0:
+			rows, err = db.QueryContext(ctx, q, filter.GofiID, filter.Limit)
+		case 1:
+			rows, err = db.QueryContext(ctx, q, filter.GofiID, filter.WhereAccount, filter.Limit)
+		case 2:
+			rows, err = db.QueryContext(ctx, q, filter.GofiID, filter.WhereCategory, filter.Limit)
+		case 3:
+			rows, err = db.QueryContext(ctx, q, filter.GofiID, filter.WhereAccount, filter.WhereCategory, filter.Limit)
+		case 4:
+			rows, err = db.QueryContext(ctx, q, filter.GofiID, filter.WhereYear, filter.Limit)
+		case 5:
+			rows, err = db.QueryContext(ctx, q, filter.GofiID, filter.WhereAccount, filter.WhereYear, filter.Limit)
+		case 6:
+			rows, err = db.QueryContext(ctx, q, filter.GofiID, filter.WhereCategory, filter.WhereYear, filter.Limit)
+		case 7:
+			rows, err = db.QueryContext(ctx, q, filter.GofiID, filter.WhereAccount, filter.WhereCategory, filter.WhereYear, filter.Limit)
+		default:
+			rows, err = db.QueryContext(ctx, q, filter.GofiID, filter.Limit)
+	}
+
 	if err != nil {
 		log.Fatal("error on DB query: ", err)
 	}
@@ -393,7 +479,7 @@ func GetLastRowsInFinanceTracker(ctx context.Context, db *sql.DB, gofiID int) []
 		var ft FinanceTracker
 		var successfull bool
 		var unsuccessfullReason string
-		if err := rows.Scan(&ft.Year, &ft.Month, &ft.Day, &ft.Account, &ft.Product, &ft.PriceIntx100, &ft.Category); err != nil {
+		if err := rows.Scan(&ft.ID, &ft.Year, &ft.Month, &ft.Day, &ft.Account, &ft.Product, &ft.PriceIntx100, &ft.Category, &ft.Checked, &ft.DateChecked); err != nil {
 			log.Fatal(err)
 		}
 		ft.FormPriceStr2Decimals = ConvertPriceIntToStr(ft.PriceIntx100)
@@ -572,13 +658,13 @@ func ImportCSV(gofiID int, csvSeparator rune, csvDecimalDelimiter string, dateFo
 		// DateChecked
 		ft.DateChecked = "9999-12-31"
 		if len(row[9]) == 10 {
-			yearInt, monthInt, dayInt, successfull, unsuccessfullReason := ConvertDateStrToInt(row[9], dateFormat, dateSeparator)
-			fmt.Println("---------------")
-			fmt.Printf("ft.DateChecked: %v\n", ft.DateChecked)
-			fmt.Printf("yearInt %v, monthInt %v, dayInt %v, successfull %v, unsuccessfullReason %v\n", yearInt, monthInt, dayInt, successfull, unsuccessfullReason)
+			yearInt, monthInt, dayInt, successfull, _ := ConvertDateStrToInt(row[9], dateFormat, dateSeparator)
+			// fmt.Println("---------------")
+			// fmt.Printf("ft.DateChecked: %v\n", ft.DateChecked)
+			// fmt.Printf("yearInt %v, monthInt %v, dayInt %v, successfull %v, unsuccessfullReason %v\n", yearInt, monthInt, dayInt, successfull, unsuccessfullReason)
 			if successfull {
-				dateForDB, successfull, unsuccessfullReason := ConvertDateIntToStr(yearInt, monthInt, dayInt, "EN", "-") //force YYYY-MM-DD inside DB
-				fmt.Printf("dateForDB %v, successfull %v, unsuccessfullReason %v\n", dateForDB, successfull, unsuccessfullReason)
+				dateForDB, successfull, _ := ConvertDateIntToStr(yearInt, monthInt, dayInt, "EN", "-") //force YYYY-MM-DD inside DB
+				//fmt.Printf("dateForDB %v, successfull %v, unsuccessfullReason %v\n", dateForDB, successfull, unsuccessfullReason)
 				if successfull {ft.DateChecked = dateForDB}
 			}	
 		}

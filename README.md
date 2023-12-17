@@ -24,6 +24,7 @@ The HTML files are currently only in french.
 - [htmx](https://htmx.org/)
 - [pico](https://picocss.com/)
 - [gopherize](https://gopherize.me/) for the nice logo
+- [sqlite](https://www.sqlite.org/)
 
 
 #### To run the app
@@ -81,6 +82,7 @@ This optional feature adds some prerequisites:
     - système qui ramène l'ensemble des lignes encore non validées
     - voir pour permettre de la validation de groupe en saisissant une date unique et en sélectionnant X lignes
 - Ajout de statistiques 
+    - &#x2611; visualisation des données avec filtre et tri
     - sur les dépenses
     - sur le nombre de requêtes
 - Ajout sauvegarde DB SQLite sur Drive
@@ -108,6 +110,7 @@ This optional feature adds some prerequisites:
 
 
 ## Changelog
+- 2023-12-17 : add a screen to visualize data with filter, sort and limit.
 - 2023-12-15 : fix import CSV, add some doc on how it works. Also improve admin backup part.
 - 2023-12-10 : add optional backup saves with Google Drive API. Also add context with timeout everywhere and simplify DB open.
 - 2023-11-20 : add var env for the executable file path + change port used
