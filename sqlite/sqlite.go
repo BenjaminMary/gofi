@@ -375,8 +375,9 @@ func InsertRowInParam(p *Param) (int64, error) {
 	return id, nil
 }
 
-func GetRowsInFinanceTracker(ctx context.Context, db *sql.DB, filter *FilterRows) []FinanceTracker {
+func GetRowsInFinanceTracker(ctx context.Context, db *sql.DB, filter *FilterRows) ([]FinanceTracker, string) {
 	var ftList []FinanceTracker
+	var totalPriceStr2Decimals string
 	var queryValues int = 0
 	var err error
 	if filter.Limit > 100 {filter.Limit = 100}
@@ -475,22 +476,27 @@ func GetRowsInFinanceTracker(ctx context.Context, db *sql.DB, filter *FilterRows
 	if err != nil {
 		log.Fatal("error on DB query: ", err)
 	}
+	var totalPriceIntx100 int = 0
 	for rows.Next() {
 		var ft FinanceTracker
 		var successfull bool
 		var unsuccessfullReason string
-		if err := rows.Scan(&ft.ID, &ft.Year, &ft.Month, &ft.Day, &ft.Account, &ft.Product, &ft.PriceIntx100, &ft.Category, &ft.Checked, &ft.DateChecked); err != nil {
+		if err := rows.Scan(&ft.ID, &ft.Year, &ft.Month, &ft.Day, &ft.Account, &ft.Product, &ft.PriceIntx100, 
+			&ft.Category, &ft.Checked, &ft.DateChecked); err != nil {
 			log.Fatal(err)
 		}
 		ft.FormPriceStr2Decimals = ConvertPriceIntToStr(ft.PriceIntx100)
+		totalPriceIntx100 += ft.PriceIntx100
 		ft.Date, successfull, unsuccessfullReason = ConvertDateIntToStr(ft.Year, ft.Month, ft.Day, "FR", "/")
 		if !successfull {ft.Date = "ERROR " + unsuccessfullReason}
 
 		// fmt.Printf("ft: %#v\n", ft)
 		ftList = append(ftList, ft)
 	}
+	fmt.Printf("totalPriceIntx100: %v, inStr: %v\n", totalPriceIntx100, totalPriceStr2Decimals)
+	totalPriceStr2Decimals = ConvertPriceIntToStr(totalPriceIntx100)
 	rows.Close()
-	return ftList
+	return ftList, totalPriceStr2Decimals
 }
 
 func InsertRowInFinanceTracker(ctx context.Context, db *sql.DB, ft *FinanceTracker) (int64, error) {

@@ -333,7 +333,7 @@ func getinsertrows(c *gin.Context) {
     Filter.OrderByType = "DESC"
     Filter.Limit = 5
     var FTlist []sqlite.FinanceTracker
-    FTlist = sqlite.GetRowsInFinanceTracker(ctx, db, &Filter)
+    FTlist, _ = sqlite.GetRowsInFinanceTracker(ctx, db, &Filter)
 
     c.HTML(http.StatusOK, "3.insertrows.html", gin.H{
         "Form": Form,
@@ -386,16 +386,18 @@ func getEditRows(c *gin.Context) {
     sqlite.GetList(ctx, db, &UserParams)
 
     var FTlist []sqlite.FinanceTracker
+    var TotalPriceStr2Decimals string
     var Filter sqlite.FilterRows
     Filter.GofiID = cookieGofiID
     Filter.OrderBy = "id"
     Filter.OrderByType = "DESC"
     Filter.Limit = 20
-    FTlist = sqlite.GetRowsInFinanceTracker(ctx, db, &Filter)
+    FTlist, TotalPriceStr2Decimals = sqlite.GetRowsInFinanceTracker(ctx, db, &Filter)
 
     c.HTML(http.StatusOK, "4.editrows.html", gin.H{
         "UserParams": UserParams,
         "FTlist": FTlist,
+        "TotalPriceStr2Decimals": TotalPriceStr2Decimals,
     })
 }
 // POST EditRows.html
@@ -407,6 +409,7 @@ func postEditRows(c *gin.Context) {
     if c.IsAborted() {return}
 
     var FTlistPost []sqlite.FinanceTracker
+    var TotalPriceStr2Decimals string
     var Filter sqlite.FilterRows
     Filter.GofiID = cookieGofiID
 
@@ -427,27 +430,13 @@ func postEditRows(c *gin.Context) {
     limitStr := c.PostForm("limit")
     Filter.Limit, _ = strconv.Atoi(limitStr)
 
-	//fmt.Printf("Filter: %#v\n", Filter)
-    FTlistPost = sqlite.GetRowsInFinanceTracker(ctx, db, &Filter)
-	//fmt.Printf("FTlistPost: %#v\n", FTlistPost)
-
-    // tmpl := `
-    // {{range $index, $data := . }}
-    //     <tr>
-    //         <td>{{$data.ID}}</td>
-    //         <td>{{$data.Date}}</td>
-    //         <td>{{$data.Account}}</td>
-    //         <td>{{$data.Category}}</td>
-    //         <td>{{$data.Product}}</td>
-    //         <td>{{$data.FormPriceStr2Decimals}}</td>
-    //     </tr>
-    // {{end}}
-    // `
-    // t := template.Must(template.New("tmpl").Parse(tmpl))
-    // t.ExecuteTemplate(c.Writer, "tmpl", FTlistPost)
+    FTlistPost, TotalPriceStr2Decimals = sqlite.GetRowsInFinanceTracker(ctx, db, &Filter)
 
     tmpl := template.Must(template.ParseFiles("./html/templates/4.editrows.html"))
-    tmpl.ExecuteTemplate(c.Writer, "listEditRows", FTlistPost)
+    tmpl.ExecuteTemplate(c.Writer, "listEditRows", gin.H{
+        "FTlistPost": FTlistPost,
+        "TotalPriceStr2Decimals": TotalPriceStr2Decimals,
+    })
 }
 
 // GET stats

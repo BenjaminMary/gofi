@@ -114,6 +114,7 @@ This optional feature adds some prerequisites:
 
 
 ## Changelog
+- 2023-12-23 : add a subtotal row in the data table page.
 - 2023-12-22 : improve struct and readability for user params.
 - 2023-12-17 : add a screen to visualize data with filter, sort and limit.
 - 2023-12-15 : fix import CSV, add some doc on how it works. Also improve admin backup part.

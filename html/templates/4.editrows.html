@@ -130,8 +130,17 @@
                     </tr>
                 </thead>
                 <tbody id="listEditRows">
+                    <!-- POST part -->
                     {{define "listEditRows"}}
-                        {{range $index, $data := . }}
+                        <tr>
+                            <td>-</td>
+                            <td>-</td>
+                            <td>-</td>
+                            <td>-</td>
+                            <td><b><i>*SOUS-TOTAL*</i></b></td>
+                            <td><b><i>{{.TotalPriceStr2Decimals}}</i></b></td>
+                        </tr>
+                        {{range $index, $data := .FTlistPost }}
                             <tr>
                                 <td>{{$data.ID}}</td>
                                 <td>{{$data.Date}}</td>
@@ -142,6 +151,16 @@
                             </tr>
                         {{end}}
                     {{end}}
+
+                    <!-- GET part -->
+                    <tr>
+                        <td>-</td>
+                        <td>-</td>
+                        <td>-</td>
+                        <td>-</td>
+                        <td><b><i>*SOUS-TOTAL*</i></b></td>
+                        <td><b><i>{{.TotalPriceStr2Decimals}}</i></b></td>
+                    </tr>
                     {{range $FT := .FTlist}}
                         <tr>
                             <td>{{$FT.ID}}</td>
