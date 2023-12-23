@@ -33,7 +33,7 @@
             <!-- Select -->
             <label for="compte">Compte</label>
             <select id="compte" name="compte" required>
-                {{range $valA := .Form.AccountList}}
+                {{range $valA := .UserParams.AccountList}}
                      <option value="{{$valA}}">{{$valA}}</option>
                 {{end}}
             </select>
@@ -41,7 +41,7 @@
             <!-- Select -->
             <label for="categorie">Catégorie</label>
             <select id="categorie" name="categorie" required>
-                {{range $valB := .Form.CategoryList}}
+                {{range $valB := .UserParams.CategoryList}}
                      <option value="{{$valB}}">{{$valB}}</option>
                 {{end}}
             </select>

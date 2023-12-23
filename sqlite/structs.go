@@ -15,12 +15,10 @@ type FinanceTracker struct {
 	Year int
 	Month int
 	Day int
-	AccountList []string
 	Account string `form:"compte" binding:"required"`
 	Product string `form:"designation" binding:"required"`
 	FormPriceStr2Decimals string `form:"prix" binding:"required"`
 	PriceIntx100 int
-	CategoryList []string
 	Category string `form:"categorie" binding:"required"`
 	CommentInt int
 	CommentString string
@@ -45,6 +43,14 @@ type User struct {
 	LastActivityUserAgent string
 	LastActivityAcceptLanguage string
 	DateCreated string
+}
+
+type UserParams struct {
+	GofiID int // UNIQUE
+	AccountListSingleString string
+	AccountList []string
+	CategoryListSingleString string
+	CategoryList []string
 }
 
 type FilterRows struct {

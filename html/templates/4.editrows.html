@@ -12,6 +12,13 @@
 <link rel="android-chrome" sizes="192x192" href="https://gofi.benjamin-mary.com/img/android-chrome-192x192.png" />
 <link rel="android-chrome" sizes="512x512" href="https://gofi.benjamin-mary.com/img/android-chrome-512x512.png" />
 <link rel="favicon" href="https://gofi.benjamin-mary.com/img/favicon-32x32.png" />
+
+<!-- jspreadsheet -->
+<!-- <script src="https://bossanova.uk/jspreadsheet/v4/jexcel.js"></script>
+<script src="https://jsuites.net/v4/jsuites.js"></script>
+<link rel="stylesheet" href="https://jsuites.net/v4/jsuites.css" type="text/css" />
+<link rel="stylesheet" href="https://bossanova.uk/jspreadsheet/v4/jexcel.css" type="text/css" /> -->
+
 {{template "body" .}}
 {{template "content" .}}
 
@@ -32,7 +39,7 @@
             <label for="compte">Compte</label>
             <select id="compte" name="compte">
                 <option value="" selected>Tous</option>
-                {{range $valA := .Form.AccountList}}
+                {{range $valA := .UserParams.AccountList}}
                      <option value="{{$valA}}">{{$valA}}</option>
                 {{end}}
             </select>
@@ -41,7 +48,7 @@
             <label for="categorie">Catégorie</label>
             <select id="categorie" name="categorie">
                 <option value="" selected>Toutes</option>
-                {{range $valB := .Form.CategoryList}}
+                {{range $valB := .UserParams.CategoryList}}
                      <option value="{{$valB}}">{{$valB}}</option>
                 {{end}}
             </select>
@@ -124,16 +131,16 @@
                 </thead>
                 <tbody id="listEditRows">
                     {{define "listEditRows"}}
-                    {{range $index, $data := . }}
-                        <tr>
-                            <td>{{$data.ID}}</td>
-                            <td>{{$data.Date}}</td>
-                            <td>{{$data.Account}}</td>
-                            <td>{{$data.Category}}</td>
-                            <td>{{$data.Product}}</td>
-                            <td>{{$data.FormPriceStr2Decimals}}</td>
-                        </tr>
-                    {{end}}
+                        {{range $index, $data := . }}
+                            <tr>
+                                <td>{{$data.ID}}</td>
+                                <td>{{$data.Date}}</td>
+                                <td>{{$data.Account}}</td>
+                                <td>{{$data.Category}}</td>
+                                <td>{{$data.Product}}</td>
+                                <td>{{$data.FormPriceStr2Decimals}}</td>
+                            </tr>
+                        {{end}}
                     {{end}}
                     {{range $FT := .FTlist}}
                         <tr>
@@ -151,6 +158,7 @@
     </div>
 </section>
 
+<!-- <div id="spreadsheet"></div> -->
 
 {{template "footer" .}}
 
@@ -162,4 +170,30 @@
             evt.detail.isError = false;
         }
     });
+
+    // var data = [
+    //     [1, '99/99/9999', 'Especes', 'Supermarché', 'Un produit avec description longue', '1'],
+    //     [999999, '11/11/1111', 'CB', 'Autre', 'description courte', '1507.36'],
+    //     // ['A1', 'Audi', '2019-02-12', '', true, '$ 2.000,00', '#777700'],
+    //     // ['A2', 'Audi', '2018-07-11', '', true, '$ 4.000,01', '#007777'],
+    // ];
+
+    // jspreadsheet(document.getElementById('spreadsheet'), {
+    //     data:data,
+    //     columns: [
+    //         { type: 'numeric', title:'ID', width:60, readOnly:true },
+    //         { type: 'text', title:'Date', width:90 },
+    //         { type: 'dropdown', title:'Compte', width:80, source:[ "CB", "Especes", "PEA" ] },
+    //         { type: 'dropdown', title:'Catégorie', width:140, source:[ "Supermarché", "Autre" ] },
+    //         { type: 'text', title:'Désignation', width:240 },
+    //         { type: 'numeric', title:'Prix', width:70, mask:'# ##,00', decimal:',' },
+    //         // { type: 'text', title:'Car', width:120 },
+    //         // { type: 'dropdown', title:'Make', width:200, source:[ "Alfa Romeo", "Audi", "Bmw" ] },
+    //         // { type: 'calendar', title:'Available', width:200 },
+    //         // { type: 'image', title:'Photo', width:120 },
+    //         // { type: 'checkbox', title:'Stock', width:80 },
+    //         // { type: 'numeric', title:'Price', width:100, mask:'$ #.##,00', decimal:',' },
+    //         // { type: 'color', width:100, render:'square', }
+    //     ]
+    // });
 </script>

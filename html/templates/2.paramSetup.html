@@ -21,7 +21,7 @@
 
             <!-- Text -->
             <label for="accountList">Liste des comptes (séparer par des , sans espaces, ordre repris à l'identique)</label>
-            <input type="text" id="accountList" name="accountList" value="{{.Form.Account}}" required />
+            <input type="text" id="accountList" name="accountList" value="{{.UserParams.AccountListSingleString}}" required />
 
             <!-- Buttons -->
             <button id="disapear1" type="submit" value="Submit">
@@ -37,7 +37,7 @@
 
             <!-- Text -->
             <label for="categoryList">Liste des catégories (séparer par des , sans espaces, ordre repris à l'identique)</label>
-            <input type="text" id="categoryList" name="categoryList" value="{{.Form.Category}}" required />
+            <input type="text" id="categoryList" name="categoryList" value="{{.UserParams.CategoryListSingleString}}" required />
 
             <!-- Buttons -->
             <button id="disapear2" type="submit" value="Submit">

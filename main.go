@@ -256,11 +256,11 @@ func getParamSetup(c *gin.Context) {
     cookieGofiID, _ := CheckCookie(ctx, c, db)
     if c.IsAborted() {return}
 
-    var Form sqlite.FinanceTracker
-    Form.GofiID = cookieGofiID
-    sqlite.GetList(ctx, db, &Form)
+    var UserParams sqlite.UserParams
+    UserParams.GofiID = cookieGofiID
+    sqlite.GetList(ctx, db, &UserParams)
     c.HTML(http.StatusOK, "2.paramSetup.html", gin.H{
-        "Form": Form,
+        "UserParams": UserParams,
     })
 }
 
@@ -318,25 +318,27 @@ func getinsertrows(c *gin.Context) {
     cookieGofiID, _ := CheckCookie(ctx, c, db)
     if c.IsAborted() {return}
 
+    var UserParams sqlite.UserParams
+    UserParams.GofiID = cookieGofiID
+    sqlite.GetList(ctx, db, &UserParams)
+
     var Form sqlite.FinanceTracker
-    var FTlist []sqlite.FinanceTracker
-    Form.GofiID = cookieGofiID
     const DateOnly = "2006-01-02" // YYYY-MM-DD
     currentTime := time.Now()
     Form.Date = currentTime.Format(DateOnly) // YYYY-MM-DD
-    sqlite.GetList(ctx, db, &Form)
 
     var Filter sqlite.FilterRows
     Filter.GofiID = cookieGofiID
     Filter.OrderBy = "id"
     Filter.OrderByType = "DESC"
     Filter.Limit = 5
+    var FTlist []sqlite.FinanceTracker
     FTlist = sqlite.GetRowsInFinanceTracker(ctx, db, &Filter)
-	// fmt.Printf("\naccountList: %v\n", Form.AccountList)
-	// fmt.Printf("\ncategoryList: %v\n", Form.CategoryList)
+
     c.HTML(http.StatusOK, "3.insertrows.html", gin.H{
         "Form": Form,
         "FTlist": FTlist,
+        "UserParams": UserParams,
     })
 }
 
@@ -379,11 +381,11 @@ func getEditRows(c *gin.Context) {
     cookieGofiID, _ := CheckCookie(ctx, c, db)
     if c.IsAborted() {return}
 
-    var Form sqlite.FinanceTracker
-    var FTlist []sqlite.FinanceTracker
-    Form.GofiID = cookieGofiID
-    sqlite.GetList(ctx, db, &Form)
+    var UserParams sqlite.UserParams
+    UserParams.GofiID = cookieGofiID
+    sqlite.GetList(ctx, db, &UserParams)
 
+    var FTlist []sqlite.FinanceTracker
     var Filter sqlite.FilterRows
     Filter.GofiID = cookieGofiID
     Filter.OrderBy = "id"
@@ -392,7 +394,7 @@ func getEditRows(c *gin.Context) {
     FTlist = sqlite.GetRowsInFinanceTracker(ctx, db, &Filter)
 
     c.HTML(http.StatusOK, "4.editrows.html", gin.H{
-        "Form": Form,
+        "UserParams": UserParams,
         "FTlist": FTlist,
     })
 }
@@ -447,6 +449,23 @@ func postEditRows(c *gin.Context) {
     tmpl := template.Must(template.ParseFiles("./html/templates/4.editrows.html"))
     tmpl.ExecuteTemplate(c.Writer, "listEditRows", FTlistPost)
 }
+
+// GET stats
+// func getStats(c *gin.Context) {
+//     ctx, cancel := context.WithTimeout(context.TODO(), 2*time.Second)
+//     defer cancel()
+
+//     cookieGofiID, _ := CheckCookie(ctx, c, db)
+//     if c.IsAborted() {return}
+
+//     var TotalPerAccount map[string]int
+//     TotalPerAccount = make(map[string]string)
+//     TotalPerAccount = sqlite.GetRowsInFinanceTracker(ctx, db, &Filter)
+
+//     c.HTML(http.StatusOK, "2.stats.html", gin.H{
+//         "FileName": FileName,
+//     })
+// }
 
 // GET exportCsv.html
 func getExportCsv(c *gin.Context) {
@@ -559,6 +578,8 @@ func main() {
 
     router.GET("/editrows", getEditRows)
     router.POST("/editrows", postEditRows)
+
+    // router.GET("/stats", getStats)
 
     router.GET("/export-csv", getExportCsv)
     router.POST("/export-csv", postExportCsv)

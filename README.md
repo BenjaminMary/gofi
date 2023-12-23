@@ -82,7 +82,11 @@ This optional feature adds some prerequisites:
     - système qui ramène l'ensemble des lignes encore non validées
     - voir pour permettre de la validation de groupe en saisissant une date unique et en sélectionnant X lignes
 - Ajout de statistiques 
-    - &#x2611; visualisation des données avec filtre et tri
+    - &#x2611; visualisation des données avec filtre et tri via table simple
+        - &#x2610; voir pour mettre un tableur ? + rendre editable ou suppr de ligne
+            - https://github.com/wenzhixin/bootstrap-table
+            - https://github.com/jspreadsheet/ce
+                - https://bossanova.uk/jspreadsheet/v4/docs/quick-reference
     - sur les dépenses
     - sur le nombre de requêtes
 - Ajout sauvegarde DB SQLite sur Drive
@@ -110,6 +114,7 @@ This optional feature adds some prerequisites:
 
 
 ## Changelog
+- 2023-12-22 : improve struct and readability for user params.
 - 2023-12-17 : add a screen to visualize data with filter, sort and limit.
 - 2023-12-15 : fix import CSV, add some doc on how it works. Also improve admin backup part.
 - 2023-12-10 : add optional backup saves with Google Drive API. Also add context with timeout everywhere and simplify DB open.

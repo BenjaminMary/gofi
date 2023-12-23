@@ -316,14 +316,14 @@ func GetGofiID(ctx context.Context, db *sql.DB, sessionID string) (int, string, 
 	if (gofiID > 0) { return gofiID, email, "", nil } else { return 0, "", "error no gofiID found from sessionID cookie", err }
 }
 
-func GetList(ctx context.Context, db *sql.DB, ft *FinanceTracker) {
+func GetList(ctx context.Context, db *sql.DB, up *UserParams) {
 	q := ` 
 		SELECT paramJSONstringData
 		FROM param
 		WHERE gofiID = ?
 			AND paramName = ?;
 	`
-	rows, _ := db.QueryContext(ctx, q, ft.GofiID, "accountList")
+	rows, _ := db.QueryContext(ctx, q, up.GofiID, "accountList")
 
 	rows.Next()
 	var accountList string
@@ -331,12 +331,12 @@ func GetList(ctx context.Context, db *sql.DB, ft *FinanceTracker) {
 		log.Fatal(err)
 		return
 	}
-	ft.Account = accountList
-	ft.AccountList = strings.Split(accountList, ",")
-	// fmt.Printf("\naccountList: %v\n", ft.AccountList)
+	up.AccountListSingleString = accountList
+	up.AccountList = strings.Split(accountList, ",")
+	// fmt.Printf("\naccountList: %v\n", up.AccountList)
 	rows.Close()
 
-	rows, _ = db.QueryContext(ctx, q, ft.GofiID, "categoryList")
+	rows, _ = db.QueryContext(ctx, q, up.GofiID, "categoryList")
 	rows.Next()
 	var categoryList string
 	if err := rows.Scan(&categoryList); err != nil {
@@ -345,10 +345,10 @@ func GetList(ctx context.Context, db *sql.DB, ft *FinanceTracker) {
 	if err := rows.Err(); err != nil {
 		log.Fatal(err)
 	}
-	ft.Category = categoryList
-	ft.CategoryList = strings.Split(categoryList, ",")
+	up.CategoryListSingleString = categoryList
+	up.CategoryList = strings.Split(categoryList, ",")
 	rows.Close()
-	// fmt.Printf("\ncategoryList: %v\n", ft.CategoryList)
+	// fmt.Printf("\ncategoryList: %v\n", up.CategoryList)
 	return
 }
 
