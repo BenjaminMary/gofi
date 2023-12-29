@@ -1,0 +1,79 @@
+{{template "head" .}}
+{{template "body" .}}
+{{template "content" .}}
+
+<div class="container">
+
+
+    <figure>
+        <img src="/img/gopherize-me-1.png" alt="Gopher"/>
+    </figure>
+
+    <section id="links">
+        <h2>Fonctionnalités!</h2>
+        {{if .Logged}}
+            <p>Bienvenue <code>{{.Email}}</code> !</p>
+        {{end}}
+        <ol>
+            {{if .Logged}}
+                <li><a href="/param-setup">Paramétrer les listes et les préférences de l'application</a></li>
+                <li><a href="/insertrows">Enregistrer des dépenses</a></li>
+                <li><a href="/editrows">Visualiser et modifier les dépenses</a></li>
+            {{else}}
+                <li><a href="/createUser">Créer un compte</a></li>
+                <li><a href="/login">Se connecter</a></li>
+            {{end}}
+        </ol>
+        {{if .Logged}}
+            <ul>
+                <li><a href="/export-csv">Exporter les dépenses en fichier CSV</a></li>
+                <li><a href="/import-csv">Importer un fichier CSV de dépenses</a></li>
+            </ul>
+            <a href="/logout">
+                <!-- log out -->
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="grey" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-log-out"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></svg>
+                Se déconnecter
+            </a>
+            {{if .Admin}}
+                <hr>
+                <h5>Administration</h5>
+                <ul>
+                    <li><a href="/admin/backup">Gérer les backups</a></li>
+                    <li><a href="/admin/backup?save=1">Générer un backup DB SQLite</a></li>
+                </ul>
+            {{end}}
+        {{end}}
+    </section>
+    <nav>
+        <a href="#" data-theme-switcher="light">
+            <!-- sun -->
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="gainsboro" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-sun"><circle cx="12" cy="12" r="5"></circle><line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line><line x1="1" y1="12" x2="3" y2="12"></line><line x1="21" y1="12" x2="23" y2="12"></line><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line></svg>
+        </a>
+        <a href="#" data-theme-switcher="dark">
+            <!-- moon -->
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="darkslategrey" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-moon"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path></svg>
+        </a>
+    </nav>
+    <hr>
+    <section id="tools">
+        <small>
+            Fait avec
+                • <a target="_blank" href="https://go.dev/">golang </a>
+                • <a target="_blank" href="https://htmx.org/">htmx</a>
+                • <a target="_blank" href="https://picocss.com/">picocss</a>
+                • <a target="_blank" href="https://www.sqlite.org/">sqlite</a>
+            <br>
+            Logo 
+            <a target="_blank" href="https://gopherize.me/">gopherize.me</a> • Icons <a target="_blank" href="https://feathericons.com/">feather</a>
+            <br>
+            Code source
+            <a target="_blank" href="https://github.com/BenjaminMary/gofi/">Github</a>
+        </small>
+    </section>
+</div>
+<!-- end main, body, html section usually ended with the footer template -->
+</main>
+    <!-- Minimal theme switcher -->
+    <script src="/js/minimal-theme-switcher.js"></script>
+</body>
+</html>

@@ -6,12 +6,6 @@
     integrity="sha384-FhXw7b6AlE/jyjlZH5iHa/tTe9EpJ1Y55RjcgPbjeWMskSxZt1v9qkxLJWNJaGni" 
     crossorigin="anonymous">
 </script>
-<link rel="shortcut icon" href="https://gofi.benjamin-mary.com/img/favicon-32x32.png" />
-<link rel="apple-touch-icon" href="https://gofi.benjamin-mary.com/img/apple-touch-icon.png" />
-<link rel="icon" sizes="192x192" href="https://gofi.benjamin-mary.com/img/android-chrome-192x192.png">
-<link rel="android-chrome" sizes="192x192" href="https://gofi.benjamin-mary.com/img/android-chrome-192x192.png" />
-<link rel="android-chrome" sizes="512x512" href="https://gofi.benjamin-mary.com/img/android-chrome-512x512.png" />
-<link rel="favicon" href="https://gofi.benjamin-mary.com/img/favicon-32x32.png" />
 {{template "body" .}}
 {{template "content" .}}
 
@@ -26,33 +20,61 @@
             hx-indicator="#spinner"
             hx-on::after-request="if(event.detail.successful) this.reset()">
 
-            <!-- Date-->
-            <label for="date">Date</label>
-            <input type="date" id="date" name="date" value="{{.Form.Date}}" required />
-            
-            <!-- Select -->
-            <label for="compte">Compte</label>
-            <select id="compte" name="compte" required>
-                {{range $valA := .UserParams.AccountList}}
-                     <option value="{{$valA}}">{{$valA}}</option>
-                {{end}}
-            </select>
+            <div class="grid">
+                <div>
+                    <!-- Date-->
+                    <label for="date">Date</label>
+                    <input type="date" id="date" name="date" value="{{.Form.Date}}" required />
+                </div>
+                <div>
+                    <!-- Select -->
+                    <label for="compte">Compte</label>
+                    <select id="compte" name="compte" required>
+                        {{range $valA := .UserParams.AccountList}}
+                            <option value="{{$valA}}">{{$valA}}</option>
+                        {{end}}
+                    </select>
+                </div>
+                <div>
+                    <!-- Select -->
+                    <label for="categorie">Catégorie</label>
+                    <select id="categorie" name="categorie" required>
+                        {{range $valB := .UserParams.CategoryList}}
+                            <option value="{{$valB}}">{{$valB}}</option>
+                        {{end}}
+                    </select>
+                </div>
+            </div>
 
-            <!-- Select -->
-            <label for="categorie">Catégorie</label>
-            <select id="categorie" name="categorie" required>
-                {{range $valB := .UserParams.CategoryList}}
-                     <option value="{{$valB}}">{{$valB}}</option>
-                {{end}}
-            </select>
-            
             <!-- Text -->
             <label for="designation">Désignation</label>
             <input type="text" id="designation" name="designation" placeholder="Description de l'achat" required />
 
-            <!-- Number -->
-            <label for="prix">Prix</label>
-            <input type="number" id="prix" name="prix" min="0.00" max="100000.00" step="0.01" required />
+            <div class="grid">
+                <div>
+                    <!-- Number -->
+                    <label for="prix">Prix</label>
+                    <input type="number" id="prix" name="prix" min="0.00" max="100000.00" step="0.01" required />
+                </div>
+                <div>
+                    <!-- Radio buttons -->
+                    <fieldset>
+                        <legend>Type</legend>
+                        <label for="gain">
+                            <input type="radio" id="gain" name="gain-expense" value="gain" />
+                            <!-- trending up -->
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="green" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-trending-up"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"></polyline><polyline points="17 6 23 6 23 12"></polyline></svg>
+                            Gain
+                        </label>
+                        <label for="expense">
+                            <input type="radio" id="expense" name="gain-expense" value="expense" checked />
+                            <!-- trending down -->
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="firebrick" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-trending-down"><polyline points="23 18 13.5 8.5 8.5 13.5 1 6"></polyline><polyline points="17 18 23 18 23 12"></polyline></svg>
+                            Dépense
+                        </label>
+                    </fieldset>
+                </div>
+            </div>
 
             <!-- Buttons -->
             <!-- <input type="reset" value="Réinitialiser"/> -->

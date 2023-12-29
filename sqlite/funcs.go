@@ -9,6 +9,11 @@ import (
 
 func ConvertPriceIntToStr(i int) string {
 	var PriceStr2Decimals string
+	var isNegative bool = false
+	if (i < 0) {
+		i = i * -1
+		isNegative = true
+	}
 	switch {
 		case i > 99:
 			// fmt.Printf("PriceStr2Decimals: %v\n", strconv.Itoa(i)[:len(strconv.Itoa(i))-2]) // all except last 2 (stop at x-2)
@@ -19,6 +24,7 @@ func ConvertPriceIntToStr(i int) string {
 		default:
 			PriceStr2Decimals = "0.0" + strconv.Itoa(i)
 	}
+	if isNegative {PriceStr2Decimals = "-" + PriceStr2Decimals}
 	return PriceStr2Decimals
 }
 

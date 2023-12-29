@@ -1,0 +1,47 @@
+{{define "head"}}
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+        <link rel="shortcut icon" href="https://gofi.benjamin-mary.com/img/favicon-32x32.png" />
+        <link rel="apple-touch-icon" href="https://gofi.benjamin-mary.com/img/apple-touch-icon.png" />
+        <link rel="icon" sizes="192x192" href="https://gofi.benjamin-mary.com/img/android-chrome-192x192.png">
+        <link rel="android-chrome" sizes="192x192" href="https://gofi.benjamin-mary.com/img/android-chrome-192x192.png" />
+        <link rel="android-chrome" sizes="512x512" href="https://gofi.benjamin-mary.com/img/android-chrome-512x512.png" />
+        <link rel="favicon" href="https://gofi.benjamin-mary.com/img/favicon-32x32.png" />
+
+        <!-- Pico.css -->
+        <link
+            rel="stylesheet"
+            href="https://cdn.jsdelivr.net/npm/@picocss/pico@1/css/pico.min.css"
+        />
+{{end}}
+
+{{define "body"}}
+    </head>
+    <body class="container-fluid">
+
+{{end}}
+
+{{define "content"}}
+        <main>
+{{end}}
+
+{{define "footer"}}
+        </main>
+        <footer>
+            Retour à <a href="/">
+                l'accueil
+                <!-- home -->
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 28 28" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-home"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>
+            </a>
+        </footer>
+
+    <!-- Minimal theme switcher, switch one time in index page, and reuse script everywhere to keep the desired theme -->
+    <script src="/js/minimal-theme-switcher.js"></script>
+
+    </body>
+</html>
+{{end}}

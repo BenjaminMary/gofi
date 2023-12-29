@@ -493,7 +493,7 @@ func GetRowsInFinanceTracker(ctx context.Context, db *sql.DB, filter *FilterRows
 		// fmt.Printf("ft: %#v\n", ft)
 		ftList = append(ftList, ft)
 	}
-	fmt.Printf("totalPriceIntx100: %v, inStr: %v\n", totalPriceIntx100, totalPriceStr2Decimals)
+	// fmt.Printf("totalPriceIntx100: %v, inStr: %v\n", totalPriceIntx100, totalPriceStr2Decimals)
 	totalPriceStr2Decimals = ConvertPriceIntToStr(totalPriceIntx100)
 	rows.Close()
 	return ftList, totalPriceStr2Decimals

@@ -356,6 +356,8 @@ func postinsertrows(c *gin.Context) {
         c.String(http.StatusBadRequest, "bad request: %v", err)
         return
     }
+    priceType := c.PostForm("gain-expense")
+    if (priceType == "expense"){Form.FormPriceStr2Decimals = "-" + Form.FormPriceStr2Decimals}
     Form.PriceIntx100 = sqlite.ConvertPriceStrToInt(Form.FormPriceStr2Decimals, ".") // always "." as decimal separator from the form
 
     var successfull bool
@@ -549,13 +551,14 @@ func main() {
 
     // render HTML
     // https://gin-gonic.com/docs/examples/html-rendering/
-	router.LoadHTMLGlob("html/**/*")
+	router.LoadHTMLGlob("front/html/**/*")
 	//router.LoadHTMLFiles("templates/template1.html", "templates/template2.html")
     
     // SERVE STATICS
-    router.StaticFile("/favicon.ico", "./img/favicon.ico")
-    router.StaticFile("/favicon.png", "./img/favicon.png") // 32x32
-    router.Static("/img", "./img")
+    router.StaticFile("/favicon.ico", "./front/img/favicon.ico")
+    router.StaticFile("/favicon.png", "./front/img/favicon.png") // 32x32
+    router.Static("/img", "./front/img")
+    router.Static("/js", "./front/js")
 
     router.GET("/", index)
 

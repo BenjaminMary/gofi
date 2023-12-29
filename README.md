@@ -71,13 +71,17 @@ This optional feature adds some prerequisites:
 
 ## TODO
 &#x2611;&#x2610;&#x2612;
-- &#x2611; FIX import csv lorsque pas de décimale HS, tester également avec 1 seule décimale puis 3
-    - &#x2611; ajouter un peu de doc pour l'import pour expliquer l'attendu + les résultats
-    - &#x2611; revoir format des dates qui changent via import csv ou enregistrement via form, en DB figer YYYY-MM-DD
+- dès que toutes les fonctionnalités essentielles sont en place, démarrer des tests fonctionnels
+- gestion des montants + et - à prendre en compte (ok via page html, voir pour les imports/exports .csv)
+    - toutes les dépenses en -
+    - tous les gains en +
+    - &#x2611; faire en sorte de choisir si gain ou dépense avant insertion de données via UI (et ajouter couleur ou signe +/-)
+    - laisser préciser les + et - pour l'import csv
 - ajout préférences utilisateur:
     - gestion des préférences de format de date EN + FR avec / ou -
     - gestion des préférences de format csv séparateur colonne + separateur décimal
     - laisser l'overide possible dans les parties import/export csv, mais préselectionner la préférence
+    - partie import export, gérer les formats ANSI (à faire pour ensuite visualiser les é dans Excel par défaut) et UTF8 (déjà ok)
 - ajout validation des dépenses
     - système qui ramène l'ensemble des lignes encore non validées
     - voir pour permettre de la validation de groupe en saisissant une date unique et en sélectionnant X lignes
@@ -114,6 +118,7 @@ This optional feature adds some prerequisites:
 
 
 ## Changelog
+- 2023-12-27 : add a front folder. Use Pico with classes, ex: <code>class="grid"</code>. Handle positive and negative values from the html input page. Add theme switcher on the index page (dark or light).
 - 2023-12-23 : add a subtotal row in the data table page.
 - 2023-12-22 : improve struct and readability for user params.
 - 2023-12-17 : add a screen to visualize data with filter, sort and limit.
