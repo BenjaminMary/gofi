@@ -72,11 +72,11 @@ This optional feature adds some prerequisites:
 ## TODO
 &#x2611;&#x2610;&#x2612;
 - dès que toutes les fonctionnalités essentielles sont en place, démarrer des tests fonctionnels
-- gestion des montants + et - à prendre en compte (ok via page html, voir pour les imports/exports .csv)
-    - toutes les dépenses en -
-    - tous les gains en +
+- &#x2611; gestion des montants + et - à prendre en compte
+    - &#x2611; toutes les dépenses en -
+    - &#x2611; tous les gains en +
     - &#x2611; faire en sorte de choisir si gain ou dépense avant insertion de données via UI (et ajouter couleur ou signe +/-)
-    - laisser préciser les + et - pour l'import csv
+    - &#x2611; laisser préciser les + et - pour l'import csv (ok déjà géré sans rien ajouter)
 - ajout préférences utilisateur:
     - gestion des préférences de format de date EN + FR avec / ou -
     - gestion des préférences de format csv séparateur colonne + separateur décimal
@@ -118,6 +118,7 @@ This optional feature adds some prerequisites:
 
 
 ## Changelog
+- 2023-12-29 : add groups on front pages where width is > 1000px with Pico class.
 - 2023-12-27 : add a front folder. Use Pico with classes, ex: <code>class="grid"</code>. Handle positive and negative values from the html input page. Add theme switcher on the index page (dark or light).
 - 2023-12-23 : add a subtotal row in the data table page.
 - 2023-12-22 : improve struct and readability for user params.

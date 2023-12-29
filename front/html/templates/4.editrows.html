@@ -27,70 +27,85 @@
             hx-indicator="#spinner">
 
             <h5>Filtrer</h5>
-            <!-- Select -->
-            <label for="compte">Compte</label>
-            <select id="compte" name="compte">
-                <option value="" selected>Tous</option>
-                {{range $valA := .UserParams.AccountList}}
-                     <option value="{{$valA}}">{{$valA}}</option>
-                {{end}}
-            </select>
-
-            <!-- Select -->
-            <label for="categorie">Catégorie</label>
-            <select id="categorie" name="categorie">
-                <option value="" selected>Toutes</option>
-                {{range $valB := .UserParams.CategoryList}}
-                     <option value="{{$valB}}">{{$valB}}</option>
-                {{end}}
-            </select>
-            
-            <!-- Number -->
-            <label for="annee">Année (1900-2200)</label>
-            <input type="number" id="annee" name="annee" min="1900" max="2200" step="1" value="" />
-
-            <!-- Select -->
-            <label for="mois">Mois</label>
-            <select id="mois" name="mois">
-                <option value="" selected>Tous</option>
-                <option value="1">Janvier</option>
-                <option value="2">Février</option>
-                <option value="3">Mars</option>
-                <option value="4">Avril</option>
-                <option value="5">Mai</option>
-                <option value="6">Juin</option>
-                <option value="7">Juillet</option>
-                <option value="8">Août</option>
-                <option value="9">Septembre</option>
-                <option value="10">Octobre</option>
-                <option value="11">Novembre</option>
-                <option value="12">Décembre</option>
-            </select>
-
-            <!-- Select -->
-            <label for="checked">Lignes validés</label>
-            <select id="checked" name="checked">
-                <option value="0" selected>Toutes</option>
-                <option value="1">Oui</option>
-                <option value="2">Non</option>
-            </select>
+            <div class="grid">
+                <div>
+                    <!-- Select -->
+                    <label for="compte">Compte</label>
+                    <select id="compte" name="compte">
+                        <option value="" selected>Tous</option>
+                        {{range $valA := .UserParams.AccountList}}
+                            <option value="{{$valA}}">{{$valA}}</option>
+                        {{end}}
+                    </select>
+                </div>
+                <div>
+                    <!-- Select -->
+                    <label for="categorie">Catégorie</label>
+                    <select id="categorie" name="categorie">
+                        <option value="" selected>Toutes</option>
+                        {{range $valB := .UserParams.CategoryList}}
+                            <option value="{{$valB}}">{{$valB}}</option>
+                        {{end}}
+                    </select>
+                </div>
+            </div>
+            <div class="grid">
+                <div>
+                    <!-- Number -->
+                    <label for="annee">Année (1900-2200)</label>
+                    <input type="number" id="annee" name="annee" min="1900" max="2200" step="1" value="" />
+                </div>
+                <div>
+                    <!-- Select -->
+                    <label for="mois">Mois</label>
+                    <select id="mois" name="mois">
+                        <option value="" selected>Tous</option>
+                        <option value="1">Janvier</option>
+                        <option value="2">Février</option>
+                        <option value="3">Mars</option>
+                        <option value="4">Avril</option>
+                        <option value="5">Mai</option>
+                        <option value="6">Juin</option>
+                        <option value="7">Juillet</option>
+                        <option value="8">Août</option>
+                        <option value="9">Septembre</option>
+                        <option value="10">Octobre</option>
+                        <option value="11">Novembre</option>
+                        <option value="12">Décembre</option>
+                    </select>
+                </div>
+                <div>
+                    <!-- Select -->
+                    <label for="checked">Lignes validés</label>
+                    <select id="checked" name="checked">
+                        <option value="0" selected>Toutes</option>
+                        <option value="1">Oui</option>
+                        <option value="2">Non</option>
+                    </select>
+                </div>
+            </div>
 
             <hr>
             <h5>Trier</h5>
-            <!-- Select -->
-            <label for="orderBy">Trier par</label>
-            <select id="orderBy" name="orderBy" required>
-                <option value="id" selected>Identifiant</option>
-                <option value="date">Date</option>
-                <option value="price">Prix</option>
-            </select>
-
-            <!-- Select -->
-            <label for="orderByType">Ordre</label>
-            <select id="orderByType" name="orderByType" required>
-                <option value="DESC" selected>Décroissant</option>
-                <option value="ASC">Croissant</option>
-            </select>
+            <div class="grid">
+                <div>
+                    <!-- Select -->
+                    <label for="orderBy">Trier par</label>
+                    <select id="orderBy" name="orderBy" required>
+                        <option value="id" selected>Identifiant</option>
+                        <option value="date">Date</option>
+                        <option value="price">Prix</option>
+                    </select>
+                </div>
+                <div>
+                    <!-- Select -->
+                    <label for="orderByType">Ordre</label>
+                    <select id="orderByType" name="orderByType" required>
+                        <option value="DESC" selected>Décroissant</option>
+                        <option value="ASC">Croissant</option>
+                    </select>
+                </div>
+            </div>
 
             <hr>
             <!-- Number -->

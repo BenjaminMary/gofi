@@ -17,49 +17,59 @@
         hx-target="#textarea"
         hx-indicator="#spinner"
         hx-on::after-request="if(event.detail.successful) document.getElementById('form').remove()">
-    <!-- <form> -->
-        <!-- Select -->
-        <label for="csvSeparator">Séparateur de colonne</label>
-        <select id="csvSeparator" name="csvSeparator" required>
-            <option value=";" selected>";" : exemple A;B;C</option>
-            <option value=",">"," : exemple A,B,C</option>
-            <option value="|">"|" : exemple A|B|C</option>
-            <option value="" disabled> </option>
-        </select>
+        <!-- <form> -->
+        <div class="grid">
+            <div>
+                <!-- Select -->
+                <label for="csvSeparator">Séparateur de colonne</label>
+                <select id="csvSeparator" name="csvSeparator" required>
+                    <option value=";" selected>";" : exemple A;B;C</option>
+                    <option value=",">"," : exemple A,B,C</option>
+                    <option value="|">"|" : exemple A|B|C</option>
+                    <option value="" disabled> </option>
+                </select>
+            </div>
+            <div>
+                <!-- Select -->
+                <label for="csvDecimalDelimiter">Séparateur de décimale</label>
+                <select id="csvDecimalDelimiter" name="csvDecimalDelimiter" required>
+                    <option value="," selected>"," : exemple 1,99</option>
+                    <option value=".">"." : exemple 1.99</option>
+                    <option value="" disabled> </option>
+                </select>
+            </div>
+        </div>
 
-        <!-- Select -->
-        <label for="csvDecimalDelimiter">Séparateur de décimale</label>
-        <select id="csvDecimalDelimiter" name="csvDecimalDelimiter" required>
-            <option value="," selected>"," : exemple 1,99</option>
-            <option value=".">"." : exemple 1.99</option>
-            <option value="" disabled> </option>
-        </select>
-
-        <!-- Radio buttons -->
-        <fieldset>
-            <legend>Format des dates</legend>
-            <label for="FR">
-                <input type="radio" id="FR" name="dateFormat" value="FR" checked />
-                FR : DD/MM/YYYY, DD-MM-YYYY
-            </label>
-            <label for="EN">
-                <input type="radio" id="EN" name="dateFormat" value="EN" />
-                EN : YYYY-MM-DD, YYYY/MM/DD
-            </label>
-        </fieldset>
-
-        <!-- Radio buttons -->
-        <fieldset>
-            <legend>Séparateur des dates</legend>
-            <label for="/">
-                <input type="radio" id="/" name="dateSeparator" value="/" checked />
-                / : DD/MM/YYYY, YYYY/MM/DD
-            </label>
-            <label for="-">
-                <input type="radio" id="-" name="dateSeparator" value="-" />
-                - : DD-MM-YYYY, YYYY-MM-DD
-            </label>
-        </fieldset>
+        <div class="grid">
+            <div>
+                <!-- Radio buttons -->
+                <fieldset>
+                    <legend>Format des dates</legend>
+                    <label for="FR">
+                        <input type="radio" id="FR" name="dateFormat" value="FR" checked />
+                        FR : DD/MM/YYYY, DD-MM-YYYY
+                    </label>
+                    <label for="EN">
+                        <input type="radio" id="EN" name="dateFormat" value="EN" />
+                        EN : YYYY-MM-DD, YYYY/MM/DD
+                    </label>
+                </fieldset>
+            </div>
+            <div>
+                <!-- Radio buttons -->
+                <fieldset>
+                    <legend>Séparateur des dates</legend>
+                    <label for="/">
+                        <input type="radio" id="/" name="dateSeparator" value="/" checked />
+                        / : DD/MM/YYYY, YYYY/MM/DD
+                    </label>
+                    <label for="-">
+                        <input type="radio" id="-" name="dateSeparator" value="-" />
+                        - : DD-MM-YYYY, YYYY-MM-DD
+                    </label>
+                </fieldset>    
+            </div>
+        </div>
 
         <!-- Buttons -->
         <button id="disapear" type="submit" value="Submit">
