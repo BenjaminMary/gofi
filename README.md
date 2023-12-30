@@ -81,7 +81,10 @@ This optional feature adds some prerequisites:
     - gestion des préférences de format de date EN + FR avec / ou -
     - gestion des préférences de format csv séparateur colonne + separateur décimal
     - laisser l'overide possible dans les parties import/export csv, mais préselectionner la préférence
-    - partie import export, gérer les formats ANSI (à faire pour ensuite visualiser les é dans Excel par défaut) et UTF8 (déjà ok)
+    - &#x2610; partie import export: 
+        - &#x2612; gérer les formats ANSI (à faire pour ensuite visualiser les é dans Excel par défaut) et UTF8 (déjà ok)
+            - &#x2611; pas gestion du format ANSI, blocage de l'utilisation du UTF8 avec ajout de caractères de contrôle
+        - &#x2610; ajouter la possibilité de supprimer des lignes en mettant des "-" devant les ID de lignes
 - ajout validation des dépenses
     - système qui ramène l'ensemble des lignes encore non validées
     - voir pour permettre de la validation de groupe en saisissant une date unique et en sélectionnant X lignes
@@ -118,6 +121,7 @@ This optional feature adds some prerequisites:
 
 
 ## Changelog
+- 2023-12-30 : add UTF-8 control characters on the csv file export, and control their presence before import.
 - 2023-12-29 : add groups on front pages where width is > 1000px with Pico class.
 - 2023-12-27 : add a front folder. Use Pico with classes, ex: <code>class="grid"</code>. Handle positive and negative values from the html input page. Add theme switcher on the index page (dark or light).
 - 2023-12-23 : add a subtotal row in the data table page.

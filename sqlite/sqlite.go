@@ -545,7 +545,7 @@ func ExportCSV(gofiID int, csvSeparator rune, csvDecimalDelimiter string, dateFo
     defer w.Flush()
 
 	//write csv headers
-	row := []string{"ID", "Date",
+	row := []string{"𫝀é ꮖꭰ", "Date",
 		"Account", "Product", "PriceStr", "Category", 
 		"CommentInt", "CommentString", "Checked", "DateChecked", "SentToSheets"}
 	if err := w.Write(row); err != nil {
@@ -621,12 +621,30 @@ func ImportCSV(gofiID int, csvSeparator rune, csvDecimalDelimiter string, dateFo
     }
 
 	var ft FinanceTracker
-	var lineInfo, unsuccessfullReason string
+	var lineInfo, unsuccessfullReason, controlEncoding string
 	var successfull bool
 	ft.GofiID = gofiID
-	stringList += "ID;Date;CommentInt;Checked;SentToSheets;NewID;Updated;\n"
+	stringList += "𫝀é ꮖꭰ;Date;CommentInt;Checked;SentToSheets;NewID;Updated;\n"
 	for index, row := range rows {
-		if (index == 0) {continue} //skip headers
+		if (index == 0) { //control UTF-8 on headers
+			controlEncoding = row[0]
+			if (controlEncoding == "𫝀é ꮖꭰ"){
+				continue //skip the row
+			} else {
+				stringList = /* "EN: CANCELED IMPORT.\n" +
+					"ERROR on encoding format of the file.\n" +
+					"The system only accept UTF-8.\n\n" +
+					"INFO: specifics characters are in the 1st column of the header and must be kept.\n" +
+					"1st column = '𫝀é ꮖꭰ'\n\n" + */
+					"IMPORTATION ANNULEE.\n" +
+					"ERREUR sur le format d'encodage du fichier.\n" +
+					"Le système accepte uniquement du UTF-8.\n\n" +
+					"INFO: des caractères spécifiques sont présents en en-tête de la 1ere colonne et doivent être gardés.\n" +
+					"1ere colonne = '𫝀é ꮖꭰ'\n" +
+					"Un exemple de données d'import valide est disponible plus bas sur cette page."
+				break //stop
+			}
+		}
 		lineInfo = ""
 		ft.ID, err = strconv.Atoi(row[0])
 		if err != nil { // Always check errors even if they should not happen.
