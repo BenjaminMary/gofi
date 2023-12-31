@@ -14,7 +14,7 @@
 <section id="form">
     <h3>Options</h3>
     <form hx-post="/export-csv"
-        hx-target="#textarea"
+        hx-target="#filecontent"
         hx-indicator="#spinner"
         hx-on::after-request="if(event.detail.successful) document.getElementById('form').remove()">
         <!-- <form> -->
@@ -83,7 +83,8 @@
 <section id="dl">
     <h3>Téléchargement</h3>
     <button id="download">Télécharger le fichier csv</button>
-    <textarea id="textarea" rows="10"></textarea>
+    <textarea id="filename" rows="1" readonly>{{.FileName}}</textarea>
+    <textarea id="filecontent" rows="10" readonly></textarea>
     <p>
         Le fichier téléchargé est au format UTF-8 avec une fin de ligne LF (Unix), les données sont limités aux 10 000 derniers enregistrements.
         <hr>
@@ -97,25 +98,4 @@
 
 {{template "footer" .}}
 
-<script>
-    function download(filename, text) {
-        var element = document.createElement('a');
-        element.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(text));
-        element.setAttribute('download', filename);
-    
-        element.style.display = 'none';
-        document.body.appendChild(element);
-    
-        element.click();
-    
-        document.body.removeChild(element);
-    }
-
-    // Start file download.
-    document.getElementById("download").addEventListener("click", function(){
-        // Generate download of csv file with content
-        var text = document.getElementById("textarea").value;
-        var filename = "{{.FileName}}";
-        download(filename, text);
-    }, false);
-</script>
+<script src="/js/download-text-utf8.js"></script>

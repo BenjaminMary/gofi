@@ -72,19 +72,23 @@ This optional feature adds some prerequisites:
 ## TODO
 &#x2611;&#x2610;&#x2612;
 - dès que toutes les fonctionnalités essentielles sont en place, démarrer des tests fonctionnels
-- &#x2611; gestion des montants + et - à prendre en compte
-    - &#x2611; toutes les dépenses en -
-    - &#x2611; tous les gains en +
-    - &#x2611; faire en sorte de choisir si gain ou dépense avant insertion de données via UI (et ajouter couleur ou signe +/-)
-    - &#x2611; laisser préciser les + et - pour l'import csv (ok déjà géré sans rien ajouter)
 - ajout préférences utilisateur:
     - gestion des préférences de format de date EN + FR avec / ou -
     - gestion des préférences de format csv séparateur colonne + separateur décimal
     - laisser l'overide possible dans les parties import/export csv, mais préselectionner la préférence
     - &#x2610; partie import export: 
-        - &#x2612; gérer les formats ANSI (à faire pour ensuite visualiser les é dans Excel par défaut) et UTF8 (déjà ok)
-            - &#x2611; pas gestion du format ANSI, blocage de l'utilisation du UTF8 avec ajout de caractères de contrôle
-        - &#x2610; ajouter la possibilité de supprimer des lignes en mettant des "-" devant les ID de lignes
+        - &#x2611; gérer les formats ANSI (à faire pour ensuite visualiser les é dans Excel par défaut) et UTF8 (déjà ok)
+            - &#x2612; pas gestion du format ANSI
+            - &#x2611; force l'utilisation du UTF8 avec ajout de caractères de contrôle
+            - &#x2611; CRLF et LF gérés en ajoutant une colonne non utilisée en fin de fichier
+        - PRIO &#x2610; ajouter la possibilité de supprimer des lignes en mettant des "-" devant les ID de lignes
+            - &#x2610; réel DELETE ou UPDATE avec mise à 0 du prix + MAJ compte et catégo ?
+        - &#x2610; MAJ le champ `exported` lors des exports et modifications de données
+        - &#x2610; mettre un champ `lastCSVexport` de type date par user à ramener dans le menu (ok si - d'1 mois, ko sinon)
+            - &#x2610; compter le nombre de lignes à exporter et afficher/bloquer un import si différent de 0 ?
+        - &#x2610; ajouter un template de fichier csv
+        - &#x2610; objectif: chaque export génère un fichier avec l'ensemble des dernières modifs (UPDATE d'une ligne à 0 à la place du DELETE permet de gérer ça)
+            - &#x2610; en jouant toutes les sauvegardes historisées dans l'ordre chronologique, on retrouve l'état des données souhaité
 - ajout validation des dépenses
     - système qui ramène l'ensemble des lignes encore non validées
     - voir pour permettre de la validation de groupe en saisissant une date unique et en sélectionnant X lignes
@@ -121,6 +125,7 @@ This optional feature adds some prerequisites:
 
 
 ## Changelog
+- 2023-12-31 : add a new empty column at the end of the csv to handle CRLF end of line. Rename a used DB field, BREAKING CHANGE, needs to run the `migrateDB.go` file.
 - 2023-12-30 : add UTF-8 control characters on the csv file export, and control their presence before import.
 - 2023-12-29 : add groups on front pages where width is > 1000px with Pico class.
 - 2023-12-27 : add a front folder. Use Pico with classes, ex: <code>class="grid"</code>. Handle positive and negative values from the html input page. Add theme switcher on the index page (dark or light).

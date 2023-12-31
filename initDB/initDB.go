@@ -80,7 +80,7 @@ func main() {
 			commentString TEXT DEFAULT '',
 			checked INTEGER DEFAULT 0,
 			dateChecked TEXT DEFAULT '9999-12-31',
-			sentToSheets INTEGER DEFAULT 0
+			exported INTEGER DEFAULT 0
 		);
 		`,
 	)

@@ -466,7 +466,8 @@ func getExportCsv(c *gin.Context) {
     cookieGofiID, _ := CheckCookie(ctx, c, db)
     if c.IsAborted() {return}
 
-    FileName := "gofi-" + strconv.Itoa(cookieGofiID) + ".csv"
+    today := time.Now().Format(time.DateOnly)
+    FileName := today + "-export-gofi-id" + strconv.Itoa(cookieGofiID) + "-UTF8-LF.csv"
     c.HTML(http.StatusOK, "100.exportCsv.html", gin.H{
         "FileName": FileName,
     })

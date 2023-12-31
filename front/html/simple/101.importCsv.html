@@ -103,7 +103,7 @@
         <li><code>CommentString</code>: un commentaire en texte libre</li>
         <li><code>Checked</code>: valeurs <code>true</code> ou <code>false</code></li>
         <li><code>DateChecked</code>: doit respecter le format spécifié, dans l'exemple <code>JJ/MM/AAAA</code>. Si vide, sera enregistré à <code>31/12/9999</code></li>
-        <li><code>SentToSheets</code>: valeurs <code>true</code> ou <code>false</code></li>
+        <li><code>Exported</code>: valeurs <code>true</code> ou <code>false</code></li>
     </ol>
 
     <h5>Exemple d'un fichier .csv de 4 lignes avec en-têtes, donc 3 à importer:</h5>
@@ -113,7 +113,7 @@
         <li>format date FR <code>JJ/MM/AAAA</code></li>
     </ul>
     <ol>
-        <li><code>𫝀é ꮖꭰ;Date;Account;Product;PriceStr;Category;CommentInt;CommentString;Checked;DateChecked;SentToSheets</code></li>        
+        <li><code>𫝀é ꮖꭰ;Date;Account;Product;PriceStr;Category;CommentInt;CommentString;Checked;DateChecked;Exported</code></li>        
         <li><code>1;12/11/2023;CB;Exemple 1 avec ID 1;2,03;Supermarché;0;;true;02/12/2023;false</code></li>
         <li><code>;10/12/2024;CB;Exemple 2 sans ID;9,00;Supermarché;0;;false;;false</code></li>
         <li><code>156979;10/12/2024;CB;Exemple 3 avec ID inconnu;87,50;Supermarché;0;;false;31/12/2200;false</code></li>
@@ -127,7 +127,7 @@
 
     <h5>Les résultats de l'import:</h5>
     <ol>
-        <li>En-têtes de retour: <code>𫝀é ꮖꭰ;Date;CommentInt;Checked;SentToSheets;NewID;Updated;</code></li>
+        <li>En-têtes de retour: <code>𫝀é ꮖꭰ;Date;CommentInt;Checked;Exported;NewID;Updated;</code></li>
         <li>
             Pour l'exemple 1, <code>UPDATE</code> de l'ID <code>1</code> validé avec l'info de l'en-tête de retour <code>Updated</code> à <code>true</code>:<br> 
             <code>UPDATE 1;;;;;true;</code>

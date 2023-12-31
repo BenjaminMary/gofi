@@ -24,7 +24,7 @@ type FinanceTracker struct {
 	CommentString string
 	Checked bool
 	DateChecked string
-	SentToSheets bool
+	Exported bool
 }
 
 type User struct {

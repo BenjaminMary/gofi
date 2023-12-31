@@ -530,7 +530,7 @@ func ExportCSV(gofiID int, csvSeparator rune, csvDecimalDelimiter string, dateFo
 	q := ` 
 		SELECT id, year, month, day,
 			account, product, priceIntx100, category, 
-			commentInt, commentString, checked, dateChecked, sentToSheets
+			commentInt, commentString, checked, dateChecked, exported
 		FROM financeTracker
 		WHERE gofiID = ?
 		ORDER BY id
@@ -547,7 +547,8 @@ func ExportCSV(gofiID int, csvSeparator rune, csvDecimalDelimiter string, dateFo
 	//write csv headers
 	row := []string{"𫝀é ꮖꭰ", "Date",
 		"Account", "Product", "PriceStr", "Category", 
-		"CommentInt", "CommentString", "Checked", "DateChecked", "SentToSheets"}
+		"CommentInt", "CommentString", "Checked", "DateChecked", "Exported", 
+		""} //keeping an empty column at the end will handle the LF and CRLF cases
 	if err := w.Write(row); err != nil {
 		fmt.Printf("row error: %v\n", row)
 		log.Fatalln("error writing record to file", err)
@@ -559,7 +560,7 @@ func ExportCSV(gofiID int, csvSeparator rune, csvDecimalDelimiter string, dateFo
 		if err := rows.Scan(
 				&ft.ID, &ft.Year, &ft.Month, &ft.Day,
 				&ft.Account, &ft.Product, &ft.PriceIntx100, &ft.Category,
-				&ft.CommentInt, &ft.CommentString, &ft.Checked, &ft.DateChecked, &ft.SentToSheets,
+				&ft.CommentInt, &ft.CommentString, &ft.Checked, &ft.DateChecked, &ft.Exported,
 			); err != nil {
 			log.Fatal(err)
 		}
@@ -569,7 +570,7 @@ func ExportCSV(gofiID int, csvSeparator rune, csvDecimalDelimiter string, dateFo
 
         row = []string{strconv.Itoa(ft.ID), ft.Date, 
 			ft.Account, ft.Product, ft.FormPriceStr2Decimals, ft.Category, 
-			strconv.Itoa(ft.CommentInt), ft.CommentString, strconv.FormatBool(ft.Checked), ft.DateChecked, strconv.FormatBool(ft.SentToSheets)}
+			strconv.Itoa(ft.CommentInt), ft.CommentString, strconv.FormatBool(ft.Checked), ft.DateChecked, strconv.FormatBool(ft.Exported), ""}
         if err := w.Write(row); err != nil {
 			fmt.Printf("row error: %v\n", row)
             log.Fatalln("error writing record to file", err)
@@ -624,7 +625,7 @@ func ImportCSV(gofiID int, csvSeparator rune, csvDecimalDelimiter string, dateFo
 	var lineInfo, unsuccessfullReason, controlEncoding string
 	var successfull bool
 	ft.GofiID = gofiID
-	stringList += "𫝀é ꮖꭰ;Date;CommentInt;Checked;SentToSheets;NewID;Updated;\n"
+	stringList += "𫝀é ꮖꭰ;Date;CommentInt;Checked;exported;NewID;Updated;\n"
 	for index, row := range rows {
 		if (index == 0) { //control UTF-8 on headers
 			controlEncoding = row[0]
@@ -692,9 +693,9 @@ func ImportCSV(gofiID int, csvSeparator rune, csvDecimalDelimiter string, dateFo
 				if successfull {ft.DateChecked = dateForDB}
 			}	
 		}
-		ft.SentToSheets, err = strconv.ParseBool(row[10])
+		ft.Exported, err = strconv.ParseBool(row[10])
 		if err != nil {
-			ft.SentToSheets = false
+			ft.Exported = false
 			lineInfo += "sent 0;"
 		} else { lineInfo += ";" }
 
@@ -702,11 +703,11 @@ func ImportCSV(gofiID int, csvSeparator rune, csvDecimalDelimiter string, dateFo
 			// INSERT
 			exec, err := db.Exec(`
 				INSERT INTO financeTracker (gofiID, year, month, day, account, product, priceIntx100, category,
-					commentInt, commentString, checked, dateChecked, sentToSheets)
+					commentInt, commentString, checked, dateChecked, exported)
 				VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?);
 				`, 
 				ft.GofiID, ft.Year, ft.Month, ft.Day, ft.Account, ft.Product, ft.PriceIntx100, ft.Category,
-				ft.CommentInt, ft.CommentString, ft.Checked, ft.DateChecked, ft.SentToSheets,
+				ft.CommentInt, ft.CommentString, ft.Checked, ft.DateChecked, ft.Exported,
 			)
 			if err != nil {lineInfo += "error1;false;"} else {
 				rowID, err := exec.LastInsertId()
@@ -717,12 +718,12 @@ func ImportCSV(gofiID int, csvSeparator rune, csvDecimalDelimiter string, dateFo
 			result, err := db.Exec(`
 				UPDATE financeTracker 
 				SET year = ?, month = ?, day = ?, account = ?, product = ?, priceIntx100 = ?, category = ?,
-					commentInt = ?, commentString = ?, checked = ?, dateChecked = ?, sentToSheets = ?
+					commentInt = ?, commentString = ?, checked = ?, dateChecked = ?, exported = ?
 				WHERE ID = ?
 					AND gofiID = ?;
 				`, 
 				ft.Year, ft.Month, ft.Day, ft.Account, ft.Product, ft.PriceIntx100, ft.Category,
-				ft.CommentInt, ft.CommentString, ft.Checked, ft.DateChecked, ft.SentToSheets,
+				ft.CommentInt, ft.CommentString, ft.Checked, ft.DateChecked, ft.Exported,
 				ft.ID, ft.GofiID,
 			)
 			if err != nil {lineInfo += "error3;false;"} else {
