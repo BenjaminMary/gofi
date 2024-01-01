@@ -581,7 +581,7 @@ func ExportCSV(gofiID int, csvSeparator rune, csvDecimalDelimiter string, dateFo
 }
 
 
-func ImportCSV(gofiID int, csvSeparator rune, csvDecimalDelimiter string, dateFormat string, dateSeparator string, csvFile *multipart.FileHeader) string {
+func ImportCSV(gofiID int, email string, csvSeparator rune, csvDecimalDelimiter string, dateFormat string, dateSeparator string, csvFile *multipart.FileHeader) string {
 	/* take all data from the csv and put it in the DB with a specific gofiID
 		1. rows without ID are new ones (INSERT)
 		2. rows with ID are existing ones (UPDATE)
@@ -589,11 +589,11 @@ func ImportCSV(gofiID int, csvSeparator rune, csvDecimalDelimiter string, dateFo
 		4. write row by row in DB
 	*/
 	var stringList string
-	stringList += "traitement fichier avec ID : " + strconv.Itoa(gofiID) + "\n"
+	stringList += "traitement fichier pour: " + email + "\n"
 	db, err := sql.Open("sqlite", DbPath)
 	if err != nil {
-		log.Fatal("error opening DB file: ", err)
 		stringList += "erreur de base de données, merci de réessayer plus tard."
+		log.Fatal("error opening DB file: ", err)
 		return stringList
 	}
 	defer db.Close()
@@ -607,7 +607,7 @@ func ImportCSV(gofiID int, csvSeparator rune, csvDecimalDelimiter string, dateFo
 	}
 	file, err := csvFile.Open() // For read access.
 	if err != nil {
-		log.Fatal("Unable to read input file : " + csvFile.Filename, err)
+		fmt.Printf("Unable to read input file: %v, error: %v", csvFile.Filename, err)
 		stringList += "erreur d'ouverture du fichier csv, merci de vérifier le format."
 		return stringList
 	}
@@ -616,32 +616,47 @@ func ImportCSV(gofiID int, csvSeparator rune, csvDecimalDelimiter string, dateFo
 	r.Comma = csvSeparator //french CSV file = ;
     rows, err := r.ReadAll()
     if err != nil {
-        log.Fatal("Unable to parse file as CSV for : " + csvFile.Filename, err)
-		stringList += "erreur de lecture d'au moins 1 ligne dans le fichier csv, merci de vérifier le contenu du fichier."
+        fmt.Printf("Unable to parse file as CSV for: %v, error: %v", csvFile.Filename, err)
+		stringList += "erreur de lecture d'au moins 1 ligne dans le fichier csv, merci de vérifier le contenu et la structure du fichier."
 		return stringList
     }
 
 	var ft FinanceTracker
-	var lineInfo, unsuccessfullReason, controlEncoding string
+	var lineInfo, unsuccessfullReason, controlEncoding, controlLastValidColumn string
 	var successfull bool
 	ft.GofiID = gofiID
 	stringList += "𫝀é ꮖꭰ;Date;CommentInt;Checked;exported;NewID;Updated;\n"
 	for index, row := range rows {
 		if (index == 0) { //control UTF-8 on headers
+			totalRows := len(row)
+			if (totalRows != 12){
+				stringList = 
+					"IMPORTATION ANNULEE.\n" +
+					"ERREUR sur le nombre de colonnes du fichier.\n\n" +
+					"INFO: total " + strconv.Itoa(totalRows) + " colonnes sur un attendu de 12.\n" +
+					"Un exemple de données d'import valide est disponible plus bas sur cette page."
+
+				break //stop
+			}
 			controlEncoding = row[0]
-			if (controlEncoding == "𫝀é ꮖꭰ"){
+			controlLastValidColumn = row[10]
+			fmt.Printf("totalRows: %#v\n", totalRows)
+			if (controlEncoding == "𫝀é ꮖꭰ" && controlLastValidColumn == "Exported"){
 				continue //skip the row
-			} else {
-				stringList = /* "EN: CANCELED IMPORT.\n" +
-					"ERROR on encoding format of the file.\n" +
-					"The system only accept UTF-8.\n\n" +
-					"INFO: specifics characters are in the 1st column of the header and must be kept.\n" +
-					"1st column = '𫝀é ꮖꭰ'\n\n" + */
+			} else if controlEncoding != "𫝀é ꮖꭰ" {
+				stringList = 
 					"IMPORTATION ANNULEE.\n" +
 					"ERREUR sur le format d'encodage du fichier.\n" +
 					"Le système accepte uniquement du UTF-8.\n\n" +
 					"INFO: des caractères spécifiques sont présents en en-tête de la 1ere colonne et doivent être gardés.\n" +
 					"1ere colonne = '𫝀é ꮖꭰ'\n" +
+					"Un exemple de données d'import valide est disponible plus bas sur cette page."
+				break //stop
+			} else if controlLastValidColumn != "Exported" {
+				stringList = 
+					"IMPORTATION ANNULEE.\n" +
+					"ERREUR sur la dernière colonne du fichier.\n\n" +
+					"INFO: 11eme colonne = 'Exported'\n" +
 					"Un exemple de données d'import valide est disponible plus bas sur cette page."
 				break //stop
 			}
@@ -651,54 +666,78 @@ func ImportCSV(gofiID int, csvSeparator rune, csvDecimalDelimiter string, dateFo
 		if err != nil { // Always check errors even if they should not happen.
 			ft.ID = 0
 			lineInfo += "INSERT;"
-		} else { lineInfo += "UPDATE " + row[0] + ";" }
-
-		ft.Year, ft.Month, ft.Day, successfull, unsuccessfullReason = ConvertDateStrToInt(row[1], dateFormat, dateSeparator)
-		if !successfull {
-			lineInfo += "error " + unsuccessfullReason + ";;;;;false;"
-			stringList += lineInfo + "\n"
-			continue //skip this row because wrong date format
+		} else { 
+			if ft.ID > 0 {
+				lineInfo += "UPDATE " + row[0] + ";" 
+			} else if ft.ID < 0 { 
+				// DELETE is actually an UPDATE with empty data
+				lineInfo += "DELETE" + row[0] + ";1999-12-31;;checked true;exported false;"
+				ft.Year = 1999
+				ft.Month = 12
+				ft.Day = 31
+				ft.Account = "-"
+				ft.Product = "DELETED LINE"
+				ft.PriceIntx100 = 0
+				ft.Category = "-"
+				ft.CommentInt = 0
+				ft.CommentString = ""
+				ft.Checked = true //no need to validate a deleted row
+				ft.DateChecked = "1999-12-31"
+				ft.Exported = false //force a new export of this line with the DELETED row ID
+			} else if ft.ID == 0 { lineInfo += "INSERT;" }
 		}
 
-		ft.Account = row[2] 
-		ft.Product = row[3]
-		ft.FormPriceStr2Decimals = row[4]
-		ft.PriceIntx100 = ConvertPriceStrToInt(ft.FormPriceStr2Decimals, csvDecimalDelimiter)
+		if ft.ID >= 0 {
+			ft.Year, ft.Month, ft.Day, successfull, unsuccessfullReason = ConvertDateStrToInt(row[1], dateFormat, dateSeparator)
+			if !successfull {
+				lineInfo += "error " + unsuccessfullReason + ";;;;;false;"
+				stringList += lineInfo + "\n"
+				continue //skip this row because wrong date format
+			}
 
-		ft.Category = row[5]
-		ft.CommentInt, err = strconv.Atoi(row[6])
-		if err != nil {
-			ft.CommentInt = 0
-			lineInfo += "comment i 0;"
-		} else { lineInfo += ";" }
-		ft.CommentString = row[7]
+			ft.Account = row[2] 
+			ft.Product = row[3]
+			ft.FormPriceStr2Decimals = row[4]
+			ft.PriceIntx100 = ConvertPriceStrToInt(ft.FormPriceStr2Decimals, csvDecimalDelimiter)
 
-		// Checked
-		ft.Checked, err = strconv.ParseBool(row[8])
-		if err != nil {
-			ft.Checked = false
-			lineInfo += "checked 0;"
-		} else { lineInfo += ";" }
+			ft.Category = row[5]
+			ft.CommentInt, err = strconv.Atoi(row[6])
+			if err != nil {
+				ft.CommentInt = 0
+				lineInfo += "comment i 0;"
+			} else { lineInfo += ";" }
+			ft.CommentString = row[7]
 
-		// DateChecked
-		ft.DateChecked = "9999-12-31"
-		if len(row[9]) == 10 {
-			yearInt, monthInt, dayInt, successfull, _ := ConvertDateStrToInt(row[9], dateFormat, dateSeparator)
-			// fmt.Println("---------------")
-			// fmt.Printf("ft.DateChecked: %v\n", ft.DateChecked)
-			// fmt.Printf("yearInt %v, monthInt %v, dayInt %v, successfull %v, unsuccessfullReason %v\n", yearInt, monthInt, dayInt, successfull, unsuccessfullReason)
-			if successfull {
-				dateForDB, successfull, _ := ConvertDateIntToStr(yearInt, monthInt, dayInt, "EN", "-") //force YYYY-MM-DD inside DB
-				//fmt.Printf("dateForDB %v, successfull %v, unsuccessfullReason %v\n", dateForDB, successfull, unsuccessfullReason)
-				if successfull {ft.DateChecked = dateForDB}
-			}	
+			// Checked
+			ft.Checked, err = strconv.ParseBool(row[8])
+			if err != nil {
+				ft.Checked = false
+				lineInfo += "checked 0;"
+			} else { lineInfo += ";" }
+
+			// DateChecked
+			ft.DateChecked = "9999-12-31"
+			if len(row[9]) == 10 {
+				yearInt, monthInt, dayInt, successfull, _ := ConvertDateStrToInt(row[9], dateFormat, dateSeparator)
+				// fmt.Println("---------------")
+				// fmt.Printf("ft.DateChecked: %v\n", ft.DateChecked)
+				// fmt.Printf("yearInt %v, monthInt %v, dayInt %v, successfull %v, unsuccessfullReason %v\n", yearInt, monthInt, dayInt, successfull, unsuccessfullReason)
+				if successfull {
+					dateForDB, successfull, _ := ConvertDateIntToStr(yearInt, monthInt, dayInt, "EN", "-") //force YYYY-MM-DD inside DB
+					//fmt.Printf("dateForDB %v, successfull %v, unsuccessfullReason %v\n", dateForDB, successfull, unsuccessfullReason)
+					if successfull {ft.DateChecked = dateForDB}
+				}	
+			}
+			ft.Exported, err = strconv.ParseBool(row[10])
+			if err != nil {
+				ft.Exported = false
+				lineInfo += "sent 0;"
+			} else { lineInfo += ";" }
 		}
-		ft.Exported, err = strconv.ParseBool(row[10])
-		if err != nil {
-			ft.Exported = false
-			lineInfo += "sent 0;"
-		} else { lineInfo += ";" }
 
+		if ft.ID < 0 { //DELETE part which is an UPDATE
+			ft.ID = ft.ID * -1 //we keep the original positive ID, and send it to the standard UPDATE process
+		}
 		if (ft.ID == 0) {
 			// INSERT
 			exec, err := db.Exec(`
@@ -713,7 +752,7 @@ func ImportCSV(gofiID int, csvSeparator rune, csvDecimalDelimiter string, dateFo
 				rowID, err := exec.LastInsertId()
 				if err != nil {lineInfo += "error2;false;"} else {lineInfo += strconv.FormatInt(rowID, 10) + ";true;"}
 			}
-		} else {
+		} else if (ft.ID > 0) {
 			// UPDATE
 			result, err := db.Exec(`
 				UPDATE financeTracker 

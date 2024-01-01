@@ -82,14 +82,16 @@ This optional feature adds some prerequisites:
             - &#x2612; pas gestion du format ANSI
             - &#x2611; force l'utilisation du UTF8 avec ajout de caractères de contrôle
             - &#x2611; CRLF et LF gérés en ajoutant une colonne non utilisée en fin de fichier
-        -  PRIO &#x2610; ajouter la possibilité de supprimer des lignes en mettant des "-" devant les ID de lignes
-            - &#x2610; réel DELETE ou UPDATE avec mise à 0 du prix + MAJ compte et catégo ?
-        - &#x2610; MAJ le champ `exported` lors des exports et modifications de données
+        - &#x2611; ajouter la possibilité de supprimer des lignes en mettant des "-" devant les ID de lignes
+            - &#x2611; UPDATE (et non pas réel DELETE) avec mise à 0 du prix + MAJ compte et catégo en "-" (permet de mieux gérer les exports de données et de les réutiliser lorsque partiel pour obtenir le bon résultat avec l'ensemble des modifs appliquées les unes à la suite des autres)
+            - &#x2612; via DELETE, aurait posé problème lorsque la ligne est créé puis exportée, et ensuite DELETE avec un nouvel export où aucune info sur le DELETE n'aurait été présente car ligne inexistante en DB (l'export à pour objectif d'exporter uniquements les dernières modifications, voir pour mettre une option pour tout rééxporter)
+        - PRIO &#x2610; MAJ le champ `exported` lors des exports et modifications de données
         - &#x2610; mettre un champ `lastCSVexport` de type date par user à ramener dans le menu (ok si - d'1 mois, ko sinon)
             - &#x2610; compter le nombre de lignes à exporter et afficher/bloquer un import si différent de 0 ?
         - &#x2610; ajouter un template de fichier csv
-        - &#x2610; objectif: chaque export génère un fichier avec l'ensemble des dernières modifs (UPDATE d'une ligne à 0 à la place du DELETE permet de gérer ça)
+        - &#x2610; objectif: chaque export génère un fichier avec l'ensemble des dernières modifs
             - &#x2610; en jouant toutes les sauvegardes historisées dans l'ordre chronologique, on retrouve l'état des données souhaité
+            - &#x2610; mettre une option d'export de toutes les lignes même celles non modifiées
 - ajout validation des dépenses
     - système qui ramène l'ensemble des lignes encore non validées
     - voir pour permettre de la validation de groupe en saisissant une date unique et en sélectionnant X lignes
@@ -126,6 +128,7 @@ This optional feature adds some prerequisites:
 
 
 ## Changelog
+- 2024-01-01 : add DELETE option from import csv by addind a "-" before the ID. Add new controls before import csv.
 - 2024-01-01 : fix backup download.
 - 2023-12-31 : add a new empty column at the end of the csv to handle CRLF end of line. Rename a used DB field, BREAKING CHANGE, needs to run the `migrateDB.go` file.
 - 2023-12-30 : add UTF-8 control characters on the csv file export, and control their presence before import.

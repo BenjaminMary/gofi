@@ -517,7 +517,7 @@ func postImportCsv(c *gin.Context) {
     ctx, cancel := context.WithTimeout(context.TODO(), 2*time.Second)
     defer cancel()
 
-    cookieGofiID, _ := CheckCookie(ctx, c, db)
+    cookieGofiID, email := CheckCookie(ctx, c, db)
     if c.IsAborted() {return}
 
     csvSeparator := c.PostForm("csvSeparator")
@@ -536,7 +536,7 @@ func postImportCsv(c *gin.Context) {
     var csvSeparatorRune rune
     for _, runeValue := range csvSeparator {csvSeparatorRune = runeValue}
 
-    stringList := sqlite.ImportCSV(cookieGofiID, csvSeparatorRune, csvDecimalDelimiter, dateFormat, dateSeparator, csvFile)
+    stringList := sqlite.ImportCSV(cookieGofiID, email, csvSeparatorRune, csvDecimalDelimiter, dateFormat, dateSeparator, csvFile)
 
     c.String(http.StatusOK, stringList)
 }

@@ -104,9 +104,10 @@
         <li><code>Checked</code>: valeurs <code>true</code> ou <code>false</code></li>
         <li><code>DateChecked</code>: doit respecter le format spécifié, dans l'exemple <code>JJ/MM/AAAA</code>. Si vide, sera enregistré à <code>31/12/9999</code></li>
         <li><code>Exported</code>: valeurs <code>true</code> ou <code>false</code></li>
+        <li><code>""</code>: valeurs vides <code>""</code>, colonne supplémentaire à garder vide.</li>
     </ol>
 
-    <h5>Exemple d'un fichier .csv de 4 lignes avec en-têtes, donc 3 à importer:</h5>
+    <h5>Exemple d'un fichier .csv de 5 lignes avec en-têtes, donc 4 à importer:</h5>
     <ul>
         <li>séparateur csv <code>;</code></li>
         <li>séparateur décimale <code>,</code></li>
@@ -117,12 +118,15 @@
         <li><code>1;12/11/2023;CB;Exemple 1 avec ID 1;2,03;Supermarché;0;;true;02/12/2023;false</code></li>
         <li><code>;10/12/2024;CB;Exemple 2 sans ID;9,00;Supermarché;0;;false;;false</code></li>
         <li><code>156979;10/12/2024;CB;Exemple 3 avec ID inconnu;87,50;Supermarché;0;;false;31/12/2200;false</code></li>
+        <li><code>-2;10/12/2024;CB;Exemple 4 avec ID négatif -2;24,50;Supermarché;0;;false;31/12/2200;false</code></li>
     </ol>
     <ol>
-        <li>La 1ere ligne sert pour les en-têtes et sera toujours ignorée lors du traitement</li>
+        <li>La 1ere ligne sert pour les en-têtes et quelques contrôles de la validité du fichier</li>
         <li>Dans l'exemple 1, avec un ID on fait un <code>UPDATE</code> des données de la ligne qui a cet ID <code>1</code></li>
         <li>Dans l'exemple 2, sans ID, on fait un <code>INSERT</code> d'une nouvelle ligne sur laquelle on va attribuer un ID</li>
         <li>Dans l'exemple 3, avec un ID inconnu, on fait une tentative d'<code>UPDATE</code> des données de la ligne qui a cet ID <code>156979</code>, mais qui sera rejetée</li>
+        <li>Dans l'exemple 4, avec un ID négatif, on fait un <code>DELETE</code> des données de la ligne qui a cet ID <code>2</code>. 
+            L'ID de la ligne est gardé mais avec toutes les infos dans des valeurs par défaut et un prix à 0</li>
     </ol>
 
     <h5>Les résultats de l'import:</h5>
@@ -141,6 +145,11 @@
             Pour l'exemple 3, <code>UPDATE</code> de l'ID inconnu <code>156979</code> invalide avec l'info de l'en-tête de retour <code>NewID</code> à <code>unknown ID</code>
             ainsi que <code>Updated</code> à <code>false</code>:<br> 
             <code>UPDATE 156979;;;;unknown ID;false;</code>
+        </li>
+        <li>
+            Pour l'exemple 4, <code>DELETE</code> de l'ID négatif <code>2</code> validé avec l'info de l'en-tête de retour <code>Updated</code> à <code>true</code>,
+            force également un passage de <code>checked</code> à <code>true</code>, et <code>exported</code> à <code>false</code>:<br> 
+            <code>DELETE-2;1999-12-31;;checked true;exported false;;true;</code>
         </li>
     </ol>
     <hr>
