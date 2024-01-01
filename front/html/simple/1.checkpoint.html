@@ -51,7 +51,7 @@
 
 <section id="formDelete">
     <h3>Supprimer un fichier sauvegardé</h3>
-    <form hx-post="/checkpoint" 
+    <form hx-post="/admin/backup" 
         hx-swap="innerHTML settle:500ms"
         hx-target="#deleteTarget" 
         hx-indicator="#spinner">
@@ -85,7 +85,7 @@ hx-indicator="#spinner"> -->
 
 <section id="formDownload">
     <h3>Télécharger un fichier sauvegardé</h3>
-    <form action="/checkpoint" method="post">
+    <form action="/admin/backup" method="post">
         
         <!-- Text -->
         <input type="text" id="method" name="method" value="DOWNLOAD" readonly />

@@ -1,18 +1,19 @@
 # Gofi
-![Gopher](/img/android-chrome-192x192.png)
+![Gopher](/front/img/android-chrome-192x192.png)
 
 ## General informations
 The purpose of this web app is to record expenses.
 
 Features supported (all the data are registered in a local SQLite DB):
-- create users
-- auth + 1 active session per user
-- save general parameters preferences per user
-- record expenses per user
-- import CSV files to insert/update data in bulk
-- export CSV files to keep/use all the data with other apps 
+- main features
+    - create users
+    - auth with 1 active session per user
+    - save general parameters preferences per user
+    - record expenses per user
+    - import CSV files to insert/update data in bulk
+    - export CSV files to keep/use all the data with other apps 
 - admin features
-    - generate and manage backup
+    - (optional) generate and manage backup
 
 The HTML files are currently only in french.
 
@@ -81,7 +82,7 @@ This optional feature adds some prerequisites:
             - &#x2612; pas gestion du format ANSI
             - &#x2611; force l'utilisation du UTF8 avec ajout de caractères de contrôle
             - &#x2611; CRLF et LF gérés en ajoutant une colonne non utilisée en fin de fichier
-        - PRIO &#x2610; ajouter la possibilité de supprimer des lignes en mettant des "-" devant les ID de lignes
+        -  PRIO &#x2610; ajouter la possibilité de supprimer des lignes en mettant des "-" devant les ID de lignes
             - &#x2610; réel DELETE ou UPDATE avec mise à 0 du prix + MAJ compte et catégo ?
         - &#x2610; MAJ le champ `exported` lors des exports et modifications de données
         - &#x2610; mettre un champ `lastCSVexport` de type date par user à ramener dans le menu (ok si - d'1 mois, ko sinon)
@@ -125,6 +126,7 @@ This optional feature adds some prerequisites:
 
 
 ## Changelog
+- 2024-01-01 : fix backup download.
 - 2023-12-31 : add a new empty column at the end of the csv to handle CRLF end of line. Rename a used DB field, BREAKING CHANGE, needs to run the `migrateDB.go` file.
 - 2023-12-30 : add UTF-8 control characters on the csv file export, and control their presence before import.
 - 2023-12-29 : add groups on front pages where width is > 1000px with Pico class.
