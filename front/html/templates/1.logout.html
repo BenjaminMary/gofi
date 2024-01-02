@@ -6,10 +6,15 @@
 
 <section id="info">
     <p>
-        {{.Info}} <code>{{.Email}}</code> !<br>
-        <br>
-        Retour à la page de <a href="/login">Login</a>.
+        {{.Info}} <code>{{.Email}}</code> 
+        <!-- smile -->
+        <svg width="24" height="24" viewBox="0 0 24 24"><use xlink:href="/img/icons.svg#feather-smile"></use></svg>
     </p>
+    <a href="/login"><button class="contrast">
+        <!-- user check -->
+        <svg width="24" height="24" viewBox="0 0 24 24"><use xlink:href="/img/icons.svg#feather-user-check"></use></svg>
+        Se connecter
+    </button></a>
 </section>
 
 {{template "footer" .}}

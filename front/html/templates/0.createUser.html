@@ -41,13 +41,22 @@
         <!-- Buttons -->
         <button type="submit" value="Submit">
             <span id="spinner" class="htmx-indicator" aria-busy="true"></span>
+            <!-- save -->
+            <svg width="24" height="24" viewBox="0 0 24 24"><use xlink:href="/img/icons.svg#feather-save"></use></svg>
             Envoyer
         </button>
     </form>
 </section>
 
 <p>
-    Etape suivante: <a href="/login">Login</a>.
+    <!-- fast forward -->
+    <svg width="24" height="24" viewBox="0 0 24 24"><use xlink:href="/img/icons.svg#feather-fast-forward"></use></svg>
+    Etape suivante:
+    <a href="/login"><button class="contrast">
+        <!-- user check -->
+        <svg width="24" height="24" viewBox="0 0 24 24"><use xlink:href="/img/icons.svg#feather-user-check"></use></svg>
+        Se connecter
+    </button></a>
 </p>
 
 {{template "footer" .}}

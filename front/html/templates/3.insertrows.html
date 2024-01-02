@@ -63,13 +63,13 @@
                         <label for="gain">
                             <input type="radio" id="gain" name="gain-expense" value="gain" />
                             <!-- trending up -->
-                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="green" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-trending-up"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"></polyline><polyline points="17 6 23 6 23 12"></polyline></svg>
+                            <svg width="24" height="24" viewBox="0 0 24 24"><use xlink:href="/img/icons.svg#feather-trending-up"></use></svg>
                             Gain
                         </label>
                         <label for="expense">
                             <input type="radio" id="expense" name="gain-expense" value="expense" checked />
                             <!-- trending down -->
-                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="firebrick" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-trending-down"><polyline points="23 18 13.5 8.5 8.5 13.5 1 6"></polyline><polyline points="17 18 23 18 23 12"></polyline></svg>
+                            <svg width="24" height="24" viewBox="0 0 24 24"><use xlink:href="/img/icons.svg#feather-trending-down"></use></svg>
                             Dépense
                         </label>
                     </fieldset>
@@ -80,6 +80,8 @@
             <!-- <input type="reset" value="Réinitialiser"/> -->
             <button type="submit" value="Submit">
                 <span id="spinner" class="htmx-indicator" aria-busy="true"></span>
+                <!-- save -->
+                <svg width="24" height="24" viewBox="0 0 24 24"><use xlink:href="/img/icons.svg#feather-save"></use></svg>
                 Envoyer
             </button>
         </form>

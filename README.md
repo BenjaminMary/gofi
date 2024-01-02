@@ -129,7 +129,7 @@ This optional feature adds some prerequisites:
 
 
 ## Changelog
-- 2024-01-02 : add buttons and icons on the index page.
+- 2024-01-02 : add buttons and svg icons, app relooking. Store svg icons in a dedicated file.
 - 2024-01-01 : add DELETE option from import csv by addind a "-" before the ID. Add new controls before import csv.
 - 2024-01-01 : fix backup download.
 - 2023-12-31 : add a new empty column at the end of the csv to handle CRLF end of line. Rename a used DB field, BREAKING CHANGE, needs to run the `migrateDB.go` file.

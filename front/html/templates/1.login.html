@@ -43,6 +43,8 @@
         <!-- Buttons -->
         <button type="submit" value="Submit">
             <span id="spinner" class="htmx-indicator" aria-busy="true"></span>
+            <!-- save -->
+            <svg width="24" height="24" viewBox="0 0 24 24"><use xlink:href="/img/icons.svg#feather-save"></use></svg>
             Envoyer
         </button>
     </form>
@@ -50,9 +52,28 @@
 
 <hr>
 <p>
-    Nouveau ? : <a href="/createUser">Créer un compte</a>.<br>
-    Etape suivante: <a href="/param-setup">Paramétrer les listes et les préférences de l'application</a>.<br>
-    Raccourci: <a href="/insertrows">Enregistrer des dépenses</a>.
+    Nouveau ? 
+    <a href="/createUser"><button class="contrast outline">
+        <!-- user plus -->
+        <svg width="24" height="24" viewBox="0 0 24 24"><use xlink:href="/img/icons.svg#feather-user-plus"></use></svg>
+        Créer un compte
+    </button></a>
+    <!-- fast forward -->
+    <svg width="24" height="24" viewBox="0 0 24 24"><use xlink:href="/img/icons.svg#feather-fast-forward"></use></svg>
+    Etape suivante: 
+    <a href="/param-setup"><button class="contrast outline">
+        <!-- tool -->
+        <svg width="24" height="24" viewBox="0 0 24 24"><use xlink:href="/img/icons.svg#feather-tool"></use></svg>
+        Paramétrer l'application
+    </button></a>
+    <!-- fast forward -->
+    <svg width="24" height="24" viewBox="0 0 24 24"><use xlink:href="/img/icons.svg#feather-fast-forward"></use></svg>
+    Raccourci: 
+    <a href="/insertrows"><button class="contrast">
+        <!-- + square -->
+        <svg width="24" height="24" viewBox="0 0 24 24"><use xlink:href="/img/icons.svg#feather-plus-square"></use></svg>
+        Enregistrer des données
+    </button></a>
 </p>
 
 {{template "footer" .}}
