@@ -20,61 +20,68 @@
 
 <h1>Login</h1>
 
-<!-- .Info -->
+{{ if .Logged }}
+    <p>Déjà connecté <code>{{.Email}}</code></p>
+{{ else }}
+    <section id="form">
+        <form hx-post="/login"
+            hx-target="#form" 
+            hx-swap="outerHTML"
+            hx-sync="this:drop"
+            hx-indicator="#spinner">
+            
+            <!-- Text -->
+            <label for="email">Email</label>
+            <input type="email" id="email" name="email" placeholder="exemple@gmail.com" required />
 
-<section id="form">
-    <form hx-post="/login"
-        hx-target="#form" 
-        hx-swap="outerHTML"
-        hx-sync="this:drop"
-        hx-indicator="#spinner"
-        hx-on::after-request="if(event.detail.successful) document.getElementById('disapear1').remove()">
-        
-        <!-- Text -->
-        <label for="email">Email</label>
-        <input type="email" id="email" name="email" placeholder="exemple@gmail.com" required />
+            <!-- Password -->
+            <label for="password">Mot de passe</label>
+            <input type="password" id="password" name="password" required>
 
-        <!-- Password -->
-        <label for="password">Mot de passe</label>
-        <input type="password" id="password" name="password" required>
+            <div id="forbidden"></div>
 
-        <div id="forbidden"></div>
+            <!-- Buttons -->
+            <button type="submit" value="Submit">
+                <span id="spinner" class="htmx-indicator" aria-busy="true"></span>
+                <!-- user check -->
+                <svg width="24" height="24" viewBox="0 0 24 24"><use xlink:href="/img/icons.svg#feather-user-check"></use></svg>
+                Se connecter
+            </button>
+        </form>
+        <!-- create user if not logged -->
+        {{ if not .Logged }}
+            <div>
+                Nouveau ? 
+                <a href="/createUser"><button class="contrast outline">
+                    <!-- user plus -->
+                    <svg width="24" height="24" viewBox="0 0 24 24"><use xlink:href="/img/icons.svg#feather-user-plus"></use></svg>
+                    Créer un compte
+                </button></a>
+            </div>
+        {{ end }}
+    </section>
+{{ end }}
 
-        <!-- Buttons -->
-        <button type="submit" value="Submit">
-            <span id="spinner" class="htmx-indicator" aria-busy="true"></span>
-            <!-- save -->
-            <svg width="24" height="24" viewBox="0 0 24 24"><use xlink:href="/img/icons.svg#feather-save"></use></svg>
-            Envoyer
-        </button>
-    </form>
+<section id="options">
+    <p>
+        <!-- fast forward -->
+        <svg width="24" height="24" viewBox="0 0 24 24"><use xlink:href="/img/icons.svg#feather-fast-forward"></use></svg>
+        Etape suivante: 
+        <a href="/param-setup"><button class="contrast outline">
+            <!-- tool -->
+            <svg width="24" height="24" viewBox="0 0 24 24"><use xlink:href="/img/icons.svg#feather-tool"></use></svg>
+            Paramétrer l'application
+        </button></a>
+        <!-- fast forward -->
+        <svg width="24" height="24" viewBox="0 0 24 24"><use xlink:href="/img/icons.svg#feather-fast-forward"></use></svg>
+        Raccourci: 
+        <a href="/insertrows"><button class="contrast">
+            <!-- + square -->
+            <svg width="24" height="24" viewBox="0 0 24 24"><use xlink:href="/img/icons.svg#feather-plus-square"></use></svg>
+            Enregistrer des données
+        </button></a>
+    </p>
 </section>
-
-<hr>
-<p>
-    Nouveau ? 
-    <a href="/createUser"><button class="contrast outline">
-        <!-- user plus -->
-        <svg width="24" height="24" viewBox="0 0 24 24"><use xlink:href="/img/icons.svg#feather-user-plus"></use></svg>
-        Créer un compte
-    </button></a>
-    <!-- fast forward -->
-    <svg width="24" height="24" viewBox="0 0 24 24"><use xlink:href="/img/icons.svg#feather-fast-forward"></use></svg>
-    Etape suivante: 
-    <a href="/param-setup"><button class="contrast outline">
-        <!-- tool -->
-        <svg width="24" height="24" viewBox="0 0 24 24"><use xlink:href="/img/icons.svg#feather-tool"></use></svg>
-        Paramétrer l'application
-    </button></a>
-    <!-- fast forward -->
-    <svg width="24" height="24" viewBox="0 0 24 24"><use xlink:href="/img/icons.svg#feather-fast-forward"></use></svg>
-    Raccourci: 
-    <a href="/insertrows"><button class="contrast">
-        <!-- + square -->
-        <svg width="24" height="24" viewBox="0 0 24 24"><use xlink:href="/img/icons.svg#feather-plus-square"></use></svg>
-        Enregistrer des données
-    </button></a>
-</p>
 
 {{template "footer" .}}
 

@@ -46,7 +46,7 @@ const themeSwitcher = {
             // Set scheme
             this.scheme = button.getAttribute(this.buttonAttribute);
             // Close dropdown
-            // document.querySelector(this.menuTarget).removeAttribute("open");
+            document.querySelector(this.menuTarget).removeAttribute("open");
           },
           false
         );

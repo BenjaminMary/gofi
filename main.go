@@ -186,7 +186,16 @@ func getLogout(c *gin.Context) {
 
 // GET login.html
 func getLogin(c *gin.Context) {
-    c.HTML(http.StatusOK, "1.login.html", "")
+    ctx, cancel := context.WithTimeout(context.TODO(), 2*time.Second)
+    defer cancel()
+
+    gofiID, Email := CheckCookie(ctx, c, db)
+    var Logged bool = false
+    if gofiID > 0 {Logged = true}
+    c.HTML(http.StatusOK, "1.login.html", gin.H{
+        "Logged": Logged,
+        "Email": Email,
+    })
 }
 
 // POST login.html
@@ -245,7 +254,7 @@ func postLogin(c *gin.Context) {
     User.GofiID = gofiID
 
     SetCookie(c, User.SessionID)
-    c.String(http.StatusOK, "<div>Login terminé, bienvenue <code>" + User.Email + "</code>.</div>")
+    c.String(http.StatusOK, "<div><p>Login terminé, bienvenue <code>" + User.Email + "</code>.</p></div>")
 }
 
 // GET ParamSetup.html

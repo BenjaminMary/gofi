@@ -46,7 +46,7 @@ func SetCookie(c *gin.Context, cookie string) {
 func CheckCookie(ctx context.Context, c *gin.Context, db *sql.DB) (int, string) {
     // try to read if a cookie exists, return to login otherwise
     sessionID, err := c.Cookie("gofiID")
-    uriList := []string{"/", "/logout"}
+    uriList := []string{"/", "/logout", "/login"}
     if ( err != nil || len(sessionID) != CookieLength ) {
         if slices.Contains(uriList, c.Request.RequestURI) {return 0, ""}
         if c.Request.Method == "GET" {

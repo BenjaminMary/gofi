@@ -25,8 +25,7 @@
         hx-target="#form" 
         hx-swap="outerHTML"
         hx-sync="this:drop"
-        hx-indicator="#spinner"
-        hx-on::after-request="if(event.detail.successful) document.getElementById('disapear1').remove()">
+        hx-indicator="#spinner">
         
         <!-- Text -->
         <label for="email">Email</label>
@@ -41,9 +40,9 @@
         <!-- Buttons -->
         <button type="submit" value="Submit">
             <span id="spinner" class="htmx-indicator" aria-busy="true"></span>
-            <!-- save -->
-            <svg width="24" height="24" viewBox="0 0 24 24"><use xlink:href="/img/icons.svg#feather-save"></use></svg>
-            Envoyer
+            <!-- user plus -->
+            <svg width="24" height="24" viewBox="0 0 24 24"><use xlink:href="/img/icons.svg#feather-user-plus"></use></svg>
+            Créer un compte
         </button>
     </form>
 </section>

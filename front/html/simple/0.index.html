@@ -1,15 +1,59 @@
 {{template "head" .}}
+<style>
+    .center {
+        display: block;
+        margin-left: auto;
+        margin-right: auto;
+        text-align: center;
+    }
+</style>
 {{template "body" .}}
 {{template "content" .}}
 
 <div class="container">
 
+    <nav>
+        <ul>
+            <li><strong>GOFI</strong></li>
+        </ul>
+        <ul>
+            <li>
+                <details role="list" dir="rtl">
+                    <summary aria-haspopup="listbox" role="link" class="contrast">Options</summary>
+                    <ul role="listbox">
+                        <li>
+                            <a href="#" data-theme-switcher="light">
+                                Clair
+                                <!-- sun -->
+                                <svg width="24" height="24" viewBox="0 0 24 24"><use xlink:href="/img/icons.svg#feather-sun"></use></svg>
+                            </a>
+                        </li>
+                        <li>
+                            <a href="#" data-theme-switcher="dark">
+                                Sombre
+                                <!-- moon -->
+                                <svg width="24" height="24" viewBox="0 0 24 24"><use xlink:href="/img/icons.svg#feather-moon"></use></svg>
+                            </a>
+                        </li>
+                        {{if .Logged}}
+                            <li>
+                                <a href="/logout">
+                                    Déconnexion
+                                    <!-- user x -->
+                                    <svg width="24" height="24" viewBox="0 0 24 24"><use xlink:href="/img/icons.svg#feather-user-x"></use></svg>
+                                </a>
+                            </li>
+                        {{end}}
+                    </ul>
+                </details>
+            </li>
+        </ul>
+    </nav>
 
     <figure>
-        <img src="/img/gopherize-me-1.png" alt="Gopher"/>
-        <br><br>
+        <img class="center" src="/img/gopherize-me-1.png" alt="Gopher"/>
         {{if .Logged}}
-            <p>
+            <p class="center">
                 Bienvenue <code>{{.Email}}</code>
                 <!-- smile -->
                 <svg width="24" height="24" viewBox="0 0 24 24"><use xlink:href="/img/icons.svg#feather-smile"></use></svg>
@@ -83,24 +127,6 @@
                 </ul>
             {{end}}
         {{end}}
-        <hr>
-        <h5>Options</h5>
-        <nav>
-            <a href="#" data-theme-switcher="light"><button class="secondary outline">
-                <!-- sun -->
-                <svg width="24" height="24" viewBox="0 0 24 24"><use xlink:href="/img/icons.svg#feather-sun"></use></svg>
-            </button></a>
-            Luminosité
-            <a href="#" data-theme-switcher="dark"><button class="secondary outline">
-                <!-- moon -->
-                <svg width="24" height="24" viewBox="0 0 24 24"><use xlink:href="/img/icons.svg#feather-moon"></use></svg>
-            </button></a>
-        </nav>
-        <a href="/logout"><button class="secondary outline">
-            <!-- user x -->
-            <svg width="24" height="24" viewBox="0 0 24 24"><use xlink:href="/img/icons.svg#feather-user-x"></use></svg>
-            Se déconnecter
-        </button></a>
     </section>
     
     <section id="info">

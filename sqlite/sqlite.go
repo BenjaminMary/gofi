@@ -270,12 +270,12 @@ func ForceNewLogin(gofiID int) (bool, string, error) {
 				idleTimeout = '1999-12-31T00:01:01Z',
 				absoluteTimeout = '1999-12-31T00:01:01Z',
 				lastActivityTime = strftime('%Y-%m-%dT%H:%M:%SZ', DATETIME('now', 'utc')), 
-				sessionID = 'logged-out'
+				sessionID = 'logged-out-' || CAST(gofiID AS VARCHAR(5))
 			WHERE gofiID = ?;
 			`, 
 			gofiID,
 		)
-		if err != nil { return false, "error on UPDATE after login", err }
+		if err != nil { return false, "error on UPDATE after logout", err }
 	}
 	return true, "", nil
 }
