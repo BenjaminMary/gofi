@@ -1,0 +1,168 @@
+{{template "head" .}}
+<!-- avoid CDN https://blog.wesleyac.com/posts/why-not-javascript-cdn -->
+<!-- Subresource Integrity, SRI hash : https://www.srihash.org/ -->
+<script 
+    src="https://unpkg.com/htmx.org@1.9.6" 
+    integrity="sha384-FhXw7b6AlE/jyjlZH5iHa/tTe9EpJ1Y55RjcgPbjeWMskSxZt1v9qkxLJWNJaGni" 
+    crossorigin="anonymous">
+</script>
+<script src="/js/stickythead.js"></script>
+<style>
+    #thead{
+        background: var(--secondary);
+        opacity: 1;
+    }
+</style>
+
+{{template "body" .}}
+{{template "content" .}}
+
+<h1>Valider les dépenses</h1>
+
+<section id="form">
+    <div id="forbidden"> <!-- via header: "HX-Retarget", "#forbidden" -->
+        <form hx-post="/validaterows" 
+            hx-target="#listValidateRows" 
+            hx-swap="innerHTML">
+
+            <div class="grid">
+                <div>
+                    Mode<br>
+                    <span id="mode">Le mode <code>Validation</code> est activé par défaut.</span>
+                    <label for="switchMode">
+                        <!-- red x square -->
+                        Annulation
+                        <svg width="24" height="24" viewBox="0 0 24 24" stroke="firebrick"><use xlink:href="/img/icons.svg#feather-x-square"></use></svg>
+                        <input type="checkbox" id="switchMode" name="switchMode" role="switch" checked />
+                        <!-- green check square -->
+                        <svg width="24" height="24" viewBox="0 0 24 24"><use xlink:href="/img/icons.svg#feather-green-check-square"></use></svg>
+                        Validation
+                    </label>
+                </div>
+                <div>
+                    <!-- Date-->
+                    <label for="date">Date</label>
+                    <input type="date" id="date" name="date" value="{{.Today}}" required />
+                </div>
+            </div>
+
+            <figure>
+                <table role="grid">
+                    <thead id="thead">
+                        <tr>
+                            <th scope="col">
+                                <input type="checkbox" id="toggle" name="toggle" value="0">
+                            </th>
+                            <th scope="col">Date</th>
+                            <th scope="col">Compte</th>
+                            <th scope="col">Categorie</th>
+                            <th scope="col">Designation</th>
+                            <th scope="col">Prix</th>
+                        </tr>
+                    </thead>
+                    <tbody id="listValidateRows">
+                        <!-- POST part -->
+                        {{define "listValidateRows"}}
+                            {{range $index, $data := .FTlistPost }}
+                                <tr>
+                                    <td>
+                                        <input type="checkbox" id="{{$data.ID}}" name="id" value="{{$data.ID}}">
+                                    </td>
+                                    <td>{{$data.Date}}</td>
+                                    <td>{{$data.Account}}</td>
+                                    <td>{{$data.Category}}</td>
+                                    <td>{{$data.Product}}</td>
+                                    <td>{{$data.FormPriceStr2Decimals}}</td>
+                                </tr>
+                            {{end}}
+                            <tr>
+                                <td></td>
+                                <td colspan="2">INFO</td>
+                                <td colspan="3">Il reste {{.TotalRowsWithoutLimit}} lignes à traiter.</td>
+                            </tr>
+                        {{end}}
+
+                        <!-- GET part -->
+                        {{range $FT := .FTlist}}
+                            <tr>
+                                <td>
+                                    <input type="checkbox" id="{{$FT.ID}}" name="id" value="{{$FT.ID}}">
+                                </td>
+                                <td>{{$FT.Date}}</td>
+                                <td>{{$FT.Account}}</td>
+                                <td>{{$FT.Category}}</td>
+                                <td>{{$FT.Product}}</td>
+                                <td>{{$FT.FormPriceStr2Decimals}}</td>
+                            </tr>
+                        {{end}}
+                        <tr>
+                            <td></td>
+                            <td colspan="2">INFO</td>
+                            <td colspan="3">Il reste {{.TotalRowsWithoutLimit}} lignes à traiter.</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </figure>
+
+            <!-- Buttons -->
+            <button id="submit" type="submit" value="Submit">
+                <!-- check square -->
+                <svg width="24" height="24" viewBox="0 0 24 24"><use xlink:href="/img/icons.svg#feather-check-square"></use></svg>
+                Valider
+            </button>
+
+            <!-- Text -->
+            <input type="text" id="checkedList" name="checkedList" hidden readonly required />
+        </form>
+    </div> <!-- via header: "HX-Retarget", "#forbidden" -->
+</section>
+
+{{template "footer" .}}
+
+<script>
+    // this script handle the forbidden(http403) error triggered when no gofiID Cookie is found and still use HTMX
+    document.body.addEventListener('htmx:beforeOnLoad', function (evt) {
+        if (evt.detail.xhr.status === 403) {
+            evt.detail.shouldSwap = true;
+            evt.detail.isError = false;
+        }
+    });
+
+    document.getElementById('switchMode').addEventListener('click', function(toggleSwitchMode){
+        if (this.checked) {
+            document.getElementById('mode').innerHTML = `Le mode <code>Validation</code> est activé.`
+            document.getElementById('submit').innerHTML = `
+                <!-- check square -->
+                <svg width="24" height="24" viewBox="0 0 24 24"><use xlink:href="/img/icons.svg#feather-check-square"></use></svg>
+                Valider
+            `
+        } else {
+            document.getElementById('mode').innerHTML = `Le mode <code>Annulation</code> est activé.`
+            document.getElementById('submit').innerHTML = `
+                <!-- x square -->
+                <svg width="24" height="24" viewBox="0 0 24 24" stroke="currentcolor"><use xlink:href="/img/icons.svg#feather-x-square"></use></svg>
+                Annuler
+            `
+        };
+    });
+    document.getElementById('toggle').addEventListener('click', function(toggle){
+        checkboxes = document.querySelectorAll('input[type=checkbox][name=id]');
+        for(var i=0, n = checkboxes.length; i < n; i++) {
+            if (checkboxes[i].value > 0) {checkboxes[i].checked = this.checked;}
+        }
+    });
+    // add all checked ids on the checkedList to send in the post request
+    document.getElementById('submit').addEventListener('click', function(evt){
+        var array = [];
+        var checkboxes = document.querySelectorAll('input[type=checkbox][name=id]:checked');
+        for (var i = 0; i < checkboxes.length; i++) {
+            if (checkboxes[i].value > 0) {array.push(checkboxes[i].value)};
+        };
+        // console.log(array);
+        document.getElementById('checkedList').value = array;
+    });
+
+    // enable sticky headers on the table
+    let elements = document.querySelectorAll('table');
+    stickyThead.apply(elements);
+</script>

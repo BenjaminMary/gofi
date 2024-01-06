@@ -56,13 +56,13 @@
             <p class="center">
                 Bienvenue <code>{{.Email}}</code>
                 <!-- smile -->
-                <svg width="24" height="24" viewBox="0 0 24 24"><use xlink:href="/img/icons.svg#feather-smile"></use></svg>
+                <svg width="24" height="24" viewBox="0 0 24 24" stroke="var(--primary)"><use xlink:href="/img/icons.svg#feather-smile"></use></svg>
             </p>
         {{end}}
     </figure>
 
     <section id="links">
-        <h2>Fonctionnalités!</h2>
+        <h2>Fonctionnalités</h2>
         <ol>
             {{if .Logged}}
                 <li><a href="/param-setup"><button class="contrast outline">
@@ -75,10 +75,19 @@
                     <svg width="24" height="24" viewBox="0 0 24 24"><use xlink:href="/img/icons.svg#feather-plus-square"></use></svg>
                     Enregistrer des données
                 </button></a></li>
+                <li><a href="/validaterows"><button class="contrast outline">
+                    <!-- check-square -->
+                    <svg width="24" height="24" viewBox="0 0 24 24" stroke="currentColor"><use xlink:href="/img/icons.svg#feather-check-square"></use></svg>
+                    <!-- x-square -->
+                    <svg width="24" height="24" viewBox="0 0 24 24" stroke="currentColor"><use xlink:href="/img/icons.svg#feather-x-square"></use></svg>
+                    Valider/annuler des données
+                </button></a></li>
                 <li><a href="/editrows"><button class="contrast outline">
+                    <!-- search -->
+                    <svg width="24" height="24" viewBox="0 0 24 24" stroke="currentColor"><use xlink:href="/img/icons.svg#feather-search"></use></svg>
                     <!-- eye -->
                     <svg width="24" height="24" viewBox="0 0 24 24"><use xlink:href="/img/icons.svg#feather-eye"></use></svg>
-                    Voir/modifier les données
+                    Rechercher des données
                 </button></a></li>
             {{else}}
                 <li><a href="/createUser"><button class="contrast outline">
@@ -95,17 +104,17 @@
         </ol>
         {{if .Logged}}
             <hr>
-            <h5>Gestion via fichier CSV</h5>
+            <h5>Gestion des données via fichier CSV</h5>
             <ul>
                 <li><a href="/export-csv"><button class="contrast outline">
                     <!-- file text -->
                     <svg width="24" height="24" viewBox="0 0 24 24"><use xlink:href="/img/icons.svg#feather-file-text"></use></svg>
-                    Exporter les données en CSV
+                    Exporter en CSV
                 </button></a></li>
                 <li><a href="/import-csv"><button class="contrast outline">
                     <!-- file text -->
                     <svg width="24" height="24" viewBox="0 0 24 24"><use xlink:href="/img/icons.svg#feather-file-text"></use></svg>
-                    Importer des données via CSV
+                    Importer via CSV
                 </button></a></li>
             </ul>
             {{if .Admin}}

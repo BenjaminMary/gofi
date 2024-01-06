@@ -375,20 +375,19 @@ func InsertRowInParam(p *Param) (int64, error) {
 	return id, nil
 }
 
-func GetRowsInFinanceTracker(ctx context.Context, db *sql.DB, filter *FilterRows) ([]FinanceTracker, string) {
+func GetRowsInFinanceTracker(ctx context.Context, db *sql.DB, filter *FilterRows) ([]FinanceTracker, string, int) {
 	var ftList []FinanceTracker
 	var totalPriceStr2Decimals string
-	var queryValues int = 0
+	var queryValues, totalRowsWithoutLimit int = 0, 0
 	var err error
-	if filter.Limit > 100 {filter.Limit = 100}
+	if filter.Limit > 500 {filter.Limit = 500}
 	//fmt.Printf("filter.WhereAccount: %#v, type:%T\n", filter.WhereAccount, filter.WhereAccount) // check default value and type
 	//fmt.Printf("filter.WhereYear: %#v, type:%T\n", filter.WhereYear, filter.WhereYear) // check default value and type
 	
 	// start building query 
 	// (golang sql package does not support dynamic sql on other things than values)
 	q := ` 
-		SELECT id, year, month, day, 
-			account, product, priceIntx100, category, checked, dateChecked
+		SELECT COUNT(1) 
 		FROM financeTracker
 		WHERE gofiID = ?
 	`
@@ -450,31 +449,46 @@ func GetRowsInFinanceTracker(ctx context.Context, db *sql.DB, filter *FilterRows
 	q += ` LIMIT ?;`
 	//fmt.Printf("q: %v\n", q)
 	// end building query
+	q2 := strings.Replace(q, `COUNT(1)`, 
+		`id, year, month, day, account, product, priceIntx100, category, checked, dateChecked`, 1)
 
+	var row *sql.Row
 	var rows *sql.Rows
 	switch queryValues {
 		case 0:
-			rows, err = db.QueryContext(ctx, q, filter.GofiID, filter.Limit)
+			row     = db.QueryRowContext(ctx, q, filter.GofiID, 1)
+			rows, err = db.QueryContext(ctx, q2, filter.GofiID, filter.Limit)
 		case 1:
-			rows, err = db.QueryContext(ctx, q, filter.GofiID, filter.WhereAccount, filter.Limit)
+			row     = db.QueryRowContext(ctx, q, filter.GofiID, filter.WhereAccount, 1)
+			rows, err = db.QueryContext(ctx, q2, filter.GofiID, filter.WhereAccount, filter.Limit)
 		case 2:
-			rows, err = db.QueryContext(ctx, q, filter.GofiID, filter.WhereCategory, filter.Limit)
+			row     = db.QueryRowContext(ctx, q, filter.GofiID, filter.WhereCategory, 1)
+			rows, err = db.QueryContext(ctx, q2, filter.GofiID, filter.WhereCategory, filter.Limit)
 		case 3:
-			rows, err = db.QueryContext(ctx, q, filter.GofiID, filter.WhereAccount, filter.WhereCategory, filter.Limit)
+			row     = db.QueryRowContext(ctx, q, filter.GofiID, filter.WhereAccount, filter.WhereCategory, 1)
+			rows, err = db.QueryContext(ctx, q2, filter.GofiID, filter.WhereAccount, filter.WhereCategory, filter.Limit)
 		case 4:
-			rows, err = db.QueryContext(ctx, q, filter.GofiID, filter.WhereYear, filter.Limit)
+			row     = db.QueryRowContext(ctx, q, filter.GofiID, filter.WhereYear, 1)
+			rows, err = db.QueryContext(ctx, q2, filter.GofiID, filter.WhereYear, filter.Limit)
 		case 5:
-			rows, err = db.QueryContext(ctx, q, filter.GofiID, filter.WhereAccount, filter.WhereYear, filter.Limit)
+			row     = db.QueryRowContext(ctx, q, filter.GofiID, filter.WhereAccount, filter.WhereYear, 1)
+			rows, err = db.QueryContext(ctx, q2, filter.GofiID, filter.WhereAccount, filter.WhereYear, filter.Limit)
 		case 6:
-			rows, err = db.QueryContext(ctx, q, filter.GofiID, filter.WhereCategory, filter.WhereYear, filter.Limit)
+			row     = db.QueryRowContext(ctx, q, filter.GofiID, filter.WhereCategory, filter.WhereYear, 1)
+			rows, err = db.QueryContext(ctx, q2, filter.GofiID, filter.WhereCategory, filter.WhereYear, filter.Limit)
 		case 7:
-			rows, err = db.QueryContext(ctx, q, filter.GofiID, filter.WhereAccount, filter.WhereCategory, filter.WhereYear, filter.Limit)
+			row     = db.QueryRowContext(ctx, q, filter.GofiID, filter.WhereAccount, filter.WhereCategory, filter.WhereYear, 1)
+			rows, err = db.QueryContext(ctx, q2, filter.GofiID, filter.WhereAccount, filter.WhereCategory, filter.WhereYear, filter.Limit)
 		default:
-			rows, err = db.QueryContext(ctx, q, filter.GofiID, filter.Limit)
+			row     = db.QueryRowContext(ctx, q, filter.GofiID, 1)
+			rows, err = db.QueryContext(ctx, q2, filter.GofiID, filter.Limit)
 	}
 
 	if err != nil {
 		log.Fatal("error on DB query: ", err)
+	}
+	if err := row.Scan(&totalRowsWithoutLimit); err != nil {
+		log.Fatal(err)
 	}
 	var totalPriceIntx100 int = 0
 	for rows.Next() {
@@ -496,7 +510,41 @@ func GetRowsInFinanceTracker(ctx context.Context, db *sql.DB, filter *FilterRows
 	// fmt.Printf("totalPriceIntx100: %v, inStr: %v\n", totalPriceIntx100, totalPriceStr2Decimals)
 	totalPriceStr2Decimals = ConvertPriceIntToStr(totalPriceIntx100)
 	rows.Close()
-	return ftList, totalPriceStr2Decimals
+	return ftList, totalPriceStr2Decimals, totalRowsWithoutLimit
+}
+
+func ValidateRowsInFinanceTracker(ctx context.Context, db *sql.DB, gofiID int, checkedListInt []int, dateValidated string, mode string) () {
+	var query string
+	if (mode == "validate") {
+		query = `
+			UPDATE financeTracker 
+			SET checked = 1,
+				dateChecked = ?,
+				exported = 0
+			WHERE gofiID = ?
+				AND checked = 0
+				AND id = ?;
+			`
+	} else if (mode == "cancel") {
+		query = `
+			UPDATE financeTracker 
+			SET year = 1999, month = 12, day = 31, account = '-', product = 'DELETED LINE', 
+				priceIntx100 = 0, category = '-', commentInt = 0, commentString = '-', 
+				checked = 1, dateChecked = ?, exported = 0
+			WHERE gofiID = ?
+				AND checked = 0
+				AND id = ?;
+			`
+	} else { return }
+	for _, intValue := range checkedListInt {
+		_, err := db.Exec(query, 
+			dateValidated, gofiID, intValue,
+		)
+		if err != nil { 
+			fmt.Printf("error on UPDATE financeTracker with mode: %v, id: %v, err: %#v\n", mode, intValue, err)
+		}	
+	}
+	return
 }
 
 func InsertRowInFinanceTracker(ctx context.Context, db *sql.DB, ft *FinanceTracker) (int64, error) {

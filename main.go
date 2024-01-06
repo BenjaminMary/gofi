@@ -342,7 +342,7 @@ func getinsertrows(c *gin.Context) {
     Filter.OrderByType = "DESC"
     Filter.Limit = 5
     var FTlist []sqlite.FinanceTracker
-    FTlist, _ = sqlite.GetRowsInFinanceTracker(ctx, db, &Filter)
+    FTlist, _, _ = sqlite.GetRowsInFinanceTracker(ctx, db, &Filter)
 
     c.HTML(http.StatusOK, "3.insertrows.html", gin.H{
         "Form": Form,
@@ -398,17 +398,19 @@ func getEditRows(c *gin.Context) {
 
     var FTlist []sqlite.FinanceTracker
     var TotalPriceStr2Decimals string
+    var TotalRowsWithoutLimit int
     var Filter sqlite.FilterRows
     Filter.GofiID = cookieGofiID
     Filter.OrderBy = "id"
     Filter.OrderByType = "DESC"
     Filter.Limit = 20
-    FTlist, TotalPriceStr2Decimals = sqlite.GetRowsInFinanceTracker(ctx, db, &Filter)
+    FTlist, TotalPriceStr2Decimals, TotalRowsWithoutLimit = sqlite.GetRowsInFinanceTracker(ctx, db, &Filter)
 
     c.HTML(http.StatusOK, "4.editrows.html", gin.H{
         "UserParams": UserParams,
         "FTlist": FTlist,
         "TotalPriceStr2Decimals": TotalPriceStr2Decimals,
+        "TotalRowsWithoutLimit": TotalRowsWithoutLimit,
     })
 }
 // POST EditRows.html
@@ -441,12 +443,88 @@ func postEditRows(c *gin.Context) {
     limitStr := c.PostForm("limit")
     Filter.Limit, _ = strconv.Atoi(limitStr)
 
-    FTlistPost, TotalPriceStr2Decimals = sqlite.GetRowsInFinanceTracker(ctx, db, &Filter)
+    FTlistPost, TotalPriceStr2Decimals, _ = sqlite.GetRowsInFinanceTracker(ctx, db, &Filter)
 
-    tmpl := template.Must(template.ParseFiles("./html/templates/4.editrows.html"))
+    tmpl := template.Must(template.ParseFiles(".front/html/templates/4.editrows.html"))
     tmpl.ExecuteTemplate(c.Writer, "listEditRows", gin.H{
         "FTlistPost": FTlistPost,
         "TotalPriceStr2Decimals": TotalPriceStr2Decimals,
+    })
+}
+
+// GET ValidateRows.html
+func getValidateRows(c *gin.Context) {
+    ctx, cancel := context.WithTimeout(context.TODO(), 2*time.Second)
+    defer cancel()
+
+    cookieGofiID, _ := CheckCookie(ctx, c, db)
+    if c.IsAborted() {return}
+
+    const DateOnly = "2006-01-02" // YYYY-MM-DD
+    currentTime := time.Now()
+    Today := currentTime.Format(DateOnly) // YYYY-MM-DD
+
+    var UserParams sqlite.UserParams
+    UserParams.GofiID = cookieGofiID
+    sqlite.GetList(ctx, db, &UserParams)
+
+    var FTlist []sqlite.FinanceTracker
+    var TotalRowsWithoutLimit int
+    var Filter sqlite.FilterRows
+    Filter.GofiID = cookieGofiID
+    Filter.WhereChecked = 2 //unchecked
+    Filter.OrderBy = "date"
+    Filter.OrderByType = "ASC"
+    Filter.Limit = 50
+    FTlist, _, TotalRowsWithoutLimit = sqlite.GetRowsInFinanceTracker(ctx, db, &Filter)
+
+    c.HTML(http.StatusOK, "5.validaterows.html", gin.H{
+        "Today": Today,
+        "UserParams": UserParams,
+        "FTlist": FTlist,
+        "TotalRowsWithoutLimit": TotalRowsWithoutLimit,
+    })
+}
+// POST ValidateRows.html
+func postValidateRows(c *gin.Context) {
+    ctx, cancel := context.WithTimeout(context.TODO(), 2*time.Second)
+    defer cancel()
+
+    cookieGofiID, _ := CheckCookie(ctx, c, db)
+    if c.IsAborted() {return}
+
+    var FTlistPost []sqlite.FinanceTracker
+    var TotalRowsWithoutLimit int
+    var Filter sqlite.FilterRows
+    Filter.GofiID = cookieGofiID
+    Filter.WhereChecked = 2 //unchecked
+    Filter.OrderBy = "date"
+    Filter.OrderByType = "ASC"
+    Filter.Limit = 50
+
+    modeBoolStr := c.PostForm("switchMode")
+    // fmt.Printf("modeBoolStr: %#v\n", modeBoolStr)
+    var mode string
+    if modeBoolStr == "on" {mode = "validate"} else if mode == "" {mode = "cancel"} else {mode = "error"}
+    dateValidated := c.PostForm("date")
+    checkedListStr := strings.Split(c.PostForm("checkedList"), ",")
+    var checkedListInt []int
+    for _, strValue := range checkedListStr {
+        intValue, _ := strconv.Atoi(strValue)
+        checkedListInt = append(checkedListInt, intValue)
+    }
+    // fmt.Printf("dateValidated: %#v\n", dateValidated)
+    // fmt.Printf("checkedListInt: %#v\n", checkedListInt)
+
+    //send the list of validated id with the date to SQLite for change
+    sqlite.ValidateRowsInFinanceTracker(ctx, db, cookieGofiID, checkedListInt, dateValidated, mode)
+    //reload updated unchecked rows
+    FTlistPost, _, TotalRowsWithoutLimit = sqlite.GetRowsInFinanceTracker(ctx, db, &Filter)
+
+    tmpl := template.Must(template.ParseFiles("./front/html/templates/5.validaterows.html"))
+    tmpl.ExecuteTemplate(c.Writer, "listValidateRows", gin.H{
+        "FTlistPost": FTlistPost,
+        "TotalRowsWithoutLimit": TotalRowsWithoutLimit,
     })
 }
 
@@ -580,6 +658,9 @@ func main() {
 
     router.GET("/editrows", getEditRows)
     router.POST("/editrows", postEditRows)
+
+    router.GET("/validaterows", getValidateRows)
+    router.POST("/validaterows", postValidateRows)
 
     // router.GET("/stats", getStats)
 

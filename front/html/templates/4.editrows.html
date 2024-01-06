@@ -6,7 +6,13 @@
     integrity="sha384-FhXw7b6AlE/jyjlZH5iHa/tTe9EpJ1Y55RjcgPbjeWMskSxZt1v9qkxLJWNJaGni" 
     crossorigin="anonymous">
 </script>
-
+<script src="/js/stickythead.js"></script>
+<style>
+    #thead{
+        background: var(--secondary);
+        opacity: 1;
+    }
+</style>
 <!-- jspreadsheet -->
 <!-- <script src="https://bossanova.uk/jspreadsheet/v4/jexcel.js"></script>
 <script src="https://jsuites.net/v4/jsuites.js"></script>
@@ -128,7 +134,7 @@
     <div>
         <figure>
             <table role="grid">
-                <thead>
+                <thead id="thead">
                     <tr>
                         <th scope="col">ID</th>
                         <th scope="col">Date</th>
@@ -198,6 +204,9 @@
             evt.detail.isError = false;
         }
     });
+
+    let elements = document.querySelectorAll('table')
+    stickyThead.apply(elements);
 
     // var data = [
     //     [1, '99/99/9999', 'Especes', 'Supermarché', 'Un produit avec description longue', '1'],
