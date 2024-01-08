@@ -379,8 +379,10 @@ func postinsertrows(c *gin.Context) {
 	if err != nil { // Always check errors even if they should not happen.
 		panic(err)
 	}
-    tmpl := template.Must(template.ParseFiles("./html/templates/3.insertrows.html"))
-    tmpl.ExecuteTemplate(c.Writer, "lastInsert", Form)
+    tmpl := template.Must(template.ParseFiles("./front/html/templates/3.insertrows.html"))
+    tmpl.ExecuteTemplate(c.Writer, "lastInsert", gin.H{
+        "Form": Form,
+    })
 }
 
 
@@ -445,7 +447,7 @@ func postEditRows(c *gin.Context) {
 
     FTlistPost, TotalPriceStr2Decimals, _ = sqlite.GetRowsInFinanceTracker(ctx, db, &Filter)
 
-    tmpl := template.Must(template.ParseFiles(".front/html/templates/4.editrows.html"))
+    tmpl := template.Must(template.ParseFiles("./front/html/templates/4.editrows.html"))
     tmpl.ExecuteTemplate(c.Writer, "listEditRows", gin.H{
         "FTlistPost": FTlistPost,
         "TotalPriceStr2Decimals": TotalPriceStr2Decimals,
@@ -475,7 +477,7 @@ func getValidateRows(c *gin.Context) {
     Filter.WhereChecked = 2 //unchecked
     Filter.OrderBy = "date"
     Filter.OrderByType = "ASC"
-    Filter.Limit = 50
+    Filter.Limit = 10
     FTlist, _, TotalRowsWithoutLimit = sqlite.GetRowsInFinanceTracker(ctx, db, &Filter)
 
     c.HTML(http.StatusOK, "5.validaterows.html", gin.H{
@@ -500,25 +502,50 @@ func postValidateRows(c *gin.Context) {
     Filter.WhereChecked = 2 //unchecked
     Filter.OrderBy = "date"
     Filter.OrderByType = "ASC"
-    Filter.Limit = 50
+    Filter.Limit = 10
 
-    modeBoolStr := c.PostForm("switchMode")
-    // fmt.Printf("modeBoolStr: %#v\n", modeBoolStr)
-    var mode string
-    if modeBoolStr == "on" {mode = "validate"} else if mode == "" {mode = "cancel"} else {mode = "error"}
-    dateValidated := c.PostForm("date")
-    checkedListStr := strings.Split(c.PostForm("checkedList"), ",")
-    var checkedListInt []int
-    for _, strValue := range checkedListStr {
-        intValue, _ := strconv.Atoi(strValue)
-        checkedListInt = append(checkedListInt, intValue)
+    method := c.PostForm("method")
+    fmt.Println("method: ", method)
+    // fmt.Println("driveID: ", driveID)
+
+    if (method == "ADVANCED") {
+        Filter.WhereAccount = c.PostForm("compte")
+        Filter.WhereCategory = c.PostForm("categorie")
+    
+        whereYearStr := c.PostForm("annee")
+        // fmt.Printf("whereYearStr: %#v, type:%T\n", whereYearStr, whereYearStr) // check default value and type
+        if whereYearStr != "" {Filter.WhereYear, _ = strconv.Atoi(whereYearStr)}
+        whereMonthStr := c.PostForm("mois")
+        if whereMonthStr != "" {Filter.WhereMonth, _ = strconv.Atoi(whereMonthStr)}
+        whereCheckedStr := c.PostForm("checked")
+        if whereCheckedStr != "" {Filter.WhereChecked, _ = strconv.Atoi(whereCheckedStr)}
+    
+        Filter.OrderBy = c.PostForm("orderBy")
+        Filter.OrderByType = c.PostForm("orderByType")
+    
+        limitStr := c.PostForm("limit")
+        Filter.Limit, _ = strconv.Atoi(limitStr)
+    } else if (method == "UPDATE") {
+        modeBoolStr := c.PostForm("switchMode")
+        // fmt.Printf("modeBoolStr: %#v\n", modeBoolStr)
+        var mode string
+        if modeBoolStr == "on" {mode = "validate"} else if mode == "" {mode = "cancel"} else {mode = "error"}
+        dateValidated := c.PostForm("date")
+        checkedListStr := strings.Split(c.PostForm("checkedList"), ",")
+        var checkedListInt []int
+        for _, strValue := range checkedListStr {
+            intValue, _ := strconv.Atoi(strValue)
+            checkedListInt = append(checkedListInt, intValue)
+        }
+        // fmt.Printf("dateValidated: %#v\n", dateValidated)
+        // fmt.Printf("checkedListInt: %#v\n", checkedListInt)
+
+        //send the list of validated id with the date to SQLite for change
+        sqlite.ValidateRowsInFinanceTracker(ctx, db, cookieGofiID, checkedListInt, dateValidated, mode)
+    } else { 
+        return 
     }
-    // fmt.Printf("dateValidated: %#v\n", dateValidated)
-    // fmt.Printf("checkedListInt: %#v\n", checkedListInt)
 
-    //send the list of validated id with the date to SQLite for change
-    sqlite.ValidateRowsInFinanceTracker(ctx, db, cookieGofiID, checkedListInt, dateValidated, mode)
-    //reload updated unchecked rows
     FTlistPost, _, TotalRowsWithoutLimit = sqlite.GetRowsInFinanceTracker(ctx, db, &Filter)
 
     tmpl := template.Must(template.ParseFiles("./front/html/templates/5.validaterows.html"))

@@ -430,19 +430,22 @@ func GetRowsInFinanceTracker(ctx context.Context, db *sql.DB, filter *FilterRows
 		fmt.Println("filter.WhereChecked is used", filter.WhereChecked)
 	} 
 
-	// order by column
+	// order by column and type
 	q += ` ORDER BY `
 	switch filter.OrderBy {
 		case "id":
 			q += ` id `
 		case "date":
 			q += ` year*10000 + month*100 + day `
+			if (filter.OrderByType == "DESC") {q += ` DESC `} else {q += ` ASC `}
+			q += ` , id `
 		case "price":
 			q += ` priceIntx100 `
+			if (filter.OrderByType == "DESC") {q += ` DESC `} else {q += ` ASC `}
+			q += ` , id `
 		default:
 			q += ` id `
 	}
-	// order by type
 	if (filter.OrderByType == "DESC") {q += ` DESC `} else {q += ` ASC `}
 
 	// finally, add limit

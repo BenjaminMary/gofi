@@ -82,7 +82,7 @@
                 <span id="spinner" class="htmx-indicator" aria-busy="true"></span>
                 <!-- save -->
                 <svg width="24" height="24" viewBox="0 0 24 24"><use xlink:href="/img/icons.svg#feather-save"></use></svg>
-                Envoyer
+                Enregistrer
             </button>
         </form>
     </div> <!-- via header: "HX-Retarget", "#forbidden" -->
@@ -104,11 +104,11 @@
                 <tbody id="lastInsert">
                     {{define "lastInsert"}}
                     <tr>
-                        <td>{{.Date}}</td>
-                        <td>{{.Account}}</td>
-                        <td>{{.Category}}</td>
-                        <td>{{.Product}}</td>
-                        <td>{{.FormPriceStr2Decimals}}</td>
+                        <td>{{.Form.Date}}</td>
+                        <td>{{.Form.Account}}</td>
+                        <td>{{.Form.Category}}</td>
+                        <td>{{.Form.Product}}</td>
+                        <td>{{.Form.FormPriceStr2Decimals}}</td>
                     </tr>
                     {{end}}
                     {{range $FT := .FTlist}}
