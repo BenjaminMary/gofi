@@ -525,7 +525,6 @@ func ValidateRowsInFinanceTracker(ctx context.Context, db *sql.DB, gofiID int, c
 				dateChecked = ?,
 				exported = 0
 			WHERE gofiID = ?
-				AND checked = 0
 				AND id = ?;
 			`
 	} else if (mode == "cancel") {
@@ -535,7 +534,6 @@ func ValidateRowsInFinanceTracker(ctx context.Context, db *sql.DB, gofiID int, c
 				priceIntx100 = 0, category = '-', commentInt = 0, commentString = '-', 
 				checked = 1, dateChecked = ?, exported = 0
 			WHERE gofiID = ?
-				AND checked = 0
 				AND id = ?;
 			`
 	} else { return }

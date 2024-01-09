@@ -18,134 +18,142 @@
 {{template "content" .}}
 
 <h1>Valider/annuler des gains ou dépenses</h1>
+<p>
+    <!-- info -->
+    <svg width="24" height="24" viewBox="0 0 24 24" stroke="currentColor"><use xlink:href="/img/icons.svg#feather-info"></use></svg>
+    Par défaut, le tableau contient les 10 lignes avec les dates les plus anciennes encore non validées.
+</p>
 
 <section id="advancedMode">
     <details>
         <summary>
             <strong>Mode avancé</strong><br>
-            <small><i>Permet de modifier la liste des données présentes dans le tableau ci-dessous</i></small>
+            <small><i>Permet de modifier les lignes par défaut du tableau.</i></small>
         </summary>
-        <div>
-            <form hx-post="/validaterows" 
-                hx-target="#listValidateRows" 
-                hx-swap="innerHTML"
-                hx-indicator="#spinner">
-    
-                <h5>Filtrer</h5>
-                <div class="grid">
-                    <div>
-                        <!-- Select -->
-                        <label for="compte">Compte</label>
-                        <select id="compte" name="compte">
-                            <option value="" selected>Tous</option>
-                            {{range $valA := .UserParams.AccountList}}
-                                <option value="{{$valA}}">{{$valA}}</option>
-                            {{end}}
-                        </select>
-                    </div>
-                    <div>
-                        <!-- Select -->
-                        <label for="categorie">Catégorie</label>
-                        <select id="categorie" name="categorie">
-                            <option value="" selected>Toutes</option>
-                            {{range $valB := .UserParams.CategoryList}}
-                                <option value="{{$valB}}">{{$valB}}</option>
-                            {{end}}
-                        </select>
-                    </div>
-                </div>
-                <div class="grid">
-                    <div>
-                        <!-- Number -->
-                        <label for="annee">Année (1900-2200)</label>
-                        <input type="number" id="annee" name="annee" min="1900" max="2200" step="1" value="" />
-                    </div>
-                    <div>
-                        <!-- Select -->
-                        <label for="mois">Mois</label>
-                        <select id="mois" name="mois">
-                            <option value="" selected>Tous</option>
-                            <option value="1">Janvier</option>
-                            <option value="2">Février</option>
-                            <option value="3">Mars</option>
-                            <option value="4">Avril</option>
-                            <option value="5">Mai</option>
-                            <option value="6">Juin</option>
-                            <option value="7">Juillet</option>
-                            <option value="8">Août</option>
-                            <option value="9">Septembre</option>
-                            <option value="10">Octobre</option>
-                            <option value="11">Novembre</option>
-                            <option value="12">Décembre</option>
-                        </select>
-                    </div>
-                    <div>
-                        <!-- Select -->
-                        <label for="checked">
-                            <!-- alert-triangle -->
-                            <svg width="24" height="24" viewBox="0 0 24 24" stroke="#FFC000"><use xlink:href="/img/icons.svg#feather-alert-triangle"></use></svg>
-                            Lignes validées
-                        </label>
-                        <select id="checked" name="checked">
-                            <option value="0">Toutes</option>
-                            <option value="1">Oui</option>
-                            <option value="2" selected>Non (défaut)</option>
-                        </select>
-                    </div>
-                </div>
-                <small>
-                    <!-- alert-triangle -->
-                    <svg width="24" height="24" viewBox="0 0 24 24" stroke="#FFC000"><use xlink:href="/img/icons.svg#feather-alert-triangle"></use></svg>
-                    si <code>Lignes Validées</code> est différent de <code>Non</code>, il est possible d'annuler 
-                    <!-- red x square -->
-                    <svg width="24" height="24" viewBox="0 0 24 24" stroke="firebrick"><use xlink:href="/img/icons.svg#feather-x-square"></use></svg>
-                    des lignes précédemment validées
-                    <!-- green check square -->
-                    <svg width="24" height="24" viewBox="0 0 24 24"><use xlink:href="/img/icons.svg#feather-green-check-square"></use></svg>
-                    <br>
-                    (revalider une ligne précédemment validée changera sa date de validation)
-                </small>
-    
-                <hr>
-                <h5>Trier</h5>
-                <div class="grid">
-                    <div>
-                        <!-- Select -->
-                        <label for="orderBy">Trier par</label>
-                        <select id="orderBy" name="orderBy" required>
-                            <option value="id">Identifiant</option>
-                            <option value="date" selected>Date</option>
-                            <option value="price">Prix</option>
-                        </select>
-                    </div>
-                    <div>
-                        <!-- Select -->
-                        <label for="orderByType">Ordre</label>
-                        <select id="orderByType" name="orderByType" required>
-                            <option value="DESC">Décroissant</option>
-                            <option value="ASC" selected>Croissant</option>
-                        </select>
-                    </div>
-                </div>
-    
-                <hr>
-                <!-- Number -->
-                <label for="limit">Nombre max d'enregistrements (1-500)</label>
-                <input type="number" id="limit" name="limit" min="1" max="500" step="1" value="10" required />
-    
-                <!-- Buttons -->
-                <!-- <input type="reset" value="Réinitialiser"/> -->
-                <button type="submit" value="Submit">
-                    <span id="spinner" class="htmx-indicator" aria-busy="true"></span>
-                    <!-- eye -->
-                    <svg width="24" height="24" viewBox="0 0 24 24"><use xlink:href="/img/icons.svg#feather-eye"></use></svg>
-                    Voir
-                </button>
+        <form hx-post="/validaterows" 
+            hx-target="#listValidateRows" 
+            hx-swap="innerHTML"
+            hx-indicator="#spinner">
 
-                <!-- Text -->
-                <input type="text" id="method1" name="method" value="ADVANCED" hidden readonly required />
-            </form>
-        </div>    
+            <h5>Filtrer</h5>
+            <div class="grid">
+                <div>
+                    <!-- Select -->
+                    <label for="compte">Compte</label>
+                    <select id="compte" name="compte">
+                        <option value="" selected>Tous</option>
+                        {{range $valA := .UserParams.AccountList}}
+                            <option value="{{$valA}}">{{$valA}}</option>
+                        {{end}}
+                    </select>
+                </div>
+                <div>
+                    <!-- Select -->
+                    <label for="categorie">Catégorie</label>
+                    <select id="categorie" name="categorie">
+                        <option value="" selected>Toutes</option>
+                        {{range $valB := .UserParams.CategoryList}}
+                            <option value="{{$valB}}">{{$valB}}</option>
+                        {{end}}
+                    </select>
+                </div>
+            </div>
+            <div class="grid">
+                <div>
+                    <!-- Number -->
+                    <label for="annee">Année (1900-2200)</label>
+                    <input type="number" id="annee" name="annee" min="1900" max="2200" step="1" value="" />
+                </div>
+                <div>
+                    <!-- Select -->
+                    <label for="mois">Mois</label>
+                    <select id="mois" name="mois">
+                        <option value="" selected>Tous</option>
+                        <option value="1">Janvier</option>
+                        <option value="2">Février</option>
+                        <option value="3">Mars</option>
+                        <option value="4">Avril</option>
+                        <option value="5">Mai</option>
+                        <option value="6">Juin</option>
+                        <option value="7">Juillet</option>
+                        <option value="8">Août</option>
+                        <option value="9">Septembre</option>
+                        <option value="10">Octobre</option>
+                        <option value="11">Novembre</option>
+                        <option value="12">Décembre</option>
+                    </select>
+                </div>
+                <div>
+                    <!-- Select -->
+                    <label for="checked">
+                        <!-- alert-triangle -->
+                        <svg width="24" height="24" viewBox="0 0 24 24" stroke="#FFC000"><use xlink:href="/img/icons.svg#feather-alert-triangle"></use></svg>
+                        Lignes validées
+                    </label>
+                    <select id="checked" name="checked">
+                        <option value="0">Toutes</option>
+                        <option value="1">Oui</option>
+                        <option value="2" selected>Non (défaut)</option>
+                    </select>
+                </div>
+            </div>
+            <small>
+                <!-- alert-triangle -->
+                <svg width="24" height="24" viewBox="0 0 24 24" stroke="#FFC000"><use xlink:href="/img/icons.svg#feather-alert-triangle"></use></svg>
+                si <code>Lignes Validées</code> est différent de <code>Non</code>, il est possible d'annuler 
+                <!-- red x square -->
+                <svg width="24" height="24" viewBox="0 0 24 24" stroke="firebrick"><use xlink:href="/img/icons.svg#feather-x-square"></use></svg>
+                des lignes précédemment validées
+                <!-- green check square -->
+                <svg width="24" height="24" viewBox="0 0 24 24"><use xlink:href="/img/icons.svg#feather-green-check-square"></use></svg>
+                <br>
+                (revalider une ligne précédemment validée changera sa date de validation)
+            </small>
+
+            <hr>
+            <h5>Trier</h5>
+            <div class="grid">
+                <div>
+                    <!-- Select -->
+                    <label for="orderBy">Trier par</label>
+                    <select id="orderBy" name="orderBy" required>
+                        <option value="id">Identifiant</option>
+                        <option value="date" selected>Date</option>
+                        <option value="price">Prix</option>
+                    </select>
+                </div>
+                <div>
+                    <!-- Select -->
+                    <label for="orderByType">Ordre</label>
+                    <select id="orderByType" name="orderByType" required>
+                        <option value="DESC">Décroissant</option>
+                        <option value="ASC" selected>Croissant</option>
+                    </select>
+                </div>
+            </div>
+
+            <hr>
+            <!-- Number -->
+            <label for="limit">Nombre max d'enregistrements (1-500)</label>
+            <input type="number" id="limit" name="limit" min="1" max="500" step="1" value="10" required />
+
+            <!-- Buttons -->
+            <!-- <input type="reset" value="Réinitialiser"/> -->
+            <button type="submit" value="Submit">
+                <span id="spinner" class="htmx-indicator" aria-busy="true"></span>
+                <!-- eye -->
+                <svg width="24" height="24" viewBox="0 0 24 24"><use xlink:href="/img/icons.svg#feather-eye"></use></svg>
+                Voir
+            </button>
+            <small>
+                <!-- info -->
+                <svg width="24" height="24" viewBox="0 0 24 24" stroke="currentColor"><use xlink:href="/img/icons.svg#feather-info"></use></svg>
+                Après enregistrement d'une modification, le tableau de données ci-dessous réaffiche les lignes du mode par défaut.
+            </small>
+
+            <!-- Text -->
+            <input type="text" id="method1" name="method" value="ADVANCED" hidden readonly required />
+        </form>
     </details>
 </section>
 
@@ -159,7 +167,7 @@
             <div class="grid">
                 <div>
                     Mode<br>
-                    <span id="mode">Le mode <code>Validation</code> est activé par défaut.</span>
+                    <span id="mode">Le mode <code>Validation</code> est activé.</span>
                     <label for="switchMode">
                         <!-- red x square -->
                         Annulation

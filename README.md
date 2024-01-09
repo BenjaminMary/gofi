@@ -129,6 +129,7 @@ This optional feature adds some prerequisites:
 
 
 ## Changelog
+- 2024-01-09 : fix advanced mode to validate or cancel already checked records.
 - 2024-01-08 : fix some front UI following the front folder. Add an advanced mode to validate or cancel specific records if needed.
 - 2024-01-06 : new page to validate or cancel records.
 - 2024-01-03 : some more HTML improvements.
