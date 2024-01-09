@@ -375,6 +375,61 @@ func InsertRowInParam(p *Param) (int64, error) {
 	return id, nil
 }
 
+
+func GetStatsInFinanceTracker(ctx context.Context, db *sql.DB, gofiID int) ([][]string, [][]string, []string) {
+	var statsAccountList, statsCategoryList [][]string // [account1, sum1, count1], [...,] | [category1, sum1, count1], [...,]
+	var totalList []string // [total, total, sum, count]
+	q1 := ` 
+		SELECT account, SUM(priceIntx100), COUNT(1)
+		FROM financeTracker
+		WHERE gofiID = ?
+		GROUP BY account
+	`
+	q2 := ` 
+		SELECT category, SUM(priceIntx100), COUNT(1)
+		FROM financeTracker
+		WHERE gofiID = ?
+		GROUP BY category
+	`
+	rows, err := db.QueryContext(ctx, q1, gofiID)
+	if err != nil {
+		log.Fatal("error on DB query1: ", err)
+	}
+	var totalPriceIntx100 int = 0
+	var totalRows int = 0
+	for rows.Next() {
+		var statsRow []string
+		var account string
+		var sum, count int
+		if err := rows.Scan(&account, &sum, &count); err != nil {
+			log.Fatal(err)
+		}
+		totalPriceIntx100 += sum
+		totalRows += count
+		statsRow = append(statsRow, account, ConvertPriceIntToStr(sum), strconv.Itoa(count))
+		statsAccountList = append(statsAccountList, statsRow)
+	}
+	totalList = append(totalList, ConvertPriceIntToStr(totalPriceIntx100), strconv.Itoa(totalRows))
+	// fmt.Printf("statsList: %#v\n", statsList)
+	rows.Close()
+
+	rows, err = db.QueryContext(ctx, q2, gofiID)
+	if err != nil {
+		log.Fatal("error on DB query2: ", err)
+	}
+	for rows.Next() {
+		var statsRow []string
+		var category string
+		var sum, count int
+		if err := rows.Scan(&category, &sum, &count); err != nil {
+			log.Fatal(err)
+		}
+		statsRow = append(statsRow, category, ConvertPriceIntToStr(sum), strconv.Itoa(count))
+		statsCategoryList = append(statsCategoryList, statsRow)
+	}
+	return statsAccountList, statsCategoryList, totalList
+}
+
 func GetRowsInFinanceTracker(ctx context.Context, db *sql.DB, filter *FilterRows) ([]FinanceTracker, string, int) {
 	var ftList []FinanceTracker
 	var totalPriceStr2Decimals string

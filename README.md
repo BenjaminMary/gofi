@@ -71,45 +71,45 @@ This optional feature adds some prerequisites:
     ```
 
 ## TODO
-&#x2611;&#x2610;&#x2612;
+☑☐☒
 - dès que toutes les fonctionnalités essentielles sont en place, démarrer des tests fonctionnels
 - ajout préférences utilisateur:
     - gestion des préférences de format de date EN + FR avec / ou -
     - gestion des préférences de format csv séparateur colonne + separateur décimal
     - laisser l'overide possible dans les parties import/export csv, mais préselectionner la préférence
-    - &#x2610; partie import export: 
-        - &#x2611; gérer les formats ANSI (à faire pour ensuite visualiser les é dans Excel par défaut) et UTF8 (déjà ok)
-            - &#x2612; pas gestion du format ANSI
-            - &#x2611; force l'utilisation du UTF8 avec ajout de caractères de contrôle
-            - &#x2611; CRLF et LF gérés en ajoutant une colonne non utilisée en fin de fichier
-        - &#x2611; ajouter la possibilité de supprimer des lignes en mettant des "-" devant les ID de lignes
-            - &#x2611; UPDATE (et non pas réel DELETE) avec mise à 0 du prix + MAJ compte et catégo en "-" (permet de mieux gérer les exports de données et de les réutiliser lorsque partiel pour obtenir le bon résultat avec l'ensemble des modifs appliquées les unes à la suite des autres)
-            - &#x2612; via DELETE, aurait posé problème lorsque la ligne est créé puis exportée, et ensuite DELETE avec un nouvel export où aucune info sur le DELETE n'aurait été présente car ligne inexistante en DB (l'export à pour objectif d'exporter uniquements les dernières modifications, voir pour mettre une option pour tout rééxporter)
-        - &#x2610; MAJ le champ `exported` lors des exports et modifications de données
-        - &#x2610; mettre un champ `lastCSVexport` de type date par user à ramener dans le menu (ok si - d'1 mois, ko sinon)
-            - &#x2610; compter le nombre de lignes à exporter et afficher/bloquer un import si différent de 0 ?
-        - &#x2610; ajouter un template de fichier csv
-        - &#x2610; objectif: chaque export génère un fichier avec l'ensemble des dernières modifs
-            - &#x2610; en jouant toutes les sauvegardes historisées dans l'ordre chronologique, on retrouve l'état des données souhaité
-            - &#x2610; mettre une option d'export de toutes les lignes même celles non modifiées
-- PRIO ajout validation des dépenses
-    - système qui ramène l'ensemble des lignes encore non validées
-    - voir pour permettre de la validation de groupe en saisissant une date unique et en sélectionnant X lignes
-- PRIO Ajout de statistiques 
-    - &#x2611; visualisation des données avec filtre et tri via table simple
-        - &#x2610; voir pour mettre un tableur ? + rendre editable ou suppr de ligne
+    - ☐ partie import export: 
+        - ☑ gérer les formats ANSI (à faire pour ensuite visualiser les é dans Excel par défaut) et UTF8 (déjà ok)
+            - ☒ pas gestion du format ANSI
+            - ☑ force l'utilisation du UTF8 avec ajout de caractères de contrôle
+            - ☑ CRLF et LF gérés en ajoutant une colonne non utilisée en fin de fichier
+        - ☑ ajouter la possibilité de supprimer des lignes en mettant des "-" devant les ID de lignes
+            - ☑ UPDATE (et non pas réel DELETE) avec mise à 0 du prix + MAJ compte et catégo en "-" (permet de mieux gérer les exports de données et de les réutiliser lorsque partiel pour obtenir le bon résultat avec l'ensemble des modifs appliquées les unes à la suite des autres)
+            - ☒ via DELETE, aurait posé problème lorsque la ligne est créé puis exportée, et ensuite DELETE avec un nouvel export où aucune info sur le DELETE n'aurait été présente car ligne inexistante en DB (l'export à pour objectif d'exporter uniquements les dernières modifications, voir pour mettre une option pour tout rééxporter)
+        - ☐ MAJ le champ `exported` lors des exports et modifications de données
+        - ☐ mettre un champ `lastCSVexport` de type date par user à ramener dans le menu (ok si - d'1 mois, ko sinon)
+            - ☐ compter le nombre de lignes à exporter et afficher/bloquer un import si différent de 0 ?
+        - ☐ ajouter un template de fichier csv
+        - ☐ objectif: chaque export génère un fichier avec l'ensemble des dernières modifs
+            - ☐ en jouant toutes les sauvegardes historisées dans l'ordre chronologique, on retrouve l'état des données souhaité
+            - ☐ mettre une option d'export de toutes les lignes même celles non modifiées
+- ☑ PRIO ajout validation des dépenses
+    - ☑ système qui ramène l'ensemble des lignes encore non validées
+    - ☑ voir pour permettre de la validation de groupe en saisissant une date unique et en sélectionnant X lignes
+- ❗ PRIO Ajout de statistiques 
+    - ☑ visualisation des données avec filtre et tri via table simple
+        - ☐ voir pour mettre un tableur ? + rendre editable ou suppr de ligne
             - https://github.com/wenzhixin/bootstrap-table
             - https://github.com/jspreadsheet/ce
                 - https://bossanova.uk/jspreadsheet/v4/docs/quick-reference
     - sur les dépenses
     - sur le nombre de requêtes
-    - globales sur les montants dispo par compte
+    - ❗ globales sur les montants dispo par compte
 - Ajout sauvegarde DB SQLite sur Drive
-    - &#x2611; avec table SQLite qui garde les ID + nom + date de fichiers sauvegardés + le statut de l'upload (pas besoin l'API Google redonne toutes les infos)
-    - &#x2611; voir pour fermer le server et faire la sauvegarde au restart après quelques commandes de nettoyage de DB (semble ok)
-    - &#x2611; voir si la gestion d'une seule ouverture/fermeture DB ferait fonctionner le PRAGMA wal_checkpoint(TRUNCATE) sans retourner BUSY
-        - &#x2611; obj nettoyer les fichiers wal + shm avant sauvegarde
-    - &#x2610; cron based backup : https://litestream.io/alternatives/cron/ + monitoring : https://deadmanssnitch.com/account/sign_up?plan=the_lone_snitch
+    - ☑ avec table SQLite qui garde les ID + nom + date de fichiers sauvegardés + le statut de l'upload (pas besoin l'API Google redonne toutes les infos)
+    - ☑ voir pour fermer le server et faire la sauvegarde au restart après quelques commandes de nettoyage de DB (semble ok)
+    - ☑ voir si la gestion d'une seule ouverture/fermeture DB ferait fonctionner le PRAGMA wal_checkpoint(TRUNCATE) sans retourner BUSY
+        - ☑ obj nettoyer les fichiers wal + shm avant sauvegarde
+    - ☐ cron based backup : https://litestream.io/alternatives/cron/ + monitoring : https://deadmanssnitch.com/account/sign_up?plan=the_lone_snitch
 - PWA
     - Ajout SQLite en WebAssembly ?
 - voir pour réduire le nombre d'ouverture/fermeture de DB
@@ -129,6 +129,7 @@ This optional feature adds some prerequisites:
 
 
 ## Changelog
+- 2024-01-09 : new global statistics page.
 - 2024-01-09 : fix advanced mode to validate or cancel already checked records.
 - 2024-01-08 : fix some front UI following the front folder. Add an advanced mode to validate or cancel specific records if needed.
 - 2024-01-06 : new page to validate or cancel records.

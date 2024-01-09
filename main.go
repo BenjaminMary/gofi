@@ -556,21 +556,23 @@ func postValidateRows(c *gin.Context) {
 }
 
 // GET stats
-// func getStats(c *gin.Context) {
-//     ctx, cancel := context.WithTimeout(context.TODO(), 2*time.Second)
-//     defer cancel()
+func getStats(c *gin.Context) {
+    ctx, cancel := context.WithTimeout(context.TODO(), 2*time.Second)
+    defer cancel()
 
-//     cookieGofiID, _ := CheckCookie(ctx, c, db)
-//     if c.IsAborted() {return}
+    cookieGofiID, _ := CheckCookie(ctx, c, db)
+    if c.IsAborted() {return}
 
-//     var TotalPerAccount map[string]int
-//     TotalPerAccount = make(map[string]string)
-//     TotalPerAccount = sqlite.GetRowsInFinanceTracker(ctx, db, &Filter)
+    var AccountList, CategoryList [][]string
+    var Total []string
+    AccountList, CategoryList, Total = sqlite.GetStatsInFinanceTracker(ctx, db, cookieGofiID)
 
-//     c.HTML(http.StatusOK, "2.stats.html", gin.H{
-//         "FileName": FileName,
-//     })
-// }
+    c.HTML(http.StatusOK, "6.stats.html", gin.H{
+        "Total": Total,
+        "AccountList": AccountList,
+        "CategoryList": CategoryList,
+    })
+}
 
 // GET exportCsv.html
 func getExportCsv(c *gin.Context) {
@@ -689,7 +691,7 @@ func main() {
     router.GET("/validaterows", getValidateRows)
     router.POST("/validaterows", postValidateRows)
 
-    // router.GET("/stats", getStats)
+    router.GET("/stats", getStats)
 
     router.GET("/export-csv", getExportCsv)
     router.POST("/export-csv", postExportCsv)

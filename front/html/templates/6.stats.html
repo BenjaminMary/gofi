@@ -1,0 +1,76 @@
+{{template "head" .}}
+{{template "body" .}}
+{{template "content" .}}
+
+<h1>Statistiques</h1>
+
+<section id="stats">
+    <div>
+        <figure>
+            <h5>Total</h5>
+            <table role="grid">
+                <thead>
+                    <tr>
+                        <th scope="col">Prix</th>
+                        <th scope="col">Quantite</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        {{range $v := .Total}} 
+                            <td>{{$v}}</td>
+                        {{end}}
+                    </tr>
+                </tbody>
+            </table>
+        </figure>
+    </div>
+    <div>
+        <figure>
+            <h5>Comptes</h5>
+            <table role="grid">
+                <thead>
+                    <tr>
+                        <th scope="col">Compte</th>
+                        <th scope="col">Prix</th>
+                        <th scope="col">Quantite</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {{range $A := .AccountList}}
+                        <tr>
+                        {{range $v := $A}} 
+                            <td>{{$v}}</td>
+                        {{end}}
+                        </tr>
+                    {{end}}
+                </tbody>
+            </table>
+        </figure>
+    </div>
+    <div>
+        <figure>
+            <h5>Categories</h5>
+            <table role="grid">
+                <thead>
+                    <tr>
+                        <th scope="col">Categorie</th>
+                        <th scope="col">Prix</th>
+                        <th scope="col">Quantite</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {{range $C := .CategoryList}}
+                        <tr>
+                        {{range $v := $C}} 
+                            <td>{{$v}}</td>
+                        {{end}}
+                        </tr>
+                    {{end}}
+                </tbody>
+            </table>
+        </figure>
+    </div>
+</section>
+
+{{template "footer" .}}
