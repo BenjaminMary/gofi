@@ -15,7 +15,8 @@ function download(filename, text) {
 document.getElementById("download").addEventListener("click", function(){
     // Generate download of csv file with content
     var filename = document.getElementById("filename").value;
-    var text = document.getElementById("filecontent").value;
+    // "\uFEFF" = BOM : to generate an UTF-8 file with BOM
+    var text = "\uFEFF" + document.getElementById("filecontent").value;
     download(filename, text);
 }, false);
 

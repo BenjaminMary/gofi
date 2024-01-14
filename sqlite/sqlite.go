@@ -726,7 +726,7 @@ func ImportCSV(gofiID int, email string, csvSeparator rune, csvDecimalDelimiter 
     }
 
 	var ft FinanceTracker
-	var lineInfo, unsuccessfullReason, controlEncoding, controlLastValidColumn string
+	var lineInfo, unsuccessfullReason, controlEncoding, controlLastValidColumn, validControlEncodingUTF8, validControlEncodingUTF8withBOM string
 	var successfull bool
 	ft.GofiID = gofiID
 	stringList += "𫝀é ꮖꭰ;Date;CommentInt;Checked;exported;NewID;Updated;\n"
@@ -744,23 +744,29 @@ func ImportCSV(gofiID int, email string, csvSeparator rune, csvDecimalDelimiter 
 			}
 			controlEncoding = row[0]
 			controlLastValidColumn = row[10]
-			fmt.Printf("totalRows: %#v\n", totalRows)
-			if (controlEncoding == "𫝀é ꮖꭰ" && controlLastValidColumn == "Exported"){
+			validControlEncodingUTF8 = "𫝀é ꮖꭰ" //UTF-8
+			validControlEncodingUTF8withBOM = "\ufeff𫝀é ꮖꭰ" //UTF-8 with BOM
+			if ( ( controlEncoding == validControlEncodingUTF8 || controlEncoding == validControlEncodingUTF8withBOM ) && 
+				controlLastValidColumn == "Exported"){
 				continue //skip the row
-			} else if controlEncoding != "𫝀é ꮖꭰ" {
-				stringList = 
-					"IMPORTATION ANNULEE.\n" +
-					"ERREUR sur le format d'encodage du fichier.\n" +
-					"Le système accepte uniquement du UTF-8.\n\n" +
-					"INFO: des caractères spécifiques sont présents en en-tête de la 1ere colonne et doivent être gardés.\n" +
-					"1ere colonne = '𫝀é ꮖꭰ'\n" +
-					"Un exemple de données d'import valide est disponible plus bas sur cette page."
-				break //stop
 			} else if controlLastValidColumn != "Exported" {
+				fmt.Printf("totalRows: %#v\n", totalRows)
+				fmt.Printf("controlEncoding: %#v\n", controlEncoding)
 				stringList = 
 					"IMPORTATION ANNULEE.\n" +
 					"ERREUR sur la dernière colonne du fichier.\n\n" +
 					"INFO: 11eme colonne = 'Exported'\n" +
+					"Un exemple de données d'import valide est disponible plus bas sur cette page."
+				break //stop
+			} else if !( controlEncoding == validControlEncodingUTF8 || controlEncoding == validControlEncodingUTF8withBOM ) {
+				fmt.Printf("totalRows: %#v\n", totalRows)
+				fmt.Printf("controlEncoding: %#v\n", controlEncoding)
+				stringList = 
+					"IMPORTATION ANNULEE.\n" +
+					"ERREUR sur le format d'encodage du fichier.\n" +
+					"Le système accepte uniquement du UTF-8 avec ou sans BOM.\n\n" +
+					"INFO: des caractères spécifiques sont présents en en-tête de la 1ere colonne et doivent être gardés.\n" +
+					"1ere colonne = '𫝀é ꮖꭰ'\n" +
 					"Un exemple de données d'import valide est disponible plus bas sur cette page."
 				break //stop
 			}
