@@ -297,18 +297,18 @@ func GetGofiID(ctx context.Context, db *sql.DB, sessionID string) (int, string, 
 
 	timeCurrentTimeUTC, err := time.Parse(time.RFC3339, currentTimeUTC)
 	// fmt.Printf("timeCurrentTimeUTC: %v\n", timeCurrentTimeUTC)
-	if err != nil { return -1, "", "error parsing currentTimeUTC, force new login", err }
+	if err != nil { return -1, "", "error parsing currentTimeUTC, force new login 1", err }
 
 	timeAbsoluteTimeout, err := time.Parse(time.RFC3339, absoluteTimeout)
 	// fmt.Printf("timeAbsoluteTimeout: %v\n", timeAbsoluteTimeout)
-	if err != nil { return -1, "", "error parsing absoluteTimeout, force new login", err }
+	if err != nil { return -1, "", "error parsing absoluteTimeout, force new login 2", err }
 	differenceAbsolute := timeCurrentTimeUTC.Sub(timeAbsoluteTimeout)
 	// fmt.Printf("differenceAbsolute: %v\n", differenceAbsolute)
-	if (differenceAbsolute > 0) { return -1, "", "absoluteTimeout, force new login", nil }
+	if (differenceAbsolute > 0) { return -1, "", "absoluteTimeout, force new login 3", nil }
 
 	timeIdleTimeout, err := time.Parse(time.RFC3339, idleTimeout)
 	// fmt.Printf("timeIdleTimeout: %v\n", timeIdleTimeout)
-	if err != nil { return -1, "", "error parsing idleTimeout, force new login", err }
+	if err != nil { return -1, "", "error parsing idleTimeout, force new login 4", err }
 	differenceIdle := timeCurrentTimeUTC.Sub(timeIdleTimeout)
 	// fmt.Printf("differenceIdle: %v\n", differenceIdle)
 	if (differenceIdle > 0) { return gofiID, email, "idleTimeout, change cookie", nil }

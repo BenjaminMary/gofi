@@ -91,6 +91,17 @@ func CheckCookie(ctx context.Context, c *gin.Context, db *sql.DB) (int, string) 
             fmt.Println("auto cookie update")
         }
         return gofiID, email
+    } else if (errorStrReason == "absoluteTimeout, force new login 3") {
+        SetCookie(c, "force-new-login")
+        successfull, errorStrReason, err := sqlite.ForceNewLogin(gofiID)
+        if !successfull {
+            fmt.Printf("errorStrReason: %v\n", errorStrReason)
+            fmt.Printf("err: %v\n", err)
+        }
+        fmt.Println("force new login")
+        c.Redirect(http.StatusSeeOther, "/login")
+        c.Abort()
+        return 0, ""
     } else {
         fmt.Printf("errorStrReason: %v\n", errorStrReason)
         fmt.Printf("err: %v\n", err)

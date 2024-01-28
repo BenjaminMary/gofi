@@ -73,29 +73,25 @@ This optional feature adds some prerequisites:
 ## TODO
 ☑☐☒
 - dès que toutes les fonctionnalités essentielles sont en place, démarrer des tests fonctionnels
-- ajout préférences utilisateur:
-    - gestion des préférences de format de date EN + FR avec / ou -
-    - gestion des préférences de format csv séparateur colonne + separateur décimal
-    - laisser l'overide possible dans les parties import/export csv, mais préselectionner la préférence
-    - ☐ partie import export: 
-        - ☑ gérer les formats ANSI (à faire pour ensuite visualiser les é dans Excel par défaut) et UTF8 (déjà ok)
-            - ☒ pas gestion du format ANSI
-            - ☑ force l'utilisation du UTF8 avec ajout de caractères de contrôle
-            - ☑ CRLF et LF gérés en ajoutant une colonne non utilisée en fin de fichier
-        - ☑ ajouter la possibilité de supprimer des lignes en mettant des "-" devant les ID de lignes
-            - ☑ UPDATE (et non pas réel DELETE) avec mise à 0 du prix + MAJ compte et catégo en "-" (permet de mieux gérer les exports de données et de les réutiliser lorsque partiel pour obtenir le bon résultat avec l'ensemble des modifs appliquées les unes à la suite des autres)
-            - ☒ via DELETE, aurait posé problème lorsque la ligne est créé puis exportée, et ensuite DELETE avec un nouvel export où aucune info sur le DELETE n'aurait été présente car ligne inexistante en DB (l'export à pour objectif d'exporter uniquements les dernières modifications, voir pour mettre une option pour tout rééxporter)
-        - ☐ MAJ le champ `exported` lors des exports et modifications de données
-        - ☐ mettre un champ `lastCSVexport` de type date par user à ramener dans le menu (ok si - d'1 mois, ko sinon)
-            - ☐ compter le nombre de lignes à exporter et afficher/bloquer un import si différent de 0 ?
-        - ☐ ajouter un template de fichier csv
-        - ☐ objectif: chaque export génère un fichier avec l'ensemble des dernières modifs
-            - ☐ en jouant toutes les sauvegardes historisées dans l'ordre chronologique, on retrouve l'état des données souhaité
-            - ☐ mettre une option d'export de toutes les lignes même celles non modifiées
-- ☑ PRIO ajout validation des dépenses
+- fix
+    - ❗ pb lorsqu'un cookie qui était valide est présent, on se connecte sur un autre appareil, ce qui le rend obsolète, puis on retente la connexion depuis l'appareil avec le cookie obsolète, génère une boucle de redirection infinie
+    - ☑ pb lors des cas de `force new login` qui génère une boucle infinie
+- ☐ ajout préférences utilisateur:
+    - ☐ gestion des préférences de format de date EN + FR avec / ou -
+    - ☐ gestion des préférences de format csv séparateur colonne + separateur décimal
+    - ☐ laisser l'overide possible dans les parties import/export csv, mais préselectionner la préférence
+- ☐ partie import export CSV: 
+    - ☐ MAJ le champ `exported` lors des exports et modifications de données
+    - ☐ mettre un champ `lastCSVexport` de type date par user à ramener dans le menu (ok si - d'1 mois, ko sinon)
+        - ☐ compter le nombre de lignes à exporter et afficher/bloquer un import si différent de 0 ?
+    - ☐ ajouter un template de fichier csv
+    - ☐ objectif: chaque export génère un fichier avec l'ensemble des dernières modifs
+        - ☐ en jouant toutes les sauvegardes historisées dans l'ordre chronologique, on retrouve l'état des données souhaité
+        - ☐ mettre une option d'export de toutes les lignes même celles non modifiées
+- ☑ ajout validation des dépenses
     - ☑ système qui ramène l'ensemble des lignes encore non validées
     - ☑ voir pour permettre de la validation de groupe en saisissant une date unique et en sélectionnant X lignes
-- ❗ PRIO Ajout de statistiques 
+- ☐ Ajout de statistiques 
     - ☑ visualisation des données avec filtre et tri via table simple
         - ☐ voir pour mettre un tableur ? + rendre editable ou suppr de ligne
             - https://github.com/wenzhixin/bootstrap-table
@@ -103,7 +99,12 @@ This optional feature adds some prerequisites:
                 - https://bossanova.uk/jspreadsheet/v4/docs/quick-reference
     - sur les dépenses
     - sur le nombre de requêtes
-    - ❗ globales sur les montants dispo par compte
+    - ☑ globales sur les montants dispo par compte
+    - ❗ ajouter le montant total en cours de validation/annulation lors de la sélection des lignes
+    - ❗ partie statistiques globales, garder les montants totaux puis ajouter un tableau année par année
+    - ☐ voir ensuite si possible de faire des graphs en JS?
+    - ☐ ajouter un filtre à l'année pour avoir des infos sur les mois de l'année filtrée
+    - ☐ affichage HTML, ajouter un séparateur de miliers + tout orienter à droite lorsque chiffres?
 - Ajout sauvegarde DB SQLite sur Drive
     - ☑ avec table SQLite qui garde les ID + nom + date de fichiers sauvegardés + le statut de l'upload (pas besoin l'API Google redonne toutes les infos)
     - ☑ voir pour fermer le server et faire la sauvegarde au restart après quelques commandes de nettoyage de DB (semble ok)
@@ -129,6 +130,7 @@ This optional feature adds some prerequisites:
 
 
 ## Changelog
+- 2024-01-28 : fix infinite loop on `force new login` case.
 - 2024-01-13 : switch simple UTF-8 encoding for csv files to UTF-8 with BOM, which is well handled in Excel by default.
 - 2024-01-09 : new global statistics page.
 - 2024-01-09 : fix advanced mode to validate or cancel already checked records.
