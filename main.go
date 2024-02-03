@@ -11,6 +11,7 @@ import (
     "strconv"
     "html/template"
     "os"
+    "encoding/json"
     "encoding/hex"
     "crypto/sha256"
 
@@ -567,10 +568,25 @@ func getStats(c *gin.Context) {
     var Total []string
     AccountList, CategoryList, Total = sqlite.GetStatsInFinanceTracker(ctx, db, cookieGofiID)
 
+    var m sqlite.PieChartD3js
+    var CategoryListJsonBinary []sqlite.PieChartD3js
+    for _, element := range CategoryList {
+        m.Price, _ = strconv.ParseFloat(element[1], 64)
+        if (m.Price < 0){
+            m.Category = element[0]
+            m.Price = m.Price * -1
+            //m.Quantity = element[2]
+            CategoryListJsonBinary = append(CategoryListJsonBinary, m)
+        }
+    }
+    ResponseJsonBinary, _ := json.Marshal(CategoryListJsonBinary)
+    //fmt.Println(string(ResponseJsonBinary))
+
     c.HTML(http.StatusOK, "6.stats.html", gin.H{
         "Total": Total,
         "AccountList": AccountList,
         "CategoryList": CategoryList,
+        "ResponseJsonString": string(ResponseJsonBinary), // array of dict [{},{}] for d3.js
     })
 }
 

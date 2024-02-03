@@ -96,6 +96,7 @@ This optional feature adds some prerequisites:
     - ☐ les autres utilisateurs peuvent se connecter en simultané sur le compte sans possibilité d'ajout d'autres nouveaux
     - ☐ 1 ligne de login active par utilisateur, permettra du multi utilisateur / multi login sur différentes plateformes
 - ☐ Ajout de statistiques 
+    - ☐ pouvoir différencier les montants déjà validés vs non validés
     - ☑ visualisation des données avec filtre et tri via table simple
         - ☐ voir pour mettre un tableur ? + rendre editable ou suppr de ligne
             - https://github.com/wenzhixin/bootstrap-table
@@ -134,6 +135,7 @@ This optional feature adds some prerequisites:
 
 
 ## Changelog
+- 2024-02-03 : add first pie chart with [D3.js](https://d3js.org/) in the stats page.
 - 2024-02-02 : align numbers in the stats page.
 - 2024-01-28 : fix infinite loop on `force new login` case.
 - 2024-01-13 : switch simple UTF-8 encoding for csv files to UTF-8 with BOM, which is well handled in Excel by default.

@@ -64,3 +64,9 @@ type FilterRows struct {
 	OrderByType string
 	Limit int
 }
+
+type PieChartD3js struct {
+	Category string  `json:"name"`
+	Price float64 `json:"value"`
+	//Quantity string `json:"quantity"`
+}
