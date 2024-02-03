@@ -91,6 +91,10 @@ This optional feature adds some prerequisites:
 - ☑ ajout validation des dépenses
     - ☑ système qui ramène l'ensemble des lignes encore non validées
     - ☑ voir pour permettre de la validation de groupe en saisissant une date unique et en sélectionnant X lignes
+- ☐ ajout multi utilisateur sur un compte
+    - ☐ un utilisateur admin du compte qui peut en ajouter d'autres (max 5)
+    - ☐ les autres utilisateurs peuvent se connecter en simultané sur le compte sans possibilité d'ajout d'autres nouveaux
+    - ☐ 1 ligne de login active par utilisateur, permettra du multi utilisateur / multi login sur différentes plateformes
 - ☐ Ajout de statistiques 
     - ☑ visualisation des données avec filtre et tri via table simple
         - ☐ voir pour mettre un tableur ? + rendre editable ou suppr de ligne
@@ -130,6 +134,7 @@ This optional feature adds some prerequisites:
 
 
 ## Changelog
+- 2024-02-02 : align numbers in the stats page.
 - 2024-01-28 : fix infinite loop on `force new login` case.
 - 2024-01-13 : switch simple UTF-8 encoding for csv files to UTF-8 with BOM, which is well handled in Excel by default.
 - 2024-01-09 : new global statistics page.

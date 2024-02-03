@@ -1,4 +1,11 @@
 {{template "head" .}}
+<style>
+    td.col1, 
+    td.col2,
+    .right{
+        text-align: right;
+    }
+</style>
 {{template "body" .}}
 {{template "content" .}}
 
@@ -7,43 +14,34 @@
 <section id="stats">
     <div>
         <figure>
-            <h5>Total</h5>
-            <table role="grid">
-                <thead>
-                    <tr>
-                        <th scope="col">Prix</th>
-                        <th scope="col">Quantite</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr>
-                        {{range $v := .Total}} 
-                            <td>{{$v}}</td>
-                        {{end}}
-                    </tr>
-                </tbody>
-            </table>
-        </figure>
-    </div>
-    <div>
-        <figure>
             <h5>Comptes</h5>
             <table role="grid">
                 <thead>
                     <tr>
                         <th scope="col">Compte</th>
-                        <th scope="col">Prix</th>
-                        <th scope="col">Quantite</th>
+                        <th scope="col" class="right">Prix</th>
+                        <th scope="col" class="right">Quantite</th>
                     </tr>
                 </thead>
                 <tbody>
                     {{range $A := .AccountList}}
                         <tr>
-                        {{range $v := $A}} 
-                            <td>{{$v}}</td>
+                        {{range $i, $v := $A}} 
+                            <td class="col{{$i}}">{{$v}}</td>
                         {{end}}
                         </tr>
                     {{end}}
+                    <tr>
+                        <td>---</td>
+                        <td class="right">---</td>
+                        <td class="right">---</td>
+                    </tr>
+                    <tr>
+                        <td>TOTAUX</td>
+                        {{range $i, $v := .Total}} 
+                            <td class="right">{{$v}}</td>
+                        {{end}}
+                    </tr>
                 </tbody>
             </table>
         </figure>
@@ -55,15 +53,15 @@
                 <thead>
                     <tr>
                         <th scope="col">Categorie</th>
-                        <th scope="col">Prix</th>
-                        <th scope="col">Quantite</th>
+                        <th scope="col" class="right">Prix</th>
+                        <th scope="col" class="right">Quantite</th>
                     </tr>
                 </thead>
                 <tbody>
                     {{range $C := .CategoryList}}
                         <tr>
-                        {{range $v := $C}} 
-                            <td>{{$v}}</td>
+                        {{range $i, $v := $C}} 
+                            <td class="col{{$i}}">{{$v}}</td>
                         {{end}}
                         </tr>
                     {{end}}
