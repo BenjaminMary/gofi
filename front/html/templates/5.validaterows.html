@@ -201,6 +201,7 @@
                     </thead>
                     <tbody id="listValidateRows">
                         <!-- POST part -->
+                        <!-- IDs: input + td + "selectedSum" used to calculate with .js func -->
                         {{define "listValidateRows"}}
                             {{range $index, $data := .FTlistPost }}
                                 <tr>
@@ -211,7 +212,7 @@
                                     <td>{{$data.Account}}</td>
                                     <td>{{$data.Category}}</td>
                                     <td>{{$data.Product}}</td>
-                                    <td>{{$data.FormPriceStr2Decimals}}</td>
+                                    <td id="v{{$data.ID}}">{{$data.FormPriceStr2Decimals}}</td>
                                 </tr>
                             {{end}}
                             <tr>
@@ -219,9 +220,15 @@
                                 <td colspan="2">INFO</td>
                                 <td colspan="3">Il reste {{.TotalRowsWithoutLimit}} lignes à traiter.</td>
                             </tr>
+                            <tr>
+                                <td></td>
+                                <td colspan="4">MONTANT DE LA SELECTION</td>
+                                <td id="selectedSum">0.00</td> <!-- id for sum -->
+                            </tr>
                         {{end}}
 
                         <!-- GET part -->
+                        <!-- IDs: input + td + "selectedSum" used to calculate with .js func -->
                         {{range $FT := .FTlist}}
                             <tr>
                                 <td>
@@ -231,13 +238,18 @@
                                 <td>{{$FT.Account}}</td>
                                 <td>{{$FT.Category}}</td>
                                 <td>{{$FT.Product}}</td>
-                                <td>{{$FT.FormPriceStr2Decimals}}</td>
+                                <td id="v{{$FT.ID}}">{{$FT.FormPriceStr2Decimals}}</td>
                             </tr>
                         {{end}}
                         <tr>
                             <td></td>
                             <td colspan="2">INFO</td>
                             <td colspan="3">Il reste {{.TotalRowsWithoutLimit}} lignes à traiter.</td>
+                        </tr>
+                        <tr>
+                            <td></td>
+                            <td colspan="4">MONTANT DE LA SELECTION</td>
+                            <td id="selectedSum">0.00</td>
                         </tr>
                     </tbody>
                 </table>
@@ -287,12 +299,14 @@
             `
         };
     });
+
     document.getElementById('toggle').addEventListener('click', function(toggle){
         checkboxes = document.querySelectorAll('input[type=checkbox][name=id]');
         for(var i=0, n = checkboxes.length; i < n; i++) {
             if (checkboxes[i].value > 0) {checkboxes[i].checked = this.checked;}
         }
     });
+
     // add all checked ids on the checkedList to send in the post request
     document.getElementById('submit').addEventListener('click', function(evt){
         var array = [];
@@ -303,6 +317,24 @@
         // console.log(array);
         document.getElementById('checkedList').value = array;
     });
+
+    // add sum of the selection in the final row of the table
+    // <!-- IDs: input + td + "selectedSum" used to calculate with .js func -->
+    var allCheckboxes = document.querySelectorAll('input[type=checkbox][name=id]');
+    for (var i = 0; i < allCheckboxes.length; i++) {
+        currentId = allCheckboxes[i].value;
+        if (currentId > 0) {
+            document.getElementById(currentId).addEventListener('click', function(evt){
+                thisID = this.id
+                oldTotal = parseFloat(document.getElementById('selectedSum').innerHTML);
+                selectedValue = parseFloat(document.getElementById('v' + thisID).innerHTML);
+                if (this.checked) {newTotal = oldTotal + selectedValue;} else {newTotal = oldTotal - selectedValue;}
+                console.log('oldTotal: ' + oldTotal);
+                console.log('selectedValue: ' + selectedValue);
+                document.getElementById('selectedSum').innerHTML = newTotal.toFixed(2);
+            });
+        };
+    };
 
     // enable sticky headers on the table
     let elements = document.querySelectorAll('table');

@@ -105,7 +105,7 @@ This optional feature adds some prerequisites:
     - sur les dépenses
     - sur le nombre de requêtes
     - ☑ globales sur les montants dispo par compte
-    - ❗ ajouter le montant total en cours de validation/annulation lors de la sélection des lignes
+    - ☑ ajouter le montant total en cours de validation/annulation lors de la sélection des lignes
     - ❗ partie statistiques globales, garder les montants totaux puis ajouter un tableau année par année
     - ☐ voir ensuite si possible de faire des graphs en JS?
     - ☐ ajouter un filtre à l'année pour avoir des infos sur les mois de l'année filtrée
@@ -135,6 +135,7 @@ This optional feature adds some prerequisites:
 
 
 ## Changelog
+- 2024-02-05 : add current selected total amount to validate or cancel rows.
 - 2024-02-03 : add first pie chart with [D3.js](https://d3js.org/) in the stats page.
 - 2024-02-02 : align numbers in the stats page.
 - 2024-01-28 : fix infinite loop on `force new login` case.
