@@ -15,11 +15,15 @@
     <form id="form" name="form" action="/stats" method="post">
 
         Mode<br>
-        <span id="mode">Le mode <code>Données validées uniquement</code> est activé.</span>
+        {{if .Checked}}
+            <span id="mode">Le mode <code>Données validées uniquement</code> est activé.</span>
+        {{else}}
+            <span id="mode">Le mode <code>Toutes les données</code> est activé.</span>
+        {{end}}
         <label for="switchMode">
-            <!-- red x square -->
             Toutes les données
-            <svg width="24" height="24" viewBox="0 0 24 24" stroke="firebrick"><use xlink:href="/img/icons.svg#feather-x-square"></use></svg>
+            <!-- plus square -->
+            <svg width="24" height="24" viewBox="0 0 24 24"><use xlink:href="/img/icons.svg#feather-plus-square"></use></svg>
             {{if .Checked}}
                 <input type="checkbox" id="switchMode" name="switchMode" role="switch" checked />
             {{else}}
@@ -176,12 +180,6 @@
 </script>
 <script>
     document.getElementById('switchMode').addEventListener('click', function(toggleSwitchMode){
-        if (this.checked) {
-            document.getElementById('mode').innerHTML = `Le mode <code>Données validées uniquement</code> est activé.`
-            document.getElementById("form").submit();
-        } else {
-            document.getElementById('mode').innerHTML = `Le mode <code>Toutes les données</code> est activé.`
-            document.getElementById("form").submit();
-        };
+        document.getElementById("form").submit();
     });
 </script>

@@ -566,7 +566,7 @@ func getStats(c *gin.Context) {
 
     var AccountList, CategoryList [][]string
     var Total []string
-    AccountList, CategoryList, Total = sqlite.GetStatsInFinanceTracker(ctx, db, cookieGofiID, 1)
+    AccountList, CategoryList, Total = sqlite.GetStatsInFinanceTracker(ctx, db, cookieGofiID, 0)
 
     var m sqlite.PieChartD3js
     var CategoryListJsonBinary []sqlite.PieChartD3js
@@ -587,7 +587,7 @@ func getStats(c *gin.Context) {
         "AccountList": AccountList,
         "CategoryList": CategoryList,
         "ResponseJsonString": string(ResponseJsonBinary), // array of dict [{},{}] for d3.js
-        "Checked": true,
+        "Checked": false,
     })
 }
 
