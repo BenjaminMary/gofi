@@ -11,6 +11,28 @@
 
 <h1>Statistiques</h1>
 
+<section>
+    <form id="form" name="form" action="/stats" method="post">
+
+        Mode<br>
+        <span id="mode">Le mode <code>Données validées uniquement</code> est activé.</span>
+        <label for="switchMode">
+            <!-- red x square -->
+            Toutes les données
+            <svg width="24" height="24" viewBox="0 0 24 24" stroke="firebrick"><use xlink:href="/img/icons.svg#feather-x-square"></use></svg>
+            {{if .Checked}}
+                <input type="checkbox" id="switchMode" name="switchMode" role="switch" checked />
+            {{else}}
+                <input type="checkbox" id="switchMode" name="switchMode" role="switch" />
+            {{end}}
+            <!-- green check square -->
+            <svg width="24" height="24" viewBox="0 0 24 24"><use xlink:href="/img/icons.svg#feather-green-check-square"></use></svg>
+            Données validées uniquement
+        </label>
+
+    </form>
+</section>
+
 <section id="stats">
     <div>
         <figure>
@@ -83,7 +105,7 @@
         {name: "10-14", value: 20679786}
     ];*/
     const data = JSON.parse("{{.ResponseJsonString}}");
-    console.log(data);
+    //console.log(data);
 
     // Specify the chart’s dimensions.
     const width = 928;
@@ -151,4 +173,15 @@
 
     container.append(svg.node());
 
+</script>
+<script>
+    document.getElementById('switchMode').addEventListener('click', function(toggleSwitchMode){
+        if (this.checked) {
+            document.getElementById('mode').innerHTML = `Le mode <code>Données validées uniquement</code> est activé.`
+            document.getElementById("form").submit();
+        } else {
+            document.getElementById('mode').innerHTML = `Le mode <code>Toutes les données</code> est activé.`
+            document.getElementById("form").submit();
+        };
+    });
 </script>

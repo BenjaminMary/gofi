@@ -96,7 +96,7 @@ This optional feature adds some prerequisites:
     - ☐ les autres utilisateurs peuvent se connecter en simultané sur le compte sans possibilité d'ajout d'autres nouveaux
     - ☐ 1 ligne de login active par utilisateur, permettra du multi utilisateur / multi login sur différentes plateformes
 - ☐ Ajout de statistiques 
-    - ☐ pouvoir différencier les montants déjà validés vs non validés
+    - ☑ pouvoir différencier les montants déjà validés vs non validés
     - ☑ visualisation des données avec filtre et tri via table simple
         - ☐ voir pour mettre un tableur ? + rendre editable ou suppr de ligne
             - https://github.com/wenzhixin/bootstrap-table
@@ -135,6 +135,7 @@ This optional feature adds some prerequisites:
 
 
 ## Changelog
+- 2024-02-06 : add a switch button in the stats page to show all data or only checked data.
 - 2024-02-05 : add current selected total amount to validate or cancel rows.
 - 2024-02-03 : add first pie chart with [D3.js](https://d3js.org/) in the stats page.
 - 2024-02-02 : align numbers in the stats page.

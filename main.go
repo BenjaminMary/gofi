@@ -566,7 +566,7 @@ func getStats(c *gin.Context) {
 
     var AccountList, CategoryList [][]string
     var Total []string
-    AccountList, CategoryList, Total = sqlite.GetStatsInFinanceTracker(ctx, db, cookieGofiID)
+    AccountList, CategoryList, Total = sqlite.GetStatsInFinanceTracker(ctx, db, cookieGofiID, 1)
 
     var m sqlite.PieChartD3js
     var CategoryListJsonBinary []sqlite.PieChartD3js
@@ -587,6 +587,50 @@ func getStats(c *gin.Context) {
         "AccountList": AccountList,
         "CategoryList": CategoryList,
         "ResponseJsonString": string(ResponseJsonBinary), // array of dict [{},{}] for d3.js
+        "Checked": true,
+    })
+}
+
+
+// POST stats
+func postStats(c *gin.Context) {
+    ctx, cancel := context.WithTimeout(context.TODO(), 2*time.Second)
+    defer cancel()
+
+    cookieGofiID, _ := CheckCookie(ctx, c, db)
+    if c.IsAborted() {return}
+
+    modeBoolStr := c.PostForm("switchMode")
+    //fmt.Printf("modeBoolStr: %#v\n", modeBoolStr)
+    var checkedDataOnly int
+    if modeBoolStr == "on" {checkedDataOnly = 1} else {checkedDataOnly = 0}
+    var checked bool
+    if checkedDataOnly == 1 {checked = true} else {checked = false}
+
+    var AccountList, CategoryList [][]string
+    var Total []string
+    AccountList, CategoryList, Total = sqlite.GetStatsInFinanceTracker(ctx, db, cookieGofiID, checkedDataOnly)
+
+    var m sqlite.PieChartD3js
+    var CategoryListJsonBinary []sqlite.PieChartD3js
+    for _, element := range CategoryList {
+        m.Price, _ = strconv.ParseFloat(element[1], 64)
+        if (m.Price < 0){
+            m.Category = element[0]
+            m.Price = m.Price * -1
+            //m.Quantity = element[2]
+            CategoryListJsonBinary = append(CategoryListJsonBinary, m)
+        }
+    }
+    ResponseJsonBinary, _ := json.Marshal(CategoryListJsonBinary)
+    //fmt.Println(string(ResponseJsonBinary))
+
+    c.HTML(http.StatusOK, "6.stats.html", gin.H{
+        "Total": Total,
+        "AccountList": AccountList,
+        "CategoryList": CategoryList,
+        "ResponseJsonString": string(ResponseJsonBinary), // array of dict [{},{}] for d3.js
+        "Checked": checked,
     })
 }
 
@@ -708,6 +752,7 @@ func main() {
     router.POST("/validaterows", postValidateRows)
 
     router.GET("/stats", getStats)
+    router.POST("/stats", postStats)
 
     router.GET("/export-csv", getExportCsv)
     router.POST("/export-csv", postExportCsv)

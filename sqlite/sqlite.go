@@ -376,22 +376,24 @@ func InsertRowInParam(p *Param) (int64, error) {
 }
 
 
-func GetStatsInFinanceTracker(ctx context.Context, db *sql.DB, gofiID int) ([][]string, [][]string, []string) {
+func GetStatsInFinanceTracker(ctx context.Context, db *sql.DB, gofiID int, checkedDataOnly int) ([][]string, [][]string, []string) {
 	var statsAccountList, statsCategoryList [][]string // [account1, sum1, count1], [...,] | [category1, sum1, count1], [...,]
 	var totalList []string // [total, total, sum, count]
 	q1 := ` 
 		SELECT account, SUM(priceIntx100), COUNT(1)
 		FROM financeTracker
 		WHERE gofiID = ?
+			AND checked IN (1, ?)
 		GROUP BY account
 	`
 	q2 := ` 
 		SELECT category, SUM(priceIntx100), COUNT(1)
 		FROM financeTracker
 		WHERE gofiID = ?
+			AND checked IN (1, ?)
 		GROUP BY category
 	`
-	rows, err := db.QueryContext(ctx, q1, gofiID)
+	rows, err := db.QueryContext(ctx, q1, gofiID, checkedDataOnly)
 	if err != nil {
 		log.Fatal("error on DB query1: ", err)
 	}
@@ -413,7 +415,7 @@ func GetStatsInFinanceTracker(ctx context.Context, db *sql.DB, gofiID int) ([][]
 	// fmt.Printf("statsList: %#v\n", statsList)
 	rows.Close()
 
-	rows, err = db.QueryContext(ctx, q2, gofiID)
+	rows, err = db.QueryContext(ctx, q2, gofiID, checkedDataOnly)
 	if err != nil {
 		log.Fatal("error on DB query2: ", err)
 	}
