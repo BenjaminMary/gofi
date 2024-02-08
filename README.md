@@ -9,9 +9,11 @@ Features supported (all the data are registered in a local SQLite DB):
     - create users
     - auth with 1 active session per user
     - save general parameters preferences per user
-    - record expenses per user
+    - record expenses per user, account and category
+    - validate or cancel each record
     - import CSV files to insert/update data in bulk
-    - export CSV files to keep/use all the data with other apps 
+    - export CSV files to keep/use all the data with other apps
+    - stats year by year with current balance available per account
 - admin features
     - (optional) generate and manage backup
 
@@ -102,13 +104,11 @@ This optional feature adds some prerequisites:
             - https://github.com/wenzhixin/bootstrap-table
             - https://github.com/jspreadsheet/ce
                 - https://bossanova.uk/jspreadsheet/v4/docs/quick-reference
-    - sur les dépenses
-    - sur le nombre de requêtes
+    - sur le nombre de requêtes des utilisateurs pour voir les actifs ? (tableau admin?)
     - ☑ globales sur les montants dispo par compte
     - ☑ ajouter le montant total en cours de validation/annulation lors de la sélection des lignes
-    - ❗ partie statistiques globales, garder les montants totaux puis ajouter un tableau année par année
+    - ☑ partie statistiques globales, gestion année par année avec input
     - ☐ voir ensuite si possible de faire des graphs en JS?
-    - ☐ ajouter un filtre à l'année pour avoir des infos sur les mois de l'année filtrée
     - ☐ affichage HTML, ajouter un séparateur de miliers + tout orienter à droite lorsque chiffres?
 - Ajout sauvegarde DB SQLite sur Drive
     - ☑ avec table SQLite qui garde les ID + nom + date de fichiers sauvegardés + le statut de l'upload (pas besoin l'API Google redonne toutes les infos)
@@ -135,6 +135,7 @@ This optional feature adds some prerequisites:
 
 
 ## Changelog
+- 2024-02-08 : on stats page, add the year with the current one by default.
 - 2024-02-06 : add a switch button in the stats page to show all data or only checked data.
 - 2024-02-05 : add current selected total amount to validate or cancel rows.
 - 2024-02-03 : add first pie chart with [D3.js](https://d3js.org/) in the stats page.

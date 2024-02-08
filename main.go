@@ -564,9 +564,13 @@ func getStats(c *gin.Context) {
     cookieGofiID, _ := CheckCookie(ctx, c, db)
     if c.IsAborted() {return}
 
+    const YearOnly = "2006" // YYYY
+    currentTime := time.Now()
+    Year, _ := strconv.Atoi(currentTime.Format(YearOnly)) // YYYY
+
     var AccountList, CategoryList [][]string
     var Total []string
-    AccountList, CategoryList, Total = sqlite.GetStatsInFinanceTracker(ctx, db, cookieGofiID, 0)
+    AccountList, CategoryList, Total = sqlite.GetStatsInFinanceTracker(ctx, db, cookieGofiID, 0, Year)
 
     var m sqlite.PieChartD3js
     var CategoryListJsonBinary []sqlite.PieChartD3js
@@ -583,6 +587,7 @@ func getStats(c *gin.Context) {
     //fmt.Println(string(ResponseJsonBinary))
 
     c.HTML(http.StatusOK, "6.stats.html", gin.H{
+        "Year": Year,
         "Total": Total,
         "AccountList": AccountList,
         "CategoryList": CategoryList,
@@ -600,6 +605,9 @@ func postStats(c *gin.Context) {
     cookieGofiID, _ := CheckCookie(ctx, c, db)
     if c.IsAborted() {return}
 
+    yearStr := c.PostForm("annee")
+    Year, _ := strconv.Atoi(yearStr)
+
     modeBoolStr := c.PostForm("switchMode")
     //fmt.Printf("modeBoolStr: %#v\n", modeBoolStr)
     var checkedDataOnly int
@@ -609,7 +617,7 @@ func postStats(c *gin.Context) {
 
     var AccountList, CategoryList [][]string
     var Total []string
-    AccountList, CategoryList, Total = sqlite.GetStatsInFinanceTracker(ctx, db, cookieGofiID, checkedDataOnly)
+    AccountList, CategoryList, Total = sqlite.GetStatsInFinanceTracker(ctx, db, cookieGofiID, checkedDataOnly, Year)
 
     var m sqlite.PieChartD3js
     var CategoryListJsonBinary []sqlite.PieChartD3js
@@ -626,6 +634,7 @@ func postStats(c *gin.Context) {
     //fmt.Println(string(ResponseJsonBinary))
 
     c.HTML(http.StatusOK, "6.stats.html", gin.H{
+        "Year": Year,
         "Total": Total,
         "AccountList": AccountList,
         "CategoryList": CategoryList,
