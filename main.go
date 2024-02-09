@@ -237,6 +237,7 @@ func postLogin(c *gin.Context) {
 
     gofiID, errorStrReason, err := sqlite.CheckUserLogin(User)
     if err != nil {
+        fmt.Println("error after CheckUserLogin in postLogin")
         fmt.Printf("errorStrReason: %v\n", errorStrReason)
         fmt.Printf("err: %v\n", err)
         c.Header("HX-Retarget", "#forbidden")

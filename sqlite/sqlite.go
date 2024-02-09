@@ -217,7 +217,7 @@ func CheckUserLogin(user User) (int, string, error) {
 
 	rows.Next()
 	var gofiID int = 0
-	if err := rows.Scan(&gofiID); err != nil { return 0, "error on SELECT gofiID", err }
+	if err := rows.Scan(&gofiID); err != nil { return 0, "error on SELECT gofiID inside CheckUserLogin", err }
 	rows.Close()
 	if (gofiID > 0) {
 		_, err := db.Exec(`
@@ -292,7 +292,7 @@ func GetGofiID(ctx context.Context, db *sql.DB, sessionID string) (int, string, 
 	rows.Next()
 	var gofiID int = 0
 	var email, idleTimeout, absoluteTimeout, currentTimeUTC string
-	if err := rows.Scan(&gofiID,&email,&idleTimeout,&absoluteTimeout,&currentTimeUTC); err != nil { return 0, "", "error on SELECT gofiID", err }
+	if err := rows.Scan(&gofiID,&email,&idleTimeout,&absoluteTimeout,&currentTimeUTC); err != nil { return 0, "", "error on SELECT gofiID inside GetGofiID", err }
 	rows.Close()
 
 	timeCurrentTimeUTC, err := time.Parse(time.RFC3339, currentTimeUTC)

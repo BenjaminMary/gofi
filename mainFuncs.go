@@ -98,7 +98,18 @@ func CheckCookie(ctx context.Context, c *gin.Context, db *sql.DB) (int, string) 
             fmt.Printf("errorStrReason: %v\n", errorStrReason)
             fmt.Printf("err: %v\n", err)
         }
-        fmt.Println("force new login")
+        fmt.Println("force new login, absoluteTimeout")
+        c.Redirect(http.StatusSeeOther, "/login")
+        c.Abort()
+        return 0, ""
+    } else if (gofiID == 0) {
+        SetCookie(c, "force-new-login")
+        successfull, errorStrReason, err := sqlite.ForceNewLogin(gofiID)
+        if !successfull {
+            fmt.Printf("errorStrReason: %v\n", errorStrReason)
+            fmt.Printf("err: %v\n", err)
+        }
+        fmt.Println("force new login, current cookie does not match")
         c.Redirect(http.StatusSeeOther, "/login")
         c.Abort()
         return 0, ""

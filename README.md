@@ -135,12 +135,13 @@ This optional feature adds some prerequisites:
 
 
 ## Changelog
+- 2024-02-09 : fix infinite login loop on `current cookie does not match` case.
 - 2024-02-08 : on stats page, add the year with the current one by default.
 - 2024-02-06 : add a switch button in the stats page to show all data or only checked data.
 - 2024-02-05 : add current selected total amount to validate or cancel rows.
 - 2024-02-03 : add first pie chart with [D3.js](https://d3js.org/) in the stats page.
 - 2024-02-02 : align numbers in the stats page.
-- 2024-01-28 : fix infinite loop on `force new login` case.
+- 2024-01-28 : fix infinite login loop on `force new login` case.
 - 2024-01-13 : switch simple UTF-8 encoding for csv files to UTF-8 with BOM, which is well handled in Excel by default.
 - 2024-01-09 : new global statistics page.
 - 2024-01-09 : fix advanced mode to validate or cancel already checked records.
