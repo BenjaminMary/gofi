@@ -376,24 +376,26 @@ func InsertRowInParam(p *Param) (int64, error) {
 }
 
 
-func GetStatsInFinanceTracker(ctx context.Context, db *sql.DB, gofiID int, checkedDataOnly int, year int) ([][]string, [][]string, []string) {
+func GetStatsInFinanceTracker(ctx context.Context, db *sql.DB, gofiID int, checkedDataOnly int, year int) ([][]string, [][]string, []string, []string) {
 	var statsAccountList, statsCategoryList [][]string // [account1, sum1, count1], [...,] | [category1, sum1, count1], [...,]
-	var totalList []string // [total, total, sum, count]
+	var totalAccountList, totalCategoryList []string // [total, total, sum, count]
 	q1 := ` 
-		SELECT account, SUM(priceIntx100), COUNT(1)
+		SELECT account, SUM(priceIntx100) AS sum, COUNT(1) AS c
 		FROM financeTracker
 		WHERE gofiID = ?
 			AND checked IN (1, ?)
 			AND year <= ?
 		GROUP BY account
+		ORDER BY sum DESC
 	`
 	q2 := ` 
-		SELECT category, SUM(priceIntx100), COUNT(1)
+		SELECT category, SUM(priceIntx100) AS sum, COUNT(1) AS c
 		FROM financeTracker
 		WHERE gofiID = ?
 			AND checked IN (1, ?)
 			AND year = ?
 		GROUP BY category
+		ORDER BY sum ASC
 	`
 	rows, err := db.QueryContext(ctx, q1, gofiID, checkedDataOnly, year)
 	if err != nil {
@@ -413,7 +415,7 @@ func GetStatsInFinanceTracker(ctx context.Context, db *sql.DB, gofiID int, check
 		statsRow = append(statsRow, account, ConvertPriceIntToStr(sum), strconv.Itoa(count))
 		statsAccountList = append(statsAccountList, statsRow)
 	}
-	totalList = append(totalList, ConvertPriceIntToStr(totalPriceIntx100), strconv.Itoa(totalRows))
+	totalAccountList = append(totalAccountList, ConvertPriceIntToStr(totalPriceIntx100), strconv.Itoa(totalRows))
 	// fmt.Printf("statsList: %#v\n", statsList)
 	rows.Close()
 
@@ -421,6 +423,8 @@ func GetStatsInFinanceTracker(ctx context.Context, db *sql.DB, gofiID int, check
 	if err != nil {
 		log.Fatal("error on DB query2: ", err)
 	}
+	totalPriceIntx100 = 0
+	totalRows = 0
 	for rows.Next() {
 		var statsRow []string
 		var category string
@@ -428,10 +432,14 @@ func GetStatsInFinanceTracker(ctx context.Context, db *sql.DB, gofiID int, check
 		if err := rows.Scan(&category, &sum, &count); err != nil {
 			log.Fatal(err)
 		}
+		totalPriceIntx100 += sum
+		totalRows += count
 		statsRow = append(statsRow, category, ConvertPriceIntToStr(sum), strconv.Itoa(count))
 		statsCategoryList = append(statsCategoryList, statsRow)
 	}
-	return statsAccountList, statsCategoryList, totalList
+	totalCategoryList = append(totalCategoryList, ConvertPriceIntToStr(totalPriceIntx100), strconv.Itoa(totalRows))
+	rows.Close()
+	return statsAccountList, statsCategoryList, totalAccountList, totalCategoryList
 }
 
 func GetRowsInFinanceTracker(ctx context.Context, db *sql.DB, filter *FilterRows) ([]FinanceTracker, string, int) {

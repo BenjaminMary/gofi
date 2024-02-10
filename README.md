@@ -76,8 +76,8 @@ This optional feature adds some prerequisites:
 ☑☐☒
 - dès que toutes les fonctionnalités essentielles sont en place, démarrer des tests fonctionnels
 - fix
-    - ❗ pb lorsqu'un cookie qui était valide est présent, on se connecte sur un autre appareil, ce qui le rend obsolète, puis on retente la connexion depuis l'appareil avec le cookie obsolète, génère une boucle de redirection infinie
-    - ☑ pb lors des cas de `force new login` qui génère une boucle infinie
+    - ☑ pb lorsqu'un cookie qui était valide est présent, on se connecte sur un autre appareil, ce qui le rend obsolète, puis on retente la connexion depuis l'appareil avec le cookie obsolète, génère une boucle de redirection sur login infinie
+    - ☑ pb lors des cas de `force new login` qui génère une boucle de login infinie
 - ☐ ajout préférences utilisateur:
     - ☐ gestion des préférences de format de date EN + FR avec / ou -
     - ☐ gestion des préférences de format csv séparateur colonne + separateur décimal
@@ -108,8 +108,8 @@ This optional feature adds some prerequisites:
     - ☑ globales sur les montants dispo par compte
     - ☑ ajouter le montant total en cours de validation/annulation lors de la sélection des lignes
     - ☑ partie statistiques globales, gestion année par année avec input
-    - ☐ voir ensuite si possible de faire des graphs en JS?
-    - ☐ affichage HTML, ajouter un séparateur de miliers + tout orienter à droite lorsque chiffres?
+    - ☑ ajout de graphs en D3.js
+    - ☑ affichage HTML, tout orienter à droite lorsque chiffres (☒ ajouter un séparateur de miliers?)
 - Ajout sauvegarde DB SQLite sur Drive
     - ☑ avec table SQLite qui garde les ID + nom + date de fichiers sauvegardés + le statut de l'upload (pas besoin l'API Google redonne toutes les infos)
     - ☑ voir pour fermer le server et faire la sauvegarde au restart après quelques commandes de nettoyage de DB (semble ok)
@@ -135,6 +135,7 @@ This optional feature adds some prerequisites:
 
 
 ## Changelog
+- 2024-02-10 : update pie chart and add ordering on the stats page.
 - 2024-02-09 : fix infinite login loop on `current cookie does not match` case.
 - 2024-02-08 : on stats page, add the year with the current one by default.
 - 2024-02-06 : add a switch button in the stats page to show all data or only checked data.

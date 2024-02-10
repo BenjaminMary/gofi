@@ -570,8 +570,8 @@ func getStats(c *gin.Context) {
     Year, _ := strconv.Atoi(currentTime.Format(YearOnly)) // YYYY
 
     var AccountList, CategoryList [][]string
-    var Total []string
-    AccountList, CategoryList, Total = sqlite.GetStatsInFinanceTracker(ctx, db, cookieGofiID, 0, Year)
+    var TotalAccount, TotalCategory []string
+    AccountList, CategoryList, TotalAccount, TotalCategory = sqlite.GetStatsInFinanceTracker(ctx, db, cookieGofiID, 0, Year)
 
     var m sqlite.PieChartD3js
     var CategoryListJsonBinary []sqlite.PieChartD3js
@@ -589,7 +589,8 @@ func getStats(c *gin.Context) {
 
     c.HTML(http.StatusOK, "6.stats.html", gin.H{
         "Year": Year,
-        "Total": Total,
+        "TotalAccount": TotalAccount,
+        "TotalCategory": TotalCategory,
         "AccountList": AccountList,
         "CategoryList": CategoryList,
         "ResponseJsonString": string(ResponseJsonBinary), // array of dict [{},{}] for d3.js
@@ -617,8 +618,8 @@ func postStats(c *gin.Context) {
     if checkedDataOnly == 1 {checked = true} else {checked = false}
 
     var AccountList, CategoryList [][]string
-    var Total []string
-    AccountList, CategoryList, Total = sqlite.GetStatsInFinanceTracker(ctx, db, cookieGofiID, checkedDataOnly, Year)
+    var TotalAccount, TotalCategory []string
+    AccountList, CategoryList, TotalAccount, TotalCategory = sqlite.GetStatsInFinanceTracker(ctx, db, cookieGofiID, checkedDataOnly, Year)
 
     var m sqlite.PieChartD3js
     var CategoryListJsonBinary []sqlite.PieChartD3js
@@ -636,7 +637,8 @@ func postStats(c *gin.Context) {
 
     c.HTML(http.StatusOK, "6.stats.html", gin.H{
         "Year": Year,
-        "Total": Total,
+        "TotalAccount": TotalAccount,
+        "TotalCategory": TotalCategory,
         "AccountList": AccountList,
         "CategoryList": CategoryList,
         "ResponseJsonString": string(ResponseJsonBinary), // array of dict [{},{}] for d3.js
