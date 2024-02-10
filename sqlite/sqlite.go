@@ -629,54 +629,53 @@ func InsertRowInFinanceTracker(ctx context.Context, db *sql.DB, ft *FinanceTrack
 	return id, nil
 }
 
-func ExportCSV(gofiID int, csvSeparator rune, csvDecimalDelimiter string, dateFormat string, dateSeparator string) {
+func ExportCSV(ctx context.Context, db *sql.DB, gofiID int, csvSeparator rune, csvDecimalDelimiter string, dateFormat string, dateSeparator string) int {
 	/* take all data from the DB for a specific gofiID and put it in a csv file 
 		1. read database with gofiID
 		2. write row by row in a csv (include headers)
-	*/
-	db, err := sql.Open("sqlite", DbPath)
-	if err != nil {
-		log.Fatal("error opening DB file: ", err)
-		return
-	}
-	defer db.Close()
-	defer db.Exec("PRAGMA optimize;") // to run just before closing each database connection.
-	defer fmt.Println("defer : optimize then close DB")
-	
+	*/	
 	q := ` 
 		SELECT id, year, month, day,
 			account, product, priceIntx100, category, 
-			commentInt, commentString, checked, dateChecked, exported
+			commentInt, commentString, checked, dateChecked
 		FROM financeTracker
 		WHERE gofiID = ?
+			AND exported = 0
 		ORDER BY id
 		LIMIT 10000;
 	`
-	rows, err := db.Query(q, gofiID)
-
+	rows, err := db.QueryContext(ctx, q, gofiID)
+	if err != nil { 
+		fmt.Printf("error on SELECT financeTracker in ExportCSV, id: %v, err: %#v\n", gofiID, err)
+	}
 	file, err := os.Create(FilePath("gofi-" + strconv.Itoa(gofiID) + ".csv"))
 	defer file.Close()
 	w := csv.NewWriter(file)
 	w.Comma = csvSeparator //french CSV file = ;
     defer w.Flush()
 
-	//write csv headers
-	row := []string{"𫝀é ꮖꭰ", "Date",
-		"Account", "Product", "PriceStr", "Category", 
-		"CommentInt", "CommentString", "Checked", "DateChecked", "Exported", 
-		""} //keeping an empty column at the end will handle the LF and CRLF cases
-	if err := w.Write(row); err != nil {
-		fmt.Printf("row error: %v\n", row)
-		log.Fatalln("error writing record to file", err)
-	}
+	var nbRows int = 0
+	var row []string
 	for rows.Next() {
+		nbRows += 1
+		if nbRows == 1 {
+			//write csv headers
+			row = []string{"𫝀é ꮖꭰ", "Date",
+				"Account", "Product", "PriceStr", "Category", 
+				"CommentInt", "CommentString", "Checked", "DateChecked", "Exported", 
+				""} //keeping an empty column at the end will handle the LF and CRLF cases
+			if err := w.Write(row); err != nil {
+				fmt.Printf("row error 1: %v\n", row)
+				log.Fatalln("error writing record to file", err)
+			}
+		}
 		var ft FinanceTracker
 		var successfull bool
 		var unsuccessfullReason string
 		if err := rows.Scan(
 				&ft.ID, &ft.Year, &ft.Month, &ft.Day,
 				&ft.Account, &ft.Product, &ft.PriceIntx100, &ft.Category,
-				&ft.CommentInt, &ft.CommentString, &ft.Checked, &ft.DateChecked, &ft.Exported,
+				&ft.CommentInt, &ft.CommentString, &ft.Checked, &ft.DateChecked,
 			); err != nil {
 			log.Fatal(err)
 		}
@@ -686,18 +685,59 @@ func ExportCSV(gofiID int, csvSeparator rune, csvDecimalDelimiter string, dateFo
 
         row = []string{strconv.Itoa(ft.ID), ft.Date, 
 			ft.Account, ft.Product, ft.FormPriceStr2Decimals, ft.Category, 
-			strconv.Itoa(ft.CommentInt), ft.CommentString, strconv.FormatBool(ft.Checked), ft.DateChecked, strconv.FormatBool(ft.Exported), ""}
+			strconv.Itoa(ft.CommentInt), ft.CommentString, strconv.FormatBool(ft.Checked), ft.DateChecked, "true", ""}
         if err := w.Write(row); err != nil {
-			fmt.Printf("row error: %v\n", row)
+			fmt.Printf("row error 2: %v\n", row)
             log.Fatalln("error writing record to file", err)
         }
-
+	}
+	if nbRows == 0 {
+		row = []string{"Rien à télécharger"}
+        if err := w.Write(row); err != nil {
+			fmt.Printf("row error 3: %v\n", row)
+            log.Fatalln("error writing record to file", err)
+        }
 	}
 	rows.Close()
+	return nbRows
+}
+func ExportCSVdownload(ctx context.Context, db *sql.DB, gofiID int) {
+	q := ` 
+		UPDATE financeTracker
+		SET exported = 1
+		WHERE gofiID = ?
+			AND id IN (
+				SELECT id
+				FROM financeTracker
+				WHERE gofiID = ?
+					AND exported = 0
+				ORDER BY id
+				LIMIT 10000		
+			);
+	`
+	_, err := db.ExecContext(ctx, q, gofiID, gofiID)
+	if err != nil { 
+		fmt.Printf("error on UPDATE financeTracker with exported = 1, id: %v, err: %#v\n", gofiID, err)
+	}
+	return
+}
+func ExportCSVreset(ctx context.Context, db *sql.DB, gofiID int) {
+	q := ` 
+		UPDATE financeTracker
+		SET exported = 0
+		WHERE gofiID = ?
+			AND exported = 1;
+	`
+	_, err := db.ExecContext(ctx, q, gofiID)
+	if err != nil { 
+		fmt.Printf("error on UPDATE financeTracker with exported = 0, id: %v, err: %#v\n", gofiID, err)
+	}
+	return
 }
 
 
-func ImportCSV(gofiID int, email string, csvSeparator rune, csvDecimalDelimiter string, dateFormat string, dateSeparator string, csvFile *multipart.FileHeader) string {
+func ImportCSV(ctx context.Context, db *sql.DB, 
+	gofiID int, email string, csvSeparator rune, csvDecimalDelimiter string, dateFormat string, dateSeparator string, csvFile *multipart.FileHeader) string {
 	/* take all data from the csv and put it in the DB with a specific gofiID
 		1. rows without ID are new ones (INSERT)
 		2. rows with ID are existing ones (UPDATE)
@@ -706,15 +746,6 @@ func ImportCSV(gofiID int, email string, csvSeparator rune, csvDecimalDelimiter 
 	*/
 	var stringList string
 	stringList += "traitement fichier pour: " + email + "\n"
-	db, err := sql.Open("sqlite", DbPath)
-	if err != nil {
-		stringList += "erreur de base de données, merci de réessayer plus tard."
-		log.Fatal("error opening DB file: ", err)
-		return stringList
-	}
-	defer db.Close()
-	defer db.Exec("PRAGMA optimize;") // to run just before closing each database connection.
-	defer fmt.Println("defer : optimize then close DB")
 
 	if (csvFile.Size > 1000000) {
 		stringList += "Fichier trop lourd: " + strconv.FormatInt(csvFile.Size, 10)
@@ -740,6 +771,7 @@ func ImportCSV(gofiID int, email string, csvSeparator rune, csvDecimalDelimiter 
 	var ft FinanceTracker
 	var lineInfo, unsuccessfullReason, controlEncoding, controlLastValidColumn, validControlEncodingUTF8, validControlEncodingUTF8withBOM string
 	var successfull bool
+	var flagErr int = 0
 	ft.GofiID = gofiID
 	stringList += "𫝀é ꮖꭰ;Date;CommentInt;Checked;exported;NewID;Updated;\n"
 	for index, row := range rows {
@@ -788,6 +820,7 @@ func ImportCSV(gofiID int, email string, csvSeparator rune, csvDecimalDelimiter 
 		if err != nil { // Always check errors even if they should not happen.
 			ft.ID = 0
 			lineInfo += "INSERT;"
+			flagErr += 1
 		} else { 
 			if ft.ID > 0 {
 				lineInfo += "UPDATE " + row[0] + ";" 
@@ -862,7 +895,7 @@ func ImportCSV(gofiID int, email string, csvSeparator rune, csvDecimalDelimiter 
 		}
 		if (ft.ID == 0) {
 			// INSERT
-			exec, err := db.Exec(`
+			exec, err := db.ExecContext(ctx, `
 				INSERT INTO financeTracker (gofiID, year, month, day, account, product, priceIntx100, category,
 					commentInt, commentString, checked, dateChecked, exported)
 				VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?);
@@ -870,13 +903,21 @@ func ImportCSV(gofiID int, email string, csvSeparator rune, csvDecimalDelimiter 
 				ft.GofiID, ft.Year, ft.Month, ft.Day, ft.Account, ft.Product, ft.PriceIntx100, ft.Category,
 				ft.CommentInt, ft.CommentString, ft.Checked, ft.DateChecked, ft.Exported,
 			)
-			if err != nil {lineInfo += "error1;false;"} else {
+			if err != nil {
+				lineInfo += "error1;false;"
+				fmt.Printf("error1: %#v\n", err)
+				flagErr += 1
+			} else {
 				rowID, err := exec.LastInsertId()
-				if err != nil {lineInfo += "error2;false;"} else {lineInfo += strconv.FormatInt(rowID, 10) + ";true;"}
+				if err != nil {
+					lineInfo += "error2;false;"
+					fmt.Printf("error2: %#v\n", err)
+					flagErr += 1
+				} else {lineInfo += strconv.FormatInt(rowID, 10) + ";true;"}
 			}
 		} else if (ft.ID > 0) {
 			// UPDATE
-			result, err := db.Exec(`
+			result, err := db.ExecContext(ctx, `
 				UPDATE financeTracker 
 				SET year = ?, month = ?, day = ?, account = ?, product = ?, priceIntx100 = ?, category = ?,
 					commentInt = ?, commentString = ?, checked = ?, dateChecked = ?, exported = ?
@@ -887,14 +928,23 @@ func ImportCSV(gofiID int, email string, csvSeparator rune, csvDecimalDelimiter 
 				ft.CommentInt, ft.CommentString, ft.Checked, ft.DateChecked, ft.Exported,
 				ft.ID, ft.GofiID,
 			)
-			if err != nil {lineInfo += "error3;false;"} else {
+			if err != nil {
+				lineInfo += "error3;false;"
+				fmt.Printf("error3: %#v\n", err)
+				flagErr += 1
+			} else {
 				rows, err := result.RowsAffected()
-				if err != nil {lineInfo += "error4;false;"} else {
+				if err != nil {
+					lineInfo += "error4;false;"
+					fmt.Printf("error4: %#v\n", err)
+					flagErr += 1
+				} else {
 					if rows != 1 {lineInfo += "unknown ID;false;"} else {lineInfo += ";true;"}
 				}
 			}
 		}
 		stringList += lineInfo + "\n"
 	}
+	stringList = "erreurs rencontrées: " + strconv.Itoa(flagErr) + "\n" + stringList
 	return stringList
 }

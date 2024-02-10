@@ -78,18 +78,22 @@ This optional feature adds some prerequisites:
 - fix
     - ☑ pb lorsqu'un cookie qui était valide est présent, on se connecte sur un autre appareil, ce qui le rend obsolète, puis on retente la connexion depuis l'appareil avec le cookie obsolète, génère une boucle de redirection sur login infinie
     - ☑ pb lors des cas de `force new login` qui génère une boucle de login infinie
+- ☐ ajout système de données récurrentes:
+    - ☐ factures + revenus mensuelles
+- ☐ ajout système de budget:
+    - ☐ budget de dépense par catégorie
 - ☐ ajout préférences utilisateur:
     - ☐ gestion des préférences de format de date EN + FR avec / ou -
     - ☐ gestion des préférences de format csv séparateur colonne + separateur décimal
     - ☐ laisser l'overide possible dans les parties import/export csv, mais préselectionner la préférence
 - ☐ partie import export CSV: 
-    - ☐ MAJ le champ `exported` lors des exports et modifications de données
+    - ☑ MAJ le champ `exported` lors des exports et modifications de données
     - ☐ mettre un champ `lastCSVexport` de type date par user à ramener dans le menu (ok si - d'1 mois, ko sinon)
         - ☐ compter le nombre de lignes à exporter et afficher/bloquer un import si différent de 0 ?
-    - ☐ ajouter un template de fichier csv
-    - ☐ objectif: chaque export génère un fichier avec l'ensemble des dernières modifs
-        - ☐ en jouant toutes les sauvegardes historisées dans l'ordre chronologique, on retrouve l'état des données souhaité
-        - ☐ mettre une option d'export de toutes les lignes même celles non modifiées
+    - ☑ ajouter un template de fichier csv (dispo partie import dans les explications)
+    - ☑ objectif: chaque export génère un fichier avec l'ensemble des dernières modifs
+        - ☑ en jouant toutes les sauvegardes historisées dans l'ordre chronologique, on retrouve l'état des données souhaité
+        - ☑ ajout d'une option de RAZ de la colonne `exported`
 - ☑ ajout validation des dépenses
     - ☑ système qui ramène l'ensemble des lignes encore non validées
     - ☑ voir pour permettre de la validation de groupe en saisissant une date unique et en sélectionnant X lignes
@@ -135,6 +139,7 @@ This optional feature adds some prerequisites:
 
 
 ## Changelog
+- 2024-02-11 : save an `exported` state for each row and export only the new ones. Add a system to reset this state.
 - 2024-02-10 : update pie chart and add ordering on the stats page.
 - 2024-02-09 : fix infinite login loop on `current cookie does not match` case.
 - 2024-02-08 : on stats page, add the year with the current one by default.

@@ -83,16 +83,21 @@
 </section>
 
 <section id="dl">
-    <h3>Téléchargement</h3>
-    <button id="download">
-        <!-- download cloud -->
-        <svg width="24" height="24" viewBox="0 0 24 24"><use xlink:href="/img/icons.svg#feather-download-cloud"></use></svg>
-        Télécharger le fichier CSV
-    </button>
+    <form id="formDL"
+        hx-post="/export-csv-download">
+        <h3>Téléchargement</h3>
+        <button id="download" type="submit">
+            <!-- download cloud -->
+            <svg width="24" height="24" viewBox="0 0 24 24"><use xlink:href="/img/icons.svg#feather-download-cloud"></use></svg>
+            Télécharger le fichier CSV
+        </button>
+    </form>
     <textarea id="filename" rows="1" readonly>{{.FileName}}</textarea>
-    <textarea id="filecontent" rows="10" readonly></textarea>
+    <textarea id="filecontent" rows="10" readonly>Rien à télécharger</textarea>
     <p>
-        Le fichier téléchargé est au format UTF-8 avec BOM et fin de ligne LF (Unix), les données sont limités aux 10 000 derniers enregistrements.
+        Le fichier téléchargé est au format UTF-8 avec BOM et fin de ligne LF (Unix), les données sont limités aux 10 000 derniers enregistrements.<br>
+        Chaque export générera un fichier avec l'ensemble des dernières modifications encore non exportées.<br>
+        L'objectif est ensuite de pouvoir réimporter tous ces fichiers dans l'ordre pour pouvoir retrouver toutes ses données.
         <hr>
         L'ouverture dans Excel par défaut est correctement prise en charge grace au BOM sans avoir de problème d'affichage concernant les accents.<br>
         En cas de problème, une méthode est disponible ci-dessous, mais elle ne devrait pas être nécessaire:
@@ -101,7 +106,35 @@
             <li>modifier le paramètre <code>Origine du fichier</code> en <code>65001 : Unicode (UTF-8)</code></li>
         </ol>
     </p>
+    <hr>
 </section>
+
+<section id="reset">
+    <details>
+        <summary>
+            <strong>RAZ du statut exporté</strong><br>
+            <small><i>Permet de télécharger à nouveau l'ensemble des données.</i></small>        
+        </summary>
+        <p>
+            Cette remise à zéro de la colonne <code>Exported</code> va permettre de télécharger de nouveau l'ensemble des données.<br>
+            Sans utiliser cette option, un export pour 1 ligne de donnée est effectué une unique fois.
+        </p>
+        <form id="formReset"
+            hx-post="/export-csv-reset">
+            <button id="reset" type="submit">
+                <!-- download cloud -->
+                <svg width="24" height="24" viewBox="0 0 24 24" stroke="currentColor"><use xlink:href="/img/icons.svg#feather-rewind"></use></svg>
+                Remise à zéro
+            </button>
+        </form>
+    </details>
+</section>
+
+<a href=""><button class="secondary outline">
+    <!-- refresh clockwise -->
+    <svg width="24" height="24" viewBox="0 0 24 24"><use xlink:href="/img/icons.svg#feather-refresh-cw"></use></svg>
+    Rafraichir la page pour refaire des modifications
+</button></a>
 
 {{template "footer" .}}
 

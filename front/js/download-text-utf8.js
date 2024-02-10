@@ -12,12 +12,24 @@ function download(filename, text) {
 }
 
 // Start file download.
-document.getElementById("download").addEventListener("click", function(){
-    // Generate download of csv file with content
-    var filename = document.getElementById("filename").value;
-    // "\uFEFF" = BOM : to generate an UTF-8 file with BOM
-    var text = "\uFEFF" + document.getElementById("filecontent").value;
-    download(filename, text);
+// check JS before submitting the HTMX request
+document.body.addEventListener("htmx:confirm", function(evt){
+    evt.preventDefault();
+    if (evt.detail.path != "/export-csv-download"){
+        evt.detail.issueRequest();
+    } else {
+        fileContent = document.getElementById("filecontent").value
+        if (fileContent.substring(0, 4) == "Rien"){
+            window.alert("Rien à télécharger");
+        } else {
+            // Generate download of csv file with content
+            var filename = document.getElementById("filename").value;
+            // "\uFEFF" = BOM : to generate an UTF-8 file with BOM
+            var text = "\uFEFF" + fileContent;
+            download(filename, text);
+            evt.detail.issueRequest();
+        }
+    }
 }, false);
 
 /* 

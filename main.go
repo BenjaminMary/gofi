@@ -680,11 +680,35 @@ func postExportCsv(c *gin.Context) {
     fileName := "gofi-" + strconv.Itoa(cookieGofiID) + ".csv"
     filePathWithName := sqlite.FilePath(fileName)
     defer os.Remove(filePathWithName)
-    sqlite.ExportCSV(cookieGofiID, csvSeparatorRune, csvDecimalDelimiter, dateFormat, dateSeparator)
+    sqlite.ExportCSV(ctx, db, cookieGofiID, csvSeparatorRune, csvDecimalDelimiter, dateFormat, dateSeparator)
 
     c.Header("Content-Disposition", "attachment; filename=" + fileName)
     c.Header("Content-Type", "text/plain")
     c.FileAttachment(filePathWithName, fileName)
+}
+// POST exportCsv.html
+func postExportCsvDownload(c *gin.Context) {
+    ctx, cancel := context.WithTimeout(context.TODO(), 2*time.Second)
+    defer cancel()
+
+    cookieGofiID, _ := CheckCookie(ctx, c, db)
+    if c.IsAborted() {return}
+
+    sqlite.ExportCSVdownload(ctx, db, cookieGofiID)
+
+    c.String(http.StatusOK, "<p>Téléchargement effectué et passage des lignes téléchargées au statut exporté.</p>")
+}
+// POST exportCsv.html
+func postExportCsvReset(c *gin.Context) {
+    ctx, cancel := context.WithTimeout(context.TODO(), 2*time.Second)
+    defer cancel()
+
+    cookieGofiID, _ := CheckCookie(ctx, c, db)
+    if c.IsAborted() {return}
+
+    sqlite.ExportCSVreset(ctx, db, cookieGofiID)
+
+    c.String(http.StatusOK, "<p>Remise à zéro des statuts exportés. Toutes les données sont à nouveau disponible au téléchargement.</p>")
 }
 
 // GET importCsv.html
@@ -702,7 +726,7 @@ func getImportCsv(c *gin.Context) {
 
 // POST importCsv.html
 func postImportCsv(c *gin.Context) {
-    ctx, cancel := context.WithTimeout(context.TODO(), 2*time.Second)
+    ctx, cancel := context.WithTimeout(context.TODO(), 9*time.Second) // 9 sec in case of 10k rows import
     defer cancel()
 
     cookieGofiID, email := CheckCookie(ctx, c, db)
@@ -724,7 +748,7 @@ func postImportCsv(c *gin.Context) {
     var csvSeparatorRune rune
     for _, runeValue := range csvSeparator {csvSeparatorRune = runeValue}
 
-    stringList := sqlite.ImportCSV(cookieGofiID, email, csvSeparatorRune, csvDecimalDelimiter, dateFormat, dateSeparator, csvFile)
+    stringList := sqlite.ImportCSV(ctx, db, cookieGofiID, email, csvSeparatorRune, csvDecimalDelimiter, dateFormat, dateSeparator, csvFile)
 
     c.String(http.StatusOK, stringList)
 }
@@ -768,6 +792,8 @@ func main() {
 
     router.GET("/export-csv", getExportCsv)
     router.POST("/export-csv", postExportCsv)
+    router.POST("/export-csv-download", postExportCsvDownload)
+    router.POST("/export-csv-reset", postExportCsvReset)
 
     router.GET("/import-csv", getImportCsv)
     router.POST("/import-csv", postImportCsv)
