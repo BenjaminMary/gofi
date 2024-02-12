@@ -16,7 +16,7 @@ type FinanceTracker struct {
 	Month int
 	Day int
 	Account string `form:"compte" binding:"required"`
-	Product string `form:"designation" binding:"required"`
+	Product string `form:"designation"`
 	FormPriceStr2Decimals string `form:"prix" binding:"required"`
 	PriceIntx100 int
 	Category string `form:"categorie" binding:"required"`

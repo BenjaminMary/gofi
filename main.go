@@ -346,7 +346,7 @@ func getinsertrows(c *gin.Context) {
     var FTlist []sqlite.FinanceTracker
     FTlist, _, _ = sqlite.GetRowsInFinanceTracker(ctx, db, &Filter)
 
-    c.HTML(http.StatusOK, "3.insertrows.html", gin.H{
+    c.HTML(http.StatusOK, "3.1.insertrows.html", gin.H{
         "Form": Form,
         "FTlist": FTlist,
         "UserParams": UserParams,
@@ -370,6 +370,7 @@ func postinsertrows(c *gin.Context) {
     priceType := c.PostForm("gain-expense")
     if (priceType == "expense"){Form.FormPriceStr2Decimals = "-" + Form.FormPriceStr2Decimals}
     Form.PriceIntx100 = sqlite.ConvertPriceStrToInt(Form.FormPriceStr2Decimals, ".") // always "." as decimal separator from the form
+    //fmt.Printf("form designation: %#v \n", &Form.Product)
 
     var successfull bool
     Form.Year, Form.Month, Form.Day, successfull, _ = sqlite.ConvertDateStrToInt(Form.Date, "EN", "-")
@@ -381,8 +382,87 @@ func postinsertrows(c *gin.Context) {
 	if err != nil { // Always check errors even if they should not happen.
 		panic(err)
 	}
-    tmpl := template.Must(template.ParseFiles("./front/html/templates/3.insertrows.html"))
+    tmpl := template.Must(template.ParseFiles("./front/html/templates/3.1.insertrows.html"))
     tmpl.ExecuteTemplate(c.Writer, "lastInsert", gin.H{
+        "Form": Form,
+    })
+}
+
+
+// GET Transfer.html
+func getTransfer(c *gin.Context) {
+    ctx, cancel := context.WithTimeout(context.TODO(), 2*time.Second)
+    defer cancel()
+
+    cookieGofiID, _ := CheckCookie(ctx, c, db)
+    if c.IsAborted() {return}
+
+    var UserParams sqlite.UserParams
+    UserParams.GofiID = cookieGofiID
+    sqlite.GetList(ctx, db, &UserParams)
+
+    var Form sqlite.FinanceTracker
+    const DateOnly = "2006-01-02" // YYYY-MM-DD
+    currentTime := time.Now()
+    Form.Date = currentTime.Format(DateOnly) // YYYY-MM-DD
+
+    var Filter sqlite.FilterRows
+    Filter.GofiID = cookieGofiID
+    Filter.OrderBy = "id"
+    Filter.OrderByType = "DESC"
+    Filter.Limit = 5
+    var FTlist []sqlite.FinanceTracker
+    FTlist, _, _ = sqlite.GetRowsInFinanceTracker(ctx, db, &Filter)
+
+    c.HTML(http.StatusOK, "3.2.transfer.html", gin.H{
+        "Form": Form,
+        "FTlist": FTlist,
+        "UserParams": UserParams,
+    })
+}
+
+// POST Transfer.html
+func postTransfer(c *gin.Context) {
+    ctx, cancel := context.WithTimeout(context.TODO(), 2*time.Second)
+    defer cancel()
+
+    cookieGofiID, _ := CheckCookie(ctx, c, db)
+    if c.IsAborted() {return}
+
+    var Form sqlite.FinanceTracker // PostTransfer
+    Form.Category = "Banque"
+    Form.Date = c.PostForm("date")
+    var successfull bool
+    Form.Year, Form.Month, Form.Day, successfull, _ = sqlite.ConvertDateStrToInt(Form.Date, "EN", "-")
+    if !successfull {return}
+
+    //first part to add to
+    Form.FormPriceStr2Decimals = c.PostForm("prix")
+    Form.PriceIntx100 = sqlite.ConvertPriceStrToInt(Form.FormPriceStr2Decimals, ".") // always "." as decimal separator from the form
+    Form.GofiID = cookieGofiID
+    Form.Account = c.PostForm("compteVers")
+    Form.Product = "Transfert+"
+    FormTo := Form
+
+    //second part to remove from
+    Form.Account = c.PostForm("compteDepuis")
+    Form.Product = "Transfert-"
+    Form.FormPriceStr2Decimals = "-" + Form.FormPriceStr2Decimals
+    Form.PriceIntx100 = sqlite.ConvertPriceStrToInt(Form.FormPriceStr2Decimals, ".") // always "." as decimal separator from the form
+
+    // insert the amount to remove from the first account
+    _, err := sqlite.InsertRowInFinanceTracker(ctx, db, &Form)
+	if err != nil { // Always check errors even if they should not happen.
+		panic(err)
+	}
+    // insert the amount to add to the second account
+    _, err = sqlite.InsertRowInFinanceTracker(ctx, db, &FormTo)
+	if err != nil { // Always check errors even if they should not happen.
+		panic(err)
+	}
+    tmpl := template.Must(template.ParseFiles("./front/html/templates/3.2.transfer.html"))
+    tmpl.ExecuteTemplate(c.Writer, "lastInsert", gin.H{
+        "FormTo": FormTo,
         "Form": Form,
     })
 }
@@ -780,6 +860,9 @@ func main() {
 
     router.GET("/insertrows", getinsertrows)
     router.POST("/insertrows", postinsertrows)
+
+    router.GET("/transfer", getTransfer)
+    router.POST("/transfer", postTransfer)
 
     router.GET("/editrows", getEditRows)
     router.POST("/editrows", postEditRows)

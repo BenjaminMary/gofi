@@ -48,7 +48,7 @@
 
             <!-- Text -->
             <label for="designation">Désignation</label>
-            <input type="text" id="designation" name="designation" placeholder="Description de l'achat" required />
+            <input type="text" id="designation" name="designation" placeholder="(Facultatif) description de l'achat" />
 
             <div class="grid">
                 <div>
@@ -133,6 +133,11 @@
         Les 5 derniers enregistrements effectués sont disponible à l'ouverture de cette page, attention, 
         ils ne sont pas forcément dans l'ordre chronologique si une date a été modifiée.
     </p>
+    <a href="/transfer"><button class="contrast">
+        <!-- fast forward -->
+        <svg width="24" height="24" viewBox="0 0 24 24"><use xlink:href="/img/icons.svg#feather-fast-forward"></use></svg>
+        Transfert entre comptes
+    </button></a>
 </section>
 
 {{template "footer" .}}

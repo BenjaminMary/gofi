@@ -10,6 +10,7 @@ Features supported (all the data are registered in a local SQLite DB):
     - auth with 1 active session per user
     - save general parameters preferences per user
     - record expenses per user, account and category
+    - handle multiple bank accounts per user and allow transfer between them
     - validate or cancel each record
     - import CSV files to insert/update data in bulk
     - export CSV files to keep/use all the data with other apps
@@ -74,14 +75,19 @@ This optional feature adds some prerequisites:
 
 ## TODO
 ☑☐☒
-- dès que toutes les fonctionnalités essentielles sont en place, démarrer des tests fonctionnels
-- fix
-    - ☑ pb lorsqu'un cookie qui était valide est présent, on se connecte sur un autre appareil, ce qui le rend obsolète, puis on retente la connexion depuis l'appareil avec le cookie obsolète, génère une boucle de redirection sur login infinie
-    - ☑ pb lors des cas de `force new login` qui génère une boucle de login infinie
-- ☐ ajout système de données récurrentes:
+- ☐❗dès que toutes les fonctionnalités essentielles sont en place, démarrer des tests fonctionnels
+- ☐❗❗ ajout système de données récurrentes:
     - ☐ factures + revenus mensuelles
-- ☐ ajout système de budget:
+    - ☐ 2 cas, montant fixe ou montant variable, comment gérer les montants variables ?
+        - partie variable: mettre un tableau avec un bouton d'enregistrement pour chaque ligne variable et modification de la date pour ajouter 1 mois à chaque fois ?
+        - partie fixe, regrouper les lignes dans un autre tableau avec enregistrement qui lance tout d'un coup ?
+- ☑ ajout système de transfert d'un compte à un autre:
+    - ☑ nouvelle page dédiée au transfert
+- ☐❗ ajout système de budget:
     - ☐ budget de dépense par catégorie
+- ☐❗ simplifier les catégories:
+    - ☐ ajouter 2 niveaux de catégories, avec en mode simple 1 seul niveau obligatoire
+    - ☐ ajouter des logos + couleurs par catégorie
 - ☐ ajout préférences utilisateur:
     - ☐ gestion des préférences de format de date EN + FR avec / ou -
     - ☐ gestion des préférences de format csv séparateur colonne + separateur décimal
@@ -97,6 +103,7 @@ This optional feature adds some prerequisites:
 - ☑ ajout validation des dépenses
     - ☑ système qui ramène l'ensemble des lignes encore non validées
     - ☑ voir pour permettre de la validation de groupe en saisissant une date unique et en sélectionnant X lignes
+    - ☐ permettre l'édition d'une ligne, page dédiée, ou mettre 3 radio: validation/édition/annulation ?
 - ☐ ajout multi utilisateur sur un compte
     - ☐ un utilisateur admin du compte qui peut en ajouter d'autres (max 5)
     - ☐ les autres utilisateurs peuvent se connecter en simultané sur le compte sans possibilité d'ajout d'autres nouveaux
@@ -139,6 +146,7 @@ This optional feature adds some prerequisites:
 
 
 ## Changelog
+- 2024-02-12 : add a transfer between bank accounts page.
 - 2024-02-11 : save an `exported` state for each row and export only the new ones. Add a system to reset this state.
 - 2024-02-10 : update pie chart and add ordering on the stats page.
 - 2024-02-09 : fix infinite login loop on `current cookie does not match` case.
