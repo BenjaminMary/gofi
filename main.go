@@ -388,7 +388,6 @@ func postinsertrows(c *gin.Context) {
     })
 }
 
-
 // GET Transfer.html
 func getTransfer(c *gin.Context) {
     ctx, cancel := context.WithTimeout(context.TODO(), 2*time.Second)
@@ -463,6 +462,191 @@ func postTransfer(c *gin.Context) {
     tmpl := template.Must(template.ParseFiles("./front/html/templates/3.2.transfer.html"))
     tmpl.ExecuteTemplate(c.Writer, "lastInsert", gin.H{
         "FormTo": FormTo,
+        "Form": Form,
+    })
+}
+
+
+// GET RecurrentRecords.html
+func getRecurrentRecords(c *gin.Context) {
+    ctx, cancel := context.WithTimeout(context.TODO(), 2*time.Second)
+    defer cancel()
+
+    cookieGofiID, _ := CheckCookie(ctx, c, db)
+    if c.IsAborted() {return}
+
+    var UserParams sqlite.UserParams
+    UserParams.GofiID = cookieGofiID
+    sqlite.GetList(ctx, db, &UserParams)
+
+    var Form sqlite.FinanceTracker
+    const DateOnly = "2006-01-02" // YYYY-MM-DD
+    currentTime := time.Now()
+    Form.Date = currentTime.Format(DateOnly) // YYYY-MM-DD
+
+    var Filter sqlite.FilterRows
+    Filter.GofiID = cookieGofiID
+    Filter.OrderBy = "id"
+    Filter.OrderByType = "DESC"
+    Filter.Limit = 5
+    var FTlist []sqlite.FinanceTracker
+    FTlist, _, _ = sqlite.GetRowsInFinanceTracker(ctx, db, &Filter)
+
+    var RRlist []sqlite.RecurrentRecord
+    RRlist = sqlite.GetRowsInRecurrentRecord(ctx, db, cookieGofiID, 0)
+
+    c.HTML(http.StatusOK, "3.3.recurrentrecords.html", gin.H{
+        "Form": Form,
+        "RRlist": RRlist,
+        "FTlist": FTlist,
+        "UserParams": UserParams,
+    })
+}
+
+// POST RecurrentRecords.html
+func postCreateRecurrentRecords(c *gin.Context) {
+    ctx, cancel := context.WithTimeout(context.TODO(), 2*time.Second)
+    defer cancel()
+
+    cookieGofiID, _ := CheckCookie(ctx, c, db)
+    if c.IsAborted() {return}
+
+    var Form sqlite.RecurrentRecord
+    if err := c.ShouldBind(&Form); err != nil {
+        c.String(http.StatusBadRequest, "bad request: %v", err)
+        return
+    }
+    Form.GofiID = cookieGofiID
+    Form.Date = c.PostForm("date")
+    var successfull bool
+    Form.Year, Form.Month, Form.Day, successfull, _ = sqlite.ConvertDateStrToInt(Form.Date, "EN", "-")
+    if !successfull {return}
+
+    priceType := c.PostForm("gain-expense")
+    if (priceType == "expense"){Form.FormPriceStr2Decimals = "-" + Form.FormPriceStr2Decimals}
+    Form.PriceIntx100 = sqlite.ConvertPriceStrToInt(Form.FormPriceStr2Decimals, ".") // always "." as decimal separator from the form
+
+    id, err := sqlite.InsertRowInRecurrentRecord(ctx, db, &Form)
+	if err != nil { // Always check errors even if they should not happen.
+		panic(err)
+	}
+    Form.ID = int(id)
+
+    tmpl := template.Must(template.ParseFiles("./front/html/templates/3.3.recurrentrecords.html"))
+    tmpl.ExecuteTemplate(c.Writer, "newRR", gin.H{
+        "Form": Form,
+    })
+}
+// POST RecurrentRecords.html
+func postEditRecurrentRecords(c *gin.Context) {
+    ctx, cancel := context.WithTimeout(context.TODO(), 2*time.Second)
+    defer cancel()
+
+    cookieGofiID, _ := CheckCookie(ctx, c, db)
+    if c.IsAborted() {return}
+
+    var Form sqlite.RecurrentRecord
+    if err := c.ShouldBind(&Form); err != nil {
+        c.String(http.StatusBadRequest, "bad request: %v", err)
+        return
+    }
+    Form.ID, _ = strconv.Atoi(c.PostForm("idRRmain"))
+    Form.GofiID = cookieGofiID
+    var successfull bool
+    Form.Year, Form.Month, Form.Day, successfull, _ = sqlite.ConvertDateStrToInt(Form.Date, "EN", "-")
+    if !successfull {return}
+
+    priceType := c.PostForm("gain-expense")
+    if (priceType == "expense"){Form.FormPriceStr2Decimals = "-" + Form.FormPriceStr2Decimals}
+    Form.PriceIntx100 = sqlite.ConvertPriceStrToInt(Form.FormPriceStr2Decimals, ".") // always "." as decimal separator from the form
+
+    //fmt.Printf("form: %#v \n", &Form) // form: {2023-09-13 désig Supermarche 5.03}
+    err := sqlite.UpdateRowInRecurrentRecord(ctx, db, &Form)
+	if err != nil { // Always check errors even if they should not happen.
+		panic(err)
+	}
+
+    tmpl := template.Must(template.ParseFiles("./front/html/templates/3.3.recurrentrecords.html"))
+    tmpl.ExecuteTemplate(c.Writer, "newRR", gin.H{
+        "Form": Form,
+    })
+}
+// POST RecurrentRecords.html
+func postDeleteRecurrentRecords(c *gin.Context) {
+    ctx, cancel := context.WithTimeout(context.TODO(), 2*time.Second)
+    defer cancel()
+
+    cookieGofiID, _ := CheckCookie(ctx, c, db)
+    if c.IsAborted() {return}
+
+    var Form sqlite.RecurrentRecord
+    if err := c.ShouldBind(&Form); err != nil {
+        c.String(http.StatusBadRequest, "bad request: %v", err)
+        return
+    }
+    Form.ID, _ = strconv.Atoi(c.PostForm("idRRmain"))
+    Form.GofiID = cookieGofiID
+
+    err := sqlite.DeleteRowInRecurrentRecord(ctx, db, &Form)
+	if err != nil { // Always check errors even if they should not happen.
+		panic(err)
+	}
+
+    c.String(http.StatusOK, "Ligne supprimée.")
+}
+// POST RecurrentRecords.html
+func postSaveRecurrentRecords(c *gin.Context) {
+    ctx, cancel := context.WithTimeout(context.TODO(), 2*time.Second)
+    defer cancel()
+
+    cookieGofiID, _ := CheckCookie(ctx, c, db)
+    if c.IsAborted() {return}
+
+    rowIDstr := c.PostForm("idRR")
+    rowID, _ := strconv.Atoi(rowIDstr)
+    var RRlist []sqlite.RecurrentRecord
+    RRlist = sqlite.GetRowsInRecurrentRecord(ctx, db, cookieGofiID, rowID)
+    RRlist[0].GofiID = cookieGofiID
+
+    var Form sqlite.FinanceTracker
+    Form.ID = RRlist[0].ID
+    Form.GofiID = cookieGofiID
+    Form.Date = RRlist[0].Date
+    Form.Year = RRlist[0].Year
+    Form.Month = RRlist[0].Month
+    Form.Day = RRlist[0].Day
+    Form.Account = RRlist[0].Account
+    Form.Product = RRlist[0].Product
+    Form.FormPriceStr2Decimals = RRlist[0].FormPriceStr2Decimals
+    Form.PriceIntx100 = RRlist[0].PriceIntx100
+    Form.Category = RRlist[0].Category
+
+    _, err := sqlite.InsertRowInFinanceTracker(ctx, db, &Form)
+	if err != nil { // Always check errors even if they should not happen.
+		panic(err)
+	}
+
+    // 1 reinit date in EN- format, 2 compute new date, 3 extract YYYYMMDD  
+    const DateOnly = "2006-01-02" // YYYY-MM-DD
+    RRlist[0].Date, _, _ = sqlite.ConvertDateIntToStr(RRlist[0].Year, RRlist[0].Month, RRlist[0].Day, "EN", "-")
+    baseDate, err := time.Parse(DateOnly, RRlist[0].Date)
+	switch RRlist[0].Recurrence {
+		case    "mensuelle": 
+            RRlist[0].Date = baseDate.AddDate(0, 1, 0).Format(DateOnly) // Add Y,M,D
+		case "hebdomadaire": 
+            RRlist[0].Date = baseDate.AddDate(0, 0, 7).Format(DateOnly) // Add Y,M,D
+		case     "annuelle": 
+            RRlist[0].Date = baseDate.AddDate(1, 0, 0).Format(DateOnly) // Add Y,M,D
+		default: 
+            fmt.Printf("error on switch case Recurrence: %#v\n", RRlist[0].Recurrence)
+	}
+    var successfull bool
+    RRlist[0].Year, RRlist[0].Month, RRlist[0].Day, successfull, _ = sqlite.ConvertDateStrToInt(RRlist[0].Date, "EN", "-")
+    if !successfull {return}
+    sqlite.UpdateDateInRecurrentRecord(ctx, db, &RRlist[0])
+
+    tmpl := template.Must(template.ParseFiles("./front/html/templates/3.3.recurrentrecords.html"))
+    tmpl.ExecuteTemplate(c.Writer, "lastInsert", gin.H{
         "Form": Form,
     })
 }
@@ -863,6 +1047,12 @@ func main() {
 
     router.GET("/transfer", getTransfer)
     router.POST("/transfer", postTransfer)
+
+    router.GET("/recurrentRecords", getRecurrentRecords)
+    router.POST("/createRecurrentRecords", postCreateRecurrentRecords)
+    router.POST("/saveRecurrentRecords", postSaveRecurrentRecords)
+    router.POST("/editRecurrentRecords", postEditRecurrentRecords)
+    router.POST("/deleteRecurrentRecords", postDeleteRecurrentRecords)
 
     router.GET("/editrows", getEditRows)
     router.POST("/editrows", postEditRows)

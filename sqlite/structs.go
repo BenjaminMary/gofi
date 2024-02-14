@@ -27,6 +27,21 @@ type FinanceTracker struct {
 	Exported bool
 }
 
+type RecurrentRecord struct {
+	ID int
+	GofiID int
+	Date string `form:"date" binding:"required"`
+	Year int
+	Month int
+	Day int
+	Recurrence string `form:"recurrence" binding:"required"`
+	Account string `form:"compte" binding:"required"`
+	Product string `form:"designation" binding:"required"`
+	FormPriceStr2Decimals string `form:"prix" binding:"required"`
+	PriceIntx100 int
+	Category string `form:"categorie" binding:"required"`
+}
+
 type User struct {
 	GofiID int // UNIQUE
 	Email string // UNIQUE

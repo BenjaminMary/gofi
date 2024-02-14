@@ -82,6 +82,20 @@ func main() {
 			dateChecked TEXT DEFAULT '9999-12-31',
 			exported INTEGER DEFAULT 0
 		);
+
+		--DROP TABLE IF EXISTS recurrentRecord;
+		CREATE TABLE IF NOT EXISTS recurrentRecord (
+			id INTEGER PRIMARY KEY AUTOINCREMENT, 
+			gofiID INTEGER NOT NULL,
+			year INTEGER NOT NULL,
+			month INTEGER NOT NULL,
+			day INTEGER NOT NULL,
+			recurrence TEXT NOT NULL,
+			account TEXT NOT NULL,
+			product TEXT NOT NULL,
+			priceIntx100 INTEGER NOT NULL,
+			category TEXT NOT NULL
+		);
 		`,
 	)
 	if err != nil {

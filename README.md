@@ -76,11 +76,10 @@ This optional feature adds some prerequisites:
 ## TODO
 ☑☐☒
 - ☐❗dès que toutes les fonctionnalités essentielles sont en place, démarrer des tests fonctionnels
-- ☐❗❗ ajout système de données récurrentes:
-    - ☐ factures + revenus mensuelles
-    - ☐ 2 cas, montant fixe ou montant variable, comment gérer les montants variables ?
-        - partie variable: mettre un tableau avec un bouton d'enregistrement pour chaque ligne variable et modification de la date pour ajouter 1 mois à chaque fois ?
-        - partie fixe, regrouper les lignes dans un autre tableau avec enregistrement qui lance tout d'un coup ?
+- ☑ ajout système de données récurrentes:
+    - ☑ factures + revenus mensuelles
+    - ☑ création, édition, suppression
+    - ☑ enregistrement avec ajout de jour/mois/année auto à chaque enregistrement
 - ☑ ajout système de transfert d'un compte à un autre:
     - ☑ nouvelle page dédiée au transfert
 - ☐❗ ajout système de budget:
@@ -146,6 +145,7 @@ This optional feature adds some prerequisites:
 
 
 ## Changelog
+- 2024-02-14 : add a new feature for recurrent records.
 - 2024-02-12 : add a transfer between bank accounts page.
 - 2024-02-11 : save an `exported` state for each row and export only the new ones. Add a system to reset this state.
 - 2024-02-10 : update pie chart and add ordering on the stats page.

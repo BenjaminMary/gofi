@@ -571,7 +571,7 @@ func GetRowsInFinanceTracker(ctx context.Context, db *sql.DB, filter *FilterRows
 		}
 		ft.FormPriceStr2Decimals = ConvertPriceIntToStr(ft.PriceIntx100)
 		totalPriceIntx100 += ft.PriceIntx100
-		ft.Date, successfull, unsuccessfullReason = ConvertDateIntToStr(ft.Year, ft.Month, ft.Day, "FR", "/")
+		ft.Date, successfull, unsuccessfullReason = ConvertDateIntToStr(ft.Year, ft.Month, ft.Day, "EN", "-")
 		if !successfull {ft.Date = "ERROR " + unsuccessfullReason}
 
 		// fmt.Printf("ft: %#v\n", ft)
@@ -581,6 +581,46 @@ func GetRowsInFinanceTracker(ctx context.Context, db *sql.DB, filter *FilterRows
 	totalPriceStr2Decimals = ConvertPriceIntToStr(totalPriceIntx100)
 	rows.Close()
 	return ftList, totalPriceStr2Decimals, totalRowsWithoutLimit
+}
+
+
+func GetRowsInRecurrentRecord(ctx context.Context, db *sql.DB, gofiID int, rowID int) ([]RecurrentRecord) {
+	var rrList []RecurrentRecord
+	var err error
+	q := ` 
+		SELECT id, year, month, day, recurrence, account, product, priceIntx100, category
+		FROM recurrentRecord
+		WHERE gofiID = ?
+			AND id > ?
+		ORDER BY year*10000 + month*100 + day, id DESC
+	`
+	if (rowID > 0){
+		q = strings.Replace(q, `AND id >`, 
+		`AND id =`, 1)
+	}
+	//insert into recurrentRecord values (1, 5, 2024, 3, 5, 'mensuelle', 'CB', 'test1', 1000, 'Supermarché')
+	var rows *sql.Rows
+	rows, err = db.QueryContext(ctx, q, gofiID, rowID)
+	if err != nil {
+		log.Fatal("error on DB query: ", err)
+	}
+	for rows.Next() {
+		var rr RecurrentRecord
+		var successfull bool
+		var unsuccessfullReason string
+		if err := rows.Scan(&rr.ID, &rr.Year, &rr.Month, &rr.Day, &rr.Recurrence, &rr.Account, &rr.Product, 
+			&rr.PriceIntx100, &rr.Category); err != nil {
+			log.Fatal(err)
+		}
+		rr.FormPriceStr2Decimals = ConvertPriceIntToStr(rr.PriceIntx100)
+		rr.Date, successfull, unsuccessfullReason = ConvertDateIntToStr(rr.Year, rr.Month, rr.Day, "EN", "-")
+		if !successfull {rr.Date = "ERROR " + unsuccessfullReason}
+
+		// fmt.Printf("rr: %#v\n", rr)
+		rrList = append(rrList, rr)
+	}
+	rows.Close()
+	return rrList
 }
 
 func ValidateRowsInFinanceTracker(ctx context.Context, db *sql.DB, gofiID int, checkedListInt []int, dateValidated string, mode string) () {
@@ -627,6 +667,62 @@ func InsertRowInFinanceTracker(ctx context.Context, db *sql.DB, ft *FinanceTrack
 		return 0, err
 	}
 	return id, nil
+}
+
+func InsertRowInRecurrentRecord(ctx context.Context, db *sql.DB, rr *RecurrentRecord) (int64, error) {
+	result, err := db.ExecContext(ctx, `
+		INSERT INTO recurrentRecord (gofiID, year, month, day, recurrence, account, product, priceIntx100, category)
+		VALUES (?,?,?,?,?,?,?,?,?);
+		`, 
+		rr.GofiID, rr.Year, rr.Month, rr.Day, rr.Recurrence, rr.Account, rr.Product, rr.PriceIntx100, rr.Category,
+	)
+	id, err := result.LastInsertId()
+	if err != nil {
+		return 0, err
+	}
+	return id, nil
+}
+func UpdateRowInRecurrentRecord(ctx context.Context, db *sql.DB, rr *RecurrentRecord) (error) {
+	_, err := db.ExecContext(ctx, `
+		UPDATE recurrentRecord
+		SET year = ?, month = ?, day = ?, recurrence = ?, account = ?, product = ?, priceIntx100 = ?, category = ?
+		WHERE gofiID = ?
+			AND id = ?;
+		`, 
+		rr.Year, rr.Month, rr.Day, rr.Recurrence, rr.Account, rr.Product, rr.PriceIntx100, rr.Category,
+		rr.GofiID, rr.ID,
+	)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+func DeleteRowInRecurrentRecord(ctx context.Context, db *sql.DB, rr *RecurrentRecord) (error) {
+	_, err := db.ExecContext(ctx, `
+		DELETE FROM recurrentRecord
+		WHERE gofiID = ?
+			AND id = ?;
+		`, 
+		rr.GofiID, rr.ID,
+	)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+func UpdateDateInRecurrentRecord(ctx context.Context, db *sql.DB, rr *RecurrentRecord) {
+	_, err := db.ExecContext(ctx, `
+		UPDATE recurrentRecord
+		SET year = ?, month = ?, day = ?
+		WHERE gofiID = ?
+			AND id = ?;
+		`, 
+		rr.Year, rr.Month, rr.Day, rr.GofiID, rr.ID,
+	)
+	if err != nil {
+		fmt.Printf("error on UPDATE recurrentRecord err: %#v\n", err)
+	}
+	return
 }
 
 func ExportCSV(ctx context.Context, db *sql.DB, gofiID int, csvSeparator rune, csvDecimalDelimiter string, dateFormat string, dateSeparator string) int {
