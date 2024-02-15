@@ -61,7 +61,7 @@
 
         <!-- Select -->
         <label for="driveID">Drive ID</label>
-        <select id="driveID" name="driveID" required>
+        <select id="driveIDdelete" name="driveID" required>
             {{range $DFMD := .DriveFileMetaDataList.Files}}
                     <option value="{{$DFMD.DriveFileID}}">{{$DFMD.DriveFileID}}, {{$DFMD.Name}}</option>
             {{end}}
@@ -94,7 +94,7 @@ hx-indicator="#spinner"> -->
 
         <!-- Select -->
         <label for="driveID">Drive ID</label>
-        <select id="driveID" name="driveID" required>
+        <select id="driveIDdownload" name="driveID" required>
             {{range $DFMD := .DriveFileMetaDataList.Files}}
                     <option value="{{$DFMD.DriveFileID}}">{{$DFMD.DriveFileID}}, {{$DFMD.Name}}</option>
             {{end}}
@@ -112,3 +112,7 @@ hx-indicator="#spinner"> -->
 </section>
 
 {{template "footer" .}}
+
+<script>
+    document.getElementById('driveIDdelete').lastElementChild.selected = true
+</script>

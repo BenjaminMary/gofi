@@ -299,91 +299,104 @@
     });
 </script>
 <script>
-    // this script add a click event on every buttons under <tbody id="newRR">
-    window.onload = function(onLoad){
-        rightPartUrl = window.location.search;
-        if (rightPartUrl == "?i=1") {
-            document.getElementById('refreshPage').href = (window.location.origin+window.location.pathname+"#refreshToTopTableRR");
-        } else {
-            document.getElementById('refreshPage').href = (window.location.origin+window.location.pathname+"?i=1#refreshToTopTableRR");
-        };
+    function showCreateButton() {
+        // object.style.visibility = "visible|hidden|collapse|initial|inherit" // keep the space on the page for the element
+        document.getElementById('createRR').hidden = false;
+        document.getElementById('editRR').hidden = true;
+        document.getElementById('deleteRR').hidden = true;
+    }
 
-        var childButtons = document.getElementById('newRR').getElementsByTagName('button');
-        for (var i = 0; i < childButtons.length; i++) {
-            var buttonId = childButtons[i].id;
-            if (buttonId.substring(0, 1) == 's') {
-                // save button, POST + disable buttons + redesign buttons
-                document.getElementById(buttonId).addEventListener('click', function(s){
-                    rowId = this.id.substring(1);
-                    document.getElementById('idRR').value = rowId;
-                    //console.log(document.getElementById('idRR').value);
-                    document.getElementById(this.id).disabled = true;
-                    document.getElementById(this.id).classList.add('secondary');
-                    document.getElementById(this.id).classList.add('outline');
-                    document.getElementById(this.id).innerHTML = `
-                        <!-- check square -->
-                        <svg width="24" height="24" viewBox="0 0 24 24"><use xlink:href="/img/icons.svg#feather-check-square"></use></svg>
-                    `;
-                    document.getElementById("e"+rowId).disabled = true;
-                    document.getElementById("e"+rowId).classList.add('secondary');
-                    document.getElementById("e"+rowId).classList.add('outline');
-                    document.getElementById("e"+rowId).innerHTML = `
-                        <!-- check square -->
-                        <svg width="24" height="24" viewBox="0 0 24 24"><use xlink:href="/img/icons.svg#feather-check-square"></use></svg>
-                    `;
-                    document.getElementById('infoMainForm').innerHTML = "";
-                    htmx.trigger("#formSaveRR", "onSaveButtonClick");
-                });
-            } else if (buttonId.substring(0, 1) == 'e') {
-                // edit button, put back all data in the form and change the output of the form to UPDATE on submit
-                document.getElementById(buttonId).addEventListener('click', function(e){
-                    rowId = this.id.substring(1);
-                    var childTd = document.getElementById(rowId).getElementsByTagName('td');
-                    document.getElementById('openForm').open = true;
-                    document.getElementById('createRR').hidden = true;
-                    document.getElementById('editRR').hidden = false;
-                    document.getElementById('deleteRR').hidden = false;
-                    document.getElementById('date').focus();
-                    document.getElementById('idRRmain').value = rowId;
-                    document.getElementById('infoMainForm').innerHTML = "";
-                    for (var i = 0; i < childTd.length; i++) {
-                        switch(i) {
-                            case 0:
-                                document.getElementById('date').value = childTd[i].innerHTML;
-                                break;
-                            case 1:
-                                document.getElementById('recurrence').value = childTd[i].innerHTML;
-                                break;
-                            case 2:
-                                document.getElementById('compte').value = childTd[i].innerHTML;
-                                break;
-                            case 3:
-                                document.getElementById('categorie').value = childTd[i].innerHTML;
-                                break;
-                            case 4:
-                                document.getElementById('designation').value = childTd[i].innerHTML;
-                                break;
-                            case 5:
-                                amount = parseFloat(childTd[i].innerHTML);
-                                if (amount < 0) {
-                                    document.getElementById('prix').value = (amount * -1);
-                                    document.getElementById('gain').checked = false;
-                                    document.getElementById('expense').checked = true;
-                                } else {
-                                    document.getElementById('prix').value = (amount);
-                                    document.getElementById('gain').checked = true;
-                                    document.getElementById('expense').checked = false;
-                                }
-                                break;
-                            default:
-                                //console.log(childTd[i].innerHTML);
-                        }
-                        childTd[0].parentElement.remove();
+    document.getElementById('editRR').addEventListener('click', function(editB){
+        showCreateButton();
+    });
+    document.getElementById('deleteRR').addEventListener('click', function(deleteB){
+        showCreateButton();
+        setTimeout(function() { document.getElementById('infoMainForm').innerHTML = ""; }, 3000);
+    });
+
+    // this script add a click event on every buttons under <tbody id="newRR">
+    rightPartUrl = window.location.search;
+    if (rightPartUrl == "?i=1") {
+        document.getElementById('refreshPage').href = (window.location.origin+window.location.pathname+"#refreshToTopTableRR");
+    } else {
+        document.getElementById('refreshPage').href = (window.location.origin+window.location.pathname+"?i=1#refreshToTopTableRR");
+    };
+
+    var childButtons = document.getElementById('newRR').getElementsByTagName('button');
+    for (var i = 0; i < childButtons.length; i++) {
+        var buttonId = childButtons[i].id;
+        if (buttonId.substring(0, 1) == 's') {
+            // save button, POST + disable buttons + redesign buttons
+            document.getElementById(buttonId).addEventListener('click', function(s){
+                rowId = this.id.substring(1);
+                document.getElementById('idRR').value = rowId;
+                //console.log(document.getElementById('idRR').value);
+                document.getElementById(this.id).disabled = true;
+                document.getElementById(this.id).classList.add('secondary');
+                document.getElementById(this.id).classList.add('outline');
+                document.getElementById(this.id).innerHTML = `
+                    <!-- check square -->
+                    <svg width="24" height="24" viewBox="0 0 24 24"><use xlink:href="/img/icons.svg#feather-check-square"></use></svg>
+                `;
+                document.getElementById("e"+rowId).disabled = true;
+                document.getElementById("e"+rowId).classList.add('secondary');
+                document.getElementById("e"+rowId).classList.add('outline');
+                document.getElementById("e"+rowId).innerHTML = `
+                    <!-- check square -->
+                    <svg width="24" height="24" viewBox="0 0 24 24"><use xlink:href="/img/icons.svg#feather-check-square"></use></svg>
+                `;
+                document.getElementById('infoMainForm').innerHTML = "";
+                htmx.trigger("#formSaveRR", "onSaveButtonClick");
+            });
+        } else if (buttonId.substring(0, 1) == 'e') {
+            // edit button, put back all data in the form and change the output of the form to UPDATE on submit
+            document.getElementById(buttonId).addEventListener('click', function(e){
+                rowId = this.id.substring(1);
+                var childTd = document.getElementById(rowId).getElementsByTagName('td');
+                document.getElementById('openForm').open = true;
+                document.getElementById('createRR').hidden = true;
+                document.getElementById('editRR').hidden = false;
+                document.getElementById('deleteRR').hidden = false;
+                document.getElementById('date').focus();
+                document.getElementById('idRRmain').value = rowId;
+                document.getElementById('infoMainForm').innerHTML = "";
+                for (var i = 0; i < childTd.length; i++) {
+                    switch(i) {
+                        case 0:
+                            document.getElementById('date').value = childTd[i].innerHTML;
+                            break;
+                        case 1:
+                            document.getElementById('recurrence').value = childTd[i].innerHTML;
+                            break;
+                        case 2:
+                            document.getElementById('compte').value = childTd[i].innerHTML;
+                            break;
+                        case 3:
+                            document.getElementById('categorie').value = childTd[i].innerHTML;
+                            break;
+                        case 4:
+                            document.getElementById('designation').value = childTd[i].innerHTML;
+                            break;
+                        case 5:
+                            amount = parseFloat(childTd[i].innerHTML);
+                            if (amount < 0) {
+                                document.getElementById('prix').value = (amount * -1);
+                                document.getElementById('gain').checked = false;
+                                document.getElementById('expense').checked = true;
+                            } else {
+                                document.getElementById('prix').value = (amount);
+                                document.getElementById('gain').checked = true;
+                                document.getElementById('expense').checked = false;
+                            }
+                            break;
+                        default:
+                            //console.log(childTd[i].innerHTML);
                     }
-                    //console.log(document.getElementById('date').value);
-                    //console.log(document.getElementById('recurrence').value);
-                });
-            };
-        }
+                    childTd[0].parentElement.remove();
+                }
+                //console.log(document.getElementById('date').value);
+                //console.log(document.getElementById('recurrence').value);
+            });
+        };
     };
 </script>

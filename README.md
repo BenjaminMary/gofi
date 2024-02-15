@@ -75,11 +75,15 @@ This optional feature adds some prerequisites:
 
 ## TODO
 ☑☐☒
+- ☑ partie backup, mettre le DELETE sur la dernière sauvegarde par défaut
 - ☐❗dès que toutes les fonctionnalités essentielles sont en place, démarrer des tests fonctionnels
 - ☑ ajout système de données récurrentes:
     - ☑ factures + revenus mensuelles
     - ☑ création, édition, suppression
     - ☑ enregistrement avec ajout de jour/mois/année auto à chaque enregistrement
+    - ☑ fix remettre le submit en mode création après avoir utilisé le mode édition/suppression
+    - ☐ améliorer l'UI en bloquant l'espace via `visibility: hidden`, permettra de ne plus faire de trou dans la page au changement
+        - vérif si bien impossible de cliquer sur l'elem invisible, sinon ajouter un `disable`
 - ☑ ajout système de transfert d'un compte à un autre:
     - ☑ nouvelle page dédiée au transfert
 - ☐❗ ajout système de budget:
@@ -145,6 +149,7 @@ This optional feature adds some prerequisites:
 
 
 ## Changelog
+- 2024-02-15 : backup part, put the DELETE on the last save by default. Recurrent records, after an edit/delete, go back to the create mode.
 - 2024-02-14 : add a new feature for recurrent records.
 - 2024-02-12 : add a transfer between bank accounts page.
 - 2024-02-11 : save an `exported` state for each row and export only the new ones. Add a system to reset this state.
