@@ -75,6 +75,7 @@ This optional feature adds some prerequisites:
 
 ## TODO
 ☑☐☒
+- ☑ partie validation, fix ajustement du montant de la sélection après requête POST
 - ☑ partie backup, mettre le DELETE sur la dernière sauvegarde par défaut
 - ☐❗dès que toutes les fonctionnalités essentielles sont en place, démarrer des tests fonctionnels
 - ☑ ajout système de données récurrentes:
@@ -149,6 +150,7 @@ This optional feature adds some prerequisites:
 
 
 ## Changelog
+- 2024-02-18 : fix total selected amount in validate row page after a POST request.
 - 2024-02-15 : backup part, put the DELETE on the last save by default. Recurrent records, after an edit/delete, go back to the create mode.
 - 2024-02-14 : add a new feature for recurrent records.
 - 2024-02-12 : add a transfer between bank accounts page.

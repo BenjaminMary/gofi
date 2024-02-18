@@ -282,6 +282,7 @@
         }
     });
 
+    //switch between validate or cancel mode
     document.getElementById('switchMode').addEventListener('click', function(toggleSwitchMode){
         if (this.checked) {
             document.getElementById('mode').innerHTML = `Le mode <code>Validation</code> est activé.`
@@ -300,6 +301,7 @@
         };
     });
 
+    // select all checkboxes with the clickable header checkbox
     document.getElementById('toggle').addEventListener('click', function(toggle){
         checkboxes = document.querySelectorAll('input[type=checkbox][name=id]');
         for(var i=0, n = checkboxes.length; i < n; i++) {
@@ -319,22 +321,29 @@
     });
 
     // add sum of the selection in the final row of the table
-    // <!-- IDs: input + td + "selectedSum" used to calculate with .js func -->
-    var allCheckboxes = document.querySelectorAll('input[type=checkbox][name=id]');
-    for (var i = 0; i < allCheckboxes.length; i++) {
-        currentId = allCheckboxes[i].value;
-        if (currentId > 0) {
-            document.getElementById(currentId).addEventListener('click', function(evt){
-                thisID = this.id
-                oldTotal = parseFloat(document.getElementById('selectedSum').innerHTML);
-                selectedValue = parseFloat(document.getElementById('v' + thisID).innerHTML);
-                if (this.checked) {newTotal = oldTotal + selectedValue;} else {newTotal = oldTotal - selectedValue;}
-                console.log('oldTotal: ' + oldTotal);
-                console.log('selectedValue: ' + selectedValue);
-                document.getElementById('selectedSum').innerHTML = newTotal.toFixed(2);
-            });
+    function sumOfCheckboxesSelection(allCheckboxes) {
+        for (var i = 0; i < allCheckboxes.length; i++) {
+            currentId = allCheckboxes[i].value;
+            if (currentId > 0) {
+                document.getElementById(currentId).addEventListener('click', function(evt){
+                    thisID = this.id
+                    oldTotal = parseFloat(document.getElementById('selectedSum').innerHTML);
+                    selectedValue = parseFloat(document.getElementById('v' + thisID).innerHTML);
+                    if (this.checked) {newTotal = oldTotal + selectedValue;} else {newTotal = oldTotal - selectedValue;}
+                    //console.log('oldTotal: ' + oldTotal);
+                    //console.log('selectedValue: ' + selectedValue);
+                    document.getElementById('selectedSum').innerHTML = newTotal.toFixed(2);
+                });
+            };
         };
     };
+    // <!-- IDs: input + td + "selectedSum" used to calculate with .js func -->
+    var allCheckboxes = document.querySelectorAll('input[type=checkbox][name=id]');
+    sumOfCheckboxesSelection(allCheckboxes);
+    document.body.addEventListener('htmx:afterSwap', function (evt) {
+        var allCheckboxes = document.querySelectorAll('input[type=checkbox][name=id]');
+        sumOfCheckboxesSelection(allCheckboxes);
+    });
 
     // enable sticky headers on the table
     let elements = document.querySelectorAll('table');
