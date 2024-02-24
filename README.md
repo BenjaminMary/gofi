@@ -95,8 +95,8 @@ This optional feature adds some prerequisites:
     - ☐ nouvelle page de modif des catégories à faire, améliorer l'UI actuelle
     - ☐ rajouter une catégorie "Autre" par défaut, avec ? en icone et couleur grise ?
     - ☐ renommer Véhicule qui semble faire planter les correspondances à cause de l'accent
-    - ☐ renommer Investissement + Restaurant trop long sur smartphone (max 9 car)
-    - ☐ ajouter catégorie informatique ? avec 9 car max
+    - ☑ renommer Investissement + Restaurant trop long sur smartphone (max 8 car)
+    - ☐ ajouter catégorie informatique ? avec 8 car max = HighTech
     - ☑ voir si possible d'ajouter le logo dans les listes déroulantes de sélection de catégorie
     - ☐ voir si possible d'ajouter les icones et couleurs dans les listes d'articles, à la place d'écrire les noms des catégories (gain de place dans les tables)
         - mettre cette fonctionnalité en paramètre, pour pouvoir garder les noms de catégories si souhaité (accessibilité)
@@ -160,6 +160,7 @@ This optional feature adds some prerequisites:
 ## Changelog
 - 2024-02-24 : add icons and colors inside dropdown menus to select categories. 
     - pico css update, from v1 to v2.
+    - shorten category names to 8 char for better UX in stats page
 - 2024-02-23 : start adding icons and colors to categories, add a full list of categories for new users.
     - replace D3.js by [apexcharts](https://apexcharts.com/).
     - add Google Fonts for icons inside pie chart.

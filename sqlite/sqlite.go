@@ -172,7 +172,7 @@ func CheckIfIdExists(gofiID int) {
 		var P2 Param
 		P2.GofiID = gofiID
         P2.ParamName = "categoryList"
-        P2.ParamJSONstringData = "Courses,Banque,Cadeaux,Entreprise,Erreur,Investissement,Loisirs,Loyer,Restaurant,Salaire,Santé,Services,Shopping,Transport,Voyage,Véhicule"
+        P2.ParamJSONstringData = "Courses,Banque,Cadeaux,Entrep,Erreur,Invest,Loisirs,Loyer,Resto,Salaire,Sante,Services,Shopping,Transp,Voyage,Vehicule,Autre"
         P2.ParamInfo = "Liste des catégories (séparer par des , sans espaces)"
 		InsertRowInParam(&P2)
 	}
