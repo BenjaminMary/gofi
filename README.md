@@ -93,7 +93,13 @@ This optional feature adds some prerequisites:
     - ☐ ajouter 2 niveaux de catégories, avec en mode simple 1 seul niveau obligatoire
     - ☑ ajouter des logos + couleurs par catégorie
     - ☐ nouvelle page de modif des catégories à faire, améliorer l'UI actuelle
-    - ☐❗ voir si possible d'ajouter le logo dans les listes déroulantes de sélection de catégorie
+    - ☐ rajouter une catégorie "Autre" par défaut, avec ? en icone et couleur grise ?
+    - ☐ renommer Véhicule qui semble faire planter les correspondances à cause de l'accent
+    - ☐ renommer Investissement + Restaurant trop long sur smartphone (max 9 car)
+    - ☐ ajouter catégorie informatique ? avec 9 car max
+    - ☑ voir si possible d'ajouter le logo dans les listes déroulantes de sélection de catégorie
+    - ☐ voir si possible d'ajouter les icones et couleurs dans les listes d'articles, à la place d'écrire les noms des catégories (gain de place dans les tables)
+        - mettre cette fonctionnalité en paramètre, pour pouvoir garder les noms de catégories si souhaité (accessibilité)
     - nouvelles tables 
         - ☑ catégorie dédiée: id, nom, couleur, icone
         - join: user ID associé à category ID
@@ -152,6 +158,8 @@ This optional feature adds some prerequisites:
 
 
 ## Changelog
+- 2024-02-24 : add icons and colors inside dropdown menus to select categories. 
+    - pico css update, from v1 to v2.
 - 2024-02-23 : start adding icons and colors to categories, add a full list of categories for new users.
     - replace D3.js by [apexcharts](https://apexcharts.com/).
     - add Google Fonts for icons inside pie chart.

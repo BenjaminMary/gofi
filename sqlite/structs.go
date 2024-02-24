@@ -65,7 +65,7 @@ type UserParams struct {
 	AccountListSingleString string
 	AccountList []string
 	CategoryListSingleString string
-	CategoryList []string
+	CategoryList [][]string
 }
 
 type FilterRows struct {

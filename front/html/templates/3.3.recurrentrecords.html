@@ -11,6 +11,7 @@
     integrity="sha384-FhXw7b6AlE/jyjlZH5iHa/tTe9EpJ1Y55RjcgPbjeWMskSxZt1v9qkxLJWNJaGni" 
     crossorigin="anonymous">
 </script>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,1,0" />
 {{template "body" .}}
 {{template "content" .}}
 
@@ -41,26 +42,39 @@
                     </div>
                 </div>
 
-                <div class="grid">
-                    <div>
-                        <!-- Select -->
-                        <label for="compte">Compte</label>
-                        <select id="compte" name="compte" required>
-                            {{range $valA := .UserParams.AccountList}}
-                                <option id="from{{$valA}}" value="{{$valA}}">{{$valA}}</option>
-                            {{end}}
-                        </select>
-                    </div>
-                    <div>
-                        <!-- Select -->
-                        <label for="categorie">Catégorie</label>
-                        <select id="categorie" name="categorie" required>
-                            {{range $valB := .UserParams.CategoryList}}
-                                <option value="{{$valB}}">{{$valB}}</option>
-                            {{end}}
-                        </select>
-                    </div>
+                <div>
+                    <!-- Select -->
+                    <label for="compte">Compte</label>
+                    <select id="compte" name="compte" required>
+                        {{range $valA := .UserParams.AccountList}}
+                            <option id="from{{$valA}}" value="{{$valA}}">{{$valA}}</option>
+                        {{end}}
+                    </select>
                 </div>
+
+                <!-- Custom Radios Select Dropdown -->
+                <details id="categoryDropdown" class="dropdown">
+                    {{range $i, $C := .UserParams.CategoryList}}
+                        {{$catego := index $C 0}}
+                        {{$iconCodePoint := index $C 1}}
+                        {{$colorHEX := index $C 2}}
+
+                        {{if eq $i 0}}
+                            <summary>
+                                <span id="summaryIcon" class="material-symbols-outlined" style="background-color: {{$colorHEX}};">&#x{{$iconCodePoint}};</span>
+                                <span id="summaryCategory">{{$catego}}</span>
+                            </summary>
+                            <ul id="overflowLimitHeight">
+                        {{end}}
+                        <li>
+                            <label>
+                                <input id="input{{$i}}" type="radio" name="categorie" value="{{$catego}}"/>
+                                <span id="icon{{$i}}" class="material-symbols-outlined" style="background-color: {{$colorHEX}};">&#x{{$iconCodePoint}};</span>
+                                {{$catego}}
+                            </label>
+                        </li>
+                    {{end}}</ul>
+                </details>
 
                 <!-- Text -->
                 <label for="designation">Désignation</label>
@@ -155,7 +169,7 @@
     </i></small>
     <div id="refreshToTopTableRR">
         <figure>
-            <table role="grid">
+            <table class="striped overflow-auto">
                 <thead>
                     <tr>
                         <th scope="col">Date</th>
@@ -238,7 +252,7 @@
     <h5>Derniers enregistrements</h5>
     <div>
         <figure>
-            <table role="grid">
+            <table class="striped overflow-auto">
                 <thead>
                     <tr>
                         <th scope="col">Date</th>
@@ -398,5 +412,22 @@
                 //console.log(document.getElementById('recurrence').value);
             });
         };
+    };
+
+    // this script add click event on inputs inside the categoryDropdown
+    document.getElementById('input0').checked = true;
+    var categoryList = {{.UserParams.CategoryList}};
+    var childInputs = document.getElementById('categoryDropdown').getElementsByTagName('input');
+    for (var i = 0; i < childInputs.length; i++) {
+        inputId = childInputs[i].id;
+        //console.log(inputId + ": " + childInputs[i].value);
+        document.getElementById(inputId).addEventListener('click', function(c){
+            idInt = parseInt(this.id.replace("input",""));
+            //console.log(categoryList[idInt]);
+            document.getElementById('summaryCategory').innerHTML = categoryList[idInt][0]
+            document.getElementById('summaryIcon').innerHTML = "&#x" + categoryList[idInt][1] + ";"
+            document.getElementById('summaryIcon').style.backgroundColor = categoryList[idInt][2]
+            document.getElementById('categoryDropdown').open = false;
+        });
     };
 </script>

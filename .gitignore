@@ -22,6 +22,7 @@ go.work
 
 
 # specific part
+save/
 *.env
 *gofi.db*
 *.ps1

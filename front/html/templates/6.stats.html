@@ -9,13 +9,6 @@
     .apexcharts-canvas{
         margin: 0 auto;
     }
-    span.material-symbols-outlined {
-        display: inline-flex;
-        vertical-align: middle;
-        border-radius: 100px;
-        padding: 0.13em 0.13em 0.13em 0.13em; /* top | right | bottom | left */
-        color: white;
-    }
 </style>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,1,0" />
 {{template "body" .}}
@@ -60,7 +53,7 @@
     <div>
         <figure>
             <h5>Détail des Comptes</h5>
-            <table role="grid">
+            <table class="striped overflow-auto">
                 <thead>
                     <tr>
                         <th scope="col">Compte</th>
@@ -105,7 +98,7 @@
     <div>
         <figure>
             <h5>Détail complet par Catégorie</h5>
-            <table role="grid">
+            <table class="striped overflow-auto">
                 <thead>
                     <tr>
                         <th scope="col">Categorie</th>

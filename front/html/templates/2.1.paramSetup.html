@@ -52,24 +52,28 @@
 </section>
 <hr>
 <section id="info">
-    <a href=""><button class="secondary outline">
-        <!-- refresh clockwise -->
-        <svg width="24" height="24" viewBox="0 0 24 24"><use xlink:href="/img/icons.svg#feather-refresh-cw"></use></svg>
-        Rafraichir la page pour refaire des modifications
-    </button></a>
-    <a href="/category-setup"><button class="contrast outline">
-        <!-- eye -->
-        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-eye"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
-        Voir les catégories existantes
-    </button></a>
-    <!-- fast forward -->
-    <svg width="24" height="24" viewBox="0 0 24 24"><use xlink:href="/img/icons.svg#feather-fast-forward"></use></svg>
-    Etape suivante: 
-    <a href="/insertrows"><button class="contrast">
-        <!-- plus-square -->
-        <svg width="24" height="24" viewBox="0 0 24 24"><use xlink:href="/img/icons.svg#feather-plus-square"></use></svg>
-        Enregistrer des données</button>
-    </a>
+    <aside><nav><ul>
+        <li><a href="" role="button" class="secondary outline">
+            <!-- refresh clockwise -->
+            <svg width="24" height="24" viewBox="0 0 24 24"><use xlink:href="/img/icons.svg#feather-refresh-cw"></use></svg>
+            Rafraichir la page pour refaire des modifications
+        </a></li>
+        <li><a href="/category-setup" role="button" class="contrast outline">
+            <!-- eye -->
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-eye"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
+            Voir les catégories existantes
+        </a></li>
+        <li>
+            <!-- fast forward -->
+            <svg width="24" height="24" viewBox="0 0 24 24"><use xlink:href="/img/icons.svg#feather-fast-forward"></use></svg>
+            Etape suivante: 
+            <a href="/insertrows" role="button" class="contrast">
+                <!-- plus-square -->
+                <svg width="24" height="24" viewBox="0 0 24 24"><use xlink:href="/img/icons.svg#feather-plus-square"></use></svg>
+                Enregistrer des données
+            </a>
+        </li>
+    </aside></nav></ul>
 </section>
 
 {{template "footer" .}}

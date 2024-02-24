@@ -338,17 +338,35 @@ func GetList(ctx context.Context, db *sql.DB, up *UserParams) {
 
 	rows, _ = db.QueryContext(ctx, q, up.GofiID, "categoryList")
 	rows.Next()
-	var categoryList string
-	if err := rows.Scan(&categoryList); err != nil {
+	var categoryListStr string
+	if err := rows.Scan(&categoryListStr); err != nil {
 		log.Fatal(err)
 	}
 	if err := rows.Err(); err != nil {
 		log.Fatal(err)
 	}
-	up.CategoryListSingleString = categoryList
-	up.CategoryList = strings.Split(categoryList, ",")
 	rows.Close()
-	// fmt.Printf("\ncategoryList: %v\n", up.CategoryList)
+	up.CategoryListSingleString = categoryListStr
+
+	var categoryListA, categoryListB, iconCodePointList, colorHEXList []string
+	categoryListA = strings.Split(categoryListStr, ",")
+    categoryListB, iconCodePointList, colorHEXList = GetCategoryList(ctx, db)
+	fmt.Println("before second categoryList B")
+	for i, v := range categoryListA {
+		var found bool = false
+		var stringToAppend []string
+		if (i < len(categoryListB)) {
+			for i2, v2 := range categoryListB {
+				if (v == v2) {
+					stringToAppend = append(stringToAppend, v, iconCodePointList[i2], colorHEXList[i2])
+					found = true
+				}
+			}
+		}
+		if (!found) {stringToAppend = append(stringToAppend, v, "e887", "#808080")}
+		up.CategoryList = append(up.CategoryList, stringToAppend)
+	}
+	fmt.Println("after second categoryList")
 	return
 }
 

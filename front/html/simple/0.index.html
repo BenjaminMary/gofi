@@ -18,9 +18,9 @@
         </ul>
         <ul>
             <li>
-                <details role="list" dir="rtl">
+                <details class="dropdown">
                     <summary aria-haspopup="listbox" role="link" class="contrast">Options</summary>
-                    <ul role="listbox">
+                    <ul dir="rtl">
                         <li>
                             <a href="#" data-theme-switcher="light">
                                 Clair
@@ -63,91 +63,94 @@
 
     <section id="links">
         <h2>Fonctionnalités</h2>
-        <ol>
-            {{if .Logged}}
-                <li><a href="/param-setup"><button class="contrast outline">
-                    <!-- tool -->
-                    <svg width="24" height="24" viewBox="0 0 24 24"><use xlink:href="/img/icons.svg#feather-tool"></use></svg>
-                    Paramétrer l'application
-                </button></a></li>
-                <li><a href="/insertrows"><button class="contrast">
-                    <!-- + square -->
-                    <svg width="24" height="24" viewBox="0 0 24 24"><use xlink:href="/img/icons.svg#feather-plus-square"></use></svg>
-                    Enregistrer des données
-                </button></a></li>
-                <li><a href="/transfer"><button class="contrast">
-                    <!-- fast forward -->
-                    <svg width="24" height="24" viewBox="0 0 24 24"><use xlink:href="/img/icons.svg#feather-fast-forward"></use></svg>
-                    Transfert entre comptes
-                </button></a></li>
-                <li><a href="/recurrentRecords"><button class="contrast">
-                    <!-- refresh clockwise -->
-                    <svg width="24" height="24" viewBox="0 0 24 24"><use xlink:href="/img/icons.svg#feather-refresh-cw"></use></svg>
-                    Enregistrements réguliers
-                </button></a></li>
-                <li><a href="/validaterows"><button class="contrast outline">
-                    <!-- check-square -->
-                    <svg width="24" height="24" viewBox="0 0 24 24" stroke="currentColor"><use xlink:href="/img/icons.svg#feather-check-square"></use></svg>
-                    Valider / 
-                    <!-- x square -->
-                    <svg width="24" height="24" viewBox="0 0 24 24" stroke="currentcolor"><use xlink:href="/img/icons.svg#feather-x-square"></use></svg>
-                    Annuler
-                </button></a></li>
-                <li><a href="/editrows"><button class="contrast outline">
-                    <!-- search -->
-                    <svg width="24" height="24" viewBox="0 0 24 24" stroke="currentColor"><use xlink:href="/img/icons.svg#feather-search"></use></svg>
-                    Rechercher des données
-                </button></a></li>
-                <li><a href="/stats"><button class="contrast outline">
-                    <!-- pie-chart -->
-                    <svg width="24" height="24" viewBox="0 0 24 24" stroke="currentColor"><use xlink:href="/img/icons.svg#feather-pie-chart"></use></svg>
-                    Statistiques
-                </button></a></li>
-            {{else}}
-                <li><a href="/createUser"><button class="contrast outline">
-                    <!-- user plus -->
-                    <svg width="24" height="24" viewBox="0 0 24 24"><use xlink:href="/img/icons.svg#feather-user-plus"></use></svg>
-                    Créer un compte
-                </button></a></li>
-                <li><a href="/login"><button class="contrast">
-                    <!-- user check -->
-                    <svg width="24" height="24" viewBox="0 0 24 24"><use xlink:href="/img/icons.svg#feather-user-check"></use></svg>
-                    Se connecter
-                </button></a></li>
-            {{end}}
-        </ol>
+
+        <aside><nav><ul>
+        {{if .Logged}}
+            <li><a href="/param-setup" role="button" class="contrast outline">
+                <!-- tool -->
+                <svg width="24" height="24" viewBox="0 0 24 24"><use xlink:href="/img/icons.svg#feather-tool"></use></svg>
+                Paramétrer l'application
+            </a></li>
+            <li><a href="/insertrows" role="button" class="contrast">
+                <!-- + square -->
+                <svg width="24" height="24" viewBox="0 0 24 24"><use xlink:href="/img/icons.svg#feather-plus-square"></use></svg>
+                Enregistrer des données
+            </a></li>
+            <li><a href="/transfer" role="button" class="contrast">
+                <!-- fast forward -->
+                <svg width="24" height="24" viewBox="0 0 24 24"><use xlink:href="/img/icons.svg#feather-fast-forward"></use></svg>
+                Transfert entre comptes
+            </a></li>
+            <li><a href="/recurrentRecords" role="button" class="contrast">
+                <!-- refresh clockwise -->
+                <svg width="24" height="24" viewBox="0 0 24 24"><use xlink:href="/img/icons.svg#feather-refresh-cw"></use></svg>
+                Enregistrements réguliers
+            </a></li>
+            <li><a href="/validaterows" role="button" class="contrast outline">
+                <!-- check-square -->
+                <svg width="24" height="24" viewBox="0 0 24 24" stroke="currentColor"><use xlink:href="/img/icons.svg#feather-check-square"></use></svg>
+                Valider / 
+                <!-- x square -->
+                <svg width="24" height="24" viewBox="0 0 24 24" stroke="currentcolor"><use xlink:href="/img/icons.svg#feather-x-square"></use></svg>
+                Annuler
+            </a></li>
+            <li><a href="/editrows" role="button" class="contrast outline">
+                <!-- search -->
+                <svg width="24" height="24" viewBox="0 0 24 24" stroke="currentColor"><use xlink:href="/img/icons.svg#feather-search"></use></svg>
+                Rechercher des données
+            </a></li>
+            <li><a href="/stats" role="button" class="contrast outline">
+                <!-- pie-chart -->
+                <svg width="24" height="24" viewBox="0 0 24 24" stroke="currentColor"><use xlink:href="/img/icons.svg#feather-pie-chart"></use></svg>
+                Statistiques
+            </a></li>
+        {{else}}
+            <li><a href="/createUser" role="button" class="contrast outline">
+                <!-- user plus -->
+                <svg width="24" height="24" viewBox="0 0 24 24"><use xlink:href="/img/icons.svg#feather-user-plus"></use></svg>
+                Créer un compte
+            </a></li>
+            <li><a href="/login" role="button" class="contrast">
+                <!-- user check -->
+                <svg width="24" height="24" viewBox="0 0 24 24"><use xlink:href="/img/icons.svg#feather-user-check"></use></svg>
+                Se connecter
+            </a></li>
+        {{end}}
+        </ul></nav></aside>
+
         {{if .Logged}}
             <hr>
             <h5>Gestion des données via fichier CSV</h5>
-            <ul>
-                <li><a href="/export-csv"><button class="contrast outline">
+            <aside><nav><ul>
+                <li><a href="/export-csv" role="button" class="contrast outline">
                     <!-- file text -->
                     <svg width="24" height="24" viewBox="0 0 24 24"><use xlink:href="/img/icons.svg#feather-file-text"></use></svg>
                     Exporter en CSV
-                </button></a></li>
-                <li><a href="/import-csv"><button class="contrast outline">
+                </a></li>
+                <li><a href="/import-csv" role="button" class="contrast outline">
                     <!-- file text -->
                     <svg width="24" height="24" viewBox="0 0 24 24"><use xlink:href="/img/icons.svg#feather-file-text"></use></svg>
                     Importer via CSV
-                </button></a></li>
-            </ul>
+                </a></li>
+            </ul></nav></aside>
+
             {{if .Admin}}
                 <hr>
                 <h5>Administration</h5>
-                <ul>
-                    <li><a href="/admin/backup"><button class="secondary outline">
+                <aside><nav><ul>
+                    <li><a href="/admin/backup" role="button" class="secondary outline">
                         <!-- database -->
                         <svg width="24" height="24" viewBox="0 0 24 24"><use xlink:href="/img/icons.svg#feather-database"></use></svg>
                         Gérer les backups
-                    </button></a></li>
-                    <li><a href="/admin/backup?save=1"><button class="secondary outline">
+                    </a></li>
+                    <li><a href="/admin/backup?save=1" role="button" class="secondary outline">
                         <!-- upload cloud -->
                         <svg width="24" height="24" viewBox="0 0 24 24"><use xlink:href="/img/icons.svg#feather-upload-cloud"></use></svg>
                         <!-- database -->
                         <svg width="24" height="24" viewBox="0 0 24 24"><use xlink:href="/img/icons.svg#feather-database"></use></svg>
-                        Générer un backup DB SQLite
-                    </button></a></li>
-                </ul>
+                        Générer backup DB SQLite
+                    </a></li>
+                </ul></nav></aside>
             {{end}}
         {{end}}
     </section>

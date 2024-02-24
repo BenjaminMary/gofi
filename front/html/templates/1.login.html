@@ -51,36 +51,40 @@
         <!-- create user if not logged -->
         {{ if not .Logged }}
             <div>
-                Nouveau ? 
-                <a href="/createUser"><button class="contrast outline">
+                Nouveau ?<br>
+                <a href="/createUser" role="button" class="contrast outline">
                     <!-- user plus -->
                     <svg width="24" height="24" viewBox="0 0 24 24"><use xlink:href="/img/icons.svg#feather-user-plus"></use></svg>
                     Créer un compte
-                </button></a>
+                </a>
             </div>
         {{ end }}
     </section>
 {{ end }}
 
 <section id="options">
-    <p>
-        <!-- fast forward -->
-        <svg width="24" height="24" viewBox="0 0 24 24"><use xlink:href="/img/icons.svg#feather-fast-forward"></use></svg>
-        Etape suivante: 
-        <a href="/param-setup"><button class="contrast outline">
-            <!-- tool -->
-            <svg width="24" height="24" viewBox="0 0 24 24"><use xlink:href="/img/icons.svg#feather-tool"></use></svg>
-            Paramétrer l'application
-        </button></a>
-        <!-- fast forward -->
-        <svg width="24" height="24" viewBox="0 0 24 24"><use xlink:href="/img/icons.svg#feather-fast-forward"></use></svg>
-        Raccourci: 
-        <a href="/insertrows"><button class="contrast">
-            <!-- + square -->
-            <svg width="24" height="24" viewBox="0 0 24 24"><use xlink:href="/img/icons.svg#feather-plus-square"></use></svg>
-            Enregistrer des données
-        </button></a>
-    </p>
+    <aside><nav><ul>
+        <li>
+            <!-- fast forward -->
+            <svg width="24" height="24" viewBox="0 0 24 24"><use xlink:href="/img/icons.svg#feather-fast-forward"></use></svg>
+            Etape suivante: 
+            <a href="/param-setup" role="button" class="contrast outline">
+                <!-- tool -->
+                <svg width="24" height="24" viewBox="0 0 24 24"><use xlink:href="/img/icons.svg#feather-tool"></use></svg>
+                Paramétrer l'application
+            </a>
+        </li>
+        <li>
+            <!-- fast forward -->
+            <svg width="24" height="24" viewBox="0 0 24 24"><use xlink:href="/img/icons.svg#feather-fast-forward"></use></svg>
+            Raccourci: <br>
+            <a href="/insertrows" role="button" class="contrast">
+                <!-- + square -->
+                <svg width="24" height="24" viewBox="0 0 24 24"><use xlink:href="/img/icons.svg#feather-plus-square"></use></svg>
+                Enregistrer des données
+            </a>
+        </li>
+    </aside></nav></ul>
 </section>
 
 {{template "footer" .}}

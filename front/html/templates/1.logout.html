@@ -8,13 +8,13 @@
     <p>
         {{.Info}} <code>{{.Email}}</code> 
         <!-- smile -->
-        <svg width="24" height="24" viewBox="0 0 24 24"><use xlink:href="/img/icons.svg#feather-smile"></use></svg>
+        <svg width="24" height="24" stroke="currentColor" viewBox="0 0 24 24"><use xlink:href="/img/icons.svg#feather-smile"></use></svg>
     </p>
-    <a href="/login"><button class="contrast">
+    <a href="/login" role="button" class="contrast">
         <!-- user check -->
         <svg width="24" height="24" viewBox="0 0 24 24"><use xlink:href="/img/icons.svg#feather-user-check"></use></svg>
         Se connecter
-    </button></a>
+    </a>
 </section>
 
 {{template "footer" .}}
