@@ -154,61 +154,8 @@
     var jsIconCodePointList = [];
     for (let i = 0; i < iconCodePointList.length; i++) {
         var jsCodePoint
-        switch (iconCodePointList[i]) {
-            case 'e570':
-                jsCodePoint = '\ue570'
-                break;
-            case 'e531':
-                jsCodePoint = '\ue531'
-                break;
-            case 'ef97':
-                jsCodePoint = '\uef97'
-                break;
-            case 'e8cc':
-                jsCodePoint = '\ue8cc'
-                break;
-            case 'e8b1':
-                jsCodePoint = '\ue8b1'
-                break;
-            case 'f1e9':
-                jsCodePoint = '\uf1e9'
-                break;
-            case 'ea66':
-                jsCodePoint = '\uea66'
-                break;
-            case 'e2db':
-                jsCodePoint = '\ue2db'
-                break;
-            case 'eb86':
-                jsCodePoint = '\ueb86'
-                break;
-            case 'e84f':
-                jsCodePoint = '\ue84f'
-                break;
-            case 'e73a':
-                jsCodePoint = '\ue73a'
-                break;
-            case 'e70e':
-                jsCodePoint = '\ue70e'
-                break;
-            case 'e587':
-                jsCodePoint = '\ue587'
-                break;
-            case 'f671':
-                jsCodePoint = '\uf671'
-                break;
-            case 'f884':
-                jsCodePoint = '\uf884'
-                break;
-            case 'e000':
-                jsCodePoint = '\ue000'
-                break;
-            case 'f88a':
-                jsCodePoint = '\uf88a'
-                break;
-            default:
-                jsCodePoint = '\ue887'    
-        }
+        jsCodePoint = parseInt(iconCodePointList[i], 16);
+        jsCodePoint = String.fromCodePoint(jsCodePoint);
         jsIconCodePointList.push(jsCodePoint);
     };
     const icons = jsIconCodePointList // ['\ue887','\ue887','\ue531','\ue531','\ue531'] fonctionnel avec:: fontFamily: 'Material Icons'
