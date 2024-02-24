@@ -91,7 +91,12 @@ This optional feature adds some prerequisites:
     - ☐ budget de dépense par catégorie
 - ☐❗ simplifier les catégories:
     - ☐ ajouter 2 niveaux de catégories, avec en mode simple 1 seul niveau obligatoire
-    - ☐ ajouter des logos + couleurs par catégorie
+    - ☑ ajouter des logos + couleurs par catégorie
+    - ☐ nouvelle page de modif des catégories à faire, améliorer l'UI actuelle
+    - ☐❗ voir si possible d'ajouter le logo dans les listes déroulantes de sélection de catégorie
+    - nouvelles tables 
+        - ☑ catégorie dédiée: id, nom, couleur, icone
+        - join: user ID associé à category ID
 - ☐ ajout préférences utilisateur:
     - ☐ gestion des préférences de format de date EN + FR avec / ou -
     - ☐ gestion des préférences de format csv séparateur colonne + separateur décimal
@@ -107,6 +112,7 @@ This optional feature adds some prerequisites:
 - ☑ ajout validation des dépenses
     - ☑ système qui ramène l'ensemble des lignes encore non validées
     - ☑ voir pour permettre de la validation de groupe en saisissant une date unique et en sélectionnant X lignes
+    - ☐❗ à chaque validation, voir pour garder les paramètres spé si utilisés
     - ☐ permettre l'édition d'une ligne, page dédiée, ou mettre 3 radio: validation/édition/annulation ?
 - ☐ ajout multi utilisateur sur un compte
     - ☐ un utilisateur admin du compte qui peut en ajouter d'autres (max 5)
@@ -120,11 +126,7 @@ This optional feature adds some prerequisites:
             - https://github.com/jspreadsheet/ce
                 - https://bossanova.uk/jspreadsheet/v4/docs/quick-reference
     - sur le nombre de requêtes des utilisateurs pour voir les actifs ? (tableau admin?)
-    - ☑ globales sur les montants dispo par compte
     - ☑ ajouter le montant total en cours de validation/annulation lors de la sélection des lignes
-    - ☑ partie statistiques globales, gestion année par année avec input
-    - ☑ ajout de graphs en D3.js
-    - ☑ affichage HTML, tout orienter à droite lorsque chiffres (☒ ajouter un séparateur de miliers?)
 - Ajout sauvegarde DB SQLite sur Drive
     - ☑ avec table SQLite qui garde les ID + nom + date de fichiers sauvegardés + le statut de l'upload (pas besoin l'API Google redonne toutes les infos)
     - ☑ voir pour fermer le server et faire la sauvegarde au restart après quelques commandes de nettoyage de DB (semble ok)
@@ -150,6 +152,9 @@ This optional feature adds some prerequisites:
 
 
 ## Changelog
+- 2024-02-23 : start adding icons and colors to categories, add a full list of categories for new users.
+    - replace D3.js by [apexcharts](https://apexcharts.com/).
+    - add Google Fonts for icons inside pie chart.
 - 2024-02-18 : fix total selected amount in validate row page after a POST request.
 - 2024-02-15 : backup part, put the DELETE on the last save by default. Recurrent records, after an edit/delete, go back to the create mode.
 - 2024-02-14 : add a new feature for recurrent records.

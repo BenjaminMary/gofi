@@ -1,14 +1,23 @@
 {{template "head" .}}
 <style>
-    td.col1, 
-    td.col2,
     .right{
         text-align: right;
     }
     div#container{
         text-align: center;
     }
+    .apexcharts-canvas{
+        margin: 0 auto;
+    }
+    span.material-symbols-outlined {
+        display: inline-flex;
+        vertical-align: middle;
+        border-radius: 100px;
+        padding: 0.13em 0.13em 0.13em 0.13em; /* top | right | bottom | left */
+        color: white;
+    }
 </style>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,1,0" />
 {{template "body" .}}
 {{template "content" .}}
 
@@ -61,10 +70,13 @@
                 </thead>
                 <tbody>
                     {{range $A := .AccountList}}
+                        {{$compte := index $A 0}}
+                        {{$prix := index $A 1}}
+                        {{$quantite := index $A 2}}
                         <tr>
-                        {{range $i, $v := $A}} 
-                            <td class="col{{$i}}">{{$v}}</td>
-                        {{end}}
+                            <td>{{$compte}}</td>
+                            <td class="right">{{$prix}}</td>
+                            <td class="right">{{$quantite}}</td>
                         </tr>
                     {{end}}
                     <tr>
@@ -103,10 +115,18 @@
                 </thead>
                 <tbody>
                     {{range $C := .CategoryList}}
+                        {{$catego := index $C 0}}
+                        {{$prix := index $C 1}}
+                        {{$quantite := index $C 2}}
+                        {{$iconCodePoint := index $C 3}}
+                        {{$colorHEX := index $C 4}}
                         <tr>
-                        {{range $i, $v := $C}} 
-                            <td class="col{{$i}}">{{$v}}</td>
-                        {{end}}
+                            <td>
+                                <span class="material-symbols-outlined" style="background-color: {{$colorHEX}};">&#x{{$iconCodePoint}};</span> 
+                                {{$catego}}
+                            </td>
+                            <td class="right">{{$prix}}</td>
+                            <td class="right">{{$quantite}}</td>
                         </tr>
                     {{end}}
                     <tr>
@@ -127,180 +147,120 @@
 </section>
 
 {{template "footer" .}}
-<script src="https://cdn.jsdelivr.net/npm/d3@7"></script>
 
+<script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
 <script type="module">
-    //pie chart
-    /*const data = [
-        {name: "<5", value: 19912018},
-        {name: "5-9", value: 20501982},
-        {name: "10-14", value: 20679786}
-    ];*/
-    const data = JSON.parse("{{.ResponseJsonString}}");
-    //console.log(data);
+    var iconCodePointList = {{.IconCodePointList}};
+    var jsIconCodePointList = [];
+    for (let i = 0; i < iconCodePointList.length; i++) {
+        var jsCodePoint
+        switch (iconCodePointList[i]) {
+            case 'e570':
+                jsCodePoint = '\ue570'
+                break;
+            case 'e531':
+                jsCodePoint = '\ue531'
+                break;
+            case 'ef97':
+                jsCodePoint = '\uef97'
+                break;
+            case 'e8cc':
+                jsCodePoint = '\ue8cc'
+                break;
+            case 'e8b1':
+                jsCodePoint = '\ue8b1'
+                break;
+            case 'f1e9':
+                jsCodePoint = '\uf1e9'
+                break;
+            case 'ea66':
+                jsCodePoint = '\uea66'
+                break;
+            case 'e2db':
+                jsCodePoint = '\ue2db'
+                break;
+            case 'eb86':
+                jsCodePoint = '\ueb86'
+                break;
+            case 'e84f':
+                jsCodePoint = '\ue84f'
+                break;
+            case 'e73a':
+                jsCodePoint = '\ue73a'
+                break;
+            case 'e70e':
+                jsCodePoint = '\ue70e'
+                break;
+            case 'e587':
+                jsCodePoint = '\ue587'
+                break;
+            case 'f671':
+                jsCodePoint = '\uf671'
+                break;
+            case 'f884':
+                jsCodePoint = '\uf884'
+                break;
+            case 'e000':
+                jsCodePoint = '\ue000'
+                break;
+            case 'f88a':
+                jsCodePoint = '\uf88a'
+                break;
+            default:
+                jsCodePoint = '\ue887'    
+        }
+        jsIconCodePointList.push(jsCodePoint);
+    };
+    const icons = jsIconCodePointList // ['\ue887','\ue887','\ue531','\ue531','\ue531'] fonctionnel avec:: fontFamily: 'Material Icons'
+    const colors = {{.ColorHEXList}} // ['#F44336', '#E91E63', '#9C27B0', '#E91E63']
+    const labels = {{.CategoryLabelList}}
+    const series = {{.CategoryValueList}} // [4, 5, 41, 17, 15, 11, 4, 6, 4, 5]
+    
+    var options = {
+        series: series,
+        labels: labels,
+        colors: colors,
+        chart: {type: 'donut', height: 550, width: 550},
+        legend: {show: false},
+        dataLabels: {
+          formatter(val, opts) {
+            const name = opts.w.globals.labels[opts.seriesIndex]
+            return icons[opts.seriesIndex]
+          },
+          /* fontFamily: 'Material Symbols Outlined' 'Material Icons' 'Bootstrap-icons'*/
+          style: {fontSize: '24px', fontFamily: 'Material Symbols Outlined'},
+        },
 
-    // Specify the chart’s dimensions.
-    const width = 500;
-    const height = Math.min(width, 500);
+        responsive: [
+            {
+                breakpoint: 576,
+                options: {chart: {height: 450, width: 450}}
+            },
+            {
+                breakpoint: 480,
+                options: {
+                    chart: {height: 350, width: 350},
+                    dataLabels: {style: {fontSize: '18px'}},
+                }
+            },
+            {
+                breakpoint: 365,
+                options: {
+                    chart: {height: 250, width: 250},
+                    dataLabels: {style: {fontSize: '14px'}},
+                }
+            }
+        ]
+    };
 
-    // Create the color scale.
-    const color = d3.scaleOrdinal()
-        //.domain(data.map(d => d.name))
-        .domain(data.map(d => d["name"]))
-        .range(d3.quantize(t => d3.interpolateRdYlGn(t * 1.2 + 0.1), data.length)) //.reverse()
-
-    // Create the pie layout and arc generator.
-    const pie = d3.pie()
-        .sort(null)
-        .value(d => d.value);
-
-    const arc = d3.arc()
-        .innerRadius(0)
-        .outerRadius(Math.min(width, height) / 2 - 1);
-
-    const labelRadius = arc.outerRadius()() * 0.8;
-
-    // A separate arc generator for labels.
-    const arcLabel = d3.arc()
-        .innerRadius(labelRadius)
-        .outerRadius(labelRadius);
-
-    const arcs = pie(data);
-
-    // Create the SVG container.
-    const svg = d3.create("svg")
-        .attr("width", width)
-        .attr("height", height)
-        //.attr("viewBox", [-width / 2, -height / 2, width, height])
-        .attr("viewBox", [-width / 2, -height / 2, width, height])
-        .attr("style", "max-width: 100%; height: auto; font: 18px sans-serif; color: white;");
-
-    // Add a sector path for each value.
-    svg.append("g")
-        .attr("stroke", "white")
-        .selectAll()
-        .data(arcs)
-        .join("path")
-        .attr("fill", d => color(d.data.name))
-        .attr("fill-opacity", 0.7)
-        .attr("d", arc)
-        .append("title")
-        .text(d => `${d.data.name}: ${d.data.value.toLocaleString("en-US")}`);
-
-    // Create a new arc generator to place a label close to the edge.
-    // The label shows the value if there is enough room.
-    svg.append("g")
-        .attr("text-anchor", "middle")
-        .selectAll()
-        .data(arcs)
-        .join("text")
-        .attr("transform", d => `translate(${arcLabel.centroid(d)})`)
-        .call(text => text.filter(d => (d.endAngle - d.startAngle) > 0.15).append("tspan")
-            .attr("y", "-0.4em")
-            //.attr("font-weight", "bold")
-            .text(d => d.data.name))
-        .call(text => text.filter(d => (d.endAngle - d.startAngle) > 0.25).append("tspan")
-            .attr("x", 0)
-            .attr("y", "0.7em")
-            .attr("fill-opacity", 0.7)
-            .text(d => "-"+d.data.value.toLocaleString("fr-FR"))); // "fr-FR"=2 600,72 "en-US"=2,600.72
-
-    container.append(svg.node());
-
+    var chart = new ApexCharts(document.querySelector("#container"), options);
+    chart.render();
 </script>
-
-<!--  
-<script type="module">
-    //bar chart
-    /*var chartData = [
-        {name: "A", value: 10},
-        {name: "B", value: 50},
-        {name: "C", value: 100},
-    ];*/
-    var chartData = JSON.parse("{{.ResponseJsonString}}");
-    //console.log(data);
-
-  // Specify the chart’s dimensions, based on a bar’s height.
-  const barHeight = 70;
-  const marginTop = 50;
-  const marginRight = 20;
-  const marginBottom = 10;
-  const marginLeft = 200;
-  const width = 928;
-  const height = Math.ceil((chartData.length + 0.1) * barHeight) + marginTop + marginBottom;
-
-  // Create the scales.
-  const x = d3.scaleSymlog()
-      .constant(10)
-      .domain([0, d3.max(chartData, d => d.value)])
-      .range([marginLeft, width - marginRight]);
-  
-  const y = d3.scaleBand()
-      .domain(d3.sort(chartData, d => -d.value).map(d => d.name))
-      .rangeRound([marginTop, height - marginBottom])
-      .padding(0.1);
-
-  // Create a value format.
-  //const format = x.tickFormat(20, "%");
-  const format = x.tickFormat(20);
-
-  // Create the SVG container.
-  const svg = d3.create("svg")
-      .attr("width", width)
-      .attr("height", height)
-      .attr("viewBox", [10, 10, width, height])
-      .attr("style", "max-width: 100%; height: auto; font: 25px sans-serif;");
-  
-  // Append a rect for each name.
-  svg.append("g")
-      .attr("fill", "steelblue")
-    .selectAll()
-    .data(chartData)
-    .join("rect")
-      .attr("x", x(0))
-      .attr("y", (d) => y(d.name))
-      .attr("width", (d) => x(d.value) - x(0))
-      .attr("height", y.bandwidth());
-  
-  // Append a label for each name.
-  svg.append("g")
-      .attr("fill", "white")
-      .attr("text-anchor", "end")
-    .selectAll()
-    .data(chartData)
-    .join("text")
-      .attr("x", (d) => x(d.value))
-      .attr("y", (d) => y(d.name) + y.bandwidth() / 2)
-      .attr("dy", "0.35em")
-      .attr("dx", -4)
-      .text((d) => format(d.value))
-    .call((text) => text.filter(d => x(d.value) - x(0) < 20) // short bars
-      .attr("dx", +4)
-      .attr("fill", "black")
-      .attr("text-anchor", "start"));
-
-  // Create the axes.
-  svg.append("g")
-      .attr("transform", `translate(0,${marginTop})`)
-      .style("font-size", "20px")
-      //.call(d3.axisTop(x).ticks(width / 80, "%"))
-      .call(d3.axisTop(x).ticks(width / 200, "s"))
-      .call(g => g.select(".domain").remove());
-
-  svg.append("g")
-      .attr("transform", `translate(${marginLeft},0)`)
-      .style("font-size", "30px")
-      .call(d3.axisLeft(y).tickSizeOuter(0));
-
-  container.append(svg.node());
-</script>
--->
 <script>
     document.getElementById('switchMode').addEventListener('click', function(evt){
         document.getElementById("form").submit();
     });
     document.getElementById('annee').addEventListener('change', function(evt){
-        //console.log("in oninput evt")
         document.getElementById("form").submit();
     });
 </script>

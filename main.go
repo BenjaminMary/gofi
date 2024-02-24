@@ -270,7 +270,7 @@ func getParamSetup(c *gin.Context) {
     var UserParams sqlite.UserParams
     UserParams.GofiID = cookieGofiID
     sqlite.GetList(ctx, db, &UserParams)
-    c.HTML(http.StatusOK, "2.paramSetup.html", gin.H{
+    c.HTML(http.StatusOK, "2.1.paramSetup.html", gin.H{
         "UserParams": UserParams,
     })
 }
@@ -312,12 +312,40 @@ func postParamSetup(c *gin.Context) {
         Form.ParamName = "categoryList"
         Form.ParamJSONstringData = cleanStringList(categoryList)
         Form.ParamInfo = "Liste des catégories (séparer par des , sans espaces)"
-        returnedString = `<input type="text" id="categoryList" name="categoryList" value="` + categoryList + `" aria-invalid="false" disabled />`
+        returnedString = `<textarea id="categoryList" name="categoryList" rows="3" aria-invalid="false" disabled>` + categoryList + `</textarea>`
     }
     _, err := sqlite.InsertRowInParam(&Form)
 	if err != nil { // Always check errors even if they should not happen.
 		panic(err)
 	}
+    c.String(200, returnedString)
+}
+// GET CategorySetup.html
+func getCategorySetup(c *gin.Context) {
+    ctx, cancel := context.WithTimeout(context.TODO(), 2*time.Second)
+    defer cancel()
+
+    _, _ = CheckCookie(ctx, c, db)
+    if c.IsAborted() {return}
+
+	var CategoryList, IconCodePointList, ColorHEXList []string
+    CategoryList, IconCodePointList, ColorHEXList = sqlite.GetCategoryList(ctx, db)
+    c.HTML(http.StatusOK, "2.2.categorySetup.html", gin.H{
+        "CategoryList": CategoryList,
+        "IconCodePointList": IconCodePointList,
+        "ColorHEXList": ColorHEXList,
+    })
+}
+// POST CategorySetup.html
+func postCategorySetup(c *gin.Context) {
+    ctx, cancel := context.WithTimeout(context.TODO(), 2*time.Second)
+    defer cancel()
+
+    _, _ = CheckCookie(ctx, c, db)
+    if c.IsAborted() {return}
+
+    var returnedString string
+    returnedString = "empty"
     c.String(200, returnedString)
 }
 
@@ -839,6 +867,8 @@ func getStats(c *gin.Context) {
 
     var m sqlite.PieChartD3js
     var CategoryListJsonBinary []sqlite.PieChartD3js
+    var CategoryLabelList, IconCodePointList, ColorHEXList []string
+    var CategoryValueList []float64
     for _, element := range CategoryList {
         m.Price, _ = strconv.ParseFloat(element[1], 64)
         if (m.Price < 0){
@@ -846,6 +876,10 @@ func getStats(c *gin.Context) {
             m.Price = m.Price * -1
             //m.Quantity = element[2]
             CategoryListJsonBinary = append(CategoryListJsonBinary, m)
+            CategoryLabelList = append(CategoryLabelList, element[0])
+            CategoryValueList = append(CategoryValueList, m.Price)
+            IconCodePointList = append(IconCodePointList, element[3])
+            ColorHEXList = append(ColorHEXList, element[4])
         }
     }
     ResponseJsonBinary, _ := json.Marshal(CategoryListJsonBinary)
@@ -859,6 +893,10 @@ func getStats(c *gin.Context) {
         "CategoryList": CategoryList,
         "ResponseJsonString": string(ResponseJsonBinary), // array of dict [{},{}] for d3.js
         "Checked": false,
+        "CategoryLabelList": CategoryLabelList,
+        "CategoryValueList": CategoryValueList,
+        "IconCodePointList": IconCodePointList,
+        "ColorHEXList": ColorHEXList,
     })
 }
 
@@ -887,6 +925,8 @@ func postStats(c *gin.Context) {
 
     var m sqlite.PieChartD3js
     var CategoryListJsonBinary []sqlite.PieChartD3js
+    var CategoryLabelList, IconCodePointList, ColorHEXList []string
+    var CategoryValueList []float64
     for _, element := range CategoryList {
         m.Price, _ = strconv.ParseFloat(element[1], 64)
         if (m.Price < 0){
@@ -894,6 +934,10 @@ func postStats(c *gin.Context) {
             m.Price = m.Price * -1
             //m.Quantity = element[2]
             CategoryListJsonBinary = append(CategoryListJsonBinary, m)
+            CategoryLabelList = append(CategoryLabelList, element[0])
+            CategoryValueList = append(CategoryValueList, m.Price)
+            IconCodePointList = append(IconCodePointList, element[3])
+            ColorHEXList = append(ColorHEXList, element[4])
         }
     }
     ResponseJsonBinary, _ := json.Marshal(CategoryListJsonBinary)
@@ -907,6 +951,10 @@ func postStats(c *gin.Context) {
         "CategoryList": CategoryList,
         "ResponseJsonString": string(ResponseJsonBinary), // array of dict [{},{}] for d3.js
         "Checked": checked,
+        "CategoryLabelList": CategoryLabelList,
+        "CategoryValueList": CategoryValueList,
+        "IconCodePointList": IconCodePointList,
+        "ColorHEXList": ColorHEXList,
     })
 }
 
@@ -1041,6 +1089,8 @@ func main() {
 
     router.GET("/param-setup", getParamSetup)
     router.POST("/param-setup", postParamSetup)
+    router.GET("/category-setup", getCategorySetup)
+    router.POST("/category-setup", postCategorySetup)
 
     router.GET("/insertrows", getinsertrows)
     router.POST("/insertrows", postinsertrows)

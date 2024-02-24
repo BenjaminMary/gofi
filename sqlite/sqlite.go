@@ -172,7 +172,7 @@ func CheckIfIdExists(gofiID int) {
 		var P2 Param
 		P2.GofiID = gofiID
         P2.ParamName = "categoryList"
-        P2.ParamJSONstringData = "Supermarché,Restaurant,Loisir"
+        P2.ParamJSONstringData = "Courses,Banque,Cadeaux,Entreprise,Erreur,Investissement,Loisirs,Loyer,Restaurant,Salaire,Santé,Services,Shopping,Transport,Voyage,Véhicule"
         P2.ParamInfo = "Liste des catégories (séparer par des , sans espaces)"
 		InsertRowInParam(&P2)
 	}
@@ -352,6 +352,30 @@ func GetList(ctx context.Context, db *sql.DB, up *UserParams) {
 	return
 }
 
+func GetCategoryList(ctx context.Context, db *sql.DB) ([]string, []string, []string) {
+	q := ` 
+		SELECT category, iconCodePoint, colorHEX
+		FROM category
+		ORDER BY id
+	`
+	rows, _ := db.QueryContext(ctx, q)
+
+	var category, iconCodePoint, colorHEX string
+	var categoryList, iconCodePointList, colorHEXList []string
+	for rows.Next() {
+		if err := rows.Scan(&category, &iconCodePoint, &colorHEX); err != nil {
+			log.Fatal(err)
+			return categoryList, iconCodePointList, colorHEXList
+		}
+		categoryList = append(categoryList, category)
+		iconCodePointList = append(iconCodePointList, iconCodePoint)
+		colorHEXList = append(colorHEXList, colorHEX)
+	}
+	// fmt.Printf("\naccountList: %v\n", up.AccountList)
+	rows.Close()
+	return categoryList, iconCodePointList, colorHEXList
+}
+
 func InsertRowInParam(p *Param) (int64, error) {
 	db, err := sql.Open("sqlite", DbPath)
 	if err != nil {
@@ -376,8 +400,9 @@ func InsertRowInParam(p *Param) (int64, error) {
 }
 
 
-func GetStatsInFinanceTracker(ctx context.Context, db *sql.DB, gofiID int, checkedDataOnly int, year int) ([][]string, [][]string, []string, []string) {
-	var statsAccountList, statsCategoryList [][]string // [account1, sum1, count1], [...,] | [category1, sum1, count1], [...,]
+func GetStatsInFinanceTracker(ctx context.Context, db *sql.DB, gofiID int, checkedDataOnly int, year int) (
+	[][]string, [][]string, []string, []string) {
+	var statsAccountList, statsCategoryList [][]string // [account1, sum1, count1], [...,] | [category1, sum1, count1, icon1, color1], [...,]
 	var totalAccountList, totalCategoryList []string // [total, total, sum, count]
 	q1 := ` 
 		SELECT account, SUM(priceIntx100) AS sum, COUNT(1) AS c
@@ -389,12 +414,13 @@ func GetStatsInFinanceTracker(ctx context.Context, db *sql.DB, gofiID int, check
 		ORDER BY sum DESC
 	`
 	q2 := ` 
-		SELECT category, SUM(priceIntx100) AS sum, COUNT(1) AS c
-		FROM financeTracker
+		SELECT fT.category, ifnull(c.iconCodePoint,'f88a') AS icp, ifnull(c.colorHEX,'#000000') AS ch, SUM(priceIntx100) AS sum, COUNT(1) AS count
+		FROM financeTracker AS fT
+			LEFT JOIN category AS c ON c.category = fT.category
 		WHERE gofiID = ?
 			AND checked IN (1, ?)
 			AND year = ?
-		GROUP BY category
+		GROUP BY fT.category
 		ORDER BY sum ASC
 	`
 	rows, err := db.QueryContext(ctx, q1, gofiID, checkedDataOnly, year)
@@ -427,14 +453,14 @@ func GetStatsInFinanceTracker(ctx context.Context, db *sql.DB, gofiID int, check
 	totalRows = 0
 	for rows.Next() {
 		var statsRow []string
-		var category string
+		var category, iconCodePoint, colorHEX string
 		var sum, count int
-		if err := rows.Scan(&category, &sum, &count); err != nil {
+		if err := rows.Scan(&category, &iconCodePoint, &colorHEX, &sum, &count); err != nil {
 			log.Fatal(err)
 		}
 		totalPriceIntx100 += sum
 		totalRows += count
-		statsRow = append(statsRow, category, ConvertPriceIntToStr(sum), strconv.Itoa(count))
+		statsRow = append(statsRow, category, ConvertPriceIntToStr(sum), strconv.Itoa(count), iconCodePoint, colorHEX)
 		statsCategoryList = append(statsCategoryList, statsRow)
 	}
 	totalCategoryList = append(totalCategoryList, ConvertPriceIntToStr(totalPriceIntx100), strconv.Itoa(totalRows))

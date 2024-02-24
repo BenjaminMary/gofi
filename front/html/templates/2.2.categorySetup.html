@@ -1,0 +1,145 @@
+{{template "head" .}}
+<!-- avoid CDN https://blog.wesleyac.com/posts/why-not-javascript-cdn -->
+<!-- Subresource Integrity, SRI hash : https://www.srihash.org/ -->
+<script 
+    src="https://unpkg.com/htmx.org@1.9.6" 
+    integrity="sha384-FhXw7b6AlE/jyjlZH5iHa/tTe9EpJ1Y55RjcgPbjeWMskSxZt1v9qkxLJWNJaGni" 
+    crossorigin="anonymous">
+</script>
+<!-- <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons"> -->
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,1,0" />
+<style>
+    span.material-symbols-outlined {
+        display: inline-flex;
+        vertical-align: top;
+        border-radius: 100px;
+        padding: 0.13em 0.13em 0.13em 0.13em; /* top | right | bottom | left */
+        color: white;
+    }
+</style>
+{{template "body" .}}
+{{template "content" .}}
+
+<h1>Gérer les catégories</h1>
+
+<section id="form">
+    <div id="forbidden"> <!-- via header: "HX-Retarget", "#forbidden" -->
+        <form hx-post="/category-setup" 
+            hx-target="#categoryList" 
+            hx-swap="outerHTML"
+            hx-sync="this:drop"
+            hx-on::after-request="if(event.detail.successful) document.getElementById('disapear2').remove()">
+
+            <p>
+                <!-- 6. Transport: train hsl(15,60,50) #CC5933 -->
+                | <span class="material-symbols-outlined" style="background-color: #CC5933;">&#xe570;</span>
+                Transport |
+                <!-- 6. Véhicule: directions_car hsl(25,60,50) #CC7633 -->
+                <span class="material-symbols-outlined" style="background-color: #CC7633;">&#xe531;</span>
+                Véhicule |
+            </p>
+            <p>
+                <!-- 2. Courses: grocery hsl(50,40,50) #B3AA4D -->
+                | <span class="material-symbols-outlined" style="background-color: #B3AA4D;">&#xef97;</span> 
+                Courses |  
+                <!-- 2. Shopping: shopping_cart hsl(55,40,50) #B3AA4D -->
+                <span class="material-symbols-outlined" style="background-color: #B3AA4D;">&#xe8cc;</span>
+                Shopping |
+                <!-- 2. Cadeaux: redeem hsl(60,40,50) #B3AA4D -->
+                <span class="material-symbols-outlined" style="background-color: #B3AA4D;">&#xe8b1;</span>
+                Cadeaux |
+            </p>
+            <!-- ? hsl(90,60,50) #80CC33 -->
+            <p>
+                <!-- 3. Loisirs: tapas hsl(125,60,50) #33CC40 -->
+                | <span class="material-symbols-outlined" style="background-color: #33CC33;">&#xf1e9;</span>
+                RestoBar |
+                <!-- 3. Loisirs: theater_comedy hsl(125,60,50) #33CC40 -->
+                <span class="material-symbols-outlined" style="background-color: #33CC40;">&#xea66;</span>
+                Loisirs |
+                <!-- 3. Voyage: travel_explore hsl(125,60,50) #33CC40 -->
+                <span class="material-symbols-outlined" style="background-color: #33CC4C;">&#xe2db;</span>
+                Voyage |
+            </p>
+            <p>
+                <!-- 8. Salaire: add_card hsl(160,60,50) #33CC99 -->
+                | <span class="material-symbols-outlined" style="background-color: #33CC99;">&#xeb86;</span>
+                Salaire | 
+            </p>
+            <p>
+                <!-- 1. Banque: account_balance hsl(195,60,50) #33A6CC -->
+                | <span class="material-symbols-outlined" style="background-color: #33A6CC;">&#xe84f;</span> 
+                Banque |  
+                <!-- 1. Investissement: real_estate_agent hsl(195,60,50) #33A6CC -->
+                <span class="material-symbols-outlined" style="background-color: #33A6CC;">&#xe73a;</span>
+                Investissement |
+            </p>
+            <p>
+                <!-- 9. Entreprise: enterprise hsl(230,60,50) #334CCC -->
+                | <span class="material-symbols-outlined" style="background-color: #334CCC;">&#xe70e;</span>
+                Entreprise |
+            </p>
+            <p>
+                <!-- 4. Loyer: cottage hsl(265,60,50) #7333CC -->
+                | <span class="material-symbols-outlined" style="background-color: #7333CC;">&#xe587;</span> 
+                Loyer |  
+                <!-- 4. Services: wifi_home hsl(265,60,50) #7333CC -->
+                <span class="material-symbols-outlined" style="background-color: #7333CC;">&#xf671;</span>
+                Services |
+            </p>
+            <p>
+                <!-- 5. Santé: heart_plus hsl(300,60,50) #CC33CC -->
+                | <span class="material-symbols-outlined" style="background-color: #CC33CC;">&#xf884;</span>
+                Santé |
+            </p>
+            <p>
+                <!-- 7. Erreur: error hsl(335,60,50) #CC3373 -->
+                | <span class="material-symbols-outlined" style="background-color: #CC3373;">&#xe000;</span>
+                Erreur |
+            </p>
+
+            <p>
+                <!-- help 808080 -->
+                <span id="icon" class="material-symbols-outlined" style="background-color: #808080;">&#xe887;</span> 
+                Catégorie
+            </p>
+            <!-- Color -->
+            Modifier la couleur de l'icône ci-dessus "?":
+            <input id="colorPicker" type="color" value="#808080" aria-label="Color picker"/>
+
+            {{range $i, $val := .CategoryList}}
+                {{$iconCodePoint := index $.IconCodePointList $i}}
+                {{$colorHEX := index $.ColorHEXList $i}}
+                <span class="material-symbols-outlined" style="background-color: {{$colorHEX}};">&#x{{$iconCodePoint}};</span> {{$val}} | 
+            {{end}}
+
+        </form>
+    </div> <!-- via header: "HX-Retarget", "#forbidden" -->
+</section>
+<hr>
+<section id="info">
+    <!-- fast forward -->
+    <svg width="24" height="24" viewBox="0 0 24 24"><use xlink:href="/img/icons.svg#feather-fast-forward"></use></svg>
+    Etape suivante: 
+    <a href="/insertrows"><button class="contrast">
+        <!-- plus-square -->
+        <svg width="24" height="24" viewBox="0 0 24 24"><use xlink:href="/img/icons.svg#feather-plus-square"></use></svg>
+        Enregistrer des données</button>
+    </a>
+</section>
+
+{{template "footer" .}}
+
+<script>
+    // this script handle the forbidden(http403) error triggered when no gofiID Cookie is found and still use HTMX
+    document.body.addEventListener('htmx:beforeOnLoad', function (evt) {
+        if (evt.detail.xhr.status === 403) {
+            evt.detail.shouldSwap = true;
+            evt.detail.isError = false;
+        }
+    });
+
+    document.getElementById('colorPicker').addEventListener('change', function(c){
+        document.getElementById("icon").style.backgroundColor = document.getElementById("colorPicker").value;
+    });
+</script>

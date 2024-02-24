@@ -20,7 +20,7 @@
             hx-on::after-request="if(event.detail.successful) document.getElementById('disapear1').remove()">
 
             <!-- Text -->
-            <label for="accountList">Liste des comptes (séparer par des , sans espaces, ordre repris à l'identique)</label>
+            <label for="accountList"><strong><small>Liste des comptes (séparer par des , sans espaces, ordre repris à l'identique)</small></strong></label>
             <input type="text" id="accountList" name="accountList" value="{{.UserParams.AccountListSingleString}}" required />
 
             <!-- Buttons -->
@@ -38,8 +38,8 @@
             hx-on::after-request="if(event.detail.successful) document.getElementById('disapear2').remove()">
 
             <!-- Text -->
-            <label for="categoryList">Liste des catégories (séparer par des , sans espaces, ordre repris à l'identique)</label>
-            <input type="text" id="categoryList" name="categoryList" value="{{.UserParams.CategoryListSingleString}}" required />
+            <label for="categoryList"><strong><small>Liste des catégories (séparer par des , sans espaces, ordre repris à l'identique)</small></strong></label>
+            <textarea id="categoryList" name="categoryList" rows="3" required>{{.UserParams.CategoryListSingleString}}</textarea>
 
             <!-- Buttons -->
             <button id="disapear2" type="submit" value="Submit">
@@ -56,6 +56,11 @@
         <!-- refresh clockwise -->
         <svg width="24" height="24" viewBox="0 0 24 24"><use xlink:href="/img/icons.svg#feather-refresh-cw"></use></svg>
         Rafraichir la page pour refaire des modifications
+    </button></a>
+    <a href="/category-setup"><button class="contrast outline">
+        <!-- eye -->
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-eye"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
+        Voir les catégories existantes
     </button></a>
     <!-- fast forward -->
     <svg width="24" height="24" viewBox="0 0 24 24"><use xlink:href="/img/icons.svg#feather-fast-forward"></use></svg>
