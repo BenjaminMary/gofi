@@ -196,34 +196,61 @@
                 </div>
             </div>
 
-            <figure>
-                <table class="striped overflow-auto">
-                    <thead id="thead">
-                        <tr>
-                            <th scope="col">
-                                <input type="checkbox" id="toggle" name="toggle" value="0">
-                            </th>
-                            <th scope="col">Date</th>
-                            <th scope="col">Compte</th>
-                            <th scope="col">Categorie</th>
-                            <th scope="col">Designation</th>
-                            <th scope="col">Prix</th>
-                        </tr>
-                    </thead>
-                    <tbody id="listValidateRows">
-                        <!-- POST part -->
-                        <!-- IDs: input + td + "selectedSum" used to calculate with .js func -->
-                        {{define "listValidateRows"}}
-                            {{range $index, $data := .FTlistPost }}
+            <div class="overflow-auto">
+                <figure>
+                    <table class="striped">
+                        <thead id="thead">
+                            <tr>
+                                <th scope="col">
+                                    <input type="checkbox" id="toggle" name="toggle" value="0">
+                                </th>
+                                <th scope="col">Date</th>
+                                <th scope="col">Compte</th>
+                                <th scope="col">Categorie</th>
+                                <th scope="col">Designation</th>
+                                <th scope="col">Prix</th>
+                            </tr>
+                        </thead>
+                        <tbody id="listValidateRows">
+                            <!-- POST part -->
+                            <!-- IDs: input + td + "selectedSum" used to calculate with .js func -->
+                            {{define "listValidateRows"}}
+                                {{range $index, $data := .FTlistPost }}
+                                    <tr>
+                                        <td>
+                                            <input type="checkbox" id="{{$data.ID}}" name="id" value="{{$data.ID}}">
+                                        </td>
+                                        <td>{{$data.Date}}</td>
+                                        <td>{{$data.Account}}</td>
+                                        <td>{{$data.Category}}</td>
+                                        <td>{{$data.Product}}</td>
+                                        <td id="v{{$data.ID}}">{{$data.FormPriceStr2Decimals}}</td>
+                                    </tr>
+                                {{end}}
+                                <tr>
+                                    <td></td>
+                                    <td colspan="2">INFO</td>
+                                    <td colspan="3">Il reste {{.TotalRowsWithoutLimit}} lignes à traiter.</td>
+                                </tr>
+                                <tr>
+                                    <td></td>
+                                    <td colspan="4">MONTANT DE LA SELECTION</td>
+                                    <td id="selectedSum">0.00</td> <!-- id for sum -->
+                                </tr>
+                            {{end}}
+
+                            <!-- GET part -->
+                            <!-- IDs: input + td + "selectedSum" used to calculate with .js func -->
+                            {{range $FT := .FTlist}}
                                 <tr>
                                     <td>
-                                        <input type="checkbox" id="{{$data.ID}}" name="id" value="{{$data.ID}}">
+                                        <input type="checkbox" id="{{$FT.ID}}" name="id" value="{{$FT.ID}}">
                                     </td>
-                                    <td>{{$data.Date}}</td>
-                                    <td>{{$data.Account}}</td>
-                                    <td>{{$data.Category}}</td>
-                                    <td>{{$data.Product}}</td>
-                                    <td id="v{{$data.ID}}">{{$data.FormPriceStr2Decimals}}</td>
+                                    <td>{{$FT.Date}}</td>
+                                    <td>{{$FT.Account}}</td>
+                                    <td>{{$FT.Category}}</td>
+                                    <td>{{$FT.Product}}</td>
+                                    <td id="v{{$FT.ID}}">{{$FT.FormPriceStr2Decimals}}</td>
                                 </tr>
                             {{end}}
                             <tr>
@@ -234,37 +261,12 @@
                             <tr>
                                 <td></td>
                                 <td colspan="4">MONTANT DE LA SELECTION</td>
-                                <td id="selectedSum">0.00</td> <!-- id for sum -->
+                                <td id="selectedSum">0.00</td>
                             </tr>
-                        {{end}}
-
-                        <!-- GET part -->
-                        <!-- IDs: input + td + "selectedSum" used to calculate with .js func -->
-                        {{range $FT := .FTlist}}
-                            <tr>
-                                <td>
-                                    <input type="checkbox" id="{{$FT.ID}}" name="id" value="{{$FT.ID}}">
-                                </td>
-                                <td>{{$FT.Date}}</td>
-                                <td>{{$FT.Account}}</td>
-                                <td>{{$FT.Category}}</td>
-                                <td>{{$FT.Product}}</td>
-                                <td id="v{{$FT.ID}}">{{$FT.FormPriceStr2Decimals}}</td>
-                            </tr>
-                        {{end}}
-                        <tr>
-                            <td></td>
-                            <td colspan="2">INFO</td>
-                            <td colspan="3">Il reste {{.TotalRowsWithoutLimit}} lignes à traiter.</td>
-                        </tr>
-                        <tr>
-                            <td></td>
-                            <td colspan="4">MONTANT DE LA SELECTION</td>
-                            <td id="selectedSum">0.00</td>
-                        </tr>
-                    </tbody>
-                </table>
-            </figure>
+                        </tbody>
+                    </table>
+                </figure>
+            </div>
 
             <!-- Buttons -->
             <button id="submit" type="submit" value="Submit">
