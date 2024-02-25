@@ -119,6 +119,7 @@ func WalCheckpoint(ctx context.Context) int {
 func CheckIfIdExists(gofiID int) {
 	//if new ID, create default params
 	var nbRows int = 0
+	var P Param
 
 	db, err := sql.Open("sqlite", DbPath)
 	if err != nil {
@@ -129,13 +130,13 @@ func CheckIfIdExists(gofiID int) {
 	defer db.Exec("PRAGMA optimize;") // to run just before closing each database connection.
 	defer fmt.Println("defer : optimize then close DB")
 
-	qA := ` 
+	q := ` 
 		SELECT COUNT(1)
 		FROM param
 		WHERE gofiID = ?
-			AND paramName = 'accountList';
+			AND paramName = ?;
 	`
-	err = db.QueryRow(qA, gofiID).Scan(&nbRows)
+	err = db.QueryRow(q, gofiID, "accountList").Scan(&nbRows)
 	switch {
 		case err == sql.ErrNoRows:
 			nbRows = 0
@@ -145,36 +146,43 @@ func CheckIfIdExists(gofiID int) {
 	}
 	if nbRows != 1 {
 		db.QueryRow("DELETE FROM param WHERE gofiID = ? AND paramName = 'accountList';", gofiID)
-		var P1 Param
-		P1.GofiID = gofiID
-        P1.ParamName = "accountList"
-        P1.ParamJSONstringData = "CB,A"
-        P1.ParamInfo = "Liste des comptes (séparer par des , sans espaces)"
-		InsertRowInParam(&P1)
+		P.GofiID = gofiID
+        P.ParamName = "accountList"
+        P.ParamJSONstringData = "CB,A"
+        P.ParamInfo = "Liste des comptes (séparer par des , sans espaces)"
+		InsertRowInParam(&P)
 	}
 
-	qB := ` 
-		SELECT COUNT(1)
-		FROM param
-		WHERE gofiID = ?
-			AND paramName = 'categoryList';
-	`
-	err = db.QueryRow(qB, gofiID).Scan(&nbRows)
+	err = db.QueryRow(q, gofiID, "categoryList").Scan(&nbRows)
 	switch {
 		case err == sql.ErrNoRows:
 			nbRows = 0
 		case err != nil:
 			log.Fatalf("query error param categoryList: %v\n", err)
-		//default:
 	}
 	if nbRows != 1 {
 		db.QueryRow("DELETE FROM param WHERE gofiID = ? AND paramName = 'categoryList';", gofiID)
-		var P2 Param
-		P2.GofiID = gofiID
-        P2.ParamName = "categoryList"
-        P2.ParamJSONstringData = "Courses,Banque,Cadeaux,Entrep,Erreur,Invest,Loisirs,Loyer,Resto,Salaire,Sante,Services,Shopping,Transp,Voyage,Vehicule,Autre"
-        P2.ParamInfo = "Liste des catégories (séparer par des , sans espaces)"
-		InsertRowInParam(&P2)
+		P.GofiID = gofiID
+        P.ParamName = "categoryList"
+        P.ParamJSONstringData = "Courses,Banque,Cadeaux,Entrep,Erreur,Invest,Loisirs,Loyer,Resto,Salaire,Sante,Services,Shopping,Transp,Voyage,Vehicule,Autre"
+        P.ParamInfo = "Liste des catégories (séparer par des , sans espaces)"
+		InsertRowInParam(&P)
+	}
+
+	err = db.QueryRow(q, gofiID, "categoryRendering").Scan(&nbRows)
+	switch {
+		case err == sql.ErrNoRows:
+			nbRows = 0
+		case err != nil:
+			log.Fatalf("query error param categoryRendering: %v\n", err)
+	}
+	if nbRows != 1 {
+		db.QueryRow("DELETE FROM param WHERE gofiID = ? AND paramName = 'categoryRendering';", gofiID)
+		P.GofiID = gofiID
+        P.ParamName = "categoryRendering"
+        P.ParamJSONstringData = "icons"
+        P.ParamInfo = "Affichage des catégories: icons | names"
+		InsertRowInParam(&P)
 	}
 
 	return
@@ -324,25 +332,21 @@ func GetList(ctx context.Context, db *sql.DB, up *UserParams) {
 			AND paramName = ?;
 	`
 	rows, _ := db.QueryContext(ctx, q, up.GofiID, "accountList")
-
 	rows.Next()
 	var accountList string
 	if err := rows.Scan(&accountList); err != nil {
+		fmt.Printf("error in GetList accountList, err: %v\n", err)
 		log.Fatal(err)
-		return
 	}
+	rows.Close()
 	up.AccountListSingleString = accountList
 	up.AccountList = strings.Split(accountList, ",")
-	// fmt.Printf("\naccountList: %v\n", up.AccountList)
-	rows.Close()
 
 	rows, _ = db.QueryContext(ctx, q, up.GofiID, "categoryList")
 	rows.Next()
 	var categoryListStr string
 	if err := rows.Scan(&categoryListStr); err != nil {
-		log.Fatal(err)
-	}
-	if err := rows.Err(); err != nil {
+		fmt.Printf("error in GetList categoryList, err: %v\n", err)
 		log.Fatal(err)
 	}
 	rows.Close()
@@ -351,7 +355,6 @@ func GetList(ctx context.Context, db *sql.DB, up *UserParams) {
 	var categoryListA, categoryListB, iconCodePointList, colorHEXList []string
 	categoryListA = strings.Split(categoryListStr, ",")
     categoryListB, iconCodePointList, colorHEXList = GetCategoryList(ctx, db)
-	fmt.Println("before second categoryList B")
 	for i, v := range categoryListA {
 		var found bool = false
 		var stringToAppend []string
@@ -366,7 +369,17 @@ func GetList(ctx context.Context, db *sql.DB, up *UserParams) {
 		if (!found) {stringToAppend = append(stringToAppend, v, "e887", "#808080")}
 		up.CategoryList = append(up.CategoryList, stringToAppend)
 	}
-	fmt.Println("after second categoryList")
+
+	rows, _ = db.QueryContext(ctx, q, up.GofiID, "categoryRendering")
+	rows.Next()
+	var categoryRendering string
+	if err := rows.Scan(&categoryRendering); err != nil {
+		fmt.Printf("error in GetList categoryRendering, err: %v\n", err)
+		log.Fatal(err)
+	}
+	rows.Close()
+	up.CategoryRendering = categoryRendering
+
 	return
 }
 
@@ -492,6 +505,8 @@ func GetRowsInFinanceTracker(ctx context.Context, db *sql.DB, filter *FilterRows
 	var queryValues, totalRowsWithoutLimit int = 0, 0
 	var err error
 	if filter.Limit > 500 {filter.Limit = 500}
+	fmt.Println("inside GetRowsInFinanceTracker")
+
 	//fmt.Printf("filter.WhereAccount: %#v, type:%T\n", filter.WhereAccount, filter.WhereAccount) // check default value and type
 	//fmt.Printf("filter.WhereYear: %#v, type:%T\n", filter.WhereYear, filter.WhereYear) // check default value and type
 	
@@ -499,7 +514,8 @@ func GetRowsInFinanceTracker(ctx context.Context, db *sql.DB, filter *FilterRows
 	// (golang sql package does not support dynamic sql on other things than values)
 	q := ` 
 		SELECT COUNT(1) 
-		FROM financeTracker
+		FROM financeTracker AS f
+			LEFT JOIN category AS c ON c.category = f.category
 		WHERE gofiID = ?
 	`
 	// others where on 3 fields max = 7 possibilities
@@ -511,7 +527,7 @@ func GetRowsInFinanceTracker(ctx context.Context, db *sql.DB, filter *FilterRows
 	if filter.WhereCategory != "" { //2
 		queryValues += 2
 		fmt.Println("filter.WhereCategory is used")
-		q += ` AND category = ? `
+		q += ` AND f.category = ? `
 	} 
 	if filter.WhereYear != 0 { //4
 		queryValues += 4
@@ -545,17 +561,17 @@ func GetRowsInFinanceTracker(ctx context.Context, db *sql.DB, filter *FilterRows
 	q += ` ORDER BY `
 	switch filter.OrderBy {
 		case "id":
-			q += ` id `
+			q += ` f.id `
 		case "date":
 			q += ` year*10000 + month*100 + day `
 			if (filter.OrderByType == "DESC") {q += ` DESC `} else {q += ` ASC `}
-			q += ` , id `
+			q += ` , f.id `
 		case "price":
 			q += ` priceIntx100 `
 			if (filter.OrderByType == "DESC") {q += ` DESC `} else {q += ` ASC `}
-			q += ` , id `
+			q += ` , f.id `
 		default:
-			q += ` id `
+			q += ` f.id `
 	}
 	if (filter.OrderByType == "DESC") {q += ` DESC `} else {q += ` ASC `}
 
@@ -564,7 +580,9 @@ func GetRowsInFinanceTracker(ctx context.Context, db *sql.DB, filter *FilterRows
 	//fmt.Printf("q: %v\n", q)
 	// end building query
 	q2 := strings.Replace(q, `COUNT(1)`, 
-		`id, year, month, day, account, product, priceIntx100, category, checked, dateChecked`, 1)
+		`f.id, year, month, day, account, product, priceIntx100, 
+			f.category, ifnull(c.iconCodePoint,'f88a') AS icp, ifnull(c.colorHEX,'#000000') AS ch, 
+			checked, dateChecked`, 1)
 
 	var row *sql.Row
 	var rows *sql.Rows
@@ -610,7 +628,7 @@ func GetRowsInFinanceTracker(ctx context.Context, db *sql.DB, filter *FilterRows
 		var successfull bool
 		var unsuccessfullReason string
 		if err := rows.Scan(&ft.ID, &ft.Year, &ft.Month, &ft.Day, &ft.Account, &ft.Product, &ft.PriceIntx100, 
-			&ft.Category, &ft.Checked, &ft.DateChecked); err != nil {
+			&ft.Category, &ft.CategoryIcon, &ft.CategoryColor, &ft.Checked, &ft.DateChecked); err != nil {
 			log.Fatal(err)
 		}
 		ft.FormPriceStr2Decimals = ConvertPriceIntToStr(ft.PriceIntx100)

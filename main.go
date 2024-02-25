@@ -320,6 +320,47 @@ func postParamSetup(c *gin.Context) {
 	}
     c.String(200, returnedString)
 }
+// POST ParamSetup.html
+func postParamSetupCategoryRendering(c *gin.Context) {
+    ctx, cancel := context.WithTimeout(context.TODO(), 2*time.Second)
+    defer cancel()
+
+    cookieGofiID, _ := CheckCookie(ctx, c, db)
+    if c.IsAborted() {return}
+
+    var Form sqlite.Param
+    var returnedString string
+    Form.GofiID = cookieGofiID
+    categoryRendering := c.PostForm("category-rendering")
+    Form.ParamName = "categoryRendering"
+    Form.ParamJSONstringData = categoryRendering
+    Form.ParamInfo = "Affichage des catégories: icons | names"
+
+    returnedString = `
+        <legend><strong><small>Affichage des catégories dans les listes</small></strong></legend>
+        <label for="names">
+            <input type="radio" id="names" name="category-rendering" value="names" TEXT-TO-REPLACE-NAMES />
+            Noms, ex: Banque
+        </label>
+        <label for="icons">
+            <input type="radio" id="icons" name="category-rendering" value="icons" TEXT-TO-REPLACE-ICONS />
+            Icônes, ex: 
+            <span class="material-symbols-outlined" style="background-color: #33A6CC;">&#xe84f;</span>
+        </label>
+    ` // aria-invalid="false" + checked + disabled
+    if categoryRendering == "icons" {
+        returnedString = strings.Replace(returnedString, "TEXT-TO-REPLACE-NAMES", "disabled", 1)
+        returnedString = strings.Replace(returnedString, "TEXT-TO-REPLACE-ICONS", `aria-invalid="false" checked disabled`, 1)
+    } else {
+        returnedString = strings.Replace(returnedString, "TEXT-TO-REPLACE-NAMES", `aria-invalid="false" checked disabled`, 1)
+        returnedString = strings.Replace(returnedString, "TEXT-TO-REPLACE-ICONS", "disabled", 1)
+    }
+    _, err := sqlite.InsertRowInParam(&Form)
+	if err != nil { // Always check errors even if they should not happen.
+		panic(err)
+	}
+    c.String(200, returnedString)
+}
 // GET CategorySetup.html
 func getCategorySetup(c *gin.Context) {
     ctx, cancel := context.WithTimeout(context.TODO(), 2*time.Second)
@@ -789,6 +830,10 @@ func postValidateRows(c *gin.Context) {
     cookieGofiID, _ := CheckCookie(ctx, c, db)
     if c.IsAborted() {return}
 
+    var UserParams sqlite.UserParams
+    UserParams.GofiID = cookieGofiID
+    sqlite.GetList(ctx, db, &UserParams)
+
     var FTlistPost []sqlite.FinanceTracker
     var TotalRowsWithoutLimit int
     var Filter sqlite.FilterRows
@@ -844,6 +889,7 @@ func postValidateRows(c *gin.Context) {
 
     tmpl := template.Must(template.ParseFiles("./front/html/templates/5.validaterows.html"))
     tmpl.ExecuteTemplate(c.Writer, "listValidateRows", gin.H{
+        "UserParams": UserParams,
         "FTlistPost": FTlistPost,
         "TotalRowsWithoutLimit": TotalRowsWithoutLimit,
     })
@@ -1089,6 +1135,7 @@ func main() {
 
     router.GET("/param-setup", getParamSetup)
     router.POST("/param-setup", postParamSetup)
+    router.POST("/param-setup-category-rendering", postParamSetupCategoryRendering)
     router.GET("/category-setup", getCategorySetup)
     router.POST("/category-setup", postCategorySetup)
 

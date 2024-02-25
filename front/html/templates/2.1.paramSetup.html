@@ -6,6 +6,7 @@
     integrity="sha384-FhXw7b6AlE/jyjlZH5iHa/tTe9EpJ1Y55RjcgPbjeWMskSxZt1v9qkxLJWNJaGni" 
     crossorigin="anonymous">
 </script>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,1,0" />
 {{template "body" .}}
 {{template "content" .}}
 
@@ -39,13 +40,43 @@
 
             <!-- Text -->
             <label for="categoryList"><strong><small>Liste des catégories (séparer par des , sans espaces, ordre repris à l'identique)</small></strong></label>
-            <textarea id="categoryList" name="categoryList" rows="3" required>{{.UserParams.CategoryListSingleString}}</textarea>
+            <textarea id="categoryList" name="categoryList" rows="4" required>{{.UserParams.CategoryListSingleString}}</textarea>
 
             <!-- Buttons -->
             <button id="disapear2" type="submit" value="Submit">
                 <!-- save -->
                 <svg width="24" height="24" viewBox="0 0 24 24"><use xlink:href="/img/icons.svg#feather-save"></use></svg>
                 Envoyer la liste des catégories
+            </button>
+        </form>
+        <hr>
+        <form hx-post="/param-setup-category-rendering" 
+            hx-target="#categoryRendering" 
+            hx-swap="innerHTML"
+            hx-sync="this:drop"
+            hx-on::after-request="if(event.detail.successful) document.getElementById('disapear3').remove()">
+
+            <div>
+                <!-- Radio buttons -->
+                <fieldset id="categoryRendering">
+                    <legend><strong><small>Affichage des catégories dans les listes</small></strong></legend>
+                    <label for="names">
+                        <input type="radio" id="names" name="category-rendering" value="names" />
+                        Noms, ex: Banque
+                    </label>
+                    <label for="icons">
+                        <input type="radio" id="icons" name="category-rendering" value="icons" />
+                        Icônes, ex: 
+                        <span class="material-symbols-outlined" style="background-color: #33A6CC;">&#xe84f;</span>
+                    </label>
+                </fieldset>
+            </div>
+
+            <!-- Buttons -->
+            <button id="disapear3" type="submit" value="Submit">
+                <!-- save -->
+                <svg width="24" height="24" viewBox="0 0 24 24"><use xlink:href="/img/icons.svg#feather-save"></use></svg>
+                Enregistrer cette option d'affichage
             </button>
         </form>
     </div> <!-- via header: "HX-Retarget", "#forbidden" -->
@@ -86,4 +117,11 @@
             evt.detail.isError = false;
         }
     });
+
+    var categoryRendering = {{.UserParams.CategoryRendering}};
+    if (categoryRendering == "names") {
+        document.getElementById("names").checked = true
+    } else {
+        document.getElementById("icons").checked = true
+    };
 </script>

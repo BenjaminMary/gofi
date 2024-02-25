@@ -20,6 +20,8 @@ type FinanceTracker struct {
 	FormPriceStr2Decimals string `form:"prix" binding:"required"`
 	PriceIntx100 int
 	Category string `form:"categorie" binding:"required"`
+	CategoryIcon string
+	CategoryColor string
 	CommentInt int
 	CommentString string
 	Checked bool
@@ -66,6 +68,7 @@ type UserParams struct {
 	AccountList []string
 	CategoryListSingleString string
 	CategoryList [][]string
+	CategoryRendering string
 }
 
 type FilterRows struct {

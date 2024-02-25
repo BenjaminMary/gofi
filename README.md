@@ -75,7 +75,6 @@ This optional feature adds some prerequisites:
 
 ## TODO
 ☑☐☒
-- ☑ partie validation, fix ajustement du montant de la sélection après requête POST
 - ☑ partie backup, mettre le DELETE sur la dernière sauvegarde par défaut
 - ☐❗dès que toutes les fonctionnalités essentielles sont en place, démarrer des tests fonctionnels
 - ☑ ajout système de données récurrentes:
@@ -93,16 +92,17 @@ This optional feature adds some prerequisites:
     - ☐ ajouter 2 niveaux de catégories, avec en mode simple 1 seul niveau obligatoire
     - ☑ ajouter des logos + couleurs par catégorie
     - ☐ nouvelle page de modif des catégories à faire, améliorer l'UI actuelle
-    - ☐ rajouter une catégorie "Autre" par défaut, avec ? en icone et couleur grise ?
-    - ☐ renommer Véhicule qui semble faire planter les correspondances à cause de l'accent
+    - ☑ rajouter des catégories:
+        - ☑ "Autre" par défaut, avec ... en icone et couleur grise ? (more_horiz e5d3 = ...)
+        - ☑ "-" avec corbeille en icone = delete e872 couleur rouge
+    - ☑ renommer Véhicule qui semble faire planter les correspondances à cause de l'accent (ne faisait pas planter mais é retiré pour ne plus avoir le doute)
     - ☑ renommer Investissement + Restaurant trop long sur smartphone (max 8 car)
-    - ☐ ajouter catégorie informatique ? avec 8 car max = HighTech
     - ☑ voir si possible d'ajouter le logo dans les listes déroulantes de sélection de catégorie
-    - ☐ voir si possible d'ajouter les icones et couleurs dans les listes d'articles, à la place d'écrire les noms des catégories (gain de place dans les tables)
-        - mettre cette fonctionnalité en paramètre, pour pouvoir garder les noms de catégories si souhaité (accessibilité)
+    - ☑ voir si possible d'ajouter les icones et couleurs dans les listes d'articles, à la place d'écrire les noms des catégories (gain de place dans les tables)
+        - ☑ mettre cette fonctionnalité en paramètre, pour pouvoir garder les noms de catégories si souhaité (accessibilité)
     - nouvelles tables 
         - ☑ catégorie dédiée: id, nom, couleur, icone
-        - join: user ID associé à category ID
+        - ☐ join: user ID associé à category ID
 - ☐ ajout préférences utilisateur:
     - ☐ gestion des préférences de format de date EN + FR avec / ou -
     - ☐ gestion des préférences de format csv séparateur colonne + separateur décimal
@@ -115,10 +115,12 @@ This optional feature adds some prerequisites:
     - ☑ objectif: chaque export génère un fichier avec l'ensemble des dernières modifs
         - ☑ en jouant toutes les sauvegardes historisées dans l'ordre chronologique, on retrouve l'état des données souhaité
         - ☑ ajout d'une option de RAZ de la colonne `exported`
-- ☑ ajout validation des dépenses
+- ☐ ajout validation des dépenses: POST ValidateRows
     - ☑ système qui ramène l'ensemble des lignes encore non validées
     - ☑ voir pour permettre de la validation de groupe en saisissant une date unique et en sélectionnant X lignes
     - ☐❗ à chaque validation, voir pour garder les paramètres spé si utilisés
+    - ☐❗❗ refonte des 2 méthodes POST pour les séparer
+        la recherche de données est à séparer des validations/annulation pour ne pas recharger les données de base à chaque POST
     - ☐ permettre l'édition d'une ligne, page dédiée, ou mettre 3 radio: validation/édition/annulation ?
 - ☐ ajout multi utilisateur sur un compte
     - ☐ un utilisateur admin du compte qui peut en ajouter d'autres (max 5)
@@ -158,6 +160,9 @@ This optional feature adds some prerequisites:
 
 
 ## Changelog
+- 2024-02-25 : new user param to render category by name or icon. Default to icons.
+    - add this adaptability to show category icon or name in different list of records.
+    - fix POST validaterows to keep all categories by default.
 - 2024-02-24 : add icons and colors inside dropdown menus to select categories. 
     - pico css update, from v1 to v2.
     - shorten category names to 8 char for better UX in stats page

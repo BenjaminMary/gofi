@@ -79,8 +79,8 @@ func main() {
 		DELETE FROM category;
 		INSERT INTO category (category, iconName, iconCodePoint, colorName, colorHSL, colorHEX)
 		VALUES 
-			('Transp', 'train', 'e570', 'orange', '(15,60,50)', '#CC5933'),
-			('Vehicule', 'directions_car', 'e531', 'orange', '(25,60,50)', '#CC7633'),
+			('Vehicule', 'directions_car', 'e531', 'orange', '(15,60,50)', '#CC5933'),
+			('Transp', 'train', 'e570', 'orange', '(25,60,50)', '#CC7633'),
 			('Courses', 'grocery', 'ef97', 'yellow', '(50,40,50)', '#B3A24D'),
 			('Shopping', 'shopping_cart', 'e8cc', 'yellow', '(55,40,50)', '#B3AA4D'),
 			('Cadeaux', 'redeem', 'e8b1', 'yellow', '(60,40,50)', '#B3B34D'),
@@ -90,11 +90,13 @@ func main() {
 			('Salaire', 'add_card', 'eb86', 'teal', '(160,60,50)', '#33CC99'),
 			('Banque', 'account_balance', 'e84f', 'light blue', '(190,60,50)', '#33B3CC'),
 			('Invest', 'real_estate_agent', 'e73a', 'light blue', '(200,60,50)', '#3399CC'),
-			('Entrep', 'enterprise', 'e70e', 'blue', '(230,60,50)', '#334CCC'),
+			('Societe', 'enterprise', 'e70e', 'blue', '(230,60,50)', '#334CCC'),
 			('Loyer', 'cottage', 'e587', 'purple', '(260,60,50)', '#6633CC'),
 			('Services', 'wifi_home', 'f671', 'purple', '(270,60,50)', '#8033CC'),
 			('Sante', 'heart_plus', 'f884', 'pink', '(300,60,50)', '#CC33CC'),
-			('Erreur', 'error', 'e000', 'red', '(335,60,50)', '#CC3373')
+			('Erreur', 'error', 'e000', 'red', '(335,60,50)', '#CC3373'),
+			('-', 'delete', 'e872', 'red', '(1,60,50)', '#CC3633'),
+			('Autre', 'more_horiz', 'e5d3', 'gris', '(0,0,50)', '#808080')
 		;
 
 		--DROP TABLE IF EXISTS financeTracker;

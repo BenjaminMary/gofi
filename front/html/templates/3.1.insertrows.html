@@ -113,7 +113,12 @@
                     <tr>
                         <th scope="col">Date</th>
                         <th scope="col">Compte</th>
-                        <th scope="col">Categorie</th>
+                        {{$categoryRendering := .UserParams.CategoryRendering}}
+                        {{if eq $categoryRendering "icons"}}
+                            <th scope="col">Cat</th>
+                        {{else}}
+                            <th scope="col">Categorie</th>
+                        {{end}}
                         <th scope="col">Designation</th>
                         <th scope="col">Prix</th>
                     </tr>
@@ -132,7 +137,13 @@
                         <tr>
                             <td>{{$FT.Date}}</td>
                             <td>{{$FT.Account}}</td>
-                            <td>{{$FT.Category}}</td>
+                            {{if eq $categoryRendering "icons"}}
+                                <td>
+                                    <span class="material-symbols-outlined" style="background-color: {{$FT.CategoryColor}};">&#x{{$FT.CategoryIcon}};</span>
+                                </td>
+                            {{else}}
+                                <td>{{$FT.Category}}</td>
+                            {{end}}
                             <td>{{$FT.Product}}</td>
                             <td>{{$FT.FormPriceStr2Decimals}}</td>
                         </tr>
