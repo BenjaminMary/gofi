@@ -14,6 +14,7 @@ type FinanceTracker struct {
 	Date string `form:"date" binding:"required"`
 	Year int
 	Month int
+	MonthStr string
 	Day int
 	Account string `form:"compte" binding:"required"`
 	Product string `form:"designation"`

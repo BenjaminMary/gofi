@@ -75,7 +75,8 @@ This optional feature adds some prerequisites:
 
 ## TODO
 ☑☐☒
-- ☑ partie backup, mettre le DELETE sur la dernière sauvegarde par défaut
+- ☐❗❗sur toutes les tables, mettre la désignation à la fin pour gagner de la visibilité sur smartphone (voir partie validation qui est ok)
+- ☑ dates via svg = 22 jan, fev, mar, avr, mai, juin, juil, aou ...
 - ☐❗dès que toutes les fonctionnalités essentielles sont en place, démarrer des tests fonctionnels
 - ☑ ajout système de données récurrentes:
     - ☑ factures + revenus mensuelles
@@ -109,6 +110,7 @@ This optional feature adds some prerequisites:
     - ☐ laisser l'overide possible dans les parties import/export csv, mais préselectionner la préférence
 - ☐ partie import export CSV: 
     - ☑ MAJ le champ `exported` lors des exports et modifications de données
+    - ☐❗❗ ajouter un champ `-` à la fin du csv pour permettre l'édition dans Excel + sauvegarde et réimporter directement
     - ☐ mettre un champ `lastCSVexport` de type date par user à ramener dans le menu (ok si - d'1 mois, ko sinon)
         - ☐ compter le nombre de lignes à exporter et afficher/bloquer un import si différent de 0 ?
     - ☑ ajouter un template de fichier csv (dispo partie import dans les explications)
@@ -160,6 +162,7 @@ This optional feature adds some prerequisites:
 
 
 ## Changelog
+- 2024-02-26 : add svg to display dates inside tables without the year.
 - 2024-02-25 : new user param to render category by name or icon. Default to icons.
     - add this adaptability to show category icon or name in different list of records.
     - fix POST validaterows to keep all categories by default.

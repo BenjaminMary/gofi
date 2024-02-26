@@ -635,7 +635,21 @@ func GetRowsInFinanceTracker(ctx context.Context, db *sql.DB, filter *FilterRows
 		totalPriceIntx100 += ft.PriceIntx100
 		ft.Date, successfull, unsuccessfullReason = ConvertDateIntToStr(ft.Year, ft.Month, ft.Day, "EN", "-")
 		if !successfull {ft.Date = "ERROR " + unsuccessfullReason}
-
+		switch ft.Month {
+			case  1: ft.MonthStr = "jan"
+			case  2: ft.MonthStr = "fev"
+			case  3: ft.MonthStr = "mar"
+			case  4: ft.MonthStr = "avr"
+			case  5: ft.MonthStr = "mai"
+			case  6: ft.MonthStr = "juin"
+			case  7: ft.MonthStr = "juil"
+			case  8: ft.MonthStr = "aou"
+			case  9: ft.MonthStr = "sep"
+			case 10: ft.MonthStr = "oct"
+			case 11: ft.MonthStr = "nov"
+			case 12: ft.MonthStr = "dec"
+			default: ft.MonthStr = "---"
+		}
 		// fmt.Printf("ft: %#v\n", ft)
 		ftList = append(ftList, ft)
 	}
