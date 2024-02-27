@@ -162,6 +162,7 @@ This optional feature adds some prerequisites:
 
 
 ## Changelog
+- 2024-02-27 : add svg to display dates inside tables with small year rotated on the left, day and 3-4 letters month.
 - 2024-02-26 : add svg to display dates inside tables without the year.
 - 2024-02-25 : new user param to render category by name or icon. Default to icons.
     - add this adaptability to show category icon or name in different list of records.

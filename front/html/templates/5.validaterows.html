@@ -272,14 +272,16 @@
                                         <input type="checkbox" id="{{$FT.ID}}" name="id" value="{{$FT.ID}}">
                                     </td>
                                     <td>
-                                        <svg width="30" height="30" viewBox="0 0 30 30">
-                                            <circle cx="15" cy="15" r="15" fill="var(--pico-background-color)" />
-                                            <text x="15" y="6" alignment-baseline="central" text-anchor="middle" fill="currentColor" font-size="16" font-weight="normal" 
+                                        <svg width="34" height="30" viewBox="0 0 34 30">
+                                            <text x="34" y="5" alignment-baseline="central" text-anchor="end" fill="currentColor" font-size="16" font-weight="normal" 
                                                 font-family="Roboto">{{$FT.Day}}</text>
-                                            <text x="15" y="18" alignment-baseline="central" text-anchor="middle" fill="currentColor" font-size="16" font-weight="normal" 
+                                            <text x="34" y="20" alignment-baseline="central" text-anchor="end" fill="currentColor" font-size="16" font-weight="normal" 
                                                 font-family="Roboto">{{$FT.MonthStr}}</text>
+                                            <!-- <text x="10" y="-33" alignment-baseline="middle" text-anchor="middle" fill="currentColor" font-size="10" font-weight="normal" 
+                                                font-family="Roboto" transform="rotate(90)">{{$FT.Year}}</text> -->
+                                            <text x="-10" y="5" alignment-baseline="central" text-anchor="middle" fill="currentColor" font-size="9" font-weight="normal" 
+                                                font-family="Roboto" transform="rotate(-90)">{{$FT.Year}}</text>
                                         </svg>
-                                        <!-- {{$FT.Date}} -->
                                     </td>
                                     <td>{{$FT.Account}}</td>
                                     {{if eq $categoryRendering "icons"}}
