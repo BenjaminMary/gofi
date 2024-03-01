@@ -345,7 +345,7 @@ func postParamSetupCategoryRendering(c *gin.Context) {
         <label for="icons">
             <input type="radio" id="icons" name="category-rendering" value="icons" TEXT-TO-REPLACE-ICONS />
             Icônes, ex: 
-            <span class="material-symbols-outlined" style="background-color: #33A6CC;">&#xe84f;</span>
+            <span class="icomoon" style="background-color: #33A6CC;">&#xe919;</span>
         </label>
     ` // aria-invalid="false" + checked + disabled
     if categoryRendering == "icons" {
@@ -1130,6 +1130,8 @@ func main() {
     router.StaticFile("/favicon.png", "./front/img/favicon.png") // 32x32
     router.Static("/img", "./front/img")
     router.Static("/js", "./front/js")
+    router.Static("/css", "./front/css")
+    router.Static("/fonts", "./front/fonts")
 
     router.GET("/", index)
 

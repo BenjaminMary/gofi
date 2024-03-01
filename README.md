@@ -162,6 +162,11 @@ This optional feature adds some prerequisites:
 
 
 ## Changelog
+- 2024-03-01 : rework icons categories. 
+    - icons fonts are now made with: 
+        - svg from [lucide](https://lucide.dev/)
+        - update / transform with [inkscape](https://inkscape.org/)
+        - generate .ttf and .woff files with [icomoon](https://icomoon.io/)
 - 2024-02-27 : add svg to display dates inside tables with small year rotated on the left, day and 3-4 letters month.
 - 2024-02-26 : add svg to display dates inside tables without the year.
 - 2024-02-25 : new user param to render category by name or icon. Default to icons.

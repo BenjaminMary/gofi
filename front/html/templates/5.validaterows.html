@@ -16,7 +16,7 @@
 <!-- <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inconsolata:wdth@75&display=swap" rel="stylesheet"> -->
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,1,0" />
+<link rel="stylesheet" href="fonts/style.css"/>
 {{template "body" .}}
 {{template "content" .}}
 
@@ -60,7 +60,7 @@
                     {{if eq $i 0}}
                         <summary>
                             <!-- functions = sum symbol -->
-                            <span id="summaryIcon" class="material-symbols-outlined" style="background-color: #808080;">&#xe24a;</span>
+                            <span id="summaryIcon" class="icomoon" style="background-color: #808080;">&#xe90c;</span>
                             <span id="summaryCategory">Toutes</span>
                         </summary>
                         <ul id="overflowLimitHeight">
@@ -68,7 +68,7 @@
                     <li>
                         <label>
                             <input id="input{{$i}}" type="radio" name="categorie" value="{{$catego}}"/>
-                            <span id="icon{{$i}}" class="material-symbols-outlined" style="background-color: {{$colorHEX}};">&#x{{$iconCodePoint}};</span>
+                            <span id="icon{{$i}}" class="icomoon" style="background-color: {{$colorHEX}};">&#x{{$iconCodePoint}};</span>
                             {{$catego}}
                         </label>
                     </li>
@@ -212,13 +212,16 @@
                                 {{$categoryRendering := .UserParams.CategoryRendering}}
                                 {{if eq $categoryRendering "icons"}}
                                     <th scope="col">
-                                        <span class="material-symbols-outlined" style="background-color: #13171f;">&#xe8df;</span>
+                                        <!-- calendar -->
+                                        <svg stroke="currenColor" width="36" heigth="36" viewBox="0 0 24 24"><use xlink:href="/img/icons.svg#lucide-calendar"></use></svg>
                                     </th>
                                     <th scope="col">
-                                        <span class="material-symbols-outlined" style="background-color: #13171f;">&#xe84f;</span>
+                                        <!-- landmark -->
+                                        <svg stroke="currenColor" width="36" heigth="36" viewBox="0 0 24 24"><use xlink:href="/img/icons.svg#lucide-landmark"></use></svg>
                                     </th>
                                     <th scope="col">
-                                        <span class="material-symbols-outlined" style="background-color: #13171f;">&#xe574;</span>
+                                        <!-- boxes -->
+                                        <svg stroke="currenColor" width="36" heigth="36" viewBox="0 0 24 24"><use xlink:href="/img/icons.svg#lucide-boxes"></use></svg>
                                     </th>
                                 {{else}}
                                     <th scope="col">Date</th>
@@ -243,7 +246,7 @@
                                         <td>{{$data.Account}}</td>
                                         {{if eq $categoryRendering "icons"}}
                                             <td>
-                                                <span class="material-symbols-outlined" style="background-color: {{$data.CategoryColor}};">&#x{{$data.CategoryIcon}};</span>
+                                                <span class="icomoon" style="background-color: {{$data.CategoryColor}};">&#x{{$data.CategoryIcon}};</span>
                                             </td>
                                         {{else}}
                                             <td>{{$data.Category}}</td>
@@ -286,7 +289,7 @@
                                     <td>{{$FT.Account}}</td>
                                     {{if eq $categoryRendering "icons"}}
                                         <td>
-                                            <span class="material-symbols-outlined" style="background-color: {{$FT.CategoryColor}};">&#x{{$FT.CategoryIcon}};</span>
+                                            <span class="icomoon" style="background-color: {{$FT.CategoryColor}};">&#x{{$FT.CategoryIcon}};</span>
                                         </td>
                                     {{else}}
                                         <td>{{$FT.Category}}</td>

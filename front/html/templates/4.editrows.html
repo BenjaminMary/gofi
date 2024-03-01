@@ -13,7 +13,7 @@
         opacity: 1;
     }
 </style>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,1,0" />
+<link rel="stylesheet" href="fonts/style.css"/>
 <!-- jspreadsheet -->
 <!-- <script src="https://bossanova.uk/jspreadsheet/v4/jexcel.js"></script>
 <script src="https://jsuites.net/v4/jsuites.js"></script>
@@ -53,7 +53,7 @@
 
                     {{if eq $i 0}}
                         <summary>
-                            <span id="summaryIcon" class="material-symbols-outlined" style="background-color: {{$colorHEX}};">&#x{{$iconCodePoint}};</span>
+                            <span id="summaryIcon" class="icomoon" style="background-color: {{$colorHEX}};">&#x{{$iconCodePoint}};</span>
                             <span id="summaryCategory">{{$catego}}</span>
                         </summary>
                         <ul id="overflowLimitHeight">
@@ -61,7 +61,7 @@
                     <li>
                         <label>
                             <input id="input{{$i}}" type="radio" name="categorie" value="{{$catego}}"/>
-                            <span id="icon{{$i}}" class="material-symbols-outlined" style="background-color: {{$colorHEX}};">&#x{{$iconCodePoint}};</span>
+                            <span id="icon{{$i}}" class="icomoon" style="background-color: {{$colorHEX}};">&#x{{$iconCodePoint}};</span>
                             {{$catego}}
                         </label>
                     </li>

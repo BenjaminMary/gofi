@@ -366,7 +366,7 @@ func GetList(ctx context.Context, db *sql.DB, up *UserParams) {
 				}
 			}
 		}
-		if (!found) {stringToAppend = append(stringToAppend, v, "e887", "#808080")}
+		if (!found) {stringToAppend = append(stringToAppend, v, "e90a", "#808080")}
 		up.CategoryList = append(up.CategoryList, stringToAppend)
 	}
 
@@ -445,7 +445,7 @@ func GetStatsInFinanceTracker(ctx context.Context, db *sql.DB, gofiID int, check
 		ORDER BY sum DESC
 	`
 	q2 := ` 
-		SELECT fT.category, ifnull(c.iconCodePoint,'f88a') AS icp, ifnull(c.colorHEX,'#000000') AS ch, SUM(priceIntx100) AS sum, COUNT(1) AS count
+		SELECT fT.category, ifnull(c.iconCodePoint,'e90a') AS icp, ifnull(c.colorHEX,'#000000') AS ch, SUM(priceIntx100) AS sum, COUNT(1) AS count
 		FROM financeTracker AS fT
 			LEFT JOIN category AS c ON c.category = fT.category
 		WHERE gofiID = ?
@@ -581,7 +581,7 @@ func GetRowsInFinanceTracker(ctx context.Context, db *sql.DB, filter *FilterRows
 	// end building query
 	q2 := strings.Replace(q, `COUNT(1)`, 
 		`f.id, year, month, day, account, product, priceIntx100, 
-			f.category, ifnull(c.iconCodePoint,'f88a') AS icp, ifnull(c.colorHEX,'#000000') AS ch, 
+			f.category, ifnull(c.iconCodePoint,'e90a') AS icp, ifnull(c.colorHEX,'#000000') AS ch, 
 			checked, dateChecked`, 1)
 
 	var row *sql.Row

@@ -10,7 +10,7 @@
         margin: 0 auto;
     }
 </style>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,1,0" />
+<link rel="stylesheet" href="fonts/style.css"/>
 {{template "body" .}}
 {{template "content" .}}
 
@@ -72,18 +72,15 @@
                             <td class="right">{{$quantite}}</td>
                         </tr>
                     {{end}}
-                    <tr>
-                        <td>---</td>
-                        <td class="right">---</td>
-                        <td class="right">---</td>
-                    </tr>
+                </tbody>
+                <tfoot>
                     <tr>
                         <td>TOTAUX</td>
                         {{range $i, $v := .TotalAccount}} 
                             <td class="right">{{$v}}</td>
                         {{end}}
                     </tr>
-                </tbody>
+                </tfoot>
             </table>
         </figure>
     </div>
@@ -115,25 +112,22 @@
                         {{$colorHEX := index $C 4}}
                         <tr>
                             <td>
-                                <span class="material-symbols-outlined" style="background-color: {{$colorHEX}};">&#x{{$iconCodePoint}};</span> 
+                                <span class="icomoon" style="background-color: {{$colorHEX}};">&#x{{$iconCodePoint}};</span> 
                                 {{$catego}}
                             </td>
                             <td class="right">{{$prix}}</td>
                             <td class="right">{{$quantite}}</td>
                         </tr>
                     {{end}}
-                    <tr>
-                        <td>---</td>
-                        <td class="right">---</td>
-                        <td class="right">---</td>
-                    </tr>
+                </tbody>
+                <tfoot>
                     <tr>
                         <td>TOTAUX</td>
                         {{range $i, $v := .TotalCategory}} 
                             <td class="right">{{$v}}</td>
                         {{end}}
                     </tr>
-                </tbody>
+                </tfoot>
             </table>
         </figure>
     </div>
@@ -161,14 +155,29 @@
         labels: labels,
         colors: colors,
         chart: {type: 'donut', height: 550, width: 550},
+        plotOptions: {
+            pie: {
+                donut: {
+                    labels: {
+                        show: true,
+                        value: {color: "currentColor"},
+                        total: {
+                            show: true,
+                            color: "currentColor",
+                            formatter: function (w) {
+                                // console.log(w);
+                                const sum = w.globals.seriesTotals.reduce((partialSum, a) => partialSum + a, 0);
+                                return sum.toFixed(2);
+                            },
+                        },
+                    }
+                }
+            }
+        },
         legend: {show: false},
         dataLabels: {
-          formatter(val, opts) {
-            const name = opts.w.globals.labels[opts.seriesIndex]
-            return icons[opts.seriesIndex]
-          },
-          /* fontFamily: 'Material Symbols Outlined' 'Material Icons' 'Bootstrap-icons'*/
-          style: {fontSize: '24px', fontFamily: 'Material Symbols Outlined'},
+            formatter(val, opts) {return icons[opts.seriesIndex]},
+            style: {fontSize: '24px', fontFamily: 'icomoon'},
         },
 
         responsive: [
