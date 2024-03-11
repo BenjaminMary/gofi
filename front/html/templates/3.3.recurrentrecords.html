@@ -53,6 +53,7 @@
                 </div>
 
                 <!-- Custom Radios Select Dropdown -->
+                <span>Catégorie</span><br>
                 <details id="categoryDropdown" class="dropdown">
                     {{range $i, $C := .UserParams.CategoryList}}
                         {{$catego := index $C 0}}
@@ -386,7 +387,17 @@
                             document.getElementById('compte').value = childTd[i].innerHTML;
                             break;
                         case 3:
-                            document.getElementById('categorie').value = childTd[i].innerHTML;
+                            var categoryName = childTd[i].innerHTML;
+                            var childInputsEdit = document.getElementById('categoryDropdown').getElementsByTagName('input');
+                            for (var j = 0; j < childInputsEdit.length; j++) {
+                                if (childInputsEdit[j].value == categoryName) {
+                                    idInt = parseInt(childInputsEdit[j].id.replace("input",""));
+                                    document.getElementById('summaryCategory').innerHTML = categoryName
+                                    document.getElementById('summaryIcon').innerHTML = document.getElementById('icon'+idInt).innerHTML
+                                    document.getElementById('summaryIcon').style.backgroundColor = document.getElementById('icon'+idInt).style.backgroundColor
+                                    document.getElementById(childInputsEdit[j].id).checked = true;
+                                };
+                            };
                             break;
                         case 4:
                             document.getElementById('designation').value = childTd[i].innerHTML;
