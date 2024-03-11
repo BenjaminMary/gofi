@@ -19,7 +19,7 @@
             hx-swap="afterbegin" 
             hx-sync="this:drop"
             hx-indicator="#spinner"
-            hx-on::after-request="if(event.detail.successful) this.reset()">
+            hx-on::after-request="if(event.detail.successful) document.getElementById('prix').value=''">
 
             <div class="grid">
                 <div>

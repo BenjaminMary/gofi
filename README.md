@@ -163,6 +163,7 @@ This optional feature adds some prerequisites:
 
 ## Changelog
 - 2024-03-11 : fix recurrentRecords HTML page on edit. 
+    - fix insertrows HTML page form reset. 
 - 2024-03-01 : rework icons categories. 
     - icons fonts are now made with: 
         - svg from [lucide](https://lucide.dev/)
