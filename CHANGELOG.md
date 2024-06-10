@@ -1,0 +1,73 @@
+# Changelog
+
+## v1 rework with go-chi
+- 2024-06-10 : added save routes
+- 2024-06-02 : full rework with [go-chi](https://github.com/go-chi/chi) and [templ](https://github.com/a-h/templ), also added tests for the API part.
+
+## v0 with gin-gonic
+- 2024-03-11 : fix recurrentRecords HTML page on edit. 
+    - fix insertrows HTML page form reset. 
+- 2024-03-01 : rework icons categories. 
+    - icons fonts are now made with: 
+        - svg from [lucide](https://lucide.dev/)
+        - update / transform with [inkscape](https://inkscape.org/)
+        - generate .ttf and .woff files with [icomoon](https://icomoon.io/)
+- 2024-02-27 : add svg to display dates inside tables with small year rotated on the left, day and 3-4 letters month.
+- 2024-02-26 : add svg to display dates inside tables without the year.
+- 2024-02-25 : new user param to render category by name or icon. Default to icons.
+    - add this adaptability to show category icon or name in different list of records.
+    - fix POST validaterows to keep all categories by default.
+- 2024-02-24 : add icons and colors inside dropdown menus to select categories. 
+    - pico css update, from v1 to v2.
+    - shorten category names to 8 char for better UX in stats page
+- 2024-02-23 : start adding icons and colors to categories, add a full list of categories for new users.
+    - replace D3.js by [apexcharts](https://apexcharts.com/).
+    - add Google Fonts for icons inside pie chart.
+- 2024-02-18 : fix total selected amount in validate row page after a POST request.
+- 2024-02-15 : backup part, put the DELETE on the last save by default. Recurrent records, after an edit/delete, go back to the create mode.
+- 2024-02-14 : add a new feature for recurrent records.
+- 2024-02-12 : add a transfer between bank accounts page.
+- 2024-02-11 : save an `exported` state for each row and export only the new ones. Add a system to reset this state.
+- 2024-02-10 : update pie chart and add ordering on the stats page.
+- 2024-02-09 : fix infinite login loop on `current cookie does not match` case.
+- 2024-02-08 : on stats page, add the year with the current one by default.
+- 2024-02-06 : add a switch button in the stats page to show all data or only checked data.
+- 2024-02-05 : add current selected total amount to validate or cancel rows.
+- 2024-02-03 : add first pie chart with [D3.js](https://d3js.org/) in the stats page.
+- 2024-02-02 : align numbers in the stats page.
+- 2024-01-28 : fix infinite login loop on `force new login` case.
+- 2024-01-13 : switch simple UTF-8 encoding for csv files to UTF-8 with BOM, which is well handled in Excel by default.
+- 2024-01-09 : new global statistics page.
+- 2024-01-09 : fix advanced mode to validate or cancel already checked records.
+- 2024-01-08 : fix some front UI following the front folder. Add an advanced mode to validate or cancel specific records if needed.
+- 2024-01-06 : new page to validate or cancel records.
+- 2024-01-03 : some more HTML improvements.
+- 2024-01-02 : add buttons and svg icons, app relooking. Store svg icons in a dedicated file.
+- 2024-01-01 : add DELETE option from import csv by addind a "-" before the ID. Add new controls before import csv.
+- 2024-01-01 : fix backup download.
+- 2023-12-31 : add a new empty column at the end of the csv to handle CRLF end of line. Rename a used DB field, BREAKING CHANGE, needs to run the `migrateDB.go` file.
+- 2023-12-30 : add UTF-8 control characters on the csv file export, and control their presence before import.
+- 2023-12-29 : add groups on front pages where width is > 1000px with Pico class.
+- 2023-12-27 : add a front folder. Use Pico with classes, ex: <code>class="grid"</code>. Handle positive and negative values from the html input page. Add theme switcher on the index page (dark or light).
+- 2023-12-23 : add a subtotal row in the data table page.
+- 2023-12-22 : improve struct and readability for user params.
+- 2023-12-17 : add a screen to visualize data with filter, sort and limit.
+- 2023-12-15 : fix import CSV, add some doc on how it works. Also improve admin backup part.
+- 2023-12-10 : add optional backup saves with Google Drive API. Also add context with timeout everywhere and simplify DB open.
+- 2023-11-20 : add var env for the executable file path + change port used
+- 2023-11-13 : auto update cookie when idle timeout reached, force new login when absolute timeout reached (all dates are generated with SQLite)
+- 2023-11-12 : logo update + logout feature + cookie length param + rework some html
+- 2023-11-12 : reorganize main, split funcs in another file
+- 2023-11-12 : add session management in DB and transform gofiID to INT + cookie to random STR
+- 2023-11-05 : add different date formats to allow YYYY-MM-DD, DD/MM/YYYY, YYYY/MM/DD, DD-MM-YYYY
+- 2023-11-05 : improve date handle mostly for csv import
+- 2023-11-05 : add import csv + small update on export + add leading 0 on some dates
+- 2023-11-04 : improve export csv with ID in filename, can handle different IDs in // and delete the file
+- 2023-10-29 : add export csv 
+- 2023-10-27 : add last 5 rows registered in the list on insertrows GET page, also add account info 
+- 2023-10-27 : optimize database connections
+- 2023-10-26 : add default parameters for new gofiID and new route to edit them
+- 2023-10-23 : rework + add list of parameters in DB + handle accounts
+- 2023-10-15 : remove gsheet to swap for SQLite
+- 2023-09-24 : add read all gsheet, start to use params in a new gsheet.
+- 2023-09-13 : initialize project with [gin-gonic framework](https://github.com/gin-gonic/gin)

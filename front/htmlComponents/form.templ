@@ -1,0 +1,109 @@
+package htmlComponents
+
+templ FormSubmit(id string, icon string, name string) {
+    <button id={id} type="submit" value="Submit">
+        <span id="spinner" class="htmx-indicator" aria-busy="true"></span>
+        <svg width="24" height="24" viewBox="0 0 24 24"><use xlink:href={icon}></use></svg>
+        {name}
+    </button>
+}
+
+templ formEmailPasswordInput() {
+    <label for="Email">Email</label>
+    <input type="Email" id="Email" name="Email" placeholder="exemple@gmail.com" required />
+
+    <label for="Password">Mot de passe</label>
+    <input type="Password" id="Password" name="Password" required />
+
+    <div id="htmxInfo"></div>
+}
+
+templ dateInput(dateStr string) {
+    <!-- Date-->
+    <label for="date">
+        <!-- calendar = Date -->
+        <svg stroke="currenColor" width="18" heigth="18" viewBox="0 0 24 24"><use xlink:href="/img/icons.svg#lucide-calendar"></use></svg>
+        Date
+    </label>
+    <input type="date" id="date" name="date" value={ dateStr } required />
+}
+
+templ accountInput(idName string, accountList []string, forceSelect bool) {
+    <!-- Select -->
+    <label for={idName}>
+        <!-- landmark = Compte -->
+        <svg stroke="currenColor" width="18" heigth="18" viewBox="0 0 24 24"><use xlink:href="/img/icons.svg#lucide-landmark"></use></svg>
+        Compte
+    </label>
+    <select id={idName} name={idName} required>
+        if forceSelect {
+            <option value="" selected>-</option>
+        }
+        for _, item := range accountList {
+            <option value={item}>{item}</option>
+        }
+    </select>
+}
+
+templ categoryCustomRadioInput(categoryListOfList [][]string) {
+    <!-- Custom Radios Select Dropdown -->
+    <span id="categoryLabel">
+        <!-- boxes = Catégorie -->
+        <svg stroke="currenColor" width="18" heigth="18" viewBox="0 0 24 24"><use xlink:href="/img/icons.svg#lucide-tag"></use></svg>                            
+        Catégorie
+    </span>
+    <details id="categoryDropdown" class="dropdown">
+        <summary>
+            <span id="summaryIcon" class={ "icomoon", categoryListOfList[0][1] }>&#x{ categoryListOfList[0][1] };</span>
+            <span id="summaryCategory">{ categoryListOfList[0][0] }</span>
+        </summary>
+        <ul id="overflowLimitHeight">
+            for _, itemList := range categoryListOfList {
+                <li>
+                    <label>
+                        <input id={ itemList[3] } type="radio" name="categorie" value={ itemList[0] }/>
+                        <span id={ itemList[4] } class={ "icomoon", itemList[1] }>&#x{ itemList[1] };</span>
+                        { itemList[0] }
+                    </label>
+                </li>
+            }
+        </ul>
+    </details>
+}
+
+templ amountInput() {
+    <!-- Number -->
+    <label for="prix">
+        <!-- banknote = Montant -->
+        <svg stroke="currenColor" width="18" heigth="18" viewBox="0 0 24 24"><use xlink:href="/img/icons.svg#lucide-banknote"></use></svg>
+        Montant
+    </label>
+    <input type="number" id="prix" name="prix" min="0.00" max="100000.00" step="0.01" required />
+}
+
+templ amountDirectionRadio() {
+    <!-- Radio buttons -->
+    <legend>Type</legend>
+    <label for="gain">
+        <input type="radio" id="gain" name="gain-expense" value="gain" />
+        <!-- trending up -->
+        <svg width="24" height="24" viewBox="0 0 24 24"><use xlink:href="/img/icons.svg#feather-trending-up"></use></svg>
+        Gain
+    </label>
+    <label for="expense">
+        <input type="radio" id="expense" name="gain-expense" value="expense" checked />
+        <!-- trending down -->
+        <svg width="24" height="24" viewBox="0 0 24 24"><use xlink:href="/img/icons.svg#feather-trending-down"></use></svg>
+        Dépense
+    </label>
+}
+
+templ textInput() {
+    <!-- Text -->
+    <label for="designation">
+        <!-- text = Designation -->
+        <svg stroke="currenColor" width="18" heigth="18" viewBox="0 0 24 24"><use xlink:href="/img/icons.svg#lucide-text"></use></svg>
+        Désignation
+    </label>
+    <input type="text" id="designation" name="designation" placeholder="(Facultatif) description de l'achat" />
+}

@@ -1,0 +1,1035 @@
+package htmlComponents
+
+import (
+    "strconv"
+    "net/http"
+    "gofi/gofi/data/appdata"
+)
+
+script categoryDropdown(categoryList [][]string) {
+    // this script add click event on inputs inside the categoryDropdown
+    document.getElementById('input0').checked = true;
+    // var categoryList = {{.UserParams.CategoryList}};
+    var childInputs = document.getElementById('categoryDropdown').getElementsByTagName('input');
+    for (var i = 0; i < childInputs.length; i++) {
+        inputId = childInputs[i].id;
+        //console.log(inputId + ": " + childInputs[i].value);
+        document.getElementById(inputId).addEventListener('click', function(c){
+            idInt = parseInt(this.id.replace("input",""));
+            //console.log(categoryList[idInt]);
+            document.getElementById('summaryCategory').innerHTML = categoryList[idInt][0]
+            document.getElementById('summaryIcon').innerHTML = "&#x" + categoryList[idInt][1] + ";"
+            // document.getElementById('summaryIcon').style.backgroundColor = categoryList[idInt][2]
+            bgclass = document.getElementById('summaryIcon').classList.item(1)
+            document.getElementById('summaryIcon').classList.remove(bgclass)
+            document.getElementById('summaryIcon').classList.add(categoryList[idInt][1])
+            document.getElementById('categoryDropdown').open = false;
+        });
+    };
+}
+
+templ dateSVG(year int, monthStr string, day int) {
+    <svg width="34" height="30" viewBox="0 0 34 30">
+        <text x="34" y="6" alignment-baseline="central" text-anchor="end" fill="currentColor" font-size="16" font-weight="normal" 
+            font-family="Roboto">{ strconv.Itoa(day) }</text>
+        <text x="34" y="20" alignment-baseline="central" text-anchor="end" fill="currentColor" font-size="16" font-weight="normal" 
+            font-family="Roboto">{ monthStr }</text>
+        <text x="-10" y="5" alignment-baseline="central" text-anchor="middle" fill="currentColor" font-size="9" font-weight="normal" 
+            font-family="Roboto" transform="rotate(-90)">{ strconv.Itoa(year) }</text>
+    </svg>
+}
+
+templ lastInsertedRowsTable(jsonFT []appdata.FinanceTracker, validORcancelMode bool, totalRowsWithoutLimit string) {
+    <div class="overflow-auto">
+        <figure>
+            <table class="striped">
+                <thead>
+                    <tr>
+                        if validORcancelMode {
+                            <th scope="col">
+                                <input type="checkbox" id="toggle" name="toggle" value="0"/>
+                            </th>
+                        }
+                        <th scope="col">
+                            <!-- calendar = Date -->
+                            <svg stroke="currenColor" width="28" heigth="28" viewBox="0 0 24 24"><use xlink:href="/img/icons.svg#lucide-calendar"></use></svg>
+                        </th>
+                        <th scope="col">
+                            <!-- landmark = Compte -->
+                            <svg stroke="currenColor" width="28" heigth="28" viewBox="0 0 24 24"><use xlink:href="/img/icons.svg#lucide-landmark"></use></svg>
+                        </th>
+                        <th scope="col">
+                            <!-- boxes = Catégorie -->
+                            <svg stroke="currenColor" width="28" heigth="28" viewBox="0 0 24 24"><use xlink:href="/img/icons.svg#lucide-tag"></use></svg>
+                        </th>
+                        <th scope="col">
+                            <!-- banknote = Prix -->
+                            <svg stroke="currenColor" width="28" heigth="28" viewBox="0 0 24 24"><use xlink:href="/img/icons.svg#lucide-banknote"></use></svg>
+                        </th>
+                        <th scope="col">
+                            <!-- text = Designation -->
+                            <svg stroke="currenColor" width="28" heigth="28" viewBox="0 0 24 24"><use xlink:href="/img/icons.svg#lucide-text"></use></svg>
+                        </th>
+                    </tr>
+                </thead>
+                <tbody id="lastInsert">
+                    for _, ft := range jsonFT {
+                        @oneRowInLastInsertedRowsTable(ft, validORcancelMode)
+                    }
+                    if validORcancelMode {
+                        @addBotRows(totalRowsWithoutLimit)
+                    }
+                </tbody>
+            </table>
+        </figure>
+    </div>
+}
+templ oneRowInLastInsertedRowsTable(ft appdata.FinanceTracker, validORcancelMode bool) {
+    <tr>
+        if validORcancelMode {
+            <td>
+                <input type="checkbox" id={ strconv.Itoa(ft.ID) } name="idCheckbox" value={ strconv.Itoa(ft.ID) }/>
+            </td>
+        }
+        <td>
+            @dateSVG(ft.DateDetails.Year, ft.DateDetails.MonthStr, ft.DateDetails.Day)
+        </td>
+        <td>{ft.Account}</td>
+        <td>
+            <span class={ "icomoon", ft.CategoryDetails.CategoryIcon }>&#x{ ft.CategoryDetails.CategoryIcon };</span>
+        </td>
+        if validORcancelMode {
+            <td id={ ft.IDstr }>{ft.FormPriceStr2Decimals}</td>
+        } else {
+            <td>{ft.FormPriceStr2Decimals}</td>
+        }
+        <td>{ft.Product}</td>
+    </tr>
+}
+templ errorPostRecord() {
+    <tr>
+        <td>ERR</td>
+        <td>ERR</td>
+        <td>
+            <span class="icomoon e909">&#xe909;</span>
+        </td>
+        <td>0.00</td>
+        <td>ERROR</td>
+    </tr>
+}
+templ oneRowInLastInsertedRecurrentRecordTable(rr appdata.RecurrentRecord, init bool) {
+    <tr id={rr.IDstr}>
+        switch rr.Recurrence {
+            case "mensuelle":
+                <td rowRecurrenceValue="mensuelle">Me.</td>
+            case "annuelle":
+                <td rowRecurrenceValue="annuelle">An.</td>
+            case "hebdomadaire":
+                <td rowRecurrenceValue="hebdomadaire">He.</td>
+            default:
+                <td rowRecurrenceValue={rr.Recurrence}>??</td> 
+        }
+        <td rowDateValue={rr.Date}>
+            @dateSVG(rr.DateDetails.Year, rr.DateDetails.MonthStr, rr.DateDetails.Day)
+        </td>
+        <td>{rr.Account}</td>
+        <td rowCategoryNameValue={rr.Category}
+            rowCategoryIconValue={rr.CategoryDetails.CategoryIcon}>
+            <span class={ "icomoon", rr.CategoryDetails.CategoryIcon }>&#x{ rr.CategoryDetails.CategoryIcon };</span>
+        </td>
+        <td>{rr.FormPriceStr2Decimals}</td>
+        <td>{rr.Product}</td>
+        if init {
+            <td>
+                <button id={rr.IDsave}>
+                    <!-- save -->
+                    <svg width="24" height="24" viewBox="0 0 24 24"><use xlink:href="/img/icons.svg#feather-save"></use></svg>
+                </button>
+            </td>
+            <td>
+                <button id={rr.IDedit}>
+                    <!-- edit -->
+                    <svg width="24" height="24" viewBox="0 0 24 24"><use xlink:href="/img/icons.svg#feather-edit"></use></svg>
+                </button>
+            </td>
+        } else {
+            <td>
+                <button class="secondary outline" disabled>
+                    <!-- check square -->
+                    <svg width="24" height="24" viewBox="0 0 24 24"><use xlink:href="/img/icons.svg#feather-check-square"></use></svg>
+                </button>
+            </td>
+            <td>
+                <button class="secondary outline" disabled>
+                    <!-- check square -->
+                    <svg width="24" height="24" viewBox="0 0 24 24"><use xlink:href="/img/icons.svg#feather-check-square"></use></svg>
+                </button>
+            </td>
+        }
+    </tr>
+}
+templ errorPostRecurrentRecord() {
+    <tr>
+        <td>ERR</td>
+        <td>ERR</td>
+        <td>ERR</td>
+        <td>
+            <span class="icomoon e909">&#xe909;</span>
+        </td>
+        <td>ERROR</td>
+        <td>0.00</td>
+        <td>-</td>
+        <td>-</td>
+    </tr>
+}
+templ addBotRows(totalRowsWithoutLimit string) {
+    <tr>
+        <td></td>
+        <td colspan="2">INFO</td>
+        <td colspan="3">Il reste { totalRowsWithoutLimit } lignes à traiter.</td>
+    </tr>
+    <tr>
+        <td></td>
+        <td colspan="3">MONTANT DE LA SELECTION</td>
+        <td colspan="2" id="selectedSum">0.00</td>
+    </tr>
+}
+
+templ GetRecordInsert(jsonFT []appdata.FinanceTracker, jsonUP appdata.UserParams, currentDate string) {
+    <html>
+        <head>
+            @Header()
+            @TopScriptHTMX()
+            <link rel="stylesheet" href="/fonts/style.css"/>
+        </head>
+        <body class="container-fluid">
+            <main>
+                <h1>Insérer des données</h1>
+
+                <section id="form">
+                    <div id="htmxInfo"> <!-- via header: "HX-Retarget", "#htmxInfo" -->
+                        <form hx-post="/record/insert" 
+                            hx-target="#lastInsert" 
+                            hx-swap="afterbegin" 
+                            hx-sync="this:drop"
+                            hx-indicator="#spinner"
+                            hx-on::after-request="if(event.detail.successful) document.getElementById('prix').value=''">
+
+                            <fieldset role="group">
+                                <div>
+                                    @dateInput(currentDate)
+                                </div>
+                                <div><!-- separator --></div>
+                                <div>
+                                    @accountInput("compte", jsonUP.AccountList, false)
+                                </div>
+                            </fieldset>
+                            @categoryCustomRadioInput(jsonUP.CategoryList)
+                            <fieldset role="group">
+                                <div>
+                                    @amountInput()
+                                </div>
+                                <div><!-- separator --></div>
+                                <div>
+                                    @amountDirectionRadio()
+                                </div>
+                            </fieldset>
+                            @textInput()
+                            @FormSubmit("idSubmit1", "/img/icons.svg#feather-save", "Enregistrer")
+                        </form>
+                    </div> <!-- via header: "HX-Retarget", "#htmxInfo" -->
+                </section>
+
+                <section id="recap">
+                    @lastInsertedRowsTable(jsonFT, false, "")
+                </section>
+
+                <section id="infos">
+                    <p>
+                        Un récapitulatif des derniers enregistrements est disponible ci-dessus.<br/> 
+                        Le dernier effectué se trouve en haut de la liste.
+                    </p>
+                </section>
+
+                @Nav("top", "/", "/img/icons.svg#feather-home", "Accueil", "contrast outline",
+                    "/record/transfer", "/img/icons.svg#lucide-arrow-right-left", "Transfert", "contrast")
+            </main>
+            @BotScriptThemeSwitcher()
+            @BotScriptHTMXhandleError()
+            @categoryDropdown(jsonUP.CategoryList)
+        </body>
+    </html>
+}
+
+templ GetRecordTransfer(jsonFT []appdata.FinanceTracker, jsonUP appdata.UserParams, currentDate string) {
+    <html>
+        <head>
+            @Header()
+            @TopScriptHTMX()
+            <link rel="stylesheet" href="/fonts/style.css"/>
+        </head>
+        <body class="container-fluid">
+            <main>
+                <h1>Transfert</h1>
+                <small><i>Transférer un montant depuis un compte vers un autre.</i></small>
+
+                <section id="form">
+                    <div id="htmxInfo"> <!-- via header: "HX-Retarget", "#htmxInfo" -->
+                        <form hx-post="/record/transfer" 
+                            hx-target="#lastInsert" 
+                            hx-swap="afterbegin" 
+                            hx-sync="this:drop"
+                            hx-indicator="#spinner"
+                            hx-on::after-request="if(event.detail.successful) document.getElementById('prix').value=''">
+
+                            <fieldset role="group">
+                                <div>
+                                    @dateInput(currentDate)
+                                </div>
+                                <div><!-- separator --></div>
+                                <div>
+                                    @amountInput()
+                                </div>
+                            </fieldset>
+                            <fieldset role="group">
+                                <div>
+                                    @accountInput("compteDepuis", jsonUP.AccountList, true)
+                                </div>
+                                <div class="center">
+                                    <br/>
+                                    <!-- arrow-big-right -->
+                                    <svg stroke="currenColor" width="32" heigth="32" viewBox="0 0 24 24"><use xlink:href="/img/icons.svg#lucide-arrow-big-right"></use></svg>
+                                </div>
+                                <div>
+                                    @accountInput("compteVers", jsonUP.AccountList, true)
+                                </div>
+                            </fieldset>
+                            @FormSubmit("idSubmit1", "/img/icons.svg#feather-save", "Transférer")
+                        </form>
+                    </div> <!-- via header: "HX-Retarget", "#htmxInfo" -->
+                </section>
+
+                <section id="recap">
+                    @lastInsertedRowsTable(jsonFT, false, "")
+                </section>
+
+                <section id="infos">
+                    <p>
+                        Un récapitulatif des derniers enregistrements est disponible ci-dessus.<br/> 
+                        Le dernier effectué se trouve en haut de la liste.
+                    </p>
+                </section>
+
+                @Nav("top", "/", "/img/icons.svg#feather-home", "Accueil", "contrast outline",
+                    "/record/insert", "/img/icons.svg#lucide-notebook-pen", "Saisie", "contrast")
+            </main>
+            @BotScriptThemeSwitcher()
+            @BotScriptHTMXhandleError()
+            <script>
+                // check JS before submitting the HTMX request, prevent submit if incorect accounts selected
+                document.body.addEventListener("htmx:confirm", function(evtConfirm){
+                    evtConfirm.preventDefault();
+                    accountFrom = document.getElementById("compteDepuis").value;
+                    accountTo = document.getElementById("compteVers").value;
+                    if (accountFrom == "-" || accountTo == "-"){
+                        window.alert("Merci de renseigner les comptes.");
+                    } else if (accountFrom == accountTo){
+                        window.alert("Merci de sélectionner des comptes différents.");
+                    } else {
+                        evtConfirm.detail.issueRequest();
+                    }
+                }, false);
+            </script>
+        </body>
+    </html>
+}
+
+templ GetRecordRecurrent(jsonRR []appdata.RecurrentRecord, jsonFT []appdata.FinanceTracker, jsonUP appdata.UserParams, currentDate string) {
+    <html>
+        <head>
+            @Header()
+            @TopScriptHTMX()
+            <link rel="stylesheet" href="/fonts/style.css"/>
+        </head>
+        <body class="container-fluid">
+            <main>
+                <h1>Enregistrements réguliers</h1>
+
+                <section id="form">
+                    <div id="htmxInfo"> <!-- via header: "HX-Retarget", "#htmxInfo" -->
+                        <details id="openForm">
+                            <summary role="button" class="contrast">
+                                <strong>Créer une trame</strong><br/>
+                                <small><i>Permet d'éviter la resaisie des factures ou salaires récurrents.</i></small>
+                            </summary>
+                            <form name="mainForm">
+                                <!-- Select -->
+                                <label for="recurrence">
+                                    <!-- refresh clockwise -->
+                                    <svg width="18" height="18" viewBox="0 0 24 24"><use xlink:href="/img/icons.svg#feather-refresh-cw"></use></svg>
+                                    Récurrence
+                                </label>
+                                <select id="recurrence" name="recurrence" required>
+                                    <option value="mensuelle">Mensuelle M+1</option>
+                                    <option value="hebdomadaire">Hebdomadaire J+7</option>
+                                    <option value="annuelle">Annuelle A+1</option>
+                                </select>
+                                <fieldset role="group">
+                                    <div>
+                                        @dateInput(currentDate)
+                                    </div>
+                                    <div><!-- separator --></div>
+                                    <div>
+                                        @accountInput("compte", jsonUP.AccountList, false)
+                                    </div>
+                                </fieldset>
+                                @categoryCustomRadioInput(jsonUP.CategoryList)
+                                <fieldset role="group">
+                                    <div>
+                                        @amountInput()
+                                    </div>
+                                    <div><!-- separator --></div>
+                                    <div>
+                                        @amountDirectionRadio()
+                                    </div>
+                                </fieldset>
+                                @textInput()
+                                <!-- Text -->
+                                <input type="text" id="idRRmain" name="idRRmain" value="0" hidden readonly required />
+                                <!-- Buttons -->
+                                <button id="createRR" type="submit" value="Submit"
+                                    hx-post="/record/recurrent/create" 
+                                    hx-target="#newRR" 
+                                    hx-swap="afterbegin" 
+                                    hx-sync="this:drop"
+                                    hx-indicator="#spinnerA"
+                                    hx-on::after-request="if(event.detail.successful) document.mainForm.reset()">
+                                    <span id="spinnerA" class="htmx-indicator" aria-busy="true"></span>
+                                    <!-- save -->
+                                    <svg width="24" height="24" viewBox="0 0 24 24"><use xlink:href="/img/icons.svg#feather-save"></use></svg>
+                                    Enregistrer comme trame
+                                </button>
+                                <!-- Buttons -->
+                                <button id="editRR" hidden
+                                    type="submit" value="Submit"
+                                    hx-post="/record/recurrent/update" 
+                                    hx-target="#newRR" 
+                                    hx-swap="afterbegin" 
+                                    hx-sync="this:drop"
+                                    hx-indicator="#spinnerB"
+                                    hx-on::after-request="if(event.detail.successful) document.mainForm.reset()">
+                                    <span id="spinnerB" class="htmx-indicator" aria-busy="true"></span>
+                                    <!-- edit -->
+                                    <svg width="24" height="24" viewBox="0 0 24 24"><use xlink:href="/img/icons.svg#feather-edit"></use></svg>
+                                    Editer la trame
+                                </button>
+                                <!-- Buttons -->
+                                <button id="deleteRR" hidden
+                                    class="contrast outline"
+                                    type="submit" value="Submit"
+                                    hx-post="/record/recurrent/delete" 
+                                    hx-target="#infoMainForm" 
+                                    hx-swap="innerHTML" 
+                                    hx-sync="this:drop"
+                                    hx-indicator="#spinnerB"
+                                    hx-on::after-request="if(event.detail.successful) document.mainForm.reset()">
+                                    <span id="spinnerB" class="htmx-indicator" aria-busy="true"></span>
+                                    <!-- red x square -->
+                                    <svg width="24" height="24" viewBox="0 0 24 24"><use xlink:href="/img/icons.svg#feather-red-x-square"></use></svg>
+                                    Supprimer la trame
+                                </button>
+                            </form>
+                            <span id="infoMainForm"></span>
+                        </details>
+                    </div> <!-- via header: "HX-Retarget", "#htmxInfo" -->
+                </section>
+                <section id="recurrentRecords">
+                    <h5>Enregistrements récurrents</h5>
+                    <small><i>
+                        Fonctionnement:
+                        <ul>
+                            <li>
+                                <!-- refresh clockwise -->
+                                <svg width="18" height="18" viewBox="0 0 24 24"><use xlink:href="/img/icons.svg#feather-refresh-cw"></use></svg>
+                                affiche la récurrence: Me.=mensuelle, An.=annuelle, He.=hebdomadaire.
+                            </li>
+                            <li>
+                                <!-- save -->
+                                <svg width="18" height="18" viewBox="0 0 24 24"><use xlink:href="/img/icons.svg#feather-save"></use></svg>
+                                enregistre la ligne avec les données affichées.
+                            </li>
+                            <li>
+                                <!-- edit -->
+                                <svg width="18" height="18" viewBox="0 0 24 24"><use xlink:href="/img/icons.svg#feather-edit"></use></svg>
+                                permet de modifier/supprimer les données de la ligne.
+                            </li>
+                        </ul>
+                    </i></small>
+                    <div id="refreshToTopTableRR" class="overflow-auto">
+                        <figure>
+                            <table class="striped">
+                                <thead>
+                                    <tr>
+                                        <th scope="col">
+                                            <!-- refresh clockwise -->
+                                            <svg width="24" height="24" viewBox="0 0 24 24"><use xlink:href="/img/icons.svg#feather-refresh-cw"></use></svg>
+                                        </th>
+                                        <th scope="col">
+                                            <!-- calendar = Date -->
+                                            <svg stroke="currenColor" width="28" heigth="28" viewBox="0 0 24 24"><use xlink:href="/img/icons.svg#lucide-calendar"></use></svg>
+                                        </th>
+                                        <th scope="col">
+                                            <!-- landmark = Compte -->
+                                            <svg stroke="currenColor" width="28" heigth="28" viewBox="0 0 24 24"><use xlink:href="/img/icons.svg#lucide-landmark"></use></svg>
+                                        </th>
+                                        <th scope="col">
+                                            <!-- boxes = Catégorie -->
+                                            <svg stroke="currenColor" width="28" heigth="28" viewBox="0 0 24 24"><use xlink:href="/img/icons.svg#lucide-tag"></use></svg>
+                                        </th>
+                                        <th scope="col">
+                                            <!-- banknote = Prix -->
+                                            <svg stroke="currenColor" width="28" heigth="28" viewBox="0 0 24 24"><use xlink:href="/img/icons.svg#lucide-banknote"></use></svg>
+                                        </th>
+                                        <th scope="col">
+                                            <!-- text = Designation -->
+                                            <svg stroke="currenColor" width="28" heigth="28" viewBox="0 0 24 24"><use xlink:href="/img/icons.svg#lucide-text"></use></svg>
+                                        </th>
+                                        <th scope="col" class="centerText">
+                                            <!-- save -->
+                                            <svg width="24" height="24" viewBox="0 0 24 24"><use xlink:href="/img/icons.svg#feather-save"></use></svg>
+                                        </th>
+                                        <th scope="col" class="centerText">
+                                            <!-- edit -->
+                                            <svg width="24" height="24" viewBox="0 0 24 24"><use xlink:href="/img/icons.svg#feather-edit"></use></svg>
+                                        </th>
+                                    </tr>
+                                </thead>
+                                <tbody id="newRR">
+                                    for _, rr := range jsonRR {
+                                        @oneRowInLastInsertedRecurrentRecordTable(rr, true)
+                                    }
+                                </tbody>
+                            </table>
+                        </figure>
+                    </div>
+                    <form id="formSaveRR" 
+                        hx-trigger="onSaveButtonClick"
+                        hx-post="/record/recurrent/save" 
+                        hx-target="#lastInsert" 
+                        hx-swap="afterbegin" 
+                        hx-sync="this:drop">
+                        <!-- Text -->
+                        <input type="text" id="idRR" name="idRR" value="0" hidden readonly required />
+                    </form>
+                    <a id="refreshPage" href="?i=1#refreshToTopTableRR"><button class="secondary outline">
+                        <!-- refresh clockwise -->
+                        <svg width="24" height="24" viewBox="0 0 24 24"><use xlink:href="/img/icons.svg#feather-refresh-cw"></use></svg>
+                        Rafraichir la page pour activer les boutons grisés
+                    </button></a>
+                    <hr/>
+                </section>
+                <section id="recap">
+                    @lastInsertedRowsTable(jsonFT, false, "")
+                </section>
+                <section id="infos">
+                    <p>
+                        Un récapitulatif des derniers enregistrements est disponible ci-dessus.<br/> 
+                        Le dernier effectué se trouve en haut de la liste.
+                    </p>
+                </section>
+                @Nav("top", "/", "/img/icons.svg#feather-home", "Accueil", "contrast outline",
+                    "/record/transfer", "/img/icons.svg#lucide-arrow-right-left", "Transfert", "contrast")
+            </main>
+            @BotScriptThemeSwitcher()
+            @BotScriptHTMXhandleError()
+            @categoryDropdown(jsonUP.CategoryList)
+            @botScriptShowCreateButton()
+            @botScriptAddClickEventToTableButtons()
+
+        </body>
+    </html>
+}
+
+script botScriptShowCreateButton() {
+    function showCreateButton() {
+        // object.style.visibility = "visible|hidden|collapse|initial|inherit" // keep the space on the page for the element
+        document.getElementById('createRR').hidden = false;
+        document.getElementById('editRR').hidden = true;
+        document.getElementById('deleteRR').hidden = true;
+    };
+
+    document.getElementById('editRR').addEventListener('click', function(editB){
+        showCreateButton();
+    });
+    document.getElementById('deleteRR').addEventListener('click', function(deleteB){
+        showCreateButton();
+        setTimeout(function() { document.getElementById('infoMainForm').innerHTML = ""; }, 3000);
+    });
+
+    // refresh URL dynamic change
+    rightPartUrl = window.location.search;
+    if (rightPartUrl == "?i=1") {
+        document.getElementById('refreshPage').href = (window.location.origin+window.location.pathname+"#refreshToTopTableRR");
+    } else {
+        document.getElementById('refreshPage').href = (window.location.origin+window.location.pathname+"?i=1#refreshToTopTableRR");
+    };
+}
+script botScriptAddClickEventToTableButtons() {
+    // this script add a click event on every buttons under <tbody id="newRR">
+    var childButtons = document.getElementById('newRR').getElementsByTagName('button');
+    for (var i = 0; i < childButtons.length; i++) {
+        var buttonId = childButtons[i].id;
+        if (buttonId.substring(0, 1) == 's') {
+            // save button, POST + disable buttons + redesign buttons
+            document.getElementById(buttonId).addEventListener('click', function(s){
+                rowId = this.id.substring(1);
+                document.getElementById('idRR').value = rowId;
+                //console.log(document.getElementById('idRR').value);
+                document.getElementById(this.id).disabled = true;
+                document.getElementById(this.id).classList.add('secondary');
+                document.getElementById(this.id).classList.add('outline');
+                document.getElementById(this.id).innerHTML = `
+                    <!-- check square -->
+                    <svg width="24" height="24" viewBox="0 0 24 24"><use xlink:href="/img/icons.svg#feather-check-square"></use></svg>
+                `;
+                document.getElementById("e"+rowId).disabled = true;
+                document.getElementById("e"+rowId).classList.add('secondary');
+                document.getElementById("e"+rowId).classList.add('outline');
+                document.getElementById("e"+rowId).innerHTML = `
+                    <!-- check square -->
+                    <svg width="24" height="24" viewBox="0 0 24 24"><use xlink:href="/img/icons.svg#feather-check-square"></use></svg>
+                `;
+                document.getElementById('infoMainForm').innerHTML = "";
+                htmx.trigger("#formSaveRR", "onSaveButtonClick");
+            });
+        } else if (buttonId.substring(0, 1) == 'e') {
+            // edit button, put back all data in the form and change the output of the form to UPDATE on submit
+            document.getElementById(buttonId).addEventListener('click', function(e){
+                rowId = this.id.substring(1);
+                var childTd = document.getElementById(rowId).getElementsByTagName('td');
+                document.getElementById('openForm').open = true;
+                document.getElementById('createRR').hidden = true;
+                document.getElementById('editRR').hidden = false;
+                document.getElementById('deleteRR').hidden = false;
+                document.getElementById('date').focus();
+                document.getElementById('idRRmain').value = rowId;
+                document.getElementById('infoMainForm').innerHTML = "";
+                for (var i = 0; i < childTd.length; i++) {
+                    // console.log("------------");
+                    // console.log(i);
+                    // console.log(childTd[i]);
+                    switch(i) {
+                        case 0:
+                            document.getElementById('recurrence').value = childTd[i].getAttribute("rowRecurrenceValue");
+                            break;
+                        case 1:
+                            document.getElementById('date').value = childTd[i].getAttribute("rowDateValue");
+                            break;
+                        case 2:
+                            document.getElementById('compte').value = childTd[i].innerHTML;
+                            break;
+                        case 3:
+                            var categoryName = childTd[i].getAttribute("rowCategoryNameValue");
+                            var categoryIcon = childTd[i].getAttribute("rowCategoryIconValue");
+                            document.getElementById('summaryCategory').innerHTML = categoryName;
+                            document.getElementById('summaryIcon').innerHTML = "&#x" + categoryIcon + ";";
+                            bgclass = document.getElementById('summaryIcon').classList.item(1)
+                            document.getElementById('summaryIcon').classList.remove(bgclass)
+                            document.getElementById('summaryIcon').classList.add(categoryIcon)
+                            var childInputsEdit = document.getElementById('categoryDropdown').getElementsByTagName('input');
+                            for (var j = 0; j < childInputsEdit.length; j++) {
+                                if (childInputsEdit[j].value == categoryName) {
+                                    idInt = parseInt(childInputsEdit[j].id.replace("input",""));
+                                    document.getElementById(childInputsEdit[j].id).checked = true;
+                                };
+                            };
+                            break;
+                        case 4:
+                            amount = parseFloat(childTd[i].innerHTML);
+                            if (amount < 0) {
+                                document.getElementById('prix').value = (amount * -1);
+                                document.getElementById('gain').checked = false;
+                                document.getElementById('expense').checked = true;
+                            } else {
+                                document.getElementById('prix').value = (amount);
+                                document.getElementById('gain').checked = true;
+                                document.getElementById('expense').checked = false;
+                            }
+                            break;
+                        case 5:
+                            document.getElementById('designation').value = childTd[i].innerHTML;
+                            break;
+                        default:
+                            // console.log(childTd[i].innerHTML);
+                    };
+                    childTd[0].parentElement.remove();
+                };
+                //console.log(document.getElementById('date').value);
+                //console.log(document.getElementById('recurrence').value);
+            });
+        };
+    };
+}
+
+templ PostRecordSingle(httpStatus int, json appdata.FinanceTracker) {
+    switch httpStatus {
+        case http.StatusCreated:
+            @oneRowInLastInsertedRowsTable(json, false)       
+        default:
+            @errorPostRecord()
+	}
+}
+templ PostRecordDouble(httpStatus int, json []appdata.FinanceTracker) {
+    switch httpStatus {
+        case http.StatusCreated:
+            @oneRowInLastInsertedRowsTable(json[0], false)
+            @oneRowInLastInsertedRowsTable(json[1], false)      
+        default:
+            @errorPostRecord()
+	}
+}
+
+templ PostRecordRecurrent(httpStatus int, json appdata.RecurrentRecord) {
+    switch httpStatus {
+        case http.StatusOK, http.StatusCreated:
+            @oneRowInLastInsertedRecurrentRecordTable(json, false)       
+        default:
+            @errorPostRecurrentRecord()
+	}
+}
+
+templ DeleteRecordRecurrent(httpStatus int) {
+    switch httpStatus {
+        case http.StatusOK:
+            Ligne supprimée.
+        default:
+            Impossible de supprimer cette ligne.
+	}
+}
+
+templ PostRecordRecurrentSave(httpStatus int, ft appdata.FinanceTracker) {
+    switch httpStatus {
+        case http.StatusCreated:
+            @oneRowInLastInsertedRowsTable(ft, false)       
+        default:
+            @errorPostRecord()
+	}
+}
+
+templ GetRecordValidateOrCancel(jsonFT []appdata.FinanceTracker, jsonUP appdata.UserParams, currentDate string, totalRowsWithoutLimit string) {
+    <html>
+        <head>
+            @Header()
+            @TopScriptHTMX()
+            <link rel="stylesheet" href="/fonts/style.css"/>
+        </head>
+        <body class="container-fluid">
+            <main>
+                <h1>Valider/annuler des gains ou dépenses</h1>
+                <p>
+                    <!-- info -->
+                    <svg width="24" height="24" viewBox="0 0 24 24" stroke="currentColor"><use xlink:href="/img/icons.svg#feather-info"></use></svg>
+                    Par défaut, le tableau contient les 8 lignes avec les dates les plus anciennes encore non validées.
+                </p>
+
+                <section id="advancedMode">
+                    <details>
+                        <summary role="button" class="contrast">
+                            <strong>Mode avancé</strong><br/>
+                            <small><i>Permet de modifier les lignes par défaut du tableau.</i></small>
+                        </summary>
+
+                        <h5>Filtrer</h5>
+                        <fieldset role="group">
+                            <div>
+                                <!-- Number -->
+                                <label for="annee">Année (1900-2200)</label>
+                                <input type="number" id="annee" name="annee" min="1900" max="2200" step="1" value="" />
+                            </div>
+                            <div><!-- separator --></div>
+                            <div>
+                                <!-- Select -->
+                                <label for="mois">Mois</label>
+                                <select id="mois" name="mois">
+                                    <option value="" selected>Tous</option>
+                                    <option value="1">Janvier</option>
+                                    <option value="2">Février</option>
+                                    <option value="3">Mars</option>
+                                    <option value="4">Avril</option>
+                                    <option value="5">Mai</option>
+                                    <option value="6">Juin</option>
+                                    <option value="7">Juillet</option>
+                                    <option value="8">Août</option>
+                                    <option value="9">Septembre</option>
+                                    <option value="10">Octobre</option>
+                                    <option value="11">Novembre</option>
+                                    <option value="12">Décembre</option>
+                                </select>
+                            </div>
+                        </fieldset>
+                        <!-- Select -->
+                        <label for="checked">
+                            <!-- alert-triangle -->
+                            <svg width="24" height="24" viewBox="0 0 24 24" stroke="#FFC000"><use xlink:href="/img/icons.svg#feather-alert-triangle"></use></svg>
+                            Lignes validées
+                        </label>
+                        <select id="checked" name="checked">
+                            <option value="0">Toutes</option>
+                            <option value="1">Oui</option>
+                            <option value="2" selected>Non (défaut)</option>
+                        </select>
+                        <small>
+                            <!-- alert-triangle -->
+                            <svg width="24" height="24" viewBox="0 0 24 24" stroke="#FFC000"><use xlink:href="/img/icons.svg#feather-alert-triangle"></use></svg>
+                            si <code>Lignes Validées</code> est différent de <code>Non</code>, il est possible d'annuler 
+                            <!-- red x square -->
+                            <svg width="24" height="24" viewBox="0 0 24 24" stroke="firebrick"><use xlink:href="/img/icons.svg#feather-x-square"></use></svg>
+                            des lignes précédemment validées
+                            <!-- green check square -->
+                            <svg width="24" height="24" viewBox="0 0 24 24"><use xlink:href="/img/icons.svg#feather-green-check-square"></use></svg>
+                            <br/>
+                            (revalider une ligne précédemment validée changera sa date de validation)
+                        </small>
+                        @categoryCustomRadioInput(jsonUP.CategoryList)
+                        <hr/>
+                        <h5>Trier</h5>
+                        <fieldset role="group">
+                            <div>
+                                <!-- Select -->
+                                <label for="orderBy">Trier par</label>
+                                <select id="orderBy" name="orderBy" required>
+                                    <option value="id">Identifiant</option>
+                                    <option value="date" selected>Date</option>
+                                    <option value="price">Prix</option>
+                                </select>
+                            </div>
+                            <div><!-- separator --></div>
+                            <div>
+                                <!-- Select -->
+                                <label for="orderByType">Ordre</label>
+                                <select id="orderByType" name="orderByType" required>
+                                    <option value="DESC">Décroissant</option>
+                                    <option value="ASC" selected>Croissant</option>
+                                </select>
+                            </div>
+                        </fieldset>
+
+                        <hr/>
+                        <!-- Number -->
+                        <label for="limitStr">Nombre max d'enregistrements (1-500)</label>
+                        <input type="number" id="limitStr" name="limitStr" min="1" max="500" step="1" value="8" required />
+
+                        <small>
+                            <!-- info -->
+                            <svg width="24" height="24" viewBox="0 0 24 24" stroke="currentColor"><use xlink:href="/img/icons.svg#feather-info"></use></svg>
+                            Sélectioner un compte pour appliquer les filtres.
+                        </small>
+                        <hr/>
+                    </details>
+                </section>
+
+                <section id="form">
+                    <div id="forbidden"> <!-- via header: "HX-Retarget", "#forbidden" -->
+                        <h5>Paramètres de traitement des lignes</h5>
+                        <div class="grid">
+                            <div>
+                                Mode<br/>
+                                <span id="mode">Le mode <code>Validation</code> est activé.</span>
+                                <label for="switchMode">
+                                    <!-- red x square -->
+                                    Annulation
+                                    <svg width="24" height="24" viewBox="0 0 24 24" stroke="firebrick"><use xlink:href="/img/icons.svg#feather-x-square"></use></svg>
+                                    <input type="checkbox" id="switchMode" name="switchMode" role="switch" checked />
+                                    <!-- green check square -->
+                                    <svg width="24" height="24" viewBox="0 0 24 24"><use xlink:href="/img/icons.svg#feather-green-check-square"></use></svg>
+                                    Validation
+                                </label>
+                            </div>
+                            <fieldset role="group">
+                                <div>
+                                    @dateInput(currentDate)
+                                </div>
+                                <div><!-- separator --></div>
+                                <div>
+                                    @accountInput("compte", jsonUP.AccountList, true)
+                                </div>
+                            </fieldset>
+                        </div>
+
+                        <div class="overflow-auto">
+                            <section id="recap">
+                                @lastInsertedRowsTable(jsonFT, true, totalRowsWithoutLimit)
+                            </section>
+                        </div>
+                        <form>
+                            <!-- Text -->
+                            <input type="text" id="checkedList" name="checkedList" hidden readonly required />
+                            <!-- Text -->
+                            <input type="text" id="dateCopy" name="dateCopy" hidden readonly required />
+
+                            <!-- Buttons -->
+                            <button id="submitValid"
+                                type="submit" value="Submit"
+                                hx-post="/record/validate" 
+                                hx-target="#htmxInfo" 
+                                hx-indicator="#spinnerA">
+                                <span id="spinnerA" class="htmx-indicator" aria-busy="true"></span>
+                                <!-- check square -->
+                                <svg width="24" height="24" viewBox="0 0 24 24"><use xlink:href="/img/icons.svg#feather-check-square"></use></svg>
+                                Valider
+                            </button>
+                            <!-- Buttons -->
+                            <button id="submitCancel" hidden
+                                class="contrast outline"
+                                type="submit" value="Submit"
+                                hx-post="/record/cancel" 
+                                hx-target="#htmxInfo" 
+                                hx-swap="innerHTML" 
+                                hx-indicator="#spinnerB">
+                                <span id="spinnerB" class="htmx-indicator" aria-busy="true"></span>
+                                <!-- red x square -->
+                                <svg width="24" height="24" viewBox="0 0 24 24" stroke="currentcolor"><use xlink:href="/img/icons.svg#feather-red-x-square"></use></svg>
+                                Annuler
+                            </button>
+
+                            <span id="htmxInfo"></span>
+                        </form>
+                    </div> <!-- via header: "HX-Retarget", "#forbidden" -->
+                </section>
+                @Nav("top", "/", "/img/icons.svg#feather-home", "Accueil", "contrast outline",
+                    "/record/transfer", "/img/icons.svg#lucide-arrow-right-left", "Transfert", "contrast")
+            </main>
+            @BotScriptThemeSwitcher()
+            @BotScriptHTMXhandleError()
+            @categoryDropdown(jsonUP.CategoryList)
+            @botScriptSwitchMode()
+            @botScriptTableRowSelectAndLastRowCalc()
+            @botScriptAutoReloadOnAccountChange()
+        </body>
+    </html>
+}
+
+script botScriptSwitchMode() {
+    //switch between validate or cancel mode
+    document.getElementById('switchMode').addEventListener('click', function(toggleSwitchMode){
+        if (this.checked) {
+            document.getElementById('mode').innerHTML = `Le mode <code>Validation</code> est activé.`;
+            document.getElementById('submitValid').hidden = false;
+            document.getElementById('submitCancel').hidden = true;
+        } else {
+            document.getElementById('mode').innerHTML = `Le mode <code>Annulation</code> est activé.`;
+            document.getElementById('submitValid').hidden = true;
+            document.getElementById('submitCancel').hidden = false;
+        };
+    });
+}
+script botScriptTableRowSelectAndLastRowCalc() {
+    // add sum of the selection in the final row of the table
+    function sumOfCheckboxesSelection(allCheckboxes) {
+        for (var i = 0; i < allCheckboxes.length; i++) {
+            currentId = allCheckboxes[i].value;
+            if (currentId > 0) {
+                document.getElementById(currentId).addEventListener('click', function(evtA){
+                    thisID = this.id
+                    oldTotal = parseFloat(document.getElementById('selectedSum').innerHTML);
+                    selectedValue = parseFloat(document.getElementById('v' + thisID).innerHTML);
+                    if (this.checked) {newTotal = oldTotal + selectedValue;} else {newTotal = oldTotal - selectedValue;}
+                    //console.log('oldTotal: ' + oldTotal);
+                    //console.log('selectedValue: ' + selectedValue);
+                    document.getElementById('selectedSum').innerHTML = newTotal.toFixed(2);
+                });
+            };
+        };
+    };
+    // <!-- IDs: input + td + "selectedSum" used to calculate with .js func -->
+    var allCheckboxesHtmx = document.querySelectorAll('input[type=checkbox][name=idCheckbox]');
+    sumOfCheckboxesSelection(allCheckboxesHtmx);
+    document.body.addEventListener('htmx:afterSwap', function (evtB) {
+        var allCheckboxesHtmx = document.querySelectorAll('input[type=checkbox][name=idCheckbox]');
+        sumOfCheckboxesSelection(allCheckboxesHtmx);
+    });
+
+    // select all checkboxes with the clickable header checkbox
+    document.getElementById('toggle').addEventListener('click', function(toggle){
+        isCurrentlyChecked = this.checked
+        checkboxesToggle = document.querySelectorAll('input[type=checkbox][name=idCheckbox]');
+        var newTotal = 0;
+        for(var i=0, n = checkboxesToggle.length; i < n; i++) {
+            if (checkboxesToggle[i].value > 0) {
+                checkboxesToggle[i].checked = isCurrentlyChecked;
+                if (isCurrentlyChecked) {newTotal += parseFloat(document.getElementById('v' + checkboxesToggle[i].id).innerHTML);};
+            };
+        };
+        document.getElementById('selectedSum').innerHTML = newTotal.toFixed(2);
+    });
+}
+script botScriptAutoReloadOnAccountChange() {
+    function reload(){
+        htmx.ajax('POST', '/record/getviapost', {
+            target:'#recap', 
+            swap:'innerHTML',
+            values: {
+                WhereAccount:    document.getElementById('compte').value, 
+                WhereCategory:   document.getElementById('summaryCategory').innerHTML, 
+                WhereYearStr:    document.getElementById('annee').value, 
+                WhereMonthStr:   document.getElementById('mois').value,
+                WhereCheckedStr: document.getElementById('checked').value,
+                OrderBy:         document.getElementById('orderBy').value,
+                OrderSort:       document.getElementById('orderByType').value,
+                LimitStr:        document.getElementById('limitStr').value
+            }
+        });
+    };
+    //auto reload record list on account change
+    document.getElementById('compte').addEventListener('change', reload);
+
+    // check JS before submitting the HTMX request, add the list of selected rows in the post request
+    document.body.addEventListener("htmx:confirm", function(evtConfirm){
+        if (evtConfirm.detail.path == "/record/getviapost" && evtConfirm.detail.verb == "post") {
+            // console.log("nothing");
+        } else {
+            evtConfirm.preventDefault();
+            var array = [];
+            var checkboxes = document.querySelectorAll('input[type=checkbox][name=idCheckbox]:checked');
+            for (var i = 0; i < checkboxes.length; i++) {
+                if (checkboxes[i].value > 0) {array.push(checkboxes[i].value)};
+            };
+            //console.log(array);
+            document.getElementById('checkedList').value = array;
+            document.getElementById('dateCopy').value = document.getElementById('date').value;
+            evtConfirm.detail.issueRequest();
+            setTimeout(function() { document.getElementById('htmxInfo').innerHTML = ""; }, 3000);
+            // put default value of checked back, and reload data
+            document.getElementById('checkedList').value = ""
+            document.getElementById('checked').value = "2";
+            setTimeout(function() { reload(); }, 300); // wait 300ms before sending this 2nd request
+        };
+    }, false);
+}
+templ PostFullRecordRefresh(jsonFT []appdata.FinanceTracker, totalRowsWithoutLimit string) {
+    @lastInsertedRowsTable(jsonFT, true, totalRowsWithoutLimit)
+}
+templ PostRecordValidate(httpStatus int) {
+    switch httpStatus {
+        case http.StatusOK:
+            <!-- green check square -->
+            <svg width="24" height="24" viewBox="0 0 24 24"><use xlink:href="/img/icons.svg#feather-green-check-square"></use></svg>
+            OK
+        default:
+            <!-- red x square -->
+            <svg width="24" height="24" viewBox="0 0 24 24"><use xlink:href="/img/icons.svg#feather-red-x-square"></use></svg>
+            ERREUR
+	}
+}
+templ PostRecordCancel(httpStatus int) {
+    switch httpStatus {
+        case http.StatusOK:
+            <!-- green check square -->
+            <svg width="24" height="24" viewBox="0 0 24 24"><use xlink:href="/img/icons.svg#feather-green-check-square"></use></svg>
+            OK
+        default:
+            <!-- red x square -->
+            <svg width="24" height="24" viewBox="0 0 24 24"><use xlink:href="/img/icons.svg#feather-red-x-square"></use></svg>
+            ERREUR
+	}
+}

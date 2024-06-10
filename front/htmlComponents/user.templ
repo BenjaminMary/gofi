@@ -1,0 +1,171 @@
+package htmlComponents
+
+import (
+    "net/http"
+
+    "gofi/gofi/data/appdata"
+)
+
+templ GetCreateUser(json *appdata.UserRequest) {
+    <html>
+        <head>
+            @Header()
+            @TopScriptHTMX()
+        </head>
+        <body class="container-fluid">
+            <main>
+                <h1>Création de compte</h1>
+                if json.IsAuthenticated {
+                    <div>
+                        Déjà connecté: <code>{json.Email}</code>.<br/>
+                        Se reconnecter permet de forcer un rafraichissement de la session en cours.
+                    </div>
+                    <hr/>
+                }
+                <section id="form">
+                    <form hx-post="/user/create"
+                        hx-target="#form" 
+                        hx-swap="outerHTML"
+                        hx-sync="this:drop"
+                        hx-indicator="#spinner">
+                        @formEmailPasswordInput()
+                        @FormSubmit("idSubmit", "/img/icons.svg#feather-user-plus", "Créer un compte")
+                    </form>
+                </section>
+                @Nav("top", "/", "/img/icons.svg#feather-home", "Accueil", "contrast outline",
+                    "/user/login", "/img/icons.svg#feather-user-check", "Se connecter", "contrast")
+            </main>
+            @BotScriptThemeSwitcher()
+            @BotScriptHTMXhandleError()
+        </body>
+    </html>
+}
+templ PostCreateUser(httpStatus int) {
+    switch httpStatus {
+        case http.StatusCreated:
+            <div>
+                Création du compte terminée.<br/>
+                Merci de procéder à la connexion.
+            </div>
+        case http.StatusBadRequest:
+            <div id="htmxInfo">
+                <p>
+                    ERREUR1: Impossible de créer le compte.<br/> 
+                    Requête annulée, merci de recommencer.<br/> 
+                    Si l'erreur persiste, merci de changer d'email.
+                </p>
+            </div>
+        case http.StatusInternalServerError:
+            <div id="htmxInfo">
+                <p>
+                    ERREUR2: Impossible de créer le compte.<br/> 
+                    Requête annulée, merci de recommencer.<br/> 
+                    Si l'erreur persiste, merci de changer d'email.
+                </p>
+            </div>
+        default:
+            <div id="htmxInfo">
+                <p>
+                    ERREUR3: Impossible de créer le compte.<br/> 
+                    Requête annulée, merci de recommencer.<br/> 
+                    Si l'erreur persiste, merci de changer d'email.
+                </p>
+            </div>
+	}
+}
+templ GetLogin(json *appdata.UserRequest) {
+    <html>
+        <head>
+            @Header()
+            @TopScriptHTMX()
+        </head>
+        <body class="container-fluid">
+            <main>
+                <h1>Login</h1>
+                if json.IsAuthenticated {
+                    <div>
+                        Déjà connecté: <code>{json.Email}</code>.<br/>
+                        Se reconnecter permet de forcer un rafraichissement de la session en cours.
+                    </div>
+                    <hr/>
+                }
+                <div id="form">
+                    <section>
+                        <form hx-post="/user/login"
+                            hx-target="#form" 
+                            hx-swap="outerHTML"
+                            hx-sync="this:drop"
+                            hx-indicator="#spinner">
+                            @formEmailPasswordInput()
+                            @FormSubmit("idSubmit", "/img/icons.svg#feather-user-check", "Se connecter")
+                        </form>
+                    </section>
+                    if !json.IsAuthenticated {
+                        <div id="newUser">
+                            Nouveau ?
+                            <aside><nav class="center"><ul>
+                                <li><a href="/user/create" role="button" class="contrast outline">
+                                    <!-- user plus -->
+                                    <svg width="24" height="24" viewBox="0 0 24 24"><use xlink:href="/img/icons.svg#feather-user-plus"></use></svg>
+                                    Créer un compte
+                                </a></li>
+                            </ul></nav></aside>
+                        </div>
+                    }
+                </div>
+                @Nav("top", "/", "/img/icons.svg#feather-home", "Accueil", "contrast outline",
+                    "/param/setup", "/img/icons.svg#feather-tool", "Configuration", "contrast")
+            </main>
+            @BotScriptThemeSwitcher()
+            @BotScriptHTMXhandleError()
+        </body>
+    </html>
+}
+templ PostLogin(json *appdata.HttpStruct) {
+    switch json.HttpStatus {
+        case http.StatusOK:
+            <div>Login réussi.</div>
+        case http.StatusBadRequest:
+            <div id="htmxInfo">
+                <p>
+                    ERREUR1: Impossible de se connecter.<br/> 
+                    Merci de recommencer.
+                </p>
+            </div>
+        case http.StatusInternalServerError:
+            <div id="htmxInfo">
+                <p>
+                    ERREUR2: Impossible de se connecter.<br/> 
+                    Merci de recommencer.
+                </p>
+            </div>
+        default:
+            <div id="htmxInfo">
+                <p>
+                    ERREUR3: Impossible de se connecter.<br/> 
+                    Merci de recommencer.
+                </p>
+            </div>
+	}
+}
+
+templ GetLogout() {
+    <html>
+        <head>
+            @Header()
+        </head>
+        <body class="container-fluid">
+            <main>
+                <h1>Logout</h1>
+                <section id="infos">
+                    <p>
+                        Déconnexion réussi.
+                    </p>
+                </section>
+                @Nav("top", "/", "/img/icons.svg#feather-home", "Accueil", "contrast outline",
+                    "/user/login", "/img/icons.svg#feather-user-check", "Se connecter", "contrast")
+            </main>
+            @BotScriptThemeSwitcher()
+        </body>
+    </html>
+}

@@ -1,0 +1,214 @@
+package htmlComponents
+
+import (
+    "net/http"
+)
+
+templ GetCSVexport() {
+    <html>
+        <head>
+            @Header()
+            @TopScriptHTMX()
+        </head>
+        <body class="container-fluid">
+            <main>
+                <h1>Export CSV</h1>
+
+                <section id="dl">
+                    <h3>Téléchargement</h3>
+                    <form id="formDL" 
+                        method="post" 
+                        action="/api/csv/export">
+                        <!-- HTMX KO for download -->
+                        @FormSubmit("download", "/img/icons.svg#feather-download-cloud", "Télécharger le fichier CSV")
+                    </form>
+
+                    <p>
+                        Le fichier téléchargé est au format UTF-8 avec BOM et fin de ligne LF (Unix), les données sont limités aux 10 000 derniers enregistrements.<br/>
+                        Chaque export générera un fichier avec l'ensemble des dernières modifications encore non exportées.<br/>
+                        L'objectif est ensuite de pouvoir réimporter tous ces fichiers dans l'ordre pour pouvoir retrouver toutes ses données.
+                        <hr/>
+                        L'ouverture dans Excel par défaut est correctement prise en charge grace au BOM sans avoir de problème d'affichage concernant les accents.<br/>
+                        En cas de problème, une méthode est disponible ci-dessous, mais elle ne devrait pas être nécessaire:
+                        <ol>
+                            <li>utiliser l'option <code>Fichier Texte</code> qui se trouve dans le ruban <code>Données</code>, partie <code>Données externes</code></li>
+                            <li>modifier le paramètre <code>Origine du fichier</code> en <code>65001 : Unicode (UTF-8)</code></li>
+                        </ol>
+                    </p>
+                    <hr/>
+                </section>
+
+                <section id="reset">
+                    <details>
+                        <summary role="button" class="contrast">
+                            <strong>RAZ du statut exporté</strong><br/>
+                            <small><i>Permet de télécharger à nouveau l'ensemble des données.</i></small>        
+                        </summary>
+                        <p>
+                            Cette remise à zéro de la colonne <code>Exported</code> va permettre de télécharger de nouveau l'ensemble des données.<br/>
+                            Sans utiliser cette option, un export pour 1 ligne de donnée est effectué une unique fois.
+                        </p>
+                        <form id="formReset"
+                            hx-post="/csv/export/reset">
+                            @FormSubmit("reset", "/img/icons.svg#feather-rewind", "Remise à zéro")
+                        </form>
+                    </details>
+                </section>
+
+                @Nav("top", "/", "/img/icons.svg#feather-home", "Accueil", "contrast outline",
+                    "/stats/false-0", "/img/icons.svg#feather-pie-chart", "Statistiques", "contrast")
+            </main>
+            @BotScriptThemeSwitcher()
+            @BotScriptHTMXhandleError()
+        </body>
+    </html>
+}
+templ PostCSVexportReset(httpStatus int) {
+    switch httpStatus {
+        case http.StatusOK:
+            <div>
+                Reset effectué, lancer un nouveau téléchargement.
+            </div>
+        default:
+            <div>
+                ERREUR: Impossible de reset.<br/> 
+                Requête annulée, merci de recommencer.<br/> 
+                Si l'erreur persiste, merci de contacter l'administrateur.
+            </div>
+	}
+}
+
+
+templ GetCSVimport() {
+    <html>
+        <head>
+            @Header()
+            @TopScriptHTMX()
+        </head>
+        <body class="container-fluid">
+            <main>
+                <h1>Import CSV</h1>
+                <p>Un exemple d'import est disponible <a href="#example">en bas de page</a>.</p>
+                <hr/>
+
+                <section id="form">
+                    <h3>Charger un fichier</h3>
+                    <form enctype="multipart/form-data"
+                        hx-post="/csv/import"
+                        hx-target="#textarea"
+                        hx-indicator="#spinner"
+                        hx-on::after-request="if(event.detail.successful) document.getElementById('form').remove()">
+                        
+                        <!-- File -->
+                        <label for="csvFile">Charger le fichier csv</label>
+                        <input type="file" id="csvFile" name="csvFile"/>
+
+                        <!-- Buttons -->
+                        <button type="submit" value="Submit">
+                            <span id="spinner" class="htmx-indicator" aria-busy="true"></span>
+                            <!-- upload cloud -->
+                            <svg width="24" height="24" viewBox="0 0 24 24"><use xlink:href="/img/icons.svg#feather-upload-cloud"></use></svg>
+                            Charger le fichier CSV
+                        </button>
+                    </form>
+                    <hr/>
+                </section>
+
+                <textarea id="textarea" rows="10"></textarea>
+
+                <hr/>
+
+                <section id="example">
+                    <h3>Exemple</h3>
+                    <h5>La liste des champs à renseigner:</h5>
+                    <ol>
+                        <li><code>𫝀é ꮖꭰ</code>: laisser vide pour créer un enregistrement ou spécifier un ID d'enregistrement existant pour le mettre à jour.</li>
+                        <li><code>Date</code>: doit respecter le format spécifié, dans l'exemple <code>JJ/MM/AAAA</code>, ne pas laisser vide</li>
+                        <li><code>Account</code>: le compte utilisé pour l'enregistrement</li>
+                        <li><code>Product</code>: la désignation de l'enregistrement</li>
+                        <li><code>PriceStr</code>: doit respecter le séparateur de décimale spécifié, dans l'exemple <code>,</code> avec un maximum de 2 décimales prises en compte</li>
+                        <li><code>Category</code>: la catégorie de l'enregistrement</li>
+                        <li><code>CommentInt</code>: un commentaire chiffré sans décimale (si besoin de faire des stats)</li>
+                        <li><code>CommentString</code>: un commentaire en texte libre</li>
+                        <li><code>Checked</code>: valeurs <code>true</code> ou <code>false</code></li>
+                        <li><code>DateChecked</code>: doit respecter le format spécifié, dans l'exemple <code>JJ/MM/AAAA</code>. Si vide, sera enregistré à <code>31/12/9999</code></li>
+                        <li><code>Exported</code>: valeurs <code>true</code> ou <code>false</code></li>
+                        <li><code>""</code>: valeurs vides <code>""</code>, colonne supplémentaire à garder vide.</li>
+                    </ol>
+
+                    <h5>Exemple d'un fichier .csv de 5 lignes avec en-têtes, donc 4 à importer:</h5>
+                    <ul>
+                        <li>séparateur csv <code>;</code></li>
+                        <li>séparateur décimale <code>,</code></li>
+                        <li>format date FR <code>JJ/MM/AAAA</code></li>
+                    </ul>
+                    <ol>
+                        <li><code>𫝀é ꮖꭰ;Date;Account;Product;PriceStr;Category;CommentInt;CommentString;Checked;DateChecked;Exported</code></li>        
+                        <li><code>1;12/11/2023;CB;Exemple 1 avec ID 1;2,03;Supermarché;0;;true;02/12/2023;false</code></li>
+                        <li><code>;10/12/2024;CB;Exemple 2 sans ID;9,00;Supermarché;0;;false;;false</code></li>
+                        <li><code>156979;10/12/2024;CB;Exemple 3 avec ID inconnu;87,50;Supermarché;0;;false;31/12/2200;false</code></li>
+                        <li><code>-2;10/12/2024;CB;Exemple 4 avec ID négatif -2;24,50;Supermarché;0;;false;31/12/2200;false</code></li>
+                    </ol>
+                    <ol>
+                        <li>La 1ere ligne sert pour les en-têtes et quelques contrôles de la validité du fichier</li>
+                        <li>Dans l'exemple 1, avec un ID on fait un <code>UPDATE</code> des données de la ligne qui a cet ID <code>1</code></li>
+                        <li>Dans l'exemple 2, sans ID, on fait un <code>INSERT</code> d'une nouvelle ligne sur laquelle on va attribuer un ID</li>
+                        <li>Dans l'exemple 3, avec un ID inconnu, on fait une tentative d'<code>UPDATE</code> des données de la ligne qui a cet ID <code>156979</code>, mais qui sera rejetée</li>
+                        <li>Dans l'exemple 4, avec un ID négatif, on fait un <code>DELETE</code> des données de la ligne qui a cet ID <code>2</code>. 
+                            L'ID de la ligne est gardé mais avec toutes les infos dans des valeurs par défaut et un prix à 0</li>
+                    </ol>
+
+                    <h5>Les résultats de l'import:</h5>
+                    <ol>
+                        <li>En-têtes de retour: <code>𫝀é ꮖꭰ;Date;CommentInt;Checked;Exported;NewID;Updated;</code></li>
+                        <li>
+                            Pour l'exemple 1, <code>UPDATE</code> de l'ID <code>1</code> validé avec l'info de l'en-tête de retour <code>Updated</code> à <code>true</code>:<br/> 
+                            <code>UPDATE 1;;;;;true;</code>
+                        </li>
+                        <li>
+                            Pour l'exemple 2, <code>INSERT</code> d'une nouvelle ligne validé avec l'info de l'ID attribué via en-tête retour <code>NewID</code> à <code>3</code>, 
+                            on pourra donc mettre à jour cette ligne plus tard en utilisant cet ID:<br/> 
+                            <code>INSERT;;;;3;true;</code>
+                        </li>
+                        <li>
+                            Pour l'exemple 3, <code>UPDATE</code> de l'ID inconnu <code>156979</code> invalide avec l'info de l'en-tête de retour <code>NewID</code> à <code>unknown ID</code>
+                            ainsi que <code>Updated</code> à <code>false</code>:<br/> 
+                            <code>UPDATE 156979;;;;unknown ID;false;</code>
+                        </li>
+                        <li>
+                            Pour l'exemple 4, <code>DELETE</code> de l'ID négatif <code>2</code> validé avec l'info de l'en-tête de retour <code>Updated</code> à <code>true</code>,
+                            force également un passage de <code>checked</code> à <code>true</code>, et <code>exported</code> à <code>false</code>:<br/> 
+                            <code>DELETE-2;1999-12-31;;checked true;exported false;;true;</code>
+                        </li>
+                    </ol>
+                    <hr/>
+                    <h5>INFOS:</h5> 
+                    <ul>
+                        <li>
+                            Seul les fichiers UTF-8 (avec ou sans BOM) sont acceptés.<br/>
+                            <i><small>
+                                (La 1ere colonne ID, noté <code>𫝀é ꮖꭰ</code> utilise des caractères UTF-8 spécifiques pour contrôler l'encodage du fichier, 
+                                sans ces caractères, l'import sera bloqué.)
+                            </small></i>
+                        </li>
+                        <li>Tous les ID sont attribués par l'application, il est impossible d'en changer ou d'en forcer un spécifique.</li>
+                        <li>Années valides entre 1900 et 2200</li>
+                    </ul>
+                </section>
+
+                @Nav("top", "/", "/img/icons.svg#feather-home", "Accueil", "contrast outline",
+                    "/stats/false-0", "/img/icons.svg#feather-pie-chart", "Statistiques", "contrast")
+            </main>
+            @BotScriptThemeSwitcher()
+            @BotScriptHTMXhandleError()
+        </body>
+    </html>
+}
+templ PostCSVimport(httpStatus int, info string, stringFile string) {
+    switch httpStatus {
+        case http.StatusOK:
+            { info } - { stringFile }
+        default:
+            { info } - { stringFile }
+	}
+}

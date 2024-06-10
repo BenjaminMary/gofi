@@ -1,0 +1,160 @@
+package htmlComponents
+
+import (
+    "net/http"
+
+    "gofi/gofi/data/appdata"
+)
+
+script initRadioCheck(goCategoryRendering string) {
+    if (goCategoryRendering == "names") {
+        document.getElementById("names").checked = true
+    } else {
+        document.getElementById("icons").checked = true
+    };
+}
+
+templ GetParamSetup(json appdata.UserParams) {
+    <html>
+        <head>
+            @Header()
+            @TopScriptHTMX()
+            <link rel="stylesheet" href="/fonts/style.css"/>
+        </head>
+        <body class="container-fluid">
+            <main>
+                <h1>Gérer les listes de données</h1>
+                <section id="form">
+                    <div id="htmxInfo">
+                        <form hx-post="/param/setup/account" 
+                            hx-target="#accountList" 
+                            hx-swap="outerHTML"
+                            hx-sync="this:drop"
+                            hx-on::after-request="if(event.detail.successful) document.getElementById('idSubmit1').remove();">
+                            <!-- Text -->
+                            <label for="ParamJSONstringData"><strong><small>Liste des comptes (séparer par des , sans espaces, ordre repris à l'identique)</small></strong></label>
+                            <input type="text" id="accountList" name="ParamJSONstringData" value={json.AccountListSingleString} required />
+                            @FormSubmit("idSubmit1", "/img/icons.svg#feather-save", "Enregistrer la liste des comptes")
+                        </form>
+                        <hr/>
+                        <form hx-post="/param/setup/category" 
+                            hx-target="#categoryList" 
+                            hx-swap="outerHTML"
+                            hx-sync="this:drop"
+                            hx-on::after-request="if(event.detail.successful) document.getElementById('idSubmit2').remove()">
+                            <!-- Text -->
+                            <label for="ParamJSONstringData"><strong><small>Liste des catégories (séparer par des , sans espaces, ordre repris à l'identique)</small></strong></label>
+                            <textarea id="categoryList" name="ParamJSONstringData" rows="4" required>{json.CategoryListSingleString}</textarea>
+                            @FormSubmit("idSubmit2", "/img/icons.svg#feather-save", "Enregistrer la liste des catégories")
+                        </form>
+                        <hr/>
+                        <form hx-post="/param/setup/category-rendering" 
+                            hx-target="#refresh" 
+                            hx-swap="innerHTML"
+                            hx-sync="this:drop"
+                            hx-on::after-request="if(event.detail.successful) document.getElementById('idSubmit3').remove()">
+                            <div>
+                                <!-- Radio buttons -->
+                                <fieldset id="categoryRendering">
+                                    <legend><strong><small>Affichage des catégories dans les listes</small></strong></legend>
+                                    <label for="names">
+                                        <input type="radio" id="names" name="ParamJSONstringData" value="names" />
+                                        Noms, ex: Banque
+                                    </label>
+                                    <label for="icons">
+                                        <input type="radio" id="icons" name="ParamJSONstringData" value="icons" />
+                                        Icônes, ex: 
+                                        <span class="icomoon" style="background-color: #33A6CC;">&#xe919;</span>
+                                    </label>
+                                </fieldset>
+                                <div id="refresh"></div>
+                            </div>
+                            @FormSubmit("idSubmit3", "/img/icons.svg#feather-save", "Enregistrer l'option d'affichage")
+                        </form>
+                    </div>
+                </section>
+                <section>
+                    <aside><nav class="center"><ul>
+                        // TODO: link to 404 for now
+                        <li><a href="/category-setup" role="button" class="contrast outline">
+                            <!-- eye -->
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-eye"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
+                            Voir les catégories existantes
+                        </a></li>
+                    </ul></nav></aside>
+                </section>
+                @Nav("top", "/", "/img/icons.svg#feather-home", "Accueil", "contrast outline",
+                    "/record/insert", "/img/icons.svg#lucide-notebook-pen", "Saisie", "contrast")
+            </main>
+            @BotScriptThemeSwitcher()
+            @BotScriptHTMXhandleError()
+            @initRadioCheck(json.CategoryRendering)
+        </body>
+    </html>
+}
+templ PostParamSetupAccount(httpStatus int, ParamJSONstringData string) {
+    switch httpStatus {
+        case http.StatusOK:
+            <input type="text" id="accountList" name="ParamJSONstringData" value={ParamJSONstringData} aria-invalid="false" disabled />
+        case http.StatusBadRequest:
+            <p>
+                ERREUR1: Impossible de modifier la liste des comptes.<br/> 
+                Requête annulée, merci de recommencer.
+            </p>
+        case http.StatusInternalServerError:
+            <p>
+                ERREUR2: Impossible de modifier la liste des comptes.<br/> 
+                Requête annulée, merci de recommencer.
+            </p>
+        default:
+            <p>
+                ERREUR3: Impossible de modifier la liste des comptes.<br/> 
+                Requête annulée, merci de recommencer.
+            </p>
+	}
+    @PageRefreshButton()
+}
+templ PostParamSetupCategory(httpStatus int, ParamJSONstringData string) {
+    switch httpStatus {
+        case http.StatusOK:
+            <textarea id="categoryList" name="categoryList" rows="3" aria-invalid="false" disabled>{ParamJSONstringData}</textarea>
+        case http.StatusBadRequest:
+            <p>
+                ERREUR1: Impossible de modifier la liste des catégories.<br/> 
+                Requête annulée, merci de recommencer.
+            </p>
+        case http.StatusInternalServerError:
+            <p>
+                ERREUR2: Impossible de modifier la liste des catégories.<br/> 
+                Requête annulée, merci de recommencer.
+            </p>
+        default:
+            <p>
+                ERREUR3: Impossible de modifier la liste des catégories.<br/> 
+                Requête annulée, merci de recommencer.
+            </p>
+	}
+    @PageRefreshButton()
+}
+templ PostParamSetupCategoryRendering(httpStatus int, ParamJSONstringData string) {
+    switch httpStatus {
+        case http.StatusOK:
+            // nothing
+        case http.StatusBadRequest:
+            <p>
+                ERREUR1: Impossible de modifier l'option d'affichage des catégories.<br/> 
+                Requête annulée, merci de recommencer.
+            </p>
+        case http.StatusInternalServerError:
+            <p>
+                ERREUR2: Impossible de modifier l'option d'affichage des catégories.<br/> 
+                Requête annulée, merci de recommencer.
+            </p>
+        default:
+            <p>
+                ERREUR3: Impossible de modifier l'option d'affichage des catégories.<br/> 
+                Requête annulée, merci de recommencer.
+            </p>
+	}
+    @PageRefreshButton()
+}

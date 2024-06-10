@@ -1,0 +1,347 @@
+package htmlComponents
+
+import (
+    "gofi/gofi/data/appdata"
+)
+
+templ Header() {
+    <meta charset="utf-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1"/>
+
+    <link rel="shortcut icon" href="/img/favicon-32x32.png"/>
+    <link rel="apple-touch-icon" href="/img/apple-touch-icon.png"/>
+    <link rel="icon" sizes="192x192" href="/img/android-chrome-192x192.png"/>
+    <link rel="android-chrome" sizes="192x192" href="/img/android-chrome-192x192.png"/>
+    <link rel="android-chrome" sizes="512x512" href="/img/android-chrome-512x512.png"/>
+    <link rel="favicon" href="/img/favicon-32x32.png"/>
+    <!-- Pico.css -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@picocss/pico@2/css/pico.sand.min.css"/>
+    <style>
+        nav.center a[role=button]{
+            width: 70vw;
+        }
+        @media screen and (min-width: 768px) {
+            nav.center a[role=button]{
+                width: 50vw;
+            }
+        }
+        nav a[role=button]{
+            width: 40vw;
+        }
+        span.icomoon {
+            font-family: "icomoon";
+            font-size: 24px;
+            display: inline-flex;
+            vertical-align: middle;
+            border-radius: 100%;
+            padding: 0 0.2em 0 0.2em; /* top | right | bottom | left */
+            color: white;
+        }
+        tr td span.icomoon {
+            padding: 0.2em 0.2em 0.2em 0.2em; /* top | right | bottom | left */
+        }
+        #overflowLimitHeight{
+            max-height: 50vh;
+            overflow-y: auto;
+        }
+        .center {
+            display: block;
+            margin-left: auto;
+            margin-right: auto;
+            text-align: center;
+        }
+        .centerText {
+            text-align: center;
+        }
+        .light {
+            color: #CCCCCC;
+            border-color: #CCCCCC;
+        }
+        .dark {
+            color: #333333;
+            border-color: #333333;
+        }
+        img {
+            max-height: 30vh;
+        }
+        #htmxInfo.htmx-added {
+            opacity: 0;
+        }
+        #htmxInfo {
+            opacity: 1;
+            transition: opacity 1s ease-out;
+        }
+        .right{
+            text-align: right;
+        }
+        div#container{
+            text-align: center;
+        }
+        .apexcharts-canvas{
+            margin: 0 auto;
+        }
+    </style>
+}
+
+templ Nav(hrpos string, href1 string, icon1 string, name1 string, class1 string, href2 string, icon2 string, name2 string, class2 string) {
+    if hrpos == "top" {
+        <hr/>
+    }
+    <nav>
+        <ul>
+            <li>
+                <a href={templ.URL(href1)} role="button" class={class1}>
+                    <svg width="24" height="24" viewBox="0 0 24 24"><use xlink:href={icon1}></use></svg>
+                    {name1}
+                </a>
+            </li>
+        </ul>
+        <ul>
+            <li>
+                <a href={templ.URL(href2)} role="button" class={class2}>
+                    <svg width="24" height="24" viewBox="0 0 24 24"><use xlink:href={icon2}></use></svg>
+                    {name2}
+                </a>
+            </li>
+        </ul>
+    </nav>
+    if hrpos == "bot" {
+        <hr/>
+    }
+}
+templ navThemeSwitcher() {
+    <nav>
+        <ul>
+            <li>
+                <a href="#" class="contrast outline light" data-theme-switcher="light">
+                    <svg width="24" height="24" viewBox="0 0 24 24"><use xlink:href="/img/icons.svg#feather-sun"></use>
+                        <title>Thème clair</title>
+                    </svg>
+                </a>
+            </li>
+        </ul>
+        <ul><li><strong>GOFI</strong></li></ul>
+        <ul>
+            <li>
+                <a href="#" class="contrast outline dark" data-theme-switcher="dark">
+                    <svg width="24" height="24" viewBox="0 0 24 24"><use xlink:href="/img/icons.svg#feather-moon"></use>
+                        <title>Thème sombre</title>
+                    </svg>
+                </a>
+            </li>
+        </ul>
+    </nav>
+    <br/>
+}
+
+templ Footer() {
+    <footer>
+        <a href="/" role="button" class="contrast outline">
+            <!-- home -->
+            <svg width="24" height="24" viewBox="0 0 24 24"><use xlink:href="/img/icons.svg#feather-home"></use></svg>
+            Accueil
+        </a>
+    </footer>
+}
+
+templ TopScriptHTMX() {
+    <!-- avoid CDN https://blog.wesleyac.com/posts/why-not-javascript-cdn -->
+    <!-- Subresource Integrity, SRI hash : https://www.srihash.org/ -->
+    <script 
+        src="https://unpkg.com/htmx.org@1.9.12" 
+        integrity="sha384-ujb1lZYygJmzgSwoxRggbCHcjc0rB2XoQrxeTUQyRjrOnlCoYta87iKBWq3EsdM2" 
+        crossorigin="anonymous">
+    </script>
+}
+templ BotScriptThemeSwitcher() {
+    <!-- Minimal theme switcher, switch one time in index page, and reuse script everywhere to keep the desired theme -->
+    <script src="/js/minimal-theme-switcher.js"></script>
+}
+templ BotScriptHTMXhandleError() {
+    <!-- handle the errors triggered and still use HTMX -->
+    <script>
+        document.body.addEventListener('htmx:beforeOnLoad', function (evt) {
+            if (evt.detail.xhr.status > 399) {
+                evt.detail.shouldSwap = true;
+                evt.detail.isError = false;
+            }
+        });
+    </script>
+}
+
+templ gofiImg(email string) {
+    <figure>
+        // <img class="center" src="/img/gopherize-me-1.png" alt="Gopher"/>
+        <img class="center" src="/img/gofi-img-sand.png" alt="Gopher"/>
+        <p class="center">
+            Bienvenue <code>{email}</code>
+            <img src="/img/gofi-logo-32x32-sand.svg" alt="Gofi-logo" width="24" height="24"/>
+        </p>
+    </figure>
+}
+
+templ indexLinksConnected(IsAdmin bool) {
+    <section id="links">
+        <h2 class="center">Fonctionnalités</h2>
+        <aside><nav class="center"><ul>
+            <li><a href="/param/setup" role="button" class="contrast outline">
+                <!-- tool -->
+                <svg width="24" height="24" viewBox="0 0 24 24"><use xlink:href="/img/icons.svg#feather-tool"></use></svg>
+                Configurer l'application
+            </a></li>
+            <li><a href="/record/insert" role="button" class="contrast">
+                <!-- lucide-notebook-pen -->
+                <svg width="24" height="24" viewBox="0 0 24 24"><use xlink:href="/img/icons.svg#lucide-notebook-pen"></use></svg>
+                Saisie de données
+            </a></li>
+            <li><a href="/record/transfer" role="button" class="contrast">
+                <!-- arrow-right-left -->
+                <svg width="24" height="24" viewBox="0 0 24 24"><use xlink:href="/img/icons.svg#lucide-arrow-right-left"></use></svg>
+                Transfert entre comptes
+            </a></li>
+            <li><a href="/record/recurrent" role="button" class="contrast">
+                <!-- refresh clockwise -->
+                <svg width="24" height="24" viewBox="0 0 24 24"><use xlink:href="/img/icons.svg#feather-refresh-cw"></use></svg>
+                Enregistrements réguliers
+            </a></li>
+            <li><a href="/record/validate-or-cancel" role="button" class="contrast outline">
+                <!-- check-square -->
+                <svg width="24" height="24" viewBox="0 0 24 24" stroke="currentColor"><use xlink:href="/img/icons.svg#feather-check-square"></use></svg>
+                Valider / 
+                <!-- x square -->
+                <svg width="24" height="24" viewBox="0 0 24 24" stroke="currentcolor"><use xlink:href="/img/icons.svg#feather-x-square"></use></svg>
+                Annuler
+            </a></li>
+            <li><a href="/editrows" role="button" class="contrast outline">
+                <!-- search -->
+                <svg width="24" height="24" viewBox="0 0 24 24" stroke="currentColor"><use xlink:href="/img/icons.svg#feather-search"></use></svg>
+                Rechercher des données
+            </a></li>
+            <li><a href="/stats/false-0" role="button" class="contrast outline">
+                <!-- pie-chart -->
+                <svg width="24" height="24" viewBox="0 0 24 24" stroke="currentColor"><use xlink:href="/img/icons.svg#feather-pie-chart"></use></svg>
+                Statistiques
+            </a></li>
+        </ul></nav></aside>
+        <hr/>
+        <h5 class="center">Gestion des données via fichier CSV</h5>
+        <aside><nav class="center"><ul>
+            <li><a href="/csv/export" role="button" class="contrast outline">
+                <!-- file text -->
+                <svg width="24" height="24" viewBox="0 0 24 24"><use xlink:href="/img/icons.svg#feather-file-text"></use></svg>
+                Exporter en CSV
+            </a></li>
+            <li><a href="/csv/import" role="button" class="contrast outline">
+                <!-- file text -->
+                <svg width="24" height="24" viewBox="0 0 24 24"><use xlink:href="/img/icons.svg#feather-file-text"></use></svg>
+                Importer via CSV
+            </a></li>
+        </ul></nav></aside>
+        if IsAdmin {
+            <hr/>
+            <h5 class="center">Administration</h5>
+            <aside><nav class="center"><ul>
+                <li><a href="/admin/backup" role="button" class="secondary outline">
+                    <!-- database -->
+                    <svg width="24" height="24" viewBox="0 0 24 24"><use xlink:href="/img/icons.svg#feather-database"></use></svg>
+                    Gérer les backups
+                </a></li>
+                <li><a href="/admin/backup?save=1" role="button" class="secondary outline">
+                    <!-- upload cloud -->
+                    <svg width="24" height="24" viewBox="0 0 24 24"><use xlink:href="/img/icons.svg#feather-upload-cloud"></use></svg>
+                    <!-- database -->
+                    <svg width="24" height="24" viewBox="0 0 24 24"><use xlink:href="/img/icons.svg#feather-database"></use></svg>
+                    Générer backup DB SQLite
+                </a></li>
+            </ul></nav></aside>
+        }
+        <hr/>
+        <h5 class="center">Autre</h5>
+        <aside><nav class="center"><ul>
+            <li><a href="/user/logout" role="button" class="secondary outline">
+                <!-- user x -->
+                <svg width="24" height="24" viewBox="0 0 24 24"><use xlink:href="/img/icons.svg#feather-user-x"></use></svg>
+                Déconnexion
+            </a></li>
+        </ul></nav></aside>
+    </section>
+}
+templ indexLinksDisconnected() {
+    <section id="links">
+        <h2 class="center">Fonctionnalités</h2>
+        <aside><nav class="center"><ul>
+            <li><a href="/user/create" role="button" class="contrast outline">
+                <!-- user plus -->
+                <svg width="24" height="24" viewBox="0 0 24 24"><use xlink:href="/img/icons.svg#feather-user-plus"></use></svg>
+                Créer un compte
+            </a></li>
+            <li><a href="/user/login" role="button" class="contrast">
+                <!-- user check -->
+                <svg width="24" height="24" viewBox="0 0 24 24"><use xlink:href="/img/icons.svg#feather-user-check"></use></svg>
+                Se connecter
+            </a></li>
+        </ul></nav></aside>
+    </section>
+}
+
+templ infos() {
+    <section id="infos">
+        <hr/>
+        <h5>Infos</h5>
+        <small>
+            Fait avec
+                • <a target="_blank" href="https://www.sqlite.org/">sqlite</a>
+                • <a target="_blank" href="https://go.dev/">golang </a>
+                • <a target="_blank" href="https://htmx.org/">htmx</a>
+                • <a target="_blank" href="https://picocss.com/">pico css</a>
+            <br/>
+            Logo • <a target="_blank" href="https://gopherize.me/">gopherize.me</a><br/>
+            Graphiques • <a target="_blank" href="https://apexcharts.com/">apexcharts</a><br/>
+            Icônes 
+                • <a target="_blank" href="https://feathericons.com/">feather</a> 
+                • <a target="_blank" href="https://lucide.dev/">lucide</a>
+                • <a target="_blank" href="https://icomoon.io/">icomoon</a>
+            <br/>
+            Code source • <a target="_blank" href="https://github.com/BenjaminMary/gofi/">github</a>
+        </small>
+    </section>
+}
+
+templ NextStep(href string, icon string, name string) {
+    <!-- fast forward -->
+    <svg width="24" height="24" viewBox="0 0 24 24"><use xlink:href="/img/icons.svg#feather-fast-forward"></use></svg>
+    Etape suivante:<br/>
+    <a href={templ.URL(href)} role="button" class="contrast">
+        <svg width="24" height="24" viewBox="0 0 24 24"><use xlink:href={icon}></use></svg>
+        {name}
+    </a>
+}
+templ PageRefreshButton() {
+    <a href="" role="button" class="secondary outline">
+        <!-- refresh clockwise -->
+        <svg width="24" height="24" viewBox="0 0 24 24"><use xlink:href="/img/icons.svg#feather-refresh-cw"></use></svg>
+        Rafraichir la page pour modifier
+    </a>
+}
+
+templ IndexHtmlContent(json *appdata.UserRequest) {
+    <html>
+        <head>
+            @Header()
+        </head>
+        <body class="container">
+            <main>
+                @navThemeSwitcher()
+                if json.IsAuthenticated {
+                    @gofiImg(json.Email)
+                    @indexLinksConnected(json.IsAdmin)
+                } else {
+                    @gofiImg("")
+                    @indexLinksDisconnected()
+                }
+                @infos()
+            </main>
+            @BotScriptThemeSwitcher()
+        </body>
+    </html>
+}
