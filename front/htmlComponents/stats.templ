@@ -88,7 +88,9 @@ templ GetStats(Year int,
 
                 <section id="graph-expenses">
                     <h5>Principales dépenses par Catégorie</h5>
-                    <div id="container"></div>
+                    <div id="container-apex-chart">
+                        <div id="responsive-apex-chart"></div>
+                    </div>
                 </section>
 
                 <section id="category-stats">
@@ -108,7 +110,7 @@ templ GetStats(Year int,
                                         <tr>
                                             <td>
                                                 <span class={ "icomoon", itemList[3] }>&#x{ itemList[3] };</span> 
-                                                { itemList[0] }
+                                                <small> { itemList[0] }</small>
                                             </td>
                                             <td class="right">{ itemList[1] }</td>
                                             <td class="right">{ itemList[2] }</td>
@@ -172,7 +174,10 @@ script pieChart(IconCodePointList []string, ColorHEXList []string, CategoryLabel
             series: series,
             labels: labels,
             colors: colors,
-            chart: {type: 'donut', height: 550, width: 550},
+            chart: {
+                type: 'donut', 
+                height: "100%", width: "100%" // responsive
+            },
             plotOptions: {
                 pie: {
                     donut: {
@@ -195,30 +200,9 @@ script pieChart(IconCodePointList []string, ColorHEXList []string, CategoryLabel
             legend: {show: false},
             dataLabels: {
                 formatter(val, opts) {return icons[opts.seriesIndex]},
-                style: {fontSize: '24px', fontFamily: 'icomoon'},
+                style: {fontSize: '20px', fontFamily: 'icomoon'},
             },
-
-            responsive: [
-                {
-                    breakpoint: 576,
-                    options: {chart: {height: 450, width: 450}}
-                },
-                {
-                    breakpoint: 480,
-                    options: {
-                        chart: {height: 350, width: 350},
-                        dataLabels: {style: {fontSize: '18px'}},
-                    }
-                },
-                {
-                    breakpoint: 365,
-                    options: {
-                        chart: {height: 250, width: 250},
-                        dataLabels: {style: {fontSize: '14px'}},
-                    }
-                }
-            ]
         };
-        var chart = new ApexCharts(document.querySelector("#container"), options);
+        var chart = new ApexCharts(document.querySelector("#responsive-apex-chart"), options);
         chart.render();
 }

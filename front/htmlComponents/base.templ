@@ -74,8 +74,11 @@ templ Header() {
         .right{
             text-align: right;
         }
-        div#container{
+        div#container-apex-chart{
             text-align: center;
+            aspect-ratio: 1 / 1; /* keep height equal to width */
+            /* max-height: 550px; */
+            max-width: 550px;
         }
         .apexcharts-canvas{
             margin: 0 auto;
