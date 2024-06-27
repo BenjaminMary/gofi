@@ -64,7 +64,7 @@ func ExportCSV(ctx context.Context, db *sql.DB, gofiID int, csvSeparator rune, c
 		); err != nil {
 			log.Fatal(err)
 		}
-		ft.FormPriceStr2Decimals = strings.Replace(ConvertPriceIntToStr(ft.PriceIntx100), ".", csvDecimalDelimiter, 1) //replace . to , for french CSV files
+		ft.FormPriceStr2Decimals = strings.Replace(ConvertPriceIntToStr(ft.PriceIntx100, true), ".", csvDecimalDelimiter, 1) //replace . to , for french CSV files
 		ft.Date, successfull, unsuccessfullReason = ConvertDateIntToStr(ft.DateDetails.Year, ft.DateDetails.Month, ft.DateDetails.Day, dateFormat, dateSeparator)
 		if !successfull {
 			ft.Date = "ERROR " + unsuccessfullReason

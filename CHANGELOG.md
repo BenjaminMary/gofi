@@ -1,6 +1,8 @@
 # Changelog
 
 ## v1 rework with go-chi
+- 2024-06-27 : stats, new apex chart, stacked bars with possible group by category
+- 2024-06-23 : fix responsive apex chart
 - 2024-06-10 : added save routes
 - 2024-06-02 : full rework with [go-chi](https://github.com/go-chi/chi) and [templ](https://github.com/a-h/templ), also added tests for the API part.
 

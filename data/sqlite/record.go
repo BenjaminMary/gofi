@@ -147,7 +147,7 @@ func GetRowsInFinanceTracker(ctx context.Context, db *sql.DB, filter *appdata.Fi
 			fmt.Printf("err: %v\n", err)
 			log.Fatal(err)
 		}
-		ft.FormPriceStr2Decimals = ConvertPriceIntToStr(ft.PriceIntx100)
+		ft.FormPriceStr2Decimals = ConvertPriceIntToStr(ft.PriceIntx100, true)
 		totalPriceIntx100 += ft.PriceIntx100
 		ft.Date, successfull, unsuccessfullReason = ConvertDateIntToStr(ft.DateDetails.Year, ft.DateDetails.Month, ft.DateDetails.Day, "EN", "-")
 		if !successfull {
@@ -171,7 +171,7 @@ func GetRowsInFinanceTracker(ctx context.Context, db *sql.DB, filter *appdata.Fi
 				fmt.Printf("err: %v\n", err)
 				log.Fatal(err)
 			}
-			ft.FormPriceStr2Decimals = ConvertPriceIntToStr(ft.PriceIntx100)
+			ft.FormPriceStr2Decimals = ConvertPriceIntToStr(ft.PriceIntx100, true)
 			totalPriceIntx100 += ft.PriceIntx100
 			ft.Date, successfull, unsuccessfullReason = ConvertDateIntToStr(ft.DateDetails.Year, ft.DateDetails.Month, ft.DateDetails.Day, "EN", "-")
 			if !successfull {
@@ -184,7 +184,7 @@ func GetRowsInFinanceTracker(ctx context.Context, db *sql.DB, filter *appdata.Fi
 		// fmt.Printf("totalPriceIntx100: %v, inStr: %v\n", totalPriceIntx100, totalPriceStr2Decimals)
 		rows.Close()
 	}
-	totalPriceStr2Decimals = ConvertPriceIntToStr(totalPriceIntx100)
+	totalPriceStr2Decimals = ConvertPriceIntToStr(totalPriceIntx100, true)
 	return ftList, totalPriceStr2Decimals, totalRowsWithoutLimit
 }
 func execSingleRow(queryValues int, db *sql.DB, ctx context.Context, q string, filter *appdata.FilterRows) *sql.Row {
@@ -235,7 +235,7 @@ func execMultipleRow(queryValues int, db *sql.DB, ctx context.Context, q string,
 func addDataInRR(rr *appdata.RecurrentRecord) {
 	var successfull bool
 	var unsuccessfullReason string
-	rr.FormPriceStr2Decimals = ConvertPriceIntToStr(rr.PriceIntx100)
+	rr.FormPriceStr2Decimals = ConvertPriceIntToStr(rr.PriceIntx100, true)
 	rr.Date, successfull, unsuccessfullReason = ConvertDateIntToStr(rr.DateDetails.Year, rr.DateDetails.Month, rr.DateDetails.Day, "EN", "-")
 	if !successfull {
 		rr.Date = "ERROR " + unsuccessfullReason

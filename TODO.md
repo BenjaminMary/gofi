@@ -2,9 +2,10 @@
 
 > ☑☐☒❗
 
-- ☐❗❗sur toutes les tables, mettre la désignation à la fin pour gagner de la visibilité sur smartphone (voir partie validation qui est ok)
+- ☑ sur toutes les tables, mettre la désignation à la fin pour gagner de la visibilité sur smartphone (voir partie validation qui est ok)
 - ☑ dates via svg = 22 jan, fev, mar, avr, mai, juin, juil, aou ...
-- ☐❗dès que toutes les fonctionnalités essentielles sont en place, démarrer des tests fonctionnels
+- ☑ dès que toutes les fonctionnalités essentielles sont en place, démarrer des tests fonctionnels
+- ☐ faire des tests automatisés pour la partie front
 - ☑ ajout système de données récurrentes:
     - ☑ factures + revenus mensuelles
     - ☑ création, édition, suppression
@@ -12,8 +13,6 @@
     - ☑ fix remettre le submit en mode création après avoir utilisé le mode édition/suppression
     - ☐ améliorer l'UI en bloquant l'espace via `visibility: hidden`, permettra de ne plus faire de trou dans la page au changement
         - vérif si bien impossible de cliquer sur l'elem invisible, sinon ajouter un `disable`
-- ☑ ajout système de transfert d'un compte à un autre:
-    - ☑ nouvelle page dédiée au transfert
 - ☐❗ ajout système de budget:
     - ☐ budget de dépense par catégorie
 - ☐❗ simplifier les catégories:
@@ -62,14 +61,17 @@
             - https://github.com/wenzhixin/bootstrap-table
             - https://github.com/jspreadsheet/ce
                 - https://bossanova.uk/jspreadsheet/v4/docs/quick-reference
-    - sur le nombre de requêtes des utilisateurs pour voir les actifs ? (tableau admin?)
+    - ☐ sur le nombre de requêtes des utilisateurs pour voir les actifs ? (tableau admin?)
+    - ☐ ajouter un graph des dépenses mois par mois (des 6/12 derniers mois ?)
     - ☑ ajouter le montant total en cours de validation/annulation lors de la sélection des lignes
-- Ajout sauvegarde DB SQLite sur Drive
+- ☑ Ajout sauvegarde DB SQLite sur Drive
     - ☑ avec table SQLite qui garde les ID + nom + date de fichiers sauvegardés + le statut de l'upload (pas besoin l'API Google redonne toutes les infos)
     - ☑ voir pour fermer le server et faire la sauvegarde au restart après quelques commandes de nettoyage de DB (semble ok)
     - ☑ voir si la gestion d'une seule ouverture/fermeture DB ferait fonctionner le PRAGMA wal_checkpoint(TRUNCATE) sans retourner BUSY
         - ☑ obj nettoyer les fichiers wal + shm avant sauvegarde
-    - ☐ cron based backup : https://litestream.io/alternatives/cron/ + monitoring : https://deadmanssnitch.com/account/sign_up?plan=the_lone_snitch
+    - ☑ cron based backup : 
+        - ☑ made with a go scheduler
+        - ☒ https://litestream.io/alternatives/cron/ + monitoring : https://deadmanssnitch.com/account/sign_up?plan=the_lone_snitch
 - PWA
     - Ajout SQLite en WebAssembly ?
 - voir pour réduire le nombre d'ouverture/fermeture de DB
@@ -86,3 +88,4 @@
     - Amélioration download fichier csv : voir si possible de faire mieux directement via le serveur à la place du js
     - auth
         - check des changements d'IP / user agent pour forcer un relogin
+    - other .js chart library: [Chart.js](https://www.chartjs.org/docs/latest/)

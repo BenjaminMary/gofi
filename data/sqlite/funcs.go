@@ -7,7 +7,7 @@ import (
 	// "time"
 )
 
-func ConvertPriceIntToStr(i int) string {
+func ConvertPriceIntToStr(i int, keepDecimal bool) string {
 	var PriceStr2Decimals string
 	var isNegative bool = false
 	if i < 0 {
@@ -26,6 +26,9 @@ func ConvertPriceIntToStr(i int) string {
 	}
 	if isNegative {
 		PriceStr2Decimals = "-" + PriceStr2Decimals
+	}
+	if !keepDecimal {
+		PriceStr2Decimals = strings.Split(PriceStr2Decimals, ".")[0]
 	}
 	return PriceStr2Decimals
 }

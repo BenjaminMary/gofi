@@ -2,6 +2,7 @@ package front
 
 import (
 	"encoding/json"
+	"fmt"
 	"net/http"
 	"strconv"
 	"time"
@@ -274,10 +275,10 @@ func GetStats(w http.ResponseWriter, r *http.Request) {
 
 	var AccountList, CategoryList [][]string
 	var TotalAccount, TotalCategory []string
-	AccountList, CategoryList, TotalAccount, TotalCategory = sqlite.GetStatsInFinanceTracker(r.Context(), appdata.DB, userContext.GofiID, checkedDataOnly, YearInt)
+	var ApexChartStats appdata.ApexChartStats
+	AccountList, CategoryList, TotalAccount, TotalCategory, ApexChartStats = sqlite.GetStatsInFinanceTracker(r.Context(), appdata.DB, userContext.GofiID, checkedDataOnly, YearInt)
 
 	var m appdata.PieChartD3js
-	var CategoryListJsonBinary []appdata.PieChartD3js
 	var CategoryLabelList, IconCodePointList, ColorHEXList []string
 	var CategoryValueList []float64
 	for _, element := range CategoryList {
@@ -286,20 +287,23 @@ func GetStats(w http.ResponseWriter, r *http.Request) {
 			m.Category = element[0]
 			m.Price = m.Price * -1
 			//m.Quantity = element[2]
-			CategoryListJsonBinary = append(CategoryListJsonBinary, m)
 			CategoryLabelList = append(CategoryLabelList, element[0])
 			CategoryValueList = append(CategoryValueList, m.Price)
 			IconCodePointList = append(IconCodePointList, element[3])
 			ColorHEXList = append(ColorHEXList, element[4])
 		}
 	}
-	ResponseJsonBinary, _ := json.Marshal(CategoryListJsonBinary)
+	ApexChartStatsJson, err := json.Marshal(ApexChartStats)
+	if err != nil {
+		fmt.Println(err)
+	}
+
 	htmlComponents.GetStats(YearInt,
 		TotalAccount, TotalCategory,
 		AccountList, CategoryList,
-		string(ResponseJsonBinary), // array of dict [{},{}] for d3.js
 		CheckedBool,
 		CategoryLabelList, CategoryValueList, IconCodePointList, ColorHEXList,
+		string(ApexChartStatsJson),
 	).Render(r.Context(), w)
 }
 

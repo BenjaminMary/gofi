@@ -255,6 +255,23 @@ func (a *SaveBackup) Bind(r *http.Request) error {
 	return nil
 }
 
+type ApexChartStats struct {
+	Labels   []string
+	Series   []ApexChartSerie
+	MinValue int
+	MaxValue int
+}
+type ApexChartSerie struct {
+	Name     string
+	Color    string
+	Values   []string
+	SumInt   int
+	SumStr   string
+	CountInt int
+	CountStr string
+	Year     int
+}
+
 type HttpStruct struct {
 	IsValidResponse bool   `json:"isValidResponse"`
 	HttpStatus      int    `json:"httpStatus"`

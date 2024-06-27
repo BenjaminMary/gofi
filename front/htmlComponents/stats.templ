@@ -7,9 +7,9 @@ import (
 templ GetStats(Year int, 
     TotalAccount []string, TotalCategory []string,
     AccountList [][]string, CategoryList [][]string,
-    ResponseJsonBinary string, // array of dict [{},{}] for d3.js
     Checked bool,
-    CategoryLabelList []string, CategoryValueList []float64, IconCodePointList []string, ColorHEXList []string) {
+    CategoryLabelList []string, CategoryValueList []float64, IconCodePointList []string, ColorHEXList []string,
+    ApexChartStatsJson string) {
     <html>
         <head>
             @Header()
@@ -88,8 +88,21 @@ templ GetStats(Year int,
 
                 <section id="graph-expenses">
                     <h5>Principales dépenses par Catégorie</h5>
-                    <div id="container-apex-chart">
+                    <div class="container-apex-chart">
                         <div id="responsive-apex-chart"></div>
+                    </div>
+
+                    <!-- Number -->
+                    <label for="group-category">
+                        <!-- banknote = Montant -->
+                        <svg stroke="currenColor" width="18" heigth="18" viewBox="0 0 24 24"><use xlink:href="/img/icons.svg#lucide-banknote"></use></svg>
+                        Seuil de regroupement des catégories
+                    </label>
+                    <input type="number" id="group-category" name="group-category" min="0" max="10000" step="100" default="0" required />
+                    <input type="text" id="struct-complet" name="struct-complet" value={ApexChartStatsJson} hidden readonly required />
+
+                    <div id="container-barChart" class="container-apex-chart">
+                        <div id="barChart"></div>
                     </div>
                 </section>
 
@@ -136,6 +149,8 @@ templ GetStats(Year int,
             // @BotScriptHTMXhandleError()
             <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
             @pieChart(IconCodePointList, ColorHEXList, CategoryLabelList, CategoryValueList)
+            @barChart()
+            // @columnChart(ApexChartStats)
             <script>
                 document.getElementById('switchMode').addEventListener('click', function(evt){
                     switchMode = document.getElementById('switchMode').checked;
@@ -205,4 +220,171 @@ script pieChart(IconCodePointList []string, ColorHEXList []string, CategoryLabel
         };
         var chart = new ApexCharts(document.querySelector("#responsive-apex-chart"), options);
         chart.render();
+}
+
+script barChart() {
+    function renderBarChart(){
+        document.getElementById("barChart").remove();
+        var div = document.createElement("div");
+        div.id = "barChart";
+        document.getElementById("container-barChart").appendChild(div);
+
+        apexChartStatsString = document.getElementById("struct-complet").value;
+        // console.log(apexChartStatsString);
+        apexChartStats = JSON.parse(apexChartStatsString);
+        // groupCategory = 0;
+        groupCategory = parseInt(document.getElementById("group-category").value, 10);
+        tempCategoryDict = {"name": "Groupe", "color": "#808080"};
+        groupCategoryList = [];
+        for (let i = 0; i < apexChartStats.Labels.length; i++) {
+            groupCategoryList.push(0);
+        }
+        // console.log(groupCategory)
+
+        var seriesList = []; // [{name: "a", data: [1,2]}, {name: "b", data: [3,4]}]
+        for (let i = 0; i < apexChartStats.Series.length; i++) {
+            temp = {};
+            temp["name"] = apexChartStats.Series[i].Name;
+            temp["color"]= apexChartStats.Series[i].Color;
+            if (groupCategory > 0) {
+                tempList = [];
+                for (let j = 0; j < apexChartStats.Series[i].Values.length; j++) {
+                    if (apexChartStats.Series[i].Values[j] < groupCategory) {
+                        tempList.push("0");
+                        groupCategoryList[j] += parseInt(apexChartStats.Series[i].Values[j], 10);
+                        // console.log("i" + i + ", j" + j + ": " + apexChartStats.Series[i].Values[j])
+                    } else {
+                        tempList.push(apexChartStats.Series[i].Values[j]);
+                    }
+                }
+                temp["data"] = tempList;
+            } else {
+                temp["data"] = apexChartStats.Series[i].Values;
+            }
+            seriesList.push(temp);
+        };
+        for (let i = 0; i < apexChartStats.Labels.length; i++) {
+            groupCategoryList[i] = groupCategoryList[i].toString();
+        }
+        // console.log("groupCategoryList: " + groupCategoryList)
+        tempCategoryDict["data"] = groupCategoryList;
+        seriesList.push(tempCategoryDict);
+
+        var options = {
+            series: seriesList,
+            chart: {
+                type: 'bar',
+                height: 550,
+                width: "100%",
+                stacked: true,
+            },
+            grid: {
+                show: true,
+                borderColor: 'currentColor',
+                strokeDashArray: 3,
+                position: 'front',
+                xaxis: {
+                    lines: {
+                        show: true
+                    }
+                },
+                yaxis: {
+                    lines: {
+                        show: false
+                    }
+                },
+            },
+            plotOptions: {
+                bar: {
+                    horizontal: true,
+                    dataLabels: {
+                        // hideOverflowingLabels: true,
+                        // orientation: "vertical",
+                        total: {
+                            enabled: false
+                            //     offsetX: 0,
+                            //     // formatter: function (w) {
+                            //     //     console.log(w);
+                            //     //     // const sum = w.globals.seriesTotals.reduce((partialSum, a) => partialSum + a, 0);
+                            //     //     // return sum.toFixed(2);
+                            //     // },
+                            //     style: {
+                            //         fontSize: '13px',
+                            //         fontWeight: 900
+                            //     }
+                        }
+                    }
+                },
+            },
+            dataLabels: {
+                enabled: false,
+            },
+            // stroke: {
+            //     width: 1,
+            //     colors: ['#fff']
+            // },
+            title: {
+                text: 'Dépenses par année',
+                align: "center",
+                style: {
+                    color: "currentColor",
+                    fontSize: '12px',
+                },
+            },
+            xaxis: {
+                categories: apexChartStats.Labels,
+                labels: {
+                    // rotate: -90,
+                    // rotateAlways: true,
+                    style: {
+                        colors: "currentColor",
+                        fontSize: '12px',
+                    },
+                    formatter: function (val) {
+                        return val/1000 + "K"
+                    }
+                }
+            },
+            yaxis: {
+                min: 0,
+                max: 40000,
+                // title: {
+                //     text: undefined
+                // },
+                labels: {
+                    // rotate: -90,
+                    // rotateAlways: true,
+                    offsetX: 10,
+                    // offsetY: -50,
+                    style: {
+                        colors: "currentColor",
+                        fontSize: '12px',
+                    },
+                }
+            },
+            tooltip: {
+                theme: "dark",
+            },
+            fill: {
+                opacity: 1
+            },
+            legend: {
+                position: 'top',
+                horizontalAlign: 'left',
+                offsetX: 10,
+                fontSize: '18px',
+                fontFamily: 'icomoon',
+                labels: {
+                    colors: "currentColor",
+                    // useSeriesColors: false
+                },
+            }
+        };
+        var chart = new ApexCharts(document.getElementById("barChart"), options); //.querySelector("#barChart")
+        chart.render();
+    };
+    document.getElementById("group-category").addEventListener('input', function (evt) {
+        renderBarChart();
+    });
+    renderBarChart();
 }
