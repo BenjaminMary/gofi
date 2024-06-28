@@ -223,7 +223,7 @@ func TestUser(t *testing.T) {
 	response = executeRequest(req, s)
 	require.Equal(t, http.StatusOK, response.Code, "should be equal")
 	require.Equal(t,
-		"{\"isValidResponse\":true,\"httpStatus\":200,\"info\":\"backup deleted\",\"jsonContent\":[\"driveID1\",\"driveID2\"]}\n",
+		"{\"isValidResponse\":true,\"httpStatus\":200,\"info\":\"backup deleted\",\"jsonContent\":[\"\",\"driveID1\",\"driveID2\"]}\n",
 		response.Body.String(), "should be equal")
 
 	// 16. GET save

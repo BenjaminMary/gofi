@@ -244,9 +244,9 @@ script barChart() {
         var seriesList = []; // [{name: "a", data: [1,2]}, {name: "b", data: [3,4]}]
         for (let i = 0; i < apexChartStats.Series.length; i++) {
             temp = {};
-            temp["name"] = apexChartStats.Series[i].Name;
+            temp["name"] = apexChartStats.Series[i].Icon;
             temp["color"]= apexChartStats.Series[i].Color;
-            if (groupCategory > 0) {
+            if (groupCategory > 0) { // regroup categories under groupCategory value
                 tempList = [];
                 for (let j = 0; j < apexChartStats.Series[i].Values.length; j++) {
                     if (apexChartStats.Series[i].Values[j] < groupCategory) {
@@ -297,6 +297,8 @@ script barChart() {
             plotOptions: {
                 bar: {
                     horizontal: true,
+                    barHeight: '50%',
+                    rangeBarOverlap: false,
                     dataLabels: {
                         // hideOverflowingLabels: true,
                         // orientation: "vertical",
@@ -346,8 +348,8 @@ script barChart() {
                 }
             },
             yaxis: {
-                min: 0,
-                max: 40000,
+                // min: 0,
+                // max: 40000,
                 // title: {
                 //     text: undefined
                 // },

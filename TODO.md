@@ -2,6 +2,12 @@
 
 > ☑☐☒❗
 
+- stats, 
+    - new apex chart, 
+        - stacked bars
+            - ☑ fix categories, Voyage manquant + possibles catégo manquantes dans l'initialisation
+            - ☑ fix changement d'année
+            - ☑ fix dernière stack bar 2024 mal groupée, quelques catégories se superposent
 - ☑ sur toutes les tables, mettre la désignation à la fin pour gagner de la visibilité sur smartphone (voir partie validation qui est ok)
 - ☑ dates via svg = 22 jan, fev, mar, avr, mai, juin, juil, aou ...
 - ☑ dès que toutes les fonctionnalités essentielles sont en place, démarrer des tests fonctionnels

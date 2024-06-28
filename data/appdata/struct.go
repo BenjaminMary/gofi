@@ -255,21 +255,22 @@ func (a *SaveBackup) Bind(r *http.Request) error {
 	return nil
 }
 
+func NewApexChartStats() *ApexChartStats {
+	var a ApexChartStats
+	a.FindSerie = make(map[string]int)
+	return &a
+}
+
 type ApexChartStats struct {
-	Labels   []string
-	Series   []ApexChartSerie
-	MinValue int
-	MaxValue int
+	Labels    []string
+	FindSerie map[string]int
+	Series    []ApexChartSerie
 }
 type ApexChartSerie struct {
-	Name     string
-	Color    string
-	Values   []string
-	SumInt   int
-	SumStr   string
-	CountInt int
-	CountStr string
-	Year     int
+	Name   string
+	Icon   string
+	Color  string
+	Values []string
 }
 
 type HttpStruct struct {

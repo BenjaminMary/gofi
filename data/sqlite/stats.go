@@ -76,89 +76,73 @@ func GetStatsInFinanceTracker(ctx context.Context, db *sql.DB, gofiID int, check
 	totalCategoryList = append(totalCategoryList, ConvertPriceIntToStr(totalPriceIntx100, true), strconv.Itoa(totalRows))
 	rows.Close()
 
+	// initialize all categories with values to 0
 	q3 := ` 
-		SELECT fT.category, fT.year, ifnull(c.iconCodePoint,'e90a') AS icp, ifnull(c.colorHEX,'#000000') AS ch, SUM(priceIntx100) AS sum, COUNT(1) AS count
+		SELECT DISTINCT fT.category, ifnull(c.iconCodePoint,'e90a') AS icp, ifnull(c.colorHEX,'#000000') AS ch
 		FROM financeTracker AS fT
 			LEFT JOIN category AS c ON c.category = fT.category
 		WHERE gofiID = ?
 			AND checked IN (1, ?)
 			AND year > ?
-		GROUP BY fT.category, fT.year
-		ORDER BY fT.category, fT.year
+			AND year <= ?
+			AND priceIntx100 < 0
+		ORDER BY fT.category
 	`
-	// AND fT.category NOT IN ('Salaire','Invest')
-	rows, err = db.QueryContext(ctx, q3, gofiID, checkedDataOnly, (year - 6))
+	rows, err = db.QueryContext(ctx, q3, gofiID, checkedDataOnly, (year - 6), year)
 	if err != nil {
 		log.Fatal("error on DB query3: ", err)
 	}
-	var apexChartStats appdata.ApexChartStats
+	apexChartStats := appdata.NewApexChartStats()
+	yearMin := year - 5
 	apexChartStats.Labels = append(apexChartStats.Labels,
-		strconv.Itoa(year-5), strconv.Itoa(year-4), strconv.Itoa(year-3), strconv.Itoa(year-2), strconv.Itoa(year-1), strconv.Itoa(year))
-	var apexChartSerie appdata.ApexChartSerie
+		strconv.Itoa(yearMin), strconv.Itoa(year-4), strconv.Itoa(year-3), strconv.Itoa(year-2), strconv.Itoa(year-1), strconv.Itoa(year))
+	loop := -1
 	for rows.Next() {
+		loop += 1
+		var apexChartSerie appdata.ApexChartSerie
 		var category, iconCodePoint, colorHEX string
-		var sum, count, yearQ, yearDif int
-		if err := rows.Scan(&category, &yearQ, &iconCodePoint, &colorHEX, &sum, &count); err != nil {
+		if err := rows.Scan(&category, &iconCodePoint, &colorHEX); err != nil {
 			log.Fatal(err)
 		}
-		if sum < 0 {
-			sum = sum * -1
-
-			// if category != "Salaire" && category != "Invest" {
-			if apexChartSerie.Name == "" {
-				apexChartSerie.Name = "&#x" + iconCodePoint + ";"
-				apexChartSerie.Color = colorHEX
-				apexChartSerie.Year = (year - 5)
-			}
-
-			if apexChartSerie.Year != yearQ {
-				yearDif = yearQ - apexChartSerie.Year
-				if yearDif > 0 {
-					// for each missing year, add a 0
-					for i := 1; i <= yearDif; i++ {
-						apexChartSerie.Values = append(apexChartSerie.Values, "0")
-						apexChartSerie.Year += 1
-					}
-				} else {
-					// < 0 = new category add missing years until year variable
-					yearDif = year - apexChartSerie.Year
-					// for each missing year, add a 0
-					for i := 1; i <= yearDif; i++ {
-						apexChartSerie.Values = append(apexChartSerie.Values, "0")
-						apexChartSerie.Year += 1
-					}
-				}
-			}
-
-			if apexChartSerie.Name != "&#x"+iconCodePoint+";" {
-				apexChartSerie.SumStr = ConvertPriceIntToStr(apexChartSerie.SumInt, false)
-				apexChartSerie.CountStr = strconv.Itoa(apexChartSerie.CountInt)
-				apexChartStats.Series = append(apexChartStats.Series, apexChartSerie)
-				apexChartSerie = appdata.ApexChartSerie{Name: "&#x" + iconCodePoint + ";", Color: colorHEX, Year: (year - 5)}
-			}
-			if apexChartSerie.Year < yearQ {
-				yearDif = yearQ - apexChartSerie.Year
-				if yearDif > 0 {
-					// for each missing year, add a 0
-					for i := 1; i <= yearDif; i++ {
-						apexChartSerie.Values = append(apexChartSerie.Values, "0")
-						apexChartSerie.Year += 1
-					}
-				}
-			}
-			if apexChartSerie.Year == yearQ {
-				apexChartSerie.Values = append(apexChartSerie.Values, ConvertPriceIntToStr(sum, false))
-				apexChartSerie.Year += 1
-			} else {
-				fmt.Printf("err Year: %v, category: %v\n", yearQ, category)
-			}
-			apexChartSerie.SumInt += sum
-			apexChartSerie.CountInt += count
-			// }
+		apexChartSerie.Name = category
+		apexChartSerie.Icon = "&#x" + iconCodePoint + ";"
+		apexChartSerie.Color = colorHEX
+		for i := 0; i < len(apexChartStats.Labels); i++ {
+			apexChartSerie.Values = append(apexChartSerie.Values, "0")
 		}
+		apexChartStats.FindSerie[category] = loop
+		apexChartStats.Series = append(apexChartStats.Series, apexChartSerie)
+	}
+	rows.Close()
+
+	// update a category value for the current year in each loop
+	q4 := ` 
+		SELECT category, year, SUM(priceIntx100) AS sum
+		FROM financeTracker
+		WHERE gofiID = ?
+			AND checked IN (1, ?)
+			AND year > ?
+			AND year <= ?
+			AND priceIntx100 < 0
+		GROUP BY category, year
+	`
+	rows, err = db.QueryContext(ctx, q4, gofiID, checkedDataOnly, (year - 6), year)
+	if err != nil {
+		log.Fatal("error on DB query4: ", err)
+	}
+	for rows.Next() {
+		var category string
+		var sum, yearQ, index int
+		if err := rows.Scan(&category, &yearQ, &sum); err != nil {
+			log.Fatal(err)
+		}
+		// find the Index on which the current category is stored
+		index = apexChartStats.FindSerie[category]
+		// update the Value corresponding to the current year Index inside the right Serie
+		apexChartStats.Series[index].Values[yearQ-yearMin] = ConvertPriceIntToStr(sum*-1, false)
 	}
 	rows.Close()
 
 	fmt.Printf("apexChartStats: %#v\n", apexChartStats)
-	return statsAccountList, statsCategoryList, totalAccountList, totalCategoryList, apexChartStats
+	return statsAccountList, statsCategoryList, totalAccountList, totalCategoryList, *apexChartStats
 }
