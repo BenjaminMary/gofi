@@ -249,19 +249,19 @@ func PostFullRecordRefresh(w http.ResponseWriter, r *http.Request) {
 func GetStats(w http.ResponseWriter, r *http.Request) {
 	userContext := r.Context().Value(appdata.ContextUserKey).(*appdata.UserRequest)
 
-	checkedStr := chi.URLParam(r, "checked")
-	var CheckedBool bool
-	var checkedDataOnly int
-	switch checkedStr {
+	checkedValidDataStr := chi.URLParam(r, "checkedValidData")
+	var CheckedValidDataBool bool
+	var checkedValidData int
+	switch checkedValidDataStr {
 	case "", "false":
-		CheckedBool = false
-		checkedDataOnly = 0
+		CheckedValidDataBool = false
+		checkedValidData = 0
 	case "true":
-		CheckedBool = true
-		checkedDataOnly = 1
+		CheckedValidDataBool = true
+		checkedValidData = 1
 	default:
-		CheckedBool = false
-		checkedDataOnly = 0
+		CheckedValidDataBool = false
+		checkedValidData = 0
 	}
 	yearStr := chi.URLParam(r, "year")
 	var YearInt int
@@ -272,11 +272,26 @@ func GetStats(w http.ResponseWriter, r *http.Request) {
 	} else {
 		YearInt, _ = strconv.Atoi(yearStr) // YYYY
 	}
+	checkedYearStatsStr := chi.URLParam(r, "checkedYearStats")
+	var CheckedYearStatsBool bool
+	var checkedYearStats int
+	switch checkedYearStatsStr {
+	case "", "false":
+		CheckedYearStatsBool = false
+		checkedYearStats = 0
+	case "true":
+		CheckedYearStatsBool = true
+		checkedYearStats = 1
+	default:
+		CheckedYearStatsBool = false
+		checkedYearStats = 0
+	}
 
 	var AccountList, CategoryList [][]string
 	var TotalAccount, TotalCategory []string
 	var ApexChartStats appdata.ApexChartStats
-	AccountList, CategoryList, TotalAccount, TotalCategory, ApexChartStats = sqlite.GetStatsInFinanceTracker(r.Context(), appdata.DB, userContext.GofiID, checkedDataOnly, YearInt)
+	AccountList, CategoryList, TotalAccount, TotalCategory, ApexChartStats = sqlite.GetStatsInFinanceTracker(
+		r.Context(), appdata.DB, userContext.GofiID, checkedValidData, YearInt, checkedYearStats)
 
 	var m appdata.PieChartD3js
 	var CategoryLabelList, IconCodePointList, ColorHEXList []string
@@ -301,7 +316,7 @@ func GetStats(w http.ResponseWriter, r *http.Request) {
 	htmlComponents.GetStats(YearInt,
 		TotalAccount, TotalCategory,
 		AccountList, CategoryList,
-		CheckedBool,
+		CheckedValidDataBool, CheckedYearStatsBool,
 		CategoryLabelList, CategoryValueList, IconCodePointList, ColorHEXList,
 		string(ApexChartStatsJson),
 	).Render(r.Context(), w)

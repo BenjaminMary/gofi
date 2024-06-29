@@ -9,7 +9,8 @@ import (
 	"gofi/gofi/data/appdata"
 )
 
-func GetStatsInFinanceTracker(ctx context.Context, db *sql.DB, gofiID int, checkedDataOnly int, year int) (
+func GetStatsInFinanceTracker(ctx context.Context, db *sql.DB, gofiID int,
+	checkedValidData int, year int, checkedYearStats int) (
 	[][]string, [][]string, []string, []string, appdata.ApexChartStats) {
 	var statsAccountList, statsCategoryList [][]string // [account1, sum1, count1], [...,] | [category1, sum1, count1, icon1, color1], [...,]
 	var totalAccountList, totalCategoryList []string   // [total, total, sum, count]
@@ -32,7 +33,7 @@ func GetStatsInFinanceTracker(ctx context.Context, db *sql.DB, gofiID int, check
 		GROUP BY fT.category
 		ORDER BY sum ASC
 	`
-	rows, err := db.QueryContext(ctx, q1, gofiID, checkedDataOnly, year)
+	rows, err := db.QueryContext(ctx, q1, gofiID, checkedValidData, year)
 	if err != nil {
 		log.Fatal("error on DB query1: ", err)
 	}
@@ -54,7 +55,7 @@ func GetStatsInFinanceTracker(ctx context.Context, db *sql.DB, gofiID int, check
 	// fmt.Printf("statsList: %#v\n", statsList)
 	rows.Close()
 
-	rows, err = db.QueryContext(ctx, q2, gofiID, checkedDataOnly, year)
+	rows, err = db.QueryContext(ctx, q2, gofiID, checkedValidData, year)
 	if err != nil {
 		log.Fatal("error on DB query2: ", err)
 	}
@@ -87,15 +88,22 @@ func GetStatsInFinanceTracker(ctx context.Context, db *sql.DB, gofiID int, check
 		ORDER BY fT.category
 	`
 	yearMin := year - 11
-	rows, err = db.QueryContext(ctx, q3, gofiID, checkedDataOnly, yearMin, year)
+	rows, err = db.QueryContext(ctx, q3, gofiID, checkedValidData, yearMin, year)
 	if err != nil {
 		log.Fatal("error on DB query3: ", err)
 	}
 	apexChartStats := appdata.NewApexChartStats()
-	apexChartStats.Labels = append(apexChartStats.Labels,
-		strconv.Itoa(yearMin), strconv.Itoa(year-10), strconv.Itoa(year-9), strconv.Itoa(year-8),
-		strconv.Itoa(year-7), strconv.Itoa(year-6), strconv.Itoa(year-5), strconv.Itoa(year-4),
-		strconv.Itoa(year-3), strconv.Itoa(year-2), strconv.Itoa(year-1), strconv.Itoa(year))
+	if checkedYearStats == 1 {
+		apexChartStats.Labels = append(apexChartStats.Labels,
+			strconv.Itoa(yearMin), strconv.Itoa(year-10), strconv.Itoa(year-9), strconv.Itoa(year-8),
+			strconv.Itoa(year-7), strconv.Itoa(year-6), strconv.Itoa(year-5), strconv.Itoa(year-4),
+			strconv.Itoa(year-3), strconv.Itoa(year-2), strconv.Itoa(year-1), strconv.Itoa(year))
+	} else {
+		apexChartStats.Labels = append(apexChartStats.Labels,
+			strconv.Itoa(year)+"-01", strconv.Itoa(year)+"-02", strconv.Itoa(year)+"-03", strconv.Itoa(year)+"-04",
+			strconv.Itoa(year)+"-05", strconv.Itoa(year)+"-06", strconv.Itoa(year)+"-07", strconv.Itoa(year)+"-08",
+			strconv.Itoa(year)+"-09", strconv.Itoa(year)+"-10", strconv.Itoa(year)+"-11", strconv.Itoa(year)+"-12")
+	}
 	loop := -1
 	for rows.Next() {
 		loop += 1
@@ -116,30 +124,50 @@ func GetStatsInFinanceTracker(ctx context.Context, db *sql.DB, gofiID int, check
 	rows.Close()
 
 	// update a category value for the current year in each loop
-	q4 := ` 
-		SELECT category, year, SUM(priceIntx100) AS sum
-		FROM financeTracker
-		WHERE gofiID = ?
-			AND checked IN (1, ?)
-			AND year >= ?
-			AND year <= ?
-			AND priceIntx100 < 0
-		GROUP BY category, year
-	`
-	rows, err = db.QueryContext(ctx, q4, gofiID, checkedDataOnly, yearMin, year)
+	var q4 string
+	if checkedYearStats == 1 {
+		q4 = ` 
+			SELECT category, year, SUM(priceIntx100) AS sum
+			FROM financeTracker
+			WHERE gofiID = ?
+				AND checked IN (1, ?)
+				AND year >= ?
+				AND year <= ?
+				AND priceIntx100 < 0
+			GROUP BY category, year
+		`
+		rows, err = db.QueryContext(ctx, q4, gofiID, checkedValidData, yearMin, year)
+	} else {
+		q4 = ` 
+			SELECT category, month, SUM(priceIntx100) AS sum
+			FROM financeTracker
+			WHERE gofiID = ?
+				AND checked IN (1, ?)
+				AND year = ?
+				AND priceIntx100 < 0
+			GROUP BY category, year, month
+		`
+		rows, err = db.QueryContext(ctx, q4, gofiID, checkedValidData, year)
+	}
 	if err != nil {
 		log.Fatal("error on DB query4: ", err)
 	}
 	for rows.Next() {
 		var category string
-		var sum, yearQ, index int
-		if err := rows.Scan(&category, &yearQ, &sum); err != nil {
+		var sum, dateQ, index int
+		if err := rows.Scan(&category, &dateQ, &sum); err != nil {
 			log.Fatal(err)
 		}
 		// find the Index on which the current category is stored
 		index = apexChartStats.FindSerie[category]
-		// update the Value corresponding to the current year Index inside the right Serie
-		apexChartStats.Series[index].Values[yearQ-yearMin] = ConvertPriceIntToStr(sum*-1, false)
+		// update the Value corresponding to the current date Index inside the right Serie
+		var dateIndex int
+		if checkedYearStats == 1 {
+			dateIndex = dateQ - yearMin //year
+		} else {
+			dateIndex = dateQ - 1 //month already 1-12
+		}
+		apexChartStats.Series[index].Values[dateIndex] = ConvertPriceIntToStr(sum*-1, false)
 	}
 	rows.Close()
 

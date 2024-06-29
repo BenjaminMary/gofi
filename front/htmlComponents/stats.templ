@@ -7,7 +7,7 @@ import (
 templ GetStats(Year int, 
     TotalAccount []string, TotalCategory []string,
     AccountList [][]string, CategoryList [][]string,
-    Checked bool,
+    CheckedValidDataBool bool, CheckedYearStatsBool bool,
     CategoryLabelList []string, CategoryValueList []float64, IconCodePointList []string, ColorHEXList []string,
     ApexChartStatsJson string) {
     <html>
@@ -20,11 +20,11 @@ templ GetStats(Year int,
             <main>
                 <h1>Statistiques</h1>
                 <section>
-                    <form id="form" name="form" action="/stats/false-0" method="get">
+                    <form id="form" name="form" action="/stats/" method="get">
                         <div class="grid">
                             <div>
                                 <b>Mode d'affichage des données</b><br/>
-                                if Checked {
+                                if CheckedValidDataBool {
                                     <span id="mode">Le mode <code>Données validées</code> est activé.</span>
                                 } else {
                                     <span id="mode">Le mode <code>Toutes les données</code> est activé.</span>
@@ -33,7 +33,7 @@ templ GetStats(Year int,
                                     Toutes
                                     <!-- plus square -->
                                     <svg width="24" height="24" viewBox="0 0 24 24"><use xlink:href="/img/icons.svg#feather-plus-square"></use></svg>
-                                    if Checked {
+                                    if CheckedValidDataBool {
                                         <input type="checkbox" id="switchMode" name="switchMode" role="switch" checked />
                                     } else {
                                         <input type="checkbox" id="switchMode" name="switchMode" role="switch" />
@@ -41,7 +41,7 @@ templ GetStats(Year int,
                                     <!-- green check square -->
                                     <svg width="24" height="24" viewBox="0 0 24 24"><use xlink:href="/img/icons.svg#feather-green-check-square"></use></svg>
                                     Validées uniquement
-                                </label><br/> <!-- br for smartphone UI -->
+                                </label>
                             </div>
                             <div>
                                 <!-- Number -->
@@ -93,7 +93,7 @@ templ GetStats(Year int,
                     </div>
                     <hr/>
 
-                    <h5>Dépenses par année</h5>
+                    <h5>Dépenses par mois</h5>
                     <div role="group">
                         <button type="button" id="btn-hide-categories" >
                             <!-- feather-eye-off -->
@@ -106,11 +106,20 @@ templ GetStats(Year int,
                             Afficher les catégories
                         </button>
                     </div>
+                    <label for="switchStats">
+                        Mois&nbsp;
+                        if CheckedYearStatsBool {
+                            <input type="checkbox" id="switchStats" name="switchStats" role="switch" checked />
+                        } else {
+                            <input type="checkbox" id="switchStats" name="switchStats" role="switch" />
+                        }
+                        Années
+                    </label>
 
                     <input type="text" id="struct-complet" name="struct-complet" value={ApexChartStatsJson} hidden readonly required />
 
                     <div id="container-barChart" class="container-apex-chart">
-                        <div id="barChart"></div>
+                        <div id="bar-chart"></div>
                     </div>
                 </section>
 
@@ -163,15 +172,25 @@ templ GetStats(Year int,
                 document.getElementById('switchMode').addEventListener('click', function(evt){
                     switchMode = document.getElementById('switchMode').checked;
                     annee = document.getElementById('annee').value;
+                    switchStats = document.getElementById('switchStats').checked;
                     // console.log("/stats/"+switchMode+"-"+annee)
-                    document.getElementById('form').action = "/stats/"+switchMode+"-"+annee;
+                    document.getElementById('form').action = "/stats/"+switchMode+"-"+annee+"-"+switchStats;
                     document.getElementById("form").submit();
                 });
                 document.getElementById('annee').addEventListener('change', function(evt){
-                    switchMode = document.getElementById('switchMode').value;
+                    switchMode = document.getElementById('switchMode').checked;
                     annee = document.getElementById('annee').value;
+                    switchStats = document.getElementById('switchStats').checked;
                     // console.log("/stats/"+switchMode+"-"+annee)
-                    document.getElementById('form').action = "/stats/"+switchMode+"-"+annee;
+                    document.getElementById('form').action = "/stats/"+switchMode+"-"+annee+"-"+switchStats;
+                    document.getElementById("form").submit();
+                });
+                document.getElementById('switchStats').addEventListener('click', function(evt){
+                    switchMode = document.getElementById('switchMode').checked;
+                    annee = document.getElementById('annee').value;
+                    switchStats = document.getElementById('switchStats').checked;
+                    // console.log("/stats/"+switchStats+"-"+annee)
+                    document.getElementById('form').action = "/stats/"+switchMode+"-"+annee+"-"+switchStats+"?#bar-chart";
                     document.getElementById("form").submit();
                 });
             </script>
@@ -231,9 +250,9 @@ script pieChart(IconCodePointList []string, ColorHEXList []string, CategoryLabel
 }
 
 script barChart() {
-    // document.getElementById("barChart").remove();
+    // document.getElementById("bar-chart").remove();
     // var div = document.createElement("div");
-    // div.id = "barChart";
+    // div.id = "bar-chart";
     // document.getElementById("container-barChart").appendChild(div);
 
     apexChartStatsString = document.getElementById("struct-complet").value;
@@ -362,7 +381,7 @@ script barChart() {
             },
         }
     };
-    var barChart = new ApexCharts(document.getElementById("barChart"), options); //.querySelector("#barChart")
+    var barChart = new ApexCharts(document.getElementById("bar-chart"), options); //.querySelector("#bar-chart")
     barChart.render();
 
     document.getElementById("btn-hide-categories").addEventListener('click', function (evt) {

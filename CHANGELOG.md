@@ -5,6 +5,7 @@
     - stacked bars chart: 
         - removed group option, added data to 12 
         - add buttons to show/hide categories
+        - add a switch month/year
 - 2024-06-28 : fix stacked bars apex chart
 - 2024-06-27 : stats, new apex chart, stacked bars with possible group by category
 - 2024-06-23 : fix responsive apex chart

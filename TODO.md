@@ -10,7 +10,7 @@
             - ☑ fix dernière stack bar 2024 mal groupée, quelques catégories se superposent
             - ☑ ajouter 1 bouton pour suppr toutes les catégories + 1 autre pour toutes les remettre
             - ☐ ajouter 1 liste de catégo par défaut à l'ouverture de la page
-            - ☐ ajouter un switch mois/année
+            - ☑ ajouter un switch mois/année
             - ☐ ajouter un switch gains/dépense
             - ☐ afficher les noms des catégories lors du clic/survol d'une catégo dans le graph
             - ☑ retirer la fonctionnalité de grouper les catégories, inutile
