@@ -3,7 +3,6 @@ package sqlite
 import (
 	"context"
 	"database/sql"
-	"fmt"
 	"log"
 	"strconv"
 
@@ -83,19 +82,20 @@ func GetStatsInFinanceTracker(ctx context.Context, db *sql.DB, gofiID int, check
 			LEFT JOIN category AS c ON c.category = fT.category
 		WHERE gofiID = ?
 			AND checked IN (1, ?)
-			AND year > ?
+			AND year >= ?
 			AND year <= ?
-			AND priceIntx100 < 0
 		ORDER BY fT.category
 	`
-	rows, err = db.QueryContext(ctx, q3, gofiID, checkedDataOnly, (year - 6), year)
+	yearMin := year - 11
+	rows, err = db.QueryContext(ctx, q3, gofiID, checkedDataOnly, yearMin, year)
 	if err != nil {
 		log.Fatal("error on DB query3: ", err)
 	}
 	apexChartStats := appdata.NewApexChartStats()
-	yearMin := year - 5
 	apexChartStats.Labels = append(apexChartStats.Labels,
-		strconv.Itoa(yearMin), strconv.Itoa(year-4), strconv.Itoa(year-3), strconv.Itoa(year-2), strconv.Itoa(year-1), strconv.Itoa(year))
+		strconv.Itoa(yearMin), strconv.Itoa(year-10), strconv.Itoa(year-9), strconv.Itoa(year-8),
+		strconv.Itoa(year-7), strconv.Itoa(year-6), strconv.Itoa(year-5), strconv.Itoa(year-4),
+		strconv.Itoa(year-3), strconv.Itoa(year-2), strconv.Itoa(year-1), strconv.Itoa(year))
 	loop := -1
 	for rows.Next() {
 		loop += 1
@@ -121,12 +121,12 @@ func GetStatsInFinanceTracker(ctx context.Context, db *sql.DB, gofiID int, check
 		FROM financeTracker
 		WHERE gofiID = ?
 			AND checked IN (1, ?)
-			AND year > ?
+			AND year >= ?
 			AND year <= ?
 			AND priceIntx100 < 0
 		GROUP BY category, year
 	`
-	rows, err = db.QueryContext(ctx, q4, gofiID, checkedDataOnly, (year - 6), year)
+	rows, err = db.QueryContext(ctx, q4, gofiID, checkedDataOnly, yearMin, year)
 	if err != nil {
 		log.Fatal("error on DB query4: ", err)
 	}
@@ -143,6 +143,6 @@ func GetStatsInFinanceTracker(ctx context.Context, db *sql.DB, gofiID int, check
 	}
 	rows.Close()
 
-	fmt.Printf("apexChartStats: %#v\n", apexChartStats)
+	// fmt.Printf("apexChartStats: %#v\n", apexChartStats)
 	return statsAccountList, statsCategoryList, totalAccountList, totalCategoryList, *apexChartStats
 }

@@ -92,13 +92,6 @@ templ GetStats(Year int,
                         <div id="responsive-apex-chart"></div>
                     </div>
 
-                    <!-- Number -->
-                    <label for="group-category">
-                        <!-- banknote = Montant -->
-                        <svg stroke="currenColor" width="18" heigth="18" viewBox="0 0 24 24"><use xlink:href="/img/icons.svg#lucide-banknote"></use></svg>
-                        Seuil de regroupement des catégories
-                    </label>
-                    <input type="number" id="group-category" name="group-category" min="0" max="10000" step="100" default="0" required />
                     <input type="text" id="struct-complet" name="struct-complet" value={ApexChartStatsJson} hidden readonly required />
 
                     <div id="container-barChart" class="container-apex-chart">
@@ -232,49 +225,22 @@ script barChart() {
         apexChartStatsString = document.getElementById("struct-complet").value;
         // console.log(apexChartStatsString);
         apexChartStats = JSON.parse(apexChartStatsString);
-        // groupCategory = 0;
-        groupCategory = parseInt(document.getElementById("group-category").value, 10);
-        tempCategoryDict = {"name": "Groupe", "color": "#808080"};
-        groupCategoryList = [];
-        for (let i = 0; i < apexChartStats.Labels.length; i++) {
-            groupCategoryList.push(0);
-        }
-        // console.log(groupCategory)
 
         var seriesList = []; // [{name: "a", data: [1,2]}, {name: "b", data: [3,4]}]
         for (let i = 0; i < apexChartStats.Series.length; i++) {
             temp = {};
             temp["name"] = apexChartStats.Series[i].Icon;
             temp["color"]= apexChartStats.Series[i].Color;
-            if (groupCategory > 0) { // regroup categories under groupCategory value
-                tempList = [];
-                for (let j = 0; j < apexChartStats.Series[i].Values.length; j++) {
-                    if (apexChartStats.Series[i].Values[j] < groupCategory) {
-                        tempList.push("0");
-                        groupCategoryList[j] += parseInt(apexChartStats.Series[i].Values[j], 10);
-                        // console.log("i" + i + ", j" + j + ": " + apexChartStats.Series[i].Values[j])
-                    } else {
-                        tempList.push(apexChartStats.Series[i].Values[j]);
-                    }
-                }
-                temp["data"] = tempList;
-            } else {
-                temp["data"] = apexChartStats.Series[i].Values;
-            }
+            temp["data"] = apexChartStats.Series[i].Values;
             seriesList.push(temp);
+            // temp2 = structuredClone(temp);
         };
-        for (let i = 0; i < apexChartStats.Labels.length; i++) {
-            groupCategoryList[i] = groupCategoryList[i].toString();
-        }
-        // console.log("groupCategoryList: " + groupCategoryList)
-        tempCategoryDict["data"] = groupCategoryList;
-        seriesList.push(tempCategoryDict);
 
         var options = {
             series: seriesList,
             chart: {
                 type: 'bar',
-                height: 550,
+                height: 625,
                 width: "100%",
                 stacked: true,
             },
@@ -297,7 +263,7 @@ script barChart() {
             plotOptions: {
                 bar: {
                     horizontal: true,
-                    barHeight: '50%',
+                    barHeight: '60%',
                     rangeBarOverlap: false,
                     dataLabels: {
                         // hideOverflowingLabels: true,
@@ -385,8 +351,8 @@ script barChart() {
         var chart = new ApexCharts(document.getElementById("barChart"), options); //.querySelector("#barChart")
         chart.render();
     };
-    document.getElementById("group-category").addEventListener('input', function (evt) {
-        renderBarChart();
-    });
+    // document.getElementById("group-category").addEventListener('input', function (evt) {
+    //     renderBarChart();
+    // });
     renderBarChart();
 }
