@@ -1,7 +1,10 @@
 # Changelog
 
 ## v1 rework with go-chi
-- 2024-06-29 : stacked bars chart: removed group option, added data to 12 
+- 2024-06-29 : 
+    - stacked bars chart: 
+        - removed group option, added data to 12 
+        - add buttons to show/hide categories
 - 2024-06-28 : fix stacked bars apex chart
 - 2024-06-27 : stats, new apex chart, stacked bars with possible group by category
 - 2024-06-23 : fix responsive apex chart

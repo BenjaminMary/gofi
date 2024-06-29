@@ -91,6 +91,21 @@ templ GetStats(Year int,
                     <div class="container-apex-chart">
                         <div id="responsive-apex-chart"></div>
                     </div>
+                    <hr/>
+
+                    <h5>Dépenses par année</h5>
+                    <div role="group">
+                        <button type="button" id="btn-hide-categories" >
+                            <!-- feather-eye-off -->
+                            <svg width="24" height="24" viewBox="0 0 24 24"><use xlink:href="/img/icons.svg#feather-eye-off"></use></svg>
+                            Masquer les catégories
+                        </button>
+                        <button type="button" id="btn-show-categories" disabled>
+                            <!-- feather-eye -->
+                            <svg width="24" height="24" viewBox="0 0 24 24"><use xlink:href="/img/icons.svg#feather-eye"></use></svg>
+                            Afficher les catégories
+                        </button>
+                    </div>
 
                     <input type="text" id="struct-complet" name="struct-complet" value={ApexChartStatsJson} hidden readonly required />
 
@@ -216,143 +231,155 @@ script pieChart(IconCodePointList []string, ColorHEXList []string, CategoryLabel
 }
 
 script barChart() {
-    function renderBarChart(){
-        document.getElementById("barChart").remove();
-        var div = document.createElement("div");
-        div.id = "barChart";
-        document.getElementById("container-barChart").appendChild(div);
+    // document.getElementById("barChart").remove();
+    // var div = document.createElement("div");
+    // div.id = "barChart";
+    // document.getElementById("container-barChart").appendChild(div);
 
-        apexChartStatsString = document.getElementById("struct-complet").value;
-        // console.log(apexChartStatsString);
-        apexChartStats = JSON.parse(apexChartStatsString);
+    apexChartStatsString = document.getElementById("struct-complet").value;
+    // console.log(apexChartStatsString);
+    apexChartStats = JSON.parse(apexChartStatsString);
 
-        var seriesList = []; // [{name: "a", data: [1,2]}, {name: "b", data: [3,4]}]
-        for (let i = 0; i < apexChartStats.Series.length; i++) {
-            temp = {};
-            temp["name"] = apexChartStats.Series[i].Icon;
-            temp["color"]= apexChartStats.Series[i].Color;
-            temp["data"] = apexChartStats.Series[i].Values;
-            seriesList.push(temp);
-            // temp2 = structuredClone(temp);
-        };
+    var seriesList = []; // [{name: "a", data: [1,2]}, {name: "b", data: [3,4]}]
+    for (let i = 0; i < apexChartStats.Series.length; i++) {
+        temp = {};
+        temp["name"] = apexChartStats.Series[i].Icon;
+        temp["color"]= apexChartStats.Series[i].Color;
+        temp["data"] = apexChartStats.Series[i].Values;
+        seriesList.push(temp);
+        // temp2 = structuredClone(temp);
+    };
 
-        var options = {
-            series: seriesList,
-            chart: {
-                type: 'bar',
-                height: 625,
-                width: "100%",
-                stacked: true,
-            },
-            grid: {
-                show: true,
-                borderColor: 'currentColor',
-                strokeDashArray: 3,
-                position: 'front',
-                xaxis: {
-                    lines: {
-                        show: true
-                    }
-                },
-                yaxis: {
-                    lines: {
-                        show: false
-                    }
-                },
-            },
-            plotOptions: {
-                bar: {
-                    horizontal: true,
-                    barHeight: '60%',
-                    rangeBarOverlap: false,
-                    dataLabels: {
-                        // hideOverflowingLabels: true,
-                        // orientation: "vertical",
-                        total: {
-                            enabled: false
-                            //     offsetX: 0,
-                            //     // formatter: function (w) {
-                            //     //     console.log(w);
-                            //     //     // const sum = w.globals.seriesTotals.reduce((partialSum, a) => partialSum + a, 0);
-                            //     //     // return sum.toFixed(2);
-                            //     // },
-                            //     style: {
-                            //         fontSize: '13px',
-                            //         fontWeight: 900
-                            //     }
-                        }
-                    }
-                },
-            },
-            dataLabels: {
-                enabled: false,
-            },
-            // stroke: {
-            //     width: 1,
-            //     colors: ['#fff']
-            // },
-            title: {
-                text: 'Dépenses par année',
-                align: "center",
-                style: {
-                    color: "currentColor",
-                    fontSize: '12px',
-                },
-            },
+    var options = {
+        series: seriesList,
+        chart: {
+            type: 'bar',
+            height: 625,
+            width: "100%",
+            stacked: true,
+        },
+        grid: {
+            show: true,
+            borderColor: 'currentColor',
+            strokeDashArray: 3,
+            position: 'front',
             xaxis: {
-                categories: apexChartStats.Labels,
-                labels: {
-                    // rotate: -90,
-                    // rotateAlways: true,
-                    style: {
-                        colors: "currentColor",
-                        fontSize: '12px',
-                    },
-                    formatter: function (val) {
-                        return val/1000 + "K"
-                    }
+                lines: {
+                    show: true
                 }
             },
             yaxis: {
-                // min: 0,
-                // max: 40000,
-                // title: {
-                //     text: undefined
-                // },
-                labels: {
-                    // rotate: -90,
-                    // rotateAlways: true,
-                    offsetX: 10,
-                    // offsetY: -50,
-                    style: {
-                        colors: "currentColor",
-                        fontSize: '12px',
-                    },
+                lines: {
+                    show: false
                 }
             },
-            tooltip: {
-                theme: "dark",
+        },
+        plotOptions: {
+            bar: {
+                horizontal: true,
+                barHeight: '60%',
+                rangeBarOverlap: false,
+                dataLabels: {
+                    // hideOverflowingLabels: true,
+                    // orientation: "vertical",
+                    total: {
+                        enabled: false
+                        //     offsetX: 0,
+                        //     // formatter: function (w) {
+                        //     //     console.log(w);
+                        //     //     // const sum = w.globals.seriesTotals.reduce((partialSum, a) => partialSum + a, 0);
+                        //     //     // return sum.toFixed(2);
+                        //     // },
+                        //     style: {
+                        //         fontSize: '13px',
+                        //         fontWeight: 900
+                        //     }
+                    }
+                }
             },
-            fill: {
-                opacity: 1
-            },
-            legend: {
-                position: 'top',
-                horizontalAlign: 'left',
-                offsetX: 10,
-                fontSize: '18px',
-                fontFamily: 'icomoon',
-                labels: {
+        },
+        dataLabels: {
+            enabled: false,
+        },
+        // stroke: {
+        //     width: 1,
+        //     colors: ['#fff']
+        // },
+        // title: {
+        //     text: 'Dépenses par année',
+        //     align: "center",
+        //     style: {
+        //         color: "currentColor",
+        //         fontSize: '12px',
+        //     },
+        // },
+        xaxis: {
+            categories: apexChartStats.Labels,
+            labels: {
+                // rotate: -90,
+                // rotateAlways: true,
+                style: {
                     colors: "currentColor",
-                    // useSeriesColors: false
+                    fontSize: '12px',
+                },
+                formatter: function (val) {
+                    return val/1000 + "K"
+                }
+            }
+        },
+        yaxis: {
+            // min: 0,
+            // max: 40000,
+            // title: {
+            //     text: undefined
+            // },
+            labels: {
+                // rotate: -90,
+                // rotateAlways: true,
+                offsetX: 10,
+                // offsetY: -50,
+                style: {
+                    colors: "currentColor",
+                    fontSize: '12px',
                 },
             }
-        };
-        var chart = new ApexCharts(document.getElementById("barChart"), options); //.querySelector("#barChart")
-        chart.render();
+        },
+        tooltip: {
+            theme: "dark",
+        },
+        fill: {
+            opacity: 1
+        },
+        legend: {
+            position: 'top',
+            horizontalAlign: 'left',
+            offsetX: 10,
+            fontSize: '18px',
+            fontFamily: 'icomoon',
+            labels: {
+                colors: "currentColor",
+                // useSeriesColors: false
+            },
+        }
     };
-    // document.getElementById("group-category").addEventListener('input', function (evt) {
-    //     renderBarChart();
-    // });
-    renderBarChart();
+    var barChart = new ApexCharts(document.getElementById("barChart"), options); //.querySelector("#barChart")
+    barChart.render();
+
+    document.getElementById("btn-hide-categories").addEventListener('click', function (evt) {
+        // console.log(seriesList);
+        document.getElementById('btn-hide-categories').disabled = true;
+        for (let i = 0; i < seriesList.length; i++) {
+            barChart.hideSeries(seriesList[i]["name"]);
+        };
+        document.getElementById('btn-show-categories').disabled = false;
+    });
+    document.getElementById("btn-show-categories").addEventListener('click', function (evt) {
+        // console.log(seriesList);
+        document.getElementById('btn-show-categories').disabled = true;
+        for (let i = 0; i < seriesList.length; i++) {
+            barChart.showSeries(seriesList[i]["name"]);
+        };
+        document.getElementById('btn-hide-categories').disabled = false;
+    });
+
 }
