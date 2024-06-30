@@ -7,7 +7,7 @@ import (
 templ GetStats(Year int, 
     TotalAccount []string, TotalCategory []string,
     AccountList [][]string, CategoryList [][]string,
-    CheckedValidDataBool bool, CheckedYearStatsBool bool,
+    CheckedValidDataBool bool, CheckedYearStatsBool bool, CheckedGainsStatsBool bool,
     CategoryLabelList []string, CategoryValueList []float64, IconCodePointList []string, ColorHEXList []string,
     ApexChartStatsJson string) {
     <html>
@@ -93,27 +93,36 @@ templ GetStats(Year int,
                     </div>
                     <hr/>
 
-                    <h5>Dépenses par mois</h5>
+                    <h5>Evolution des dépenses</h5>
                     <div role="group">
                         <button type="button" id="btn-hide-categories" >
                             <!-- feather-eye-off -->
                             <svg width="24" height="24" viewBox="0 0 24 24"><use xlink:href="/img/icons.svg#feather-eye-off"></use></svg>
-                            Masquer les catégories
+                            Tout masquer
                         </button>
                         <button type="button" id="btn-show-categories" disabled>
                             <!-- feather-eye -->
                             <svg width="24" height="24" viewBox="0 0 24 24"><use xlink:href="/img/icons.svg#feather-eye"></use></svg>
-                            Afficher les catégories
+                            Tout afficher
                         </button>
                     </div>
-                    <label for="switchStats">
+                    <label for="switchStatsYearMonth">
                         Mois&nbsp;
                         if CheckedYearStatsBool {
-                            <input type="checkbox" id="switchStats" name="switchStats" role="switch" checked />
+                            <input type="checkbox" id="switchStatsYearMonth" name="switchStatsYearMonth" role="switch" checked />
                         } else {
-                            <input type="checkbox" id="switchStats" name="switchStats" role="switch" />
+                            <input type="checkbox" id="switchStatsYearMonth" name="switchStatsYearMonth" role="switch" />
                         }
                         Années
+                    </label>
+                    <label for="switchStatsGainExpense">
+                        Dépenses&nbsp;
+                        if CheckedGainsStatsBool {
+                            <input type="checkbox" id="switchStatsGainExpense" name="switchStatsGainExpense" role="switch" checked />
+                        } else {
+                            <input type="checkbox" id="switchStatsGainExpense" name="switchStatsGainExpense" role="switch" />
+                        }
+                        Gains
                     </label>
 
                     <input type="text" id="struct-complet" name="struct-complet" value={ApexChartStatsJson} hidden readonly required />
@@ -172,25 +181,31 @@ templ GetStats(Year int,
                 document.getElementById('switchMode').addEventListener('click', function(evt){
                     switchMode = document.getElementById('switchMode').checked;
                     annee = document.getElementById('annee').value;
-                    switchStats = document.getElementById('switchStats').checked;
+                    switchStatsYearMonth = document.getElementById('switchStatsYearMonth').checked;
                     // console.log("/stats/"+switchMode+"-"+annee)
-                    document.getElementById('form').action = "/stats/"+switchMode+"-"+annee+"-"+switchStats;
+                    document.getElementById('form').action = "/stats/"+switchMode+"-"+annee+"-"+switchStatsYearMonth+"-"+switchStatsGainExpense;
                     document.getElementById("form").submit();
                 });
                 document.getElementById('annee').addEventListener('change', function(evt){
                     switchMode = document.getElementById('switchMode').checked;
                     annee = document.getElementById('annee').value;
-                    switchStats = document.getElementById('switchStats').checked;
-                    // console.log("/stats/"+switchMode+"-"+annee)
-                    document.getElementById('form').action = "/stats/"+switchMode+"-"+annee+"-"+switchStats;
+                    switchStatsYearMonth = document.getElementById('switchStatsYearMonth').checked;
+                    document.getElementById('form').action = "/stats/"+switchMode+"-"+annee+"-"+switchStatsYearMonth+"-"+switchStatsGainExpense;
                     document.getElementById("form").submit();
                 });
-                document.getElementById('switchStats').addEventListener('click', function(evt){
+                document.getElementById('switchStatsYearMonth').addEventListener('click', function(evt){
                     switchMode = document.getElementById('switchMode').checked;
                     annee = document.getElementById('annee').value;
-                    switchStats = document.getElementById('switchStats').checked;
-                    // console.log("/stats/"+switchStats+"-"+annee)
-                    document.getElementById('form').action = "/stats/"+switchMode+"-"+annee+"-"+switchStats+"?#bar-chart";
+                    switchStatsYearMonth = document.getElementById('switchStatsYearMonth').checked;
+                    document.getElementById('form').action = "/stats/"+switchMode+"-"+annee+"-"+switchStatsYearMonth+"-"+switchStatsGainExpense+"?#bar-chart";
+                    document.getElementById("form").submit();
+                });
+                document.getElementById('switchStatsGainExpense').addEventListener('click', function(evt){
+                    switchMode = document.getElementById('switchMode').checked;
+                    annee = document.getElementById('annee').value;
+                    switchStatsYearMonth = document.getElementById('switchStatsYearMonth').checked;
+                    switchStatsGainExpense = document.getElementById('switchStatsGainExpense').checked;
+                    document.getElementById('form').action = "/stats/"+switchMode+"-"+annee+"-"+switchStatsYearMonth+"-"+switchStatsGainExpense+"?#bar-chart";
                     document.getElementById("form").submit();
                 });
             </script>

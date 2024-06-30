@@ -4,6 +4,9 @@
 
 - stats, 
     - new apex chart, 
+        - lines
+            - ☐ suivi des montants sur chaque compte
+            - ☐ regroupement et cumul global de l'ensemble des comptes
         - stacked bars
             - ☑ fix categories, Voyage manquant + possibles catégo manquantes dans l'initialisation
             - ☑ fix changement d'année
@@ -11,7 +14,7 @@
             - ☑ ajouter 1 bouton pour suppr toutes les catégories + 1 autre pour toutes les remettre
             - ☐ ajouter 1 liste de catégo par défaut à l'ouverture de la page
             - ☑ ajouter un switch mois/année
-            - ☐ ajouter un switch gains/dépense
+            - ☑ ajouter un switch gains/dépense
             - ☐ afficher les noms des catégories lors du clic/survol d'une catégo dans le graph
             - ☑ retirer la fonctionnalité de grouper les catégories, inutile
 - ☑ sur toutes les tables, mettre la désignation à la fin pour gagner de la visibilité sur smartphone (voir partie validation qui est ok)

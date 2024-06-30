@@ -192,7 +192,7 @@ func (s *Server) MountFrontHandlers() {
 				r.Post("/import", front.PostCSVimport)
 			})
 			// STATS
-			r.Get("/stats/{checkedValidData}-{year}-{checkedYearStats}", front.GetStats)
+			r.Get("/stats/{checkedValidData}-{year}-{checkedYearStats}-{checkedGainsStats}", front.GetStats)
 		})
 	})
 }

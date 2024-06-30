@@ -5,12 +5,13 @@ import (
 	"database/sql"
 	"log"
 	"strconv"
+	"strings"
 
 	"gofi/gofi/data/appdata"
 )
 
 func GetStatsInFinanceTracker(ctx context.Context, db *sql.DB, gofiID int,
-	checkedValidData int, year int, checkedYearStats int) (
+	checkedValidData int, year int, checkedYearStats int, checkedGainsStats int) (
 	[][]string, [][]string, []string, []string, appdata.ApexChartStats) {
 	var statsAccountList, statsCategoryList [][]string // [account1, sum1, count1], [...,] | [category1, sum1, count1, icon1, color1], [...,]
 	var totalAccountList, totalCategoryList []string   // [total, total, sum, count]
@@ -136,6 +137,10 @@ func GetStatsInFinanceTracker(ctx context.Context, db *sql.DB, gofiID int,
 				AND priceIntx100 < 0
 			GROUP BY category, year
 		`
+		if checkedGainsStats == 1 {
+			q4 = strings.Replace(q4, `AND priceIntx100 < 0`,
+				`AND priceIntx100 > 0`, 1)
+		}
 		rows, err = db.QueryContext(ctx, q4, gofiID, checkedValidData, yearMin, year)
 	} else {
 		q4 = ` 
@@ -147,6 +152,10 @@ func GetStatsInFinanceTracker(ctx context.Context, db *sql.DB, gofiID int,
 				AND priceIntx100 < 0
 			GROUP BY category, year, month
 		`
+		if checkedGainsStats == 1 {
+			q4 = strings.Replace(q4, `AND priceIntx100 < 0`,
+				`AND priceIntx100 > 0`, 1)
+		}
 		rows, err = db.QueryContext(ctx, q4, gofiID, checkedValidData, year)
 	}
 	if err != nil {
@@ -167,7 +176,13 @@ func GetStatsInFinanceTracker(ctx context.Context, db *sql.DB, gofiID int,
 		} else {
 			dateIndex = dateQ - 1 //month already 1-12
 		}
-		apexChartStats.Series[index].Values[dateIndex] = ConvertPriceIntToStr(sum*-1, false)
+		var sumStr string
+		if checkedGainsStats == 1 {
+			sumStr = ConvertPriceIntToStr(sum, false)
+		} else {
+			sumStr = ConvertPriceIntToStr(sum*-1, false)
+		}
+		apexChartStats.Series[index].Values[dateIndex] = sumStr
 	}
 	rows.Close()
 

@@ -286,12 +286,26 @@ func GetStats(w http.ResponseWriter, r *http.Request) {
 		CheckedYearStatsBool = false
 		checkedYearStats = 0
 	}
+	checkedGainsStatsStr := chi.URLParam(r, "checkedGainsStats")
+	var CheckedGainsStatsBool bool
+	var checkedGainsStats int
+	switch checkedGainsStatsStr {
+	case "", "false":
+		CheckedGainsStatsBool = false
+		checkedGainsStats = 0
+	case "true":
+		CheckedGainsStatsBool = true
+		checkedGainsStats = 1
+	default:
+		CheckedGainsStatsBool = false
+		checkedGainsStats = 0
+	}
 
 	var AccountList, CategoryList [][]string
 	var TotalAccount, TotalCategory []string
 	var ApexChartStats appdata.ApexChartStats
 	AccountList, CategoryList, TotalAccount, TotalCategory, ApexChartStats = sqlite.GetStatsInFinanceTracker(
-		r.Context(), appdata.DB, userContext.GofiID, checkedValidData, YearInt, checkedYearStats)
+		r.Context(), appdata.DB, userContext.GofiID, checkedValidData, YearInt, checkedYearStats, checkedGainsStats)
 
 	var m appdata.PieChartD3js
 	var CategoryLabelList, IconCodePointList, ColorHEXList []string
@@ -316,7 +330,7 @@ func GetStats(w http.ResponseWriter, r *http.Request) {
 	htmlComponents.GetStats(YearInt,
 		TotalAccount, TotalCategory,
 		AccountList, CategoryList,
-		CheckedValidDataBool, CheckedYearStatsBool,
+		CheckedValidDataBool, CheckedYearStatsBool, CheckedGainsStatsBool,
 		CategoryLabelList, CategoryValueList, IconCodePointList, ColorHEXList,
 		string(ApexChartStatsJson),
 	).Render(r.Context(), w)
