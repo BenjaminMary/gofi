@@ -5,7 +5,7 @@
 - stats, 
     - new apex chart, 
         - lines
-            - ☐ suivi des montants sur chaque compte
+            - ☑ suivi des montants sur chaque compte
             - ☐ regroupement et cumul global de l'ensemble des comptes
         - stacked bars
             - ☑ fix categories, Voyage manquant + possibles catégo manquantes dans l'initialisation

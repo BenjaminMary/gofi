@@ -301,26 +301,34 @@ func GetStats(w http.ResponseWriter, r *http.Request) {
 		checkedGainsStats = 0
 	}
 
+	ApexLineChartStats := sqlite.GetStatsForLineChartInFinanceTracker(
+		r.Context(), appdata.DB, userContext.GofiID, checkedValidData, YearInt)
+
 	var AccountList, CategoryList [][]string
 	var TotalAccount, TotalCategory []string
 	var ApexChartStats appdata.ApexChartStats
 	AccountList, CategoryList, TotalAccount, TotalCategory, ApexChartStats = sqlite.GetStatsInFinanceTracker(
 		r.Context(), appdata.DB, userContext.GofiID, checkedValidData, YearInt, checkedYearStats, checkedGainsStats)
 
-	var m appdata.PieChartD3js
+	var Price float64
 	var CategoryLabelList, IconCodePointList, ColorHEXList []string
 	var CategoryValueList []float64
 	for _, element := range CategoryList {
-		m.Price, _ = strconv.ParseFloat(element[1], 64)
-		if m.Price < 0 {
-			m.Category = element[0]
-			m.Price = m.Price * -1
-			//m.Quantity = element[2]
+		Price, _ = strconv.ParseFloat(element[1], 64)
+		if Price < 0 {
+			// Category = element[0]
+			Price = Price * -1
+			//Quantity = element[2]
 			CategoryLabelList = append(CategoryLabelList, element[0])
-			CategoryValueList = append(CategoryValueList, m.Price)
+			CategoryValueList = append(CategoryValueList, Price)
 			IconCodePointList = append(IconCodePointList, element[3])
 			ColorHEXList = append(ColorHEXList, element[4])
 		}
+	}
+
+	ApexLineChartStatsJson, err := json.Marshal(ApexLineChartStats)
+	if err != nil {
+		fmt.Println(err)
 	}
 	ApexChartStatsJson, err := json.Marshal(ApexChartStats)
 	if err != nil {
@@ -332,7 +340,7 @@ func GetStats(w http.ResponseWriter, r *http.Request) {
 		AccountList, CategoryList,
 		CheckedValidDataBool, CheckedYearStatsBool, CheckedGainsStatsBool,
 		CategoryLabelList, CategoryValueList, IconCodePointList, ColorHEXList,
-		string(ApexChartStatsJson),
+		string(ApexLineChartStatsJson), string(ApexChartStatsJson),
 	).Render(r.Context(), w)
 }
 

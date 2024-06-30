@@ -10,6 +10,116 @@ import (
 	"gofi/gofi/data/appdata"
 )
 
+func GetStatsForLineChartInFinanceTracker(ctx context.Context, db *sql.DB,
+	gofiID int, checkedValidData int, year int) appdata.ApexChartStats {
+	// initialize all years
+	q := ` 
+		SELECT DISTINCT year
+		FROM financeTracker
+		WHERE gofiID = ?
+			AND checked IN (1, ?)
+			AND year > 1999
+			AND year <= ?
+		ORDER BY year
+	`
+	rows, err := db.QueryContext(ctx, q, gofiID, checkedValidData, year)
+	if err != nil {
+		log.Fatal("GetStatsForLineChartInFinanceTracker error on DB query1: ", err)
+	}
+	apexChartStats := appdata.NewApexChartStats()
+	loop := -1
+	var yearMin int // yearMin used as an index
+	for rows.Next() {
+		loop += 1
+		var yearQ int
+		if err := rows.Scan(&yearQ); err != nil {
+			log.Fatal(err)
+		}
+		if loop == 0 {
+			yearMin = yearQ
+		}
+		apexChartStats.Labels = append(apexChartStats.Labels, strconv.Itoa(yearQ))
+	}
+	rows.Close()
+
+	// initialize all accounts with values to 0
+	q = ` 
+		SELECT DISTINCT account
+		FROM financeTracker
+		WHERE gofiID = ?
+			AND checked IN (1, ?)
+			AND year > 1999
+			AND year <= ?
+		ORDER BY account
+	`
+	rows, err = db.QueryContext(ctx, q, gofiID, checkedValidData, year)
+	if err != nil {
+		log.Fatal("GetStatsForLineChartInFinanceTracker error on DB query2: ", err)
+	}
+	loop = -1
+	for rows.Next() {
+		loop += 1
+		var apexChartSerie appdata.ApexChartSerie
+		var account string
+		if err := rows.Scan(&account); err != nil {
+			log.Fatal(err)
+		}
+		apexChartSerie.Name = account
+		for i := 0; i < len(apexChartStats.Labels); i++ {
+			apexChartSerie.Values = append(apexChartSerie.Values, "-")
+		}
+		apexChartStats.FindSerie[account] = loop
+		apexChartStats.Series = append(apexChartStats.Series, apexChartSerie)
+	}
+	rows.Close()
+
+	// update an account value for the current year in each loop
+	q = ` 
+			SELECT DISTINCT year, account, 
+				SUM(priceIntx100) OVER (
+					PARTITION BY account
+					ORDER BY account, year -- Window ordering (not necessarily the same as result ordering!)
+					GROUPS BETWEEN -- Window for the SUM includes these rows:
+						UNBOUNDED PRECEDING -- all rows before current one in window ordering
+						AND CURRENT ROW -- up to and including current row.
+					) AS cumulativeSum
+			FROM financeTracker
+			WHERE gofiID = ?
+				AND checked IN (1, ?)
+				AND year > 1999
+				AND year <= ?
+		`
+	rows, err = db.QueryContext(ctx, q, gofiID, checkedValidData, year)
+	if err != nil {
+		log.Fatal("GetStatsForLineChartInFinanceTracker error on DB query3: ", err)
+	}
+	for rows.Next() {
+		var account string
+		var sum, yearQ, index int
+		if err := rows.Scan(&yearQ, &account, &sum); err != nil {
+			log.Fatal(err)
+		}
+		// find the Index on which the current account is stored
+		index = apexChartStats.FindSerie[account]
+		// update the Value corresponding to the current year Index inside the right Serie
+		apexChartStats.Series[index].Values[yearQ-yearMin] = ConvertPriceIntToStr(sum, true)
+	}
+	rows.Close()
+	// rework the years without values (can't be set to 0 due to cumulative values)
+	for i := 0; i < len(apexChartStats.Series); i++ {
+		currentValue := "0"
+		for j := 0; j < len(apexChartStats.Labels); j++ {
+			if apexChartStats.Series[i].Values[j] == "-" {
+				apexChartStats.Series[i].Values[j] = currentValue
+			} else {
+				currentValue = apexChartStats.Series[i].Values[j]
+			}
+		}
+	}
+	// fmt.Printf("apexChartStats: %#v\n", apexChartStats)
+	return *apexChartStats
+}
+
 func GetStatsInFinanceTracker(ctx context.Context, db *sql.DB, gofiID int,
 	checkedValidData int, year int, checkedYearStats int, checkedGainsStats int) (
 	[][]string, [][]string, []string, []string, appdata.ApexChartStats) {
@@ -20,6 +130,7 @@ func GetStatsInFinanceTracker(ctx context.Context, db *sql.DB, gofiID int,
 		FROM financeTracker
 		WHERE gofiID = ?
 			AND checked IN (1, ?)
+			AND year > 1999
 			AND year <= ?
 		GROUP BY account
 		ORDER BY sum DESC
@@ -84,6 +195,7 @@ func GetStatsInFinanceTracker(ctx context.Context, db *sql.DB, gofiID int,
 			LEFT JOIN category AS c ON c.category = fT.category
 		WHERE gofiID = ?
 			AND checked IN (1, ?)
+			AND year > 1999
 			AND year >= ?
 			AND year <= ?
 		ORDER BY fT.category
@@ -132,6 +244,7 @@ func GetStatsInFinanceTracker(ctx context.Context, db *sql.DB, gofiID int,
 			FROM financeTracker
 			WHERE gofiID = ?
 				AND checked IN (1, ?)
+				AND year > 1999
 				AND year >= ?
 				AND year <= ?
 				AND priceIntx100 < 0

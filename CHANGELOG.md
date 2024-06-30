@@ -3,6 +3,7 @@
 ## v1 rework with go-chi
 - 2024-06-30 : 
     - stacked bars chart: add a switch expenses/gains
+    - line chart: new chart to follow accounts
 - 2024-06-29 : 
     - stacked bars chart: 
         - removed group option, added data to 12 

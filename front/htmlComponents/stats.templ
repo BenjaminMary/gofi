@@ -9,7 +9,7 @@ templ GetStats(Year int,
     AccountList [][]string, CategoryList [][]string,
     CheckedValidDataBool bool, CheckedYearStatsBool bool, CheckedGainsStatsBool bool,
     CategoryLabelList []string, CategoryValueList []float64, IconCodePointList []string, ColorHEXList []string,
-    ApexChartStatsJson string) {
+    ApexLineChartStatsJson string, ApexChartStatsJson string) {
     <html>
         <head>
             @Header()
@@ -50,6 +50,12 @@ templ GetStats(Year int,
                             </div>
                         </div>
                     </form>
+                </section>
+
+                <section id="graph-accounts">
+                    <div class="container-apex-chart">
+                        <div id="responsive-apex-line-chart"></div>
+                    </div>
                 </section>
 
                 <section id="account-stats">
@@ -175,6 +181,7 @@ templ GetStats(Year int,
             // @BotScriptHTMXhandleError()
             <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
             @pieChart(IconCodePointList, ColorHEXList, CategoryLabelList, CategoryValueList)
+            @lineChart(ApexLineChartStatsJson)
             @barChart()
             // @columnChart(ApexChartStats)
             <script>
@@ -265,6 +272,86 @@ script pieChart(IconCodePointList []string, ColorHEXList []string, CategoryLabel
         };
         var chart = new ApexCharts(document.querySelector("#responsive-apex-chart"), options);
         chart.render();
+}
+
+script lineChart(apexLineChartStatsJson string) {
+    apexChartLineStats = JSON.parse(apexLineChartStatsJson);
+
+    var seriesList = []; // [{name: "a", data: [1,2]}, {name: "b", data: [3,4]}]
+    for (let i = 0; i < apexChartLineStats.Series.length; i++) {
+        temp = {};
+        temp["name"] = apexChartLineStats.Series[i].Name;
+        temp["data"] = apexChartLineStats.Series[i].Values;
+        seriesList.push(temp);
+    };
+
+    var options = {
+        series: seriesList,
+        chart: {
+            height: 625,
+            width: "100%",
+            type: 'line',
+            zoom: {
+                enabled: false
+            }
+        },
+        dataLabels: {
+            enabled: false
+        },
+        stroke: {
+            curve: 'straight'
+        },
+        grid: {
+            show: true,
+            borderColor: 'currentColor',
+            strokeDashArray: 3,
+            position: 'front',
+            xaxis: {
+                lines: {
+                    show: false
+                }
+            },
+            yaxis: {
+                lines: {
+                    show: true
+                }
+            },
+        },
+        xaxis: {
+            categories: apexChartLineStats.Labels,
+            labels: {
+                rotate: -90,
+                rotateAlways: true,
+                style: {
+                    colors: "currentColor",
+                    fontSize: '12px',
+                },
+            }
+        },
+        yaxis: {
+            labels: {
+                style: {
+                    colors: "currentColor",
+                    fontSize: '12px',
+                },
+                formatter: function (val) {
+                    return (val/1000).toFixed(2) + "K";
+                }
+            }
+        },
+        legend: {
+            position: 'top',
+            horizontalAlign: 'left',
+            offsetX: 10,
+            labels: {
+                colors: "currentColor",
+                // useSeriesColors: false
+            },
+        },
+    };
+
+    var lineChart = new ApexCharts(document.getElementById("responsive-apex-line-chart"), options);
+    lineChart.render();
 }
 
 script barChart() {
