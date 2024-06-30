@@ -182,6 +182,7 @@ templ GetStats(Year int,
                     switchMode = document.getElementById('switchMode').checked;
                     annee = document.getElementById('annee').value;
                     switchStatsYearMonth = document.getElementById('switchStatsYearMonth').checked;
+                    switchStatsGainExpense = document.getElementById('switchStatsGainExpense').checked;
                     // console.log("/stats/"+switchMode+"-"+annee)
                     document.getElementById('form').action = "/stats/"+switchMode+"-"+annee+"-"+switchStatsYearMonth+"-"+switchStatsGainExpense;
                     document.getElementById("form").submit();
@@ -190,6 +191,7 @@ templ GetStats(Year int,
                     switchMode = document.getElementById('switchMode').checked;
                     annee = document.getElementById('annee').value;
                     switchStatsYearMonth = document.getElementById('switchStatsYearMonth').checked;
+                    switchStatsGainExpense = document.getElementById('switchStatsGainExpense').checked;
                     document.getElementById('form').action = "/stats/"+switchMode+"-"+annee+"-"+switchStatsYearMonth+"-"+switchStatsGainExpense;
                     document.getElementById("form").submit();
                 });
@@ -197,6 +199,7 @@ templ GetStats(Year int,
                     switchMode = document.getElementById('switchMode').checked;
                     annee = document.getElementById('annee').value;
                     switchStatsYearMonth = document.getElementById('switchStatsYearMonth').checked;
+                    switchStatsGainExpense = document.getElementById('switchStatsGainExpense').checked;
                     document.getElementById('form').action = "/stats/"+switchMode+"-"+annee+"-"+switchStatsYearMonth+"-"+switchStatsGainExpense+"?#bar-chart";
                     document.getElementById("form").submit();
                 });
