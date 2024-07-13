@@ -125,7 +125,7 @@ func GetRowsInFinanceTracker(ctx context.Context, db *sql.DB, filter *appdata.Fi
 	// end building query
 	q2 := strings.Replace(q, `COUNT(1)`,
 		`f.id, f.gofiID, year, month, day, account, product, priceIntx100, 
-			f.category, ifnull(c.iconCodePoint,'e90a') AS icp, ifnull(c.colorHEX,'#000000') AS ch, 
+			f.category, ifnull(c.iconCodePoint,'e90a') AS icp, ifnull(c.colorHEX,'#808080') AS ch, 
 			checked, dateChecked`, 1)
 
 	row := execSingleRow(queryValues, db, ctx, q, filter)

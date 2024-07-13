@@ -10,23 +10,24 @@
 }
 
 .e900{background-color: #CC5933;} /* Vehicule	car-front	e900	orange	(15,60,50)	#CC5933 */
-.e913{background-color: #CC7633;} /* Transp	train-front	e913	orange	(25,60,50)	#CC7633 */
-.e916{background-color: #B3A24D;} /* Courses	carrot	e916	yellow	(50,40,50)	#B3A24D */
-.e918{background-color: #B3AA4D;} /* Shopping	shopping-cart	e918	yellow	(55,40,50)	#B3AA4D */
+.e913{background-color: #CC8033;} /* Transp	train-front	e913	orange	(30,60,50)	#CC8033 */
+.e918{background-color: #B3994D;} /* Shopping	shopping-cart	e918	yellow	(45,40,50)	#B3994D */
 .e91a{background-color: #B3B34D;} /* Cadeaux	gift	e91a	yellow	(60,40,50)	#B3B34D */
-.e914{background-color: #33CC33;} /* Resto	chef-hat	e914	green	(120,60,50)	#33CC33 */
-.e901{background-color: #33CC40;} /* Loisirs	drama	e901	green	(125,60,50)	#33CC40 */
+.e916{background-color: #AABF40;} /* Courses	carrot	e916	yellow	(70,50,50)	#AABF40 */
+.e914{background-color: #80CC33;} /* Resto	chef-hat	e914	green	(90,60,50)	#80CC33 */
+.e901{background-color: #4DCC33;} /* Loisirs	drama	e901	green	(110,60,50)	#4DCC33 */
 .e902{background-color: #33CC4C;} /* Voyage	earth	e902	green	(130,60,50)	#33CC4C */
 .e903{background-color: #33CC99;} /* Salaire	credit-card	e903	teal	(160,60,50)	#33CC99 */
 .e919{background-color: #33B3CC;} /* Banque	landmark	e919	light blue	(190,60,50)	#33B3CC */
-.e904{background-color: #3399CC;} /* Invest	line-chart	e904	light blue	(200,60,50)	#3399CC */
+.e904{background-color: #3380CC;} /* Invest	line-chart	e904	light blue	(210,60,50)	#3380CC */
 .e905{background-color: #334CCC;} /* Societe	briefcase	e905	blue	(230,60,50)	#334CCC */
 .e906{background-color: #6633CC;} /* Loyer	home	e906	purple	(260,60,50)	#6633CC */
 .e907{background-color: #8033CC;} /* Services	plug-zap	e907	purple	(270,60,50)	#8033CC */
 .e908{background-color: #CC33CC;} /* Sante	heart-pulse	e908	pink	(300,60,50)	#CC33CC */
 .e909{background-color: #CC3373;} /* Erreur	bug	e909	red	(335,60,50)	#CC3373 */
 .e90b{background-color: #CC3633;} /* -	trash-2	e90b	red	(1,60,50)	#CC3633 */
-.e90c{background-color: #808080;} /* Autre	more-horizontal	e90c	gris	(0,0,50)	#808080 */
+.e90c{background-color: #666666;} /* Autre	more-horizontal	e90c	gris	(0,0,40)	#666666 */
+.e91b{background-color: #999999;} /* Transfert	arrow-right-left	e91b	gris	(0,0,60)	#999999 */
 
 /* KO Societe	briefcase	e905	blue	(230,60,50)	#334CCC */
 /* changement en Entrep ? */

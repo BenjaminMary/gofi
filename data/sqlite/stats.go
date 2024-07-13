@@ -136,7 +136,7 @@ func GetStatsInFinanceTracker(ctx context.Context, db *sql.DB, gofiID int,
 		ORDER BY sum DESC
 	`
 	q2 := ` 
-		SELECT fT.category, ifnull(c.iconCodePoint,'e90a') AS icp, ifnull(c.colorHEX,'#000000') AS ch, SUM(priceIntx100) AS sum, COUNT(1) AS count
+		SELECT fT.category, ifnull(c.iconCodePoint,'e90a') AS icp, ifnull(c.colorHEX,'#808080') AS ch, SUM(priceIntx100) AS sum, COUNT(1) AS count
 		FROM financeTracker AS fT
 			LEFT JOIN category AS c ON c.category = fT.category
 		WHERE gofiID = ?
@@ -190,7 +190,7 @@ func GetStatsInFinanceTracker(ctx context.Context, db *sql.DB, gofiID int,
 
 	// initialize all categories with values to 0
 	q3 := ` 
-		SELECT DISTINCT fT.category, ifnull(c.iconCodePoint,'e90a') AS icp, ifnull(c.colorHEX,'#000000') AS ch
+		SELECT DISTINCT fT.category, ifnull(c.iconCodePoint,'e90a') AS icp, ifnull(c.colorHEX,'#808080') AS ch
 		FROM financeTracker AS fT
 			LEFT JOIN category AS c ON c.category = fT.category
 		WHERE gofiID = ?

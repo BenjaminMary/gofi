@@ -95,23 +95,24 @@ func initDB(folder string, dbName string) {
 		INSERT INTO category (category, iconName, iconCodePoint, colorName, colorHSL, colorHEX)
 		VALUES 
 			('Vehicule', 'car-front', 'e900', 'orange', '(15,60,50)', '#CC5933'),
-			('Transp', 'train-front', 'e913', 'orange', '(25,60,50)', '#CC7633'),
-			('Courses', 'carrot', 'e916', 'yellow', '(50,40,50)', '#B3A24D'),
-			('Shopping', 'shopping-cart', 'e918', 'yellow', '(55,40,50)', '#B3AA4D'),
+			('Transp', 'train-front', 'e913', 'orange', '(30,60,50)', '#CC8033'),
+			('Shopping', 'shopping-cart', 'e918', 'yellow', '(45,40,50)', '#B3994D'),
 			('Cadeaux', 'gift', 'e91a', 'yellow', '(60,40,50)', '#B3B34D'),
-			('Resto', 'chef-hat', 'e914', 'green', '(120,60,50)', '#33CC33'),
-			('Loisirs', 'drama', 'e901', 'green', '(125,60,50)', '#33CC40'),
+			('Courses', 'carrot', 'e916', 'yellow', '(70,50,50)', '#AABF40'),
+			('Resto', 'chef-hat', 'e914', 'green', '(90,60,50)', '#80CC33'),
+			('Loisirs', 'drama', 'e901', 'green', '(110,60,50)', '#4DCC33'),
 			('Voyage', 'earth', 'e902', 'green', '(130,60,50)', '#33CC4C'),
 			('Salaire', 'credit-card', 'e903', 'teal', '(160,60,50)', '#33CC99'),
 			('Banque', 'landmark', 'e919', 'light blue', '(190,60,50)', '#33B3CC'),
-			('Invest', 'line-chart', 'e904', 'light blue', '(200,60,50)', '#3399CC'),
+			('Invest', 'line-chart', 'e904', 'light blue', '(210,60,50)', '#3380CC'),
 			('Societe', 'briefcase', 'e905', 'blue', '(230,60,50)', '#334CCC'),
 			('Loyer', 'home', 'e906', 'purple', '(260,60,50)', '#6633CC'),
 			('Services', 'plug-zap', 'e907', 'purple', '(270,60,50)', '#8033CC'),
 			('Sante', 'heart-pulse', 'e908', 'pink', '(300,60,50)', '#CC33CC'),
 			('Erreur', 'bug', 'e909', 'red', '(335,60,50)', '#CC3373'),
 			('-', 'trash-2', 'e90b', 'red', '(1,60,50)', '#CC3633'),
-			('Autre', 'more-horizontal', 'e90c', 'gris', '(0,0,50)', '#808080')
+			('Autre', 'more-horizontal', 'e90c', 'gris', '(0,0,40)', '#666666'),
+			('Transfert', 'arrow-right-left', 'e91b', 'gris', '(0,0,60)', '#999999')
 		;
 
 		--DROP TABLE IF EXISTS financeTracker;

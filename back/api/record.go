@@ -188,9 +188,9 @@ func PostRecordTransfer(w http.ResponseWriter, r *http.Request, isFrontRequest b
 	}
 	userContext := r.Context().Value(appdata.ContextUserKey).(*appdata.UserRequest)
 	ft.GofiID = userContext.GofiID
-	ft.Category = "Banque"
-	ft.CategoryDetails.CategoryIcon = "e919"
-	ft.CategoryDetails.CategoryColor = "#33B3CC"
+	ft.Category = "Transfert"
+	ft.CategoryDetails.CategoryIcon = "e91b"
+	ft.CategoryDetails.CategoryColor = "#999999"
 	ft.DateDetails.MonthStr = appdata.MonthIto3A(ft.DateDetails.Month)
 
 	//first part to add to

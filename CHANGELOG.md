@@ -1,6 +1,9 @@
 # Changelog
 
 ## v1 rework with go-chi
+- 2024-07-13 : 
+    - add a transfer category with iconfont
+    - add more distance between category colors
 - 2024-06-30 : 
     - stacked bars chart: add a switch expenses/gains
     - line chart: new chart to follow accounts
