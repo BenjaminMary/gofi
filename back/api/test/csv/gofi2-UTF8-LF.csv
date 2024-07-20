@@ -1,6 +1,6 @@
 ﻿𫝀é ꮖꭰ;Date;Account;Product;PriceStr;Category;CommentInt;CommentString;Checked;DateChecked;Exported;
 -1;31/12/1999;-;DELETED LINE;0;-;0;-;true;14/01/2024;true;
-2;01/01/2015;Especes;Solde Espèces;85,76;Salaire;0;;true;01/01/2023;true;
+2;01/01/2015;Especes;Solde Espèces;85,76;Revenu;0;;true;01/01/2023;true;
 3;02/01/2015;CA;PC Portable;-295,11;HighTech;0;5heures autonomie;true;05/01/2015;true;
 4;04/01/2015;CA;Gazole;-38,66;Vehicule;200079;Kms au moment du plein;true;05/01/2015;true;
 5;05/01/2015;CA;Jeux Steam;-2;Loisirs;0;;true;06/01/2015;true;

@@ -4,6 +4,7 @@ import (
 	"errors"
 	"fmt"
 	"net/http"
+	"strconv"
 
 	"github.com/go-chi/render"
 )
@@ -212,6 +213,53 @@ type UserParams struct {
 	CategoryRendering        string
 }
 
+func NewUserCategories() *UserCategories {
+	var a UserCategories
+	a.FindCategory = make(map[string]int)
+	return &a
+}
+
+type UserCategories struct {
+	GofiID       int // UNIQUE
+	FindCategory map[string]int
+	Categories   []Category
+}
+type Category struct {
+	ID            int
+	IDstr         string `json:"idstr"`
+	GofiID        int
+	Name          string
+	Type          string
+	Order         int
+	InUse         int
+	InUseStr      string `json:"inusestr"`
+	InStats       int
+	Description   string
+	BudgetPrice   int
+	BudgetPeriod  string
+	BudgetType    string
+	IconCodePoint string
+	ColorHEX      string
+}
+
+func (a *Category) Bind(r *http.Request) error {
+	if a.IDstr == "" || a.InUseStr == "" {
+		return errors.New("missing required field")
+	}
+	var err error
+	a.ID, err = strconv.Atoi(a.IDstr)
+	if err != nil || a.ID < 1 {
+		fmt.Printf("PatchParamCategoryInUse err1: %v\n", err)
+		return errors.New("missing required field")
+	}
+	a.InUse, err = strconv.Atoi(a.InUseStr)
+	if err != nil || a.InUse > 1 || a.InUse < 0 {
+		fmt.Printf("PatchParamCategoryInUse err2: %v\n", err)
+		return errors.New("missing required field")
+	}
+	return nil
+}
+
 type FilterRows struct {
 	GofiID          int    // UNIQUE
 	WhereAccount    string `json:"compteHidden"`
@@ -230,12 +278,6 @@ type FilterRows struct {
 
 func (a *FilterRows) Bind(r *http.Request) error {
 	return nil
-}
-
-type PieChartD3js struct {
-	Category string  `json:"name"`
-	Price    float64 `json:"value"`
-	//Quantity string `json:"quantity"`
 }
 
 type SaveBackup struct {

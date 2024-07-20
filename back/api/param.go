@@ -11,7 +11,7 @@ import (
 	"github.com/go-chi/render"
 )
 
-func GetParamSetup(w http.ResponseWriter, r *http.Request, isFrontRequest bool) *appdata.HttpStruct {
+func GetParam(w http.ResponseWriter, r *http.Request, isFrontRequest bool) *appdata.HttpStruct {
 	userContext := r.Context().Value(appdata.ContextUserKey).(*appdata.UserRequest)
 	var userParams appdata.UserParams
 	userParams.GofiID = userContext.GofiID
@@ -35,7 +35,7 @@ func cleanStringList(stringList string) string {
 	}
 	return cleanedStringResult
 }
-func postParamSetup(w http.ResponseWriter, r *http.Request, isFrontRequest bool, paramName string, paramInfo string) *appdata.HttpStruct {
+func postParam(w http.ResponseWriter, r *http.Request, isFrontRequest bool, paramName string, paramInfo string) *appdata.HttpStruct {
 	param := &appdata.Param{}
 	if err := render.Bind(r, param); err != nil {
 		fmt.Printf("error: %v\n", err.Error())
@@ -53,18 +53,18 @@ func postParamSetup(w http.ResponseWriter, r *http.Request, isFrontRequest bool,
 	}
 	return appdata.RenderAPIorUI(w, r, isFrontRequest, true, true, http.StatusOK, "user param updated", param)
 }
-func PostParamSetupAccount(w http.ResponseWriter, r *http.Request, isFrontRequest bool) *appdata.HttpStruct {
-	return postParamSetup(w, r, isFrontRequest,
+func PostParamAccount(w http.ResponseWriter, r *http.Request, isFrontRequest bool) *appdata.HttpStruct {
+	return postParam(w, r, isFrontRequest,
 		"accountList",
 		"Liste des comptes (séparer par des , sans espaces)")
 }
-func PostParamSetupCategory(w http.ResponseWriter, r *http.Request, isFrontRequest bool) *appdata.HttpStruct {
-	return postParamSetup(w, r, isFrontRequest,
+func PostParamCategory(w http.ResponseWriter, r *http.Request, isFrontRequest bool) *appdata.HttpStruct {
+	return postParam(w, r, isFrontRequest,
 		"categoryList",
 		"Liste des catégories (séparer par des , sans espaces)")
 }
-func PostParamSetupCategoryRendering(w http.ResponseWriter, r *http.Request, isFrontRequest bool) *appdata.HttpStruct {
-	return postParamSetup(w, r, isFrontRequest,
+func PostParamCategoryRendering(w http.ResponseWriter, r *http.Request, isFrontRequest bool) *appdata.HttpStruct {
+	return postParam(w, r, isFrontRequest,
 		"categoryRendering",
 		"Affichage des catégories: icons | names")
 }
@@ -82,20 +82,36 @@ func GetCategoryIcon(w http.ResponseWriter, r *http.Request, isFrontRequest bool
 	return appdata.RenderAPIorUI(w, r, isFrontRequest, false, true, http.StatusOK, "category info found", cd)
 }
 
+func PatchParamCategoryInUse(w http.ResponseWriter, r *http.Request, isFrontRequest bool) *appdata.HttpStruct {
+	category := &appdata.Category{}
+	if err := render.Bind(r, category); err != nil {
+		fmt.Printf("error: %v\n", err.Error())
+		return appdata.RenderAPIorUI(w, r, isFrontRequest, true, false, http.StatusBadRequest, "invalid request, double check each field", "")
+	}
+	userContext := r.Context().Value(appdata.ContextUserKey).(*appdata.UserRequest)
+	category.GofiID = userContext.GofiID
+	// fmt.Printf("category: %#v\n", category)
+	successBool := sqlite.PatchCategoryInUse(r.Context(), appdata.DB, category)
+	if !successBool {
+		return appdata.RenderAPIorUI(w, r, isFrontRequest, false, false, http.StatusNotFound, "category not updated", category.ID)
+	}
+	return appdata.RenderAPIorUI(w, r, isFrontRequest, false, true, http.StatusOK, "category inUse updated", category.ID)
+}
+
 /*
-// GET CategorySetup.html
-func getCategorySetup() {
+// GET Category.html
+func getCategory() {
 	// var CategoryList, IconCodePointList, ColorHEXList []string
 	// CategoryList, IconCodePointList, ColorHEXList = sqlite.GetCategoryList(ctx, db)
-	// c.HTML(http.StatusOK, "2.2.categorySetup.html", gin.H{
+	// c.HTML(http.StatusOK, "2.2.category.html", gin.H{
 	//     "CategoryList": CategoryList,
 	//     "IconCodePointList": IconCodePointList,
 	//     "ColorHEXList": ColorHEXList,
 	// })
 }
 
-// POST CategorySetup.html
-func postCategorySetup() {
+// POST Category.html
+func postCategory() {
 	var returnedString string
 	returnedString = "empty"
 	// c.String(200, returnedString)
@@ -103,6 +119,6 @@ func postCategorySetup() {
 */
 /*
 ```powershell
-curl -X GET -H "Content-Type: application/json" --include --location "http://localhost:8083/api/param/setup"
+curl -X GET -H "Content-Type: application/json" --include --location "http://localhost:8083/api/param"
 ```
 */

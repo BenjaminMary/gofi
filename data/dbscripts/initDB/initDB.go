@@ -83,37 +83,69 @@ func initDB(folder string, dbName string) {
 		--DROP TABLE IF EXISTS category;
 		CREATE TABLE IF NOT EXISTS category (
 			id INTEGER PRIMARY KEY AUTOINCREMENT, 
-			--gofiID INTEGER NOT NULL,
+			gofiID INTEGER, -- NOT NULL,
 			category TEXT NOT NULL,
+			catWhereToUse TEXT NOT NULL, /* 'all'= everywhere, 'periodic'= recurrent record, 'specific'= transfer, 'basic'= standard record */
+			catOrder INTEGER, -- NOT NULL,
+			inUse INTEGER DEFAULT 1,
+			defaultInStats INTEGER DEFAULT 1,
+			description TEXT DEFAULT '-',
+			budgetPrice INTEGER DEFAULT 0,
+			budgetPeriod TEXT DEFAULT '-', /* -,month,year,week */
+			budgetType TEXT DEFAULT '-', /* -,cumulative,reset */
 			iconName TEXT NOT NULL,
-			iconCodePoint TEXT NOT NULL, /* "error" icon exemple: e909*/
+			iconCodePoint TEXT NOT NULL, /* "error" icon exemple: e909 */
 			colorName TEXT NOT NULL,
 			colorHSL TEXT NOT NULL,
 			colorHEX TEXT NOT NULL
 		);
 		DELETE FROM category;
-		INSERT INTO category (category, iconName, iconCodePoint, colorName, colorHSL, colorHEX)
-		VALUES 
-			('Vehicule', 'car-front', 'e900', 'orange', '(15,60,50)', '#CC5933'),
-			('Transp', 'train-front', 'e913', 'orange', '(30,60,50)', '#CC8033'),
-			('Shopping', 'shopping-cart', 'e918', 'yellow', '(45,40,50)', '#B3994D'),
-			('Cadeaux', 'gift', 'e91a', 'yellow', '(60,40,50)', '#B3B34D'),
-			('Courses', 'carrot', 'e916', 'yellow', '(70,50,50)', '#AABF40'),
-			('Resto', 'chef-hat', 'e914', 'green', '(90,60,50)', '#80CC33'),
-			('Loisirs', 'drama', 'e901', 'green', '(110,60,50)', '#4DCC33'),
-			('Voyage', 'earth', 'e902', 'green', '(130,60,50)', '#33CC4C'),
-			('Salaire', 'credit-card', 'e903', 'teal', '(160,60,50)', '#33CC99'),
-			('Banque', 'landmark', 'e919', 'light blue', '(190,60,50)', '#33B3CC'),
-			('Invest', 'line-chart', 'e904', 'light blue', '(210,60,50)', '#3380CC'),
-			('Societe', 'briefcase', 'e905', 'blue', '(230,60,50)', '#334CCC'),
-			('Loyer', 'home', 'e906', 'purple', '(260,60,50)', '#6633CC'),
-			('Services', 'plug-zap', 'e907', 'purple', '(270,60,50)', '#8033CC'),
-			('Sante', 'heart-pulse', 'e908', 'pink', '(300,60,50)', '#CC33CC'),
-			('Erreur', 'bug', 'e909', 'red', '(335,60,50)', '#CC3373'),
-			('-', 'trash-2', 'e90b', 'red', '(1,60,50)', '#CC3633'),
-			('Autre', 'more-horizontal', 'e90c', 'gris', '(0,0,40)', '#666666'),
-			('Transfert', 'arrow-right-left', 'e91b', 'gris', '(0,0,60)', '#999999')
+		INSERT INTO category (gofiID, category, catWhereToUse, catOrder, defaultInStats,
+			description,
+			iconName, iconCodePoint, colorName, colorHSL, colorHEX)
+		VALUES
+			(0, 'Autre', 		'basic', 	95, 1, 
+				'Permet de ranger un élément qu''on ne sait pas où placer, temporairement ou définitivement.',
+				'more-horizontal', 'e90c', 'grey', '(0,0,40)', '#666666'),
+			(0, 'Erreur', 		'basic', 	96, 1, 
+				'Utile lorsqu''on souhaite corriger un montant global sans savoir réellement quel était l''achat en question.',
+				'bug', 'e909', 'red', '(335,60,50)', '#CC3373'),
+			(0, 'Transfert', 	'specific', 97, 0, 
+				'Utilisé uniquement par le système lors de l''utilisation de la fonction transfert.',
+				'arrow-right-left', 'e91b', 'grey', '(0,0,60)', '#999999'),
+			(0, '?', 			'specific', 98, 0, 
+				'Utilisé uniquement comme îcone par le système lorsqu''aucune îcone ne correspond à la catégorie demandée.',
+				'help-circle', 'e90a', 'grey', '(0,0,50)', '#808080'),
+			(0, '-', 			'specific', 99, 0, 
+				'Utilisé uniquement par le système lorsqu''on supprime une ligne.',
+				'trash-2', 'e90b', 'red', '(1,60,50)', '#CC3633')
 		;
+		/*
+		INSERT INTO category (gofiID, category, catWhereToUse, catOrder, 
+			iconName, iconCodePoint, colorName, colorHSL, colorHEX)
+		VALUES 
+			(-1, 'Besoin', 		'all', 		1, 'bed', 'e91f', 'green', '(130,60,50)', '#33CC4C'),
+			(-1, 'Envie', 		'all', 		2, 'film', 'e920', 'orange', '(30,60,50)', '#CC8033'),
+			(-1, 'Habitude-', 	'all', 		3, 'thumbs-down', 'e91e', 'red', '(1,60,50)', '#CC3633'),
+			(-1, 'Vehicule', 	'all', 		4, 'car-front', 'e900', 'orange', '(15,60,50)', '#CC5933'),
+			(-1, 'Transport', 	'all', 		5, 'train-front', 'e913', 'orange', '(30,60,50)', '#CC8033'),
+			(-1, 'Shopping', 	'basic', 	6, 'shopping-cart', 'e918', 'yellow', '(45,40,50)', '#B3994D'),
+			(-1, 'Cadeaux', 	'basic', 	7, 'gift', 'e91a', 'yellow', '(60,40,50)', '#B3B34D'),
+			(-1, 'Courses', 	'all', 		8, 'carrot', 'e916', 'yellow', '(70,50,50)', '#AABF40'),
+			(-1, 'Resto', 		'basic', 	9, 'chef-hat', 'e914', 'green', '(90,60,50)', '#80CC33'),
+			(-1, 'Loisirs', 	'all', 		10, 'drama', 'e901', 'green', '(110,60,50)', '#4DCC33'),
+			(-1, 'Voyage', 		'basic', 	11, 'earth', 'e902', 'green', '(130,60,50)', '#33CC4C'),
+			(-1, 'Revenu', 		'periodic', 12, 'credit-card', 'e903', 'teal', '(160,60,50)', '#33CC99'),
+			(-1, 'Enfants', 	'all', 		13, 'baby', 'e91d', 'teal', '(175,60,50)', '#33CCBF'),
+			(-1, 'Banque', 		'all', 		14, 'landmark', 'e919', 'light blue', '(190,60,50)', '#33B3CC'),
+			(-1, 'Epargne', 	'all', 		15, 'line-chart', 'e904', 'light blue', '(210,60,50)', '#3380CC'),
+			(-1, 'Societe', 	'all', 		16, 'briefcase', 'e905', 'blue', '(230,60,50)', '#334CCC'),
+			(-1, 'Loyer', 		'periodic', 17, 'home', 'e906', 'purple', '(260,60,50)', '#6633CC'),
+			(-1, 'Services', 	'periodic', 18, 'plug-zap', 'e907', 'purple', '(270,60,50)', '#8033CC'),
+			(-1, 'Sante', 		'all', 		19, 'heart-pulse', 'e908', 'pink', '(300,60,50)', '#CC33CC'),
+			(-1, 'Animaux', 	'all', 		20, 'paw-print', 'e91c', 'pink', '(320,60,50)', '#CC3399')
+		;
+		*/
 
 		--DROP TABLE IF EXISTS financeTracker;
 		CREATE TABLE IF NOT EXISTS financeTracker (

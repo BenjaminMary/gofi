@@ -129,13 +129,13 @@ func TestUser(t *testing.T) {
 	}
 
 	// 7. GET PARAM
-	req, _ = http.NewRequest("GET", "/api/param/setup", nil)
+	req, _ = http.NewRequest("GET", "/api/param", nil)
 	req.Header.Set("sessionID", fstwo)
 	response = executeRequest(req, s)
 	require.Equal(t, http.StatusOK, response.Code, "should be equal")
 
 	// 8. POST PARAM ACCOUNT
-	req, _ = http.NewRequest("POST", "/api/param/setup/account", strings.NewReader(`{
+	req, _ = http.NewRequest("POST", "/api/param/account", strings.NewReader(`{
 		"ParamJSONstringData": "acc1,acc2,acc3"
 	}`))
 	req.Header.Set("sessionID", fstwo)
@@ -143,16 +143,15 @@ func TestUser(t *testing.T) {
 	require.Equal(t, http.StatusOK, response.Code, "should be equal")
 
 	// 9. POST PARAM CATEGORY
-	req, _ = http.NewRequest("POST", "/api/param/setup/category", strings.NewReader(`{
+	req, _ = http.NewRequest("POST", "/api/param/category", strings.NewReader(`{
 		"ParamJSONstringData": "cat1,cat2,cat3"
 	}`))
 	req.Header.Set("sessionID", fstwo)
 	response = executeRequest(req, s)
 	require.Equal(t, http.StatusOK, response.Code, "should be equal")
 
-	fmt.Println("-----------------10. POST PARAM ACCOUNT")
 	// 10. POST PARAM ACCOUNT
-	req, _ = http.NewRequest("POST", "/api/param/setup/category-rendering", strings.NewReader(`{
+	req, _ = http.NewRequest("POST", "/api/param/category-rendering", strings.NewReader(`{
 		"ParamJSONstringData": "names"
 	}`))
 	req.Header.Set("sessionID", fstwo)
@@ -161,7 +160,7 @@ func TestUser(t *testing.T) {
 
 	fmt.Println("-----------------11. GET PARAM")
 	// 11. GET PARAM
-	req, _ = http.NewRequest("GET", "/api/param/setup", nil)
+	req, _ = http.NewRequest("GET", "/api/param", nil)
 	req.Header.Set("sessionID", fstwo)
 	response = executeRequest(req, s)
 	require.Equal(t, http.StatusOK, response.Code, "should be equal")
@@ -170,18 +169,45 @@ func TestUser(t *testing.T) {
 	// 	response.Body.String(), "should be equal")
 
 	// 12. GET PARAM
-	req, _ = http.NewRequest("GET", "/api/param/setup", nil)
+	req, _ = http.NewRequest("GET", "/api/param", nil)
 	req.Header.Set("sessionID", "wrong one")
 	response = executeRequest(req, s)
 	require.Equal(t, http.StatusUnauthorized, response.Code, "should be equal")
 
 	// 13. POST PARAM ACCOUNT
-	req, _ = http.NewRequest("POST", "/api/param/setup/account", strings.NewReader(`{
+	req, _ = http.NewRequest("POST", "/api/param/account", strings.NewReader(`{
 		"ParamJSONstringData": "fail"
 	}`))
 	req.Header.Set("sessionID", "wrong one")
 	response = executeRequest(req, s)
 	require.Equal(t, http.StatusUnauthorized, response.Code, "should be equal")
+
+	// 14. PATCH PARAM InUse
+	req, _ = http.NewRequest("PATCH", "/api/param/category/in-use", strings.NewReader(`{
+		"idstr": "26",
+		"inusestr": "0"
+	}`))
+	req.Header.Set("sessionID", fstwo)
+	response = executeRequest(req, s)
+	require.Equal(t, http.StatusNotFound, response.Code, "should be equal")
+
+	// 15. PATCH PARAM InUse
+	req, _ = http.NewRequest("PATCH", "/api/param/category/in-use", strings.NewReader(`{
+		"idstr": "0",
+		"inusestr": "0"
+	}`))
+	req.Header.Set("sessionID", fstwo)
+	response = executeRequest(req, s)
+	require.Equal(t, http.StatusBadRequest, response.Code, "should be equal")
+
+	// 16. PATCH PARAM InUse
+	req, _ = http.NewRequest("PATCH", "/api/param/category/in-use", strings.NewReader(`{
+		"idstr": "46",
+		"inusestr": "0"
+	}`))
+	req.Header.Set("sessionID", fstwo)
+	response = executeRequest(req, s)
+	require.Equal(t, http.StatusOK, response.Code, "should be equal")
 
 	// fmt.Printf("response: %#v\n", response.Body.String())
 	// require.Equal(t, 1, 0, "force fail")

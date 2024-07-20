@@ -30,7 +30,7 @@ func GetRowsInFinanceTracker(ctx context.Context, db *sql.DB, filter *appdata.Fi
 		SELECT COUNT(1) 
 		FROM financeTracker AS f
 			LEFT JOIN category AS c ON c.category = f.category
-		WHERE gofiID = ?
+		WHERE f.gofiID = ?
 	`
 	// others where on 3 fields max = 7 possibilities
 	if filter.WhereAccount != "" { //1
@@ -130,7 +130,7 @@ func GetRowsInFinanceTracker(ctx context.Context, db *sql.DB, filter *appdata.Fi
 
 	row := execSingleRow(queryValues, db, ctx, q, filter)
 	if err := row.Scan(&totalRowsWithoutLimit); err != nil {
-		fmt.Printf("err: %v\n", err)
+		fmt.Printf("GetRowsInFinanceTracker err1: %v\n", err)
 		log.Fatal(err)
 	}
 	var totalPriceIntx100 int = 0
@@ -144,7 +144,7 @@ func GetRowsInFinanceTracker(ctx context.Context, db *sql.DB, filter *appdata.Fi
 		var ft appdata.FinanceTracker
 		if err := row.Scan(&ft.ID, &ft.GofiID, &ft.DateDetails.Year, &ft.DateDetails.Month, &ft.DateDetails.Day, &ft.Account, &ft.Product, &ft.PriceIntx100,
 			&ft.Category, &ft.CategoryDetails.CategoryIcon, &ft.CategoryDetails.CategoryColor, &ft.Checked, &ft.DateChecked); err != nil {
-			fmt.Printf("err: %v\n", err)
+			fmt.Printf("GetRowsInFinanceTracker err2: %v\n", err)
 			log.Fatal(err)
 		}
 		ft.FormPriceStr2Decimals = ConvertPriceIntToStr(ft.PriceIntx100, true)
@@ -161,14 +161,14 @@ func GetRowsInFinanceTracker(ctx context.Context, db *sql.DB, filter *appdata.Fi
 		var rows *sql.Rows
 		rows, err = execMultipleRow(queryValues, db, ctx, q2, filter)
 		if err != nil {
-			fmt.Printf("err: %v\n", err)
+			fmt.Printf("GetRowsInFinanceTracker err3: %v\n", err)
 			log.Fatal("error on DB query: ", err)
 		}
 		for rows.Next() {
 			var ft appdata.FinanceTracker
 			if err := rows.Scan(&ft.ID, &ft.GofiID, &ft.DateDetails.Year, &ft.DateDetails.Month, &ft.DateDetails.Day, &ft.Account, &ft.Product, &ft.PriceIntx100,
 				&ft.Category, &ft.CategoryDetails.CategoryIcon, &ft.CategoryDetails.CategoryColor, &ft.Checked, &ft.DateChecked); err != nil {
-				fmt.Printf("err: %v\n", err)
+				fmt.Printf("GetRowsInFinanceTracker err4: %v\n", err)
 				log.Fatal(err)
 			}
 			ft.FormPriceStr2Decimals = ConvertPriceIntToStr(ft.PriceIntx100, true)
@@ -310,7 +310,7 @@ func ValidateRowsInFinanceTracker(ctx context.Context, db *sql.DB, gofiID int, c
 		return
 	}
 	for _, intValue := range checkedListInt {
-		_, err := db.Exec(query,
+		_, err := db.ExecContext(ctx, query,
 			dateValidated, gofiID, intValue,
 		)
 		if err != nil {

@@ -28,7 +28,7 @@
     - ☑ fix remettre le submit en mode création après avoir utilisé le mode édition/suppression
     - ☐ améliorer l'UI en bloquant l'espace via `visibility: hidden`, permettra de ne plus faire de trou dans la page au changement
         - vérif si bien impossible de cliquer sur l'elem invisible, sinon ajouter un `disable`
-- ☐❗ ajout système de budget:
+- ☐❗❗ ajout système de budget:
     - ☐ budget de dépense par catégorie
 - ☐❗ simplifier les catégories:
     - ☐ ajouter 2 niveaux de catégories, avec en mode simple 1 seul niveau obligatoire

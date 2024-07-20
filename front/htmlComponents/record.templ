@@ -360,7 +360,7 @@ templ GetRecordRecurrent(jsonRR []appdata.RecurrentRecord, jsonFT []appdata.Fina
                         <details id="openForm">
                             <summary role="button" class="contrast">
                                 <strong>Créer une trame</strong><br/>
-                                <small><i>Permet d'éviter la resaisie des factures ou salaires récurrents.</i></small>
+                                <small><i>Permet d'éviter la resaisie des factures ou revenus récurrents.</i></small>
                             </summary>
                             <form name="mainForm">
                                 <!-- Select -->
@@ -521,7 +521,7 @@ templ GetRecordRecurrent(jsonRR []appdata.RecurrentRecord, jsonFT []appdata.Fina
                         <!-- Text -->
                         <input type="text" id="idRR" name="idRR" value="0" hidden readonly required />
                     </form>
-                    <a id="refreshPage" href="?i=1#refreshToTopTableRR"><button class="secondary outline">
+                    <a id="refreshPage" href="?i=1#refreshToTopTableRR" class="center"><button class="secondary outline">
                         <!-- refresh clockwise -->
                         <svg width="24" height="24" viewBox="0 0 24 24"><use xlink:href="/img/icons.svg#feather-refresh-cw"></use></svg>
                         Rafraichir la page pour activer les boutons grisés

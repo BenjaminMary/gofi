@@ -331,7 +331,7 @@ func TestRecord(t *testing.T) {
 		"Recurrence": "mensuelle",
 		"Account": "A",
 		"Category": "Banque",
-		"Product": "Salaire",
+		"Product": "Revenu",
 		"PriceDirection": "gain",
 		"FormPriceStr2Decimals": "1183.16"
 	}`))
@@ -359,7 +359,7 @@ func TestRecord(t *testing.T) {
 	response = executeRequest(req, s)
 	require.Equal(t, http.StatusOK, response.Code, "should be equal")
 	require.Equal(t,
-		"{\"isValidResponse\":true,\"httpStatus\":200,\"info\":\"recurrent record selected\",\"jsonContent\":[{\"ID\":1,\"IDstr\":\"\",\"GofiID\":0,\"Date\":\"2011-05-31\",\"Recurrence\":\"mensuelle\",\"Account\":\"A\",\"Product\":\"Salaire\",\"PriceDirection\":\"\",\"FormPriceStr2Decimals\":\"1183.16\",\"PriceIntx100\":118316,\"Category\":\"Banque\"},{\"ID\":2,\"IDstr\":\"\",\"GofiID\":0,\"Date\":\"2012-01-31\",\"Recurrence\":\"mensuelle\",\"Account\":\"A\",\"Product\":\"Loyer\",\"PriceDirection\":\"\",\"FormPriceStr2Decimals\":\"-641.09\",\"PriceIntx100\":-64109,\"Category\":\"Loyer\"}]}\n",
+		"{\"isValidResponse\":true,\"httpStatus\":200,\"info\":\"recurrent record selected\",\"jsonContent\":[{\"ID\":1,\"IDstr\":\"\",\"GofiID\":0,\"Date\":\"2011-05-31\",\"Recurrence\":\"mensuelle\",\"Account\":\"A\",\"Product\":\"Revenu\",\"PriceDirection\":\"\",\"FormPriceStr2Decimals\":\"1183.16\",\"PriceIntx100\":118316,\"Category\":\"Banque\"},{\"ID\":2,\"IDstr\":\"\",\"GofiID\":0,\"Date\":\"2012-01-31\",\"Recurrence\":\"mensuelle\",\"Account\":\"A\",\"Product\":\"Loyer\",\"PriceDirection\":\"\",\"FormPriceStr2Decimals\":\"-641.09\",\"PriceIntx100\":-64109,\"Category\":\"Loyer\"}]}\n",
 		response.Body.String(), "should be equal")
 
 	// 24. POST RECORD RECURRENT RecordRecurrentSave
@@ -430,7 +430,7 @@ func TestRecord(t *testing.T) {
 	response = executeRequest(req, s)
 	require.Equal(t, http.StatusOK, response.Code, "should be equal")
 	require.Equal(t,
-		"{\"isValidResponse\":true,\"httpStatus\":200,\"info\":\"record list retrieved\",\"jsonContent\":[{\"ID\":10,\"GofiID\":2,\"Date\":\"2012-02-14\",\"Account\":\"CB\",\"Product\":\"ToDelete\",\"PriceDirection\":\"\",\"FormPriceStr2Decimals\":\"-34.53\",\"PriceIntx100\":-3453,\"Category\":\"Courses\",\"CommentInt\":0,\"CommentString\":\"\",\"Checked\":false,\"DateChecked\":\"9999-12-31\",\"Exported\":false},{\"ID\":9,\"GofiID\":2,\"Date\":\"2012-02-07\",\"Account\":\"CB\",\"Product\":\"ToDelete\",\"PriceDirection\":\"\",\"FormPriceStr2Decimals\":\"-34.53\",\"PriceIntx100\":-3453,\"Category\":\"Courses\",\"CommentInt\":0,\"CommentString\":\"\",\"Checked\":false,\"DateChecked\":\"9999-12-31\",\"Exported\":false},{\"ID\":8,\"GofiID\":2,\"Date\":\"2012-01-31\",\"Account\":\"CB\",\"Product\":\"ToDelete\",\"PriceDirection\":\"\",\"FormPriceStr2Decimals\":\"-34.53\",\"PriceIntx100\":-3453,\"Category\":\"Courses\",\"CommentInt\":0,\"CommentString\":\"\",\"Checked\":false,\"DateChecked\":\"9999-12-31\",\"Exported\":false},{\"ID\":7,\"GofiID\":2,\"Date\":\"2012-01-31\",\"Account\":\"A\",\"Product\":\"Loyer\",\"PriceDirection\":\"\",\"FormPriceStr2Decimals\":\"-641.09\",\"PriceIntx100\":-64109,\"Category\":\"Loyer\",\"CommentInt\":0,\"CommentString\":\"\",\"Checked\":false,\"DateChecked\":\"9999-12-31\",\"Exported\":false},{\"ID\":6,\"GofiID\":2,\"Date\":\"2011-05-31\",\"Account\":\"A\",\"Product\":\"Salaire\",\"PriceDirection\":\"\",\"FormPriceStr2Decimals\":\"1183.16\",\"PriceIntx100\":118316,\"Category\":\"Banque\",\"CommentInt\":0,\"CommentString\":\"\",\"Checked\":false,\"DateChecked\":\"9999-12-31\",\"Exported\":false}]}\n",
+		"{\"isValidResponse\":true,\"httpStatus\":200,\"info\":\"record list retrieved\",\"jsonContent\":[{\"ID\":10,\"GofiID\":2,\"Date\":\"2012-02-14\",\"Account\":\"CB\",\"Product\":\"ToDelete\",\"PriceDirection\":\"\",\"FormPriceStr2Decimals\":\"-34.53\",\"PriceIntx100\":-3453,\"Category\":\"Courses\",\"CommentInt\":0,\"CommentString\":\"\",\"Checked\":false,\"DateChecked\":\"9999-12-31\",\"Exported\":false},{\"ID\":9,\"GofiID\":2,\"Date\":\"2012-02-07\",\"Account\":\"CB\",\"Product\":\"ToDelete\",\"PriceDirection\":\"\",\"FormPriceStr2Decimals\":\"-34.53\",\"PriceIntx100\":-3453,\"Category\":\"Courses\",\"CommentInt\":0,\"CommentString\":\"\",\"Checked\":false,\"DateChecked\":\"9999-12-31\",\"Exported\":false},{\"ID\":8,\"GofiID\":2,\"Date\":\"2012-01-31\",\"Account\":\"CB\",\"Product\":\"ToDelete\",\"PriceDirection\":\"\",\"FormPriceStr2Decimals\":\"-34.53\",\"PriceIntx100\":-3453,\"Category\":\"Courses\",\"CommentInt\":0,\"CommentString\":\"\",\"Checked\":false,\"DateChecked\":\"9999-12-31\",\"Exported\":false},{\"ID\":7,\"GofiID\":2,\"Date\":\"2012-01-31\",\"Account\":\"A\",\"Product\":\"Loyer\",\"PriceDirection\":\"\",\"FormPriceStr2Decimals\":\"-641.09\",\"PriceIntx100\":-64109,\"Category\":\"Loyer\",\"CommentInt\":0,\"CommentString\":\"\",\"Checked\":false,\"DateChecked\":\"9999-12-31\",\"Exported\":false},{\"ID\":6,\"GofiID\":2,\"Date\":\"2011-05-31\",\"Account\":\"A\",\"Product\":\"Revenu\",\"PriceDirection\":\"\",\"FormPriceStr2Decimals\":\"1183.16\",\"PriceIntx100\":118316,\"Category\":\"Banque\",\"CommentInt\":0,\"CommentString\":\"\",\"Checked\":false,\"DateChecked\":\"9999-12-31\",\"Exported\":false}]}\n",
 		response.Body.String(), "should be equal")
 
 	// 32. GET RECORD RECURRENT
@@ -439,7 +439,7 @@ func TestRecord(t *testing.T) {
 	response = executeRequest(req, s)
 	require.Equal(t, http.StatusOK, response.Code, "should be equal")
 	require.Equal(t,
-		"{\"isValidResponse\":true,\"httpStatus\":200,\"info\":\"recurrent record selected\",\"jsonContent\":[{\"ID\":1,\"IDstr\":\"\",\"GofiID\":0,\"Date\":\"2011-06-30\",\"Recurrence\":\"mensuelle\",\"Account\":\"A\",\"Product\":\"Salaire\",\"PriceDirection\":\"\",\"FormPriceStr2Decimals\":\"1183.16\",\"PriceIntx100\":118316,\"Category\":\"Banque\"},{\"ID\":3,\"IDstr\":\"\",\"GofiID\":0,\"Date\":\"2012-02-21\",\"Recurrence\":\"hebdomadaire\",\"Account\":\"CB\",\"Product\":\"ToDelete\",\"PriceDirection\":\"\",\"FormPriceStr2Decimals\":\"-34.53\",\"PriceIntx100\":-3453,\"Category\":\"Courses\"},{\"ID\":2,\"IDstr\":\"\",\"GofiID\":0,\"Date\":\"2012-02-29\",\"Recurrence\":\"mensuelle\",\"Account\":\"A\",\"Product\":\"Loyer\",\"PriceDirection\":\"\",\"FormPriceStr2Decimals\":\"-641.09\",\"PriceIntx100\":-64109,\"Category\":\"Loyer\"}]}\n",
+		"{\"isValidResponse\":true,\"httpStatus\":200,\"info\":\"recurrent record selected\",\"jsonContent\":[{\"ID\":1,\"IDstr\":\"\",\"GofiID\":0,\"Date\":\"2011-06-30\",\"Recurrence\":\"mensuelle\",\"Account\":\"A\",\"Product\":\"Revenu\",\"PriceDirection\":\"\",\"FormPriceStr2Decimals\":\"1183.16\",\"PriceIntx100\":118316,\"Category\":\"Banque\"},{\"ID\":3,\"IDstr\":\"\",\"GofiID\":0,\"Date\":\"2012-02-21\",\"Recurrence\":\"hebdomadaire\",\"Account\":\"CB\",\"Product\":\"ToDelete\",\"PriceDirection\":\"\",\"FormPriceStr2Decimals\":\"-34.53\",\"PriceIntx100\":-3453,\"Category\":\"Courses\"},{\"ID\":2,\"IDstr\":\"\",\"GofiID\":0,\"Date\":\"2012-02-29\",\"Recurrence\":\"mensuelle\",\"Account\":\"A\",\"Product\":\"Loyer\",\"PriceDirection\":\"\",\"FormPriceStr2Decimals\":\"-641.09\",\"PriceIntx100\":-64109,\"Category\":\"Loyer\"}]}\n",
 		response.Body.String(), "should be equal")
 
 	// 33. DELETE RECORD RECURRENT
@@ -502,7 +502,7 @@ func TestRecord(t *testing.T) {
 	response = executeRequest(req, s)
 	require.Equal(t, http.StatusOK, response.Code, "should be equal")
 	require.Equal(t,
-		"{\"isValidResponse\":true,\"httpStatus\":200,\"info\":\"recurrent record selected\",\"jsonContent\":[{\"ID\":1,\"IDstr\":\"\",\"GofiID\":0,\"Date\":\"2011-06-30\",\"Recurrence\":\"mensuelle\",\"Account\":\"A\",\"Product\":\"Salaire\",\"PriceDirection\":\"\",\"FormPriceStr2Decimals\":\"1183.16\",\"PriceIntx100\":118316,\"Category\":\"Banque\"},{\"ID\":2,\"IDstr\":\"\",\"GofiID\":0,\"Date\":\"2012-03-31\",\"Recurrence\":\"annuelle\",\"Account\":\"CB\",\"Product\":\"Loyer v2\",\"PriceDirection\":\"\",\"FormPriceStr2Decimals\":\"-6521.04\",\"PriceIntx100\":-652104,\"Category\":\"Loyer\"}]}\n",
+		"{\"isValidResponse\":true,\"httpStatus\":200,\"info\":\"recurrent record selected\",\"jsonContent\":[{\"ID\":1,\"IDstr\":\"\",\"GofiID\":0,\"Date\":\"2011-06-30\",\"Recurrence\":\"mensuelle\",\"Account\":\"A\",\"Product\":\"Revenu\",\"PriceDirection\":\"\",\"FormPriceStr2Decimals\":\"1183.16\",\"PriceIntx100\":118316,\"Category\":\"Banque\"},{\"ID\":2,\"IDstr\":\"\",\"GofiID\":0,\"Date\":\"2012-03-31\",\"Recurrence\":\"annuelle\",\"Account\":\"CB\",\"Product\":\"Loyer v2\",\"PriceDirection\":\"\",\"FormPriceStr2Decimals\":\"-6521.04\",\"PriceIntx100\":-652104,\"Category\":\"Loyer\"}]}\n",
 		response.Body.String(), "should be equal")
 
 	// 40. PUT RECORD VALIDATE
@@ -565,7 +565,7 @@ func TestRecord(t *testing.T) {
 	response = executeRequest(req, s)
 	require.Equal(t, http.StatusOK, response.Code, "should be equal")
 	require.Equal(t,
-		"{\"isValidResponse\":true,\"httpStatus\":200,\"info\":\"record list retrieved\",\"jsonContent\":[{\"ID\":6,\"GofiID\":2,\"Date\":\"2011-05-31\",\"Account\":\"A\",\"Product\":\"Salaire\",\"PriceDirection\":\"\",\"FormPriceStr2Decimals\":\"1183.16\",\"PriceIntx100\":118316,\"Category\":\"Banque\",\"CommentInt\":0,\"CommentString\":\"\",\"Checked\":false,\"DateChecked\":\"9999-12-31\",\"Exported\":false}]}\n",
+		"{\"isValidResponse\":true,\"httpStatus\":200,\"info\":\"record list retrieved\",\"jsonContent\":[{\"ID\":6,\"GofiID\":2,\"Date\":\"2011-05-31\",\"Account\":\"A\",\"Product\":\"Revenu\",\"PriceDirection\":\"\",\"FormPriceStr2Decimals\":\"1183.16\",\"PriceIntx100\":118316,\"Category\":\"Banque\",\"CommentInt\":0,\"CommentString\":\"\",\"Checked\":false,\"DateChecked\":\"9999-12-31\",\"Exported\":false}]}\n",
 		response.Body.String(), "should be equal")
 
 	// 46. POST RECORD

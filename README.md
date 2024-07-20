@@ -126,8 +126,9 @@ Operation | HTTP Method     | SQL Statement
 --------- | --------------- | -------------
 Create    | POST (body)     | INSERT
 Read      | GET (params)    | SELECT
-Edit      | PUT (body)      | UPDATE
+FullEdit  | PUT (body)      | UPDATE
+PartEdit  | PATCH (body)    | UPDATE
 Delete    | DELETE (params) | DELETE
 
-- POST and PUT with JSON body
-- GET and DELETE with URL params
+- POST + PUT + PATCH with JSON body
+- GET + DELETE with URL params
