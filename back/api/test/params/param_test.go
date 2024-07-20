@@ -209,6 +209,86 @@ func TestUser(t *testing.T) {
 	response = executeRequest(req, s)
 	require.Equal(t, http.StatusOK, response.Code, "should be equal")
 
+	// 17. PATCH PARAM Order
+	req, _ = http.NewRequest("PATCH", "/api/param/category/order", strings.NewReader(`{
+		"idStrJson": "28",
+		"orderStrJson": "3",
+		"directionStrJson": "up"
+	}`))
+	req.Header.Set("sessionID", fstwo)
+	response = executeRequest(req, s)
+	require.Equal(t, http.StatusOK, response.Code, "should be equal")
+
+	// 18. PATCH PARAM Order
+	req, _ = http.NewRequest("PATCH", "/api/param/category/order", strings.NewReader(`{
+		"idStrJson": "28",
+		"orderStrJson": "2",
+		"directionStrJson": "up"
+	}`))
+	req.Header.Set("sessionID", fstwo)
+	response = executeRequest(req, s)
+	require.Equal(t, http.StatusOK, response.Code, "should be equal")
+
+	// 19. PATCH PARAM Order
+	req, _ = http.NewRequest("PATCH", "/api/param/category/order", strings.NewReader(`{
+		"idStrJson": "26",
+		"orderStrJson": "2",
+		"directionStrJson": "down"
+	}`))
+	req.Header.Set("sessionID", fstwo)
+	response = executeRequest(req, s)
+	require.Equal(t, http.StatusOK, response.Code, "should be equal")
+
+	// 20. GET PARAM
+	req, _ = http.NewRequest("GET", "/api/param", nil)
+	req.Header.Set("sessionID", fstwo)
+	response = executeRequest(req, s)
+	require.Equal(t, http.StatusOK, response.Code, "should be equal")
+	require.Equal(t,
+		"{\"isValidResponse\":true,\"httpStatus\":200,\"info\":\"user params retrieved\",\"jsonContent\":{\"GofiID\":2,\"AccountListSingleString\":\"acc1,acc2,acc3\",\"AccountList\":[\"acc1\",\"acc2\",\"acc3\"],\"CategoryListSingleString\":\"cat1,cat2,cat3\",\"CategoryList\":[[\"cat1\",\"e90a\",\"#808080\"],[\"cat2\",\"e90a\",\"#808080\"],[\"cat3\",\"e90a\",\"#808080\"]],\"CategoryRendering\":\"names\"}}\n",
+		response.Body.String(), "should be equal")
+
+	// roll back order changes to be able to play this test 2 times in a row
+	// 21. PATCH PARAM Order
+	req, _ = http.NewRequest("PATCH", "/api/param/category/order", strings.NewReader(`{
+		"idStrJson": "28",
+		"orderStrJson": "1",
+		"directionStrJson": "down"
+	}`))
+	req.Header.Set("sessionID", fstwo)
+	response = executeRequest(req, s)
+	require.Equal(t, http.StatusOK, response.Code, "should be equal")
+
+	// 22. PATCH PARAM Order
+	req, _ = http.NewRequest("PATCH", "/api/param/category/order", strings.NewReader(`{
+		"idStrJson": "28",
+		"orderStrJson": "2",
+		"directionStrJson": "down"
+	}`))
+	req.Header.Set("sessionID", fstwo)
+	response = executeRequest(req, s)
+	require.Equal(t, http.StatusOK, response.Code, "should be equal")
+
+	// 23. PATCH PARAM Order
+	req, _ = http.NewRequest("PATCH", "/api/param/category/order", strings.NewReader(`{
+		"idStrJson": "26",
+		"orderStrJson": "2",
+		"directionStrJson": "up"
+	}`))
+	req.Header.Set("sessionID", fstwo)
+	response = executeRequest(req, s)
+	require.Equal(t, http.StatusOK, response.Code, "should be equal")
+
+	// 24. PATCH PARAM Order
+	req, _ = http.NewRequest("PATCH", "/api/param/category/order", strings.NewReader(`{
+		"idStrJson": "26",
+		"orderStrJson": "3",
+		"directionStrJson": "down"
+	}`))
+	req.Header.Set("sessionID", fstwo)
+	response = executeRequest(req, s)
+	require.Equal(t, http.StatusNotFound, response.Code, "should be equal")
+
 	// fmt.Printf("response: %#v\n", response.Body.String())
 	// require.Equal(t, 1, 0, "force fail")
 	require.WithinDuration(t, time.Now(), testStartTime, 5*time.Second)

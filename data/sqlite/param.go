@@ -307,3 +307,71 @@ func PatchCategoryInUse(ctx context.Context, db *sql.DB, category *appdata.Categ
 	}
 	return true
 }
+
+func PatchCategoryOrder(ctx context.Context, db *sql.DB, category *appdata.CategoryPatchOrder) bool {
+	// need to change the order of 2 categories: +1 for one and -1 for the other
+	var categoryIDtoSwap int = 0
+	q1 := `
+		SELECT id
+		FROM category
+		WHERE gofiID = ?
+			AND catOrder = ?;
+	`
+	err := db.QueryRowContext(ctx, q1, category.GofiID, category.CurrentOrder).Scan(&categoryIDtoSwap)
+	switch {
+	case err == sql.ErrNoRows:
+		fmt.Printf("PatchCategoryOrder query error0: %v\n", err)
+		return false
+	case err != nil:
+		fmt.Printf("PatchCategoryOrder query error1: %v\n", err)
+		return false
+	}
+	if categoryIDtoSwap != category.ID {
+		fmt.Printf("PatchCategoryOrder query error2, categoryIDtoSwap: %v vs category.ID: %v\n", categoryIDtoSwap, category.ID)
+		return false
+	}
+	categoryIDtoSwap = 0
+	err = db.QueryRowContext(ctx, q1, category.GofiID, category.NewOrder).Scan(&categoryIDtoSwap)
+	switch {
+	case err == sql.ErrNoRows:
+		fmt.Printf("PatchCategoryOrder query error3: %v\n", err)
+		return false
+	case err != nil:
+		fmt.Printf("PatchCategoryOrder query error4: %v\n", err)
+		return false
+	}
+	if categoryIDtoSwap == 0 {
+		fmt.Printf("PatchCategoryOrder query error5: %v\n", err)
+		return false
+	}
+
+	q2 := ` 
+		UPDATE category 
+		SET catOrder = ? 
+		WHERE id = ?
+			AND gofiID = ?;
+	`
+	result, err := db.ExecContext(ctx, q2, category.NewOrder, category.ID, category.GofiID)
+	if err != nil {
+		fmt.Printf("error6 PatchCategoryOrder categoryID: %v, gofiID: %v, err: %#v\n", category.ID, category.GofiID, err)
+		return false
+	}
+	rowsAffected, err := result.RowsAffected()
+	if err != nil || rowsAffected != 1 {
+		fmt.Printf("error7 PatchCategoryOrder categoryID: %v, gofiID: %v, rowsAffected: %v\n", category.ID, category.GofiID, rowsAffected)
+		return false
+	}
+
+	result, err = db.ExecContext(ctx, q2, category.CurrentOrder, categoryIDtoSwap, category.GofiID)
+	if err != nil {
+		fmt.Printf("error8 PatchCategoryOrder categoryID: %v, gofiID: %v, err: %#v\n", categoryIDtoSwap, category.GofiID, err)
+		return false
+	}
+	rowsAffected, err = result.RowsAffected()
+	if err != nil || rowsAffected != 1 {
+		fmt.Printf("error9 PatchCategoryOrder categoryID: %v, gofiID: %v, rowsAffected: %v\n", categoryIDtoSwap, category.GofiID, rowsAffected)
+		return false
+	}
+
+	return true
+}

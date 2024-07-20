@@ -113,6 +113,7 @@ func (s *Server) MountBackHandlers() {
 					api.GetCategoryIcon(w, r, false, "", &appdata.CategoryDetails{})
 				})
 				r.Patch("/category/in-use", func(w http.ResponseWriter, r *http.Request) { api.PatchParamCategoryInUse(w, r, false) })
+				r.Patch("/category/order", func(w http.ResponseWriter, r *http.Request) { api.PatchParamCategoryOrder(w, r, false) })
 				r.Post("/category", func(w http.ResponseWriter, r *http.Request) { api.PostParamCategory(w, r, false) })
 				r.Post("/category-rendering", func(w http.ResponseWriter, r *http.Request) { api.PostParamCategoryRendering(w, r, false) })
 			})
