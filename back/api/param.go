@@ -83,7 +83,7 @@ func GetCategoryIcon(w http.ResponseWriter, r *http.Request, isFrontRequest bool
 }
 
 func PatchParamCategoryInUse(w http.ResponseWriter, r *http.Request, isFrontRequest bool) *appdata.HttpStruct {
-	category := &appdata.Category{}
+	category := &appdata.CategoryPatchInUse{}
 	if err := render.Bind(r, category); err != nil {
 		fmt.Printf("error: %v\n", err.Error())
 		return appdata.RenderAPIorUI(w, r, isFrontRequest, true, false, http.StatusBadRequest, "invalid request, double check each field", "")

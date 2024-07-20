@@ -184,8 +184,8 @@ func TestUser(t *testing.T) {
 
 	// 14. PATCH PARAM InUse
 	req, _ = http.NewRequest("PATCH", "/api/param/category/in-use", strings.NewReader(`{
-		"idstr": "26",
-		"inusestr": "0"
+		"idstrjson": "6",
+		"inusestrjson": "0"
 	}`))
 	req.Header.Set("sessionID", fstwo)
 	response = executeRequest(req, s)
@@ -193,8 +193,8 @@ func TestUser(t *testing.T) {
 
 	// 15. PATCH PARAM InUse
 	req, _ = http.NewRequest("PATCH", "/api/param/category/in-use", strings.NewReader(`{
-		"idstr": "0",
-		"inusestr": "0"
+		"idstrjson": "0",
+		"inusestrjson": "0"
 	}`))
 	req.Header.Set("sessionID", fstwo)
 	response = executeRequest(req, s)
@@ -202,8 +202,8 @@ func TestUser(t *testing.T) {
 
 	// 16. PATCH PARAM InUse
 	req, _ = http.NewRequest("PATCH", "/api/param/category/in-use", strings.NewReader(`{
-		"idstr": "46",
-		"inusestr": "0"
+		"idstrjson": "26",
+		"inusestrjson": "0"
 	}`))
 	req.Header.Set("sessionID", fstwo)
 	response = executeRequest(req, s)

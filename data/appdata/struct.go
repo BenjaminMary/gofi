@@ -226,13 +226,11 @@ type UserCategories struct {
 }
 type Category struct {
 	ID            int
-	IDstr         string `json:"idstr"`
 	GofiID        int
 	Name          string
 	Type          string
 	Order         int
 	InUse         int
-	InUseStr      string `json:"inusestr"`
 	InStats       int
 	Description   string
 	BudgetPrice   int
@@ -241,8 +239,15 @@ type Category struct {
 	IconCodePoint string
 	ColorHEX      string
 }
+type CategoryPatchInUse struct {
+	ID       int
+	IDstr    string `json:"idStrJson"`
+	GofiID   int
+	InUse    int
+	InUseStr string `json:"inUseStrJson"`
+}
 
-func (a *Category) Bind(r *http.Request) error {
+func (a *CategoryPatchInUse) Bind(r *http.Request) error {
 	if a.IDstr == "" || a.InUseStr == "" {
 		return errors.New("missing required field")
 	}

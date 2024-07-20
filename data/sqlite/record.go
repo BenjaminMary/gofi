@@ -29,7 +29,7 @@ func GetRowsInFinanceTracker(ctx context.Context, db *sql.DB, filter *appdata.Fi
 	q := ` 
 		SELECT COUNT(1) 
 		FROM financeTracker AS f
-			LEFT JOIN category AS c ON c.category = f.category
+			LEFT JOIN category AS c ON c.category = f.category AND c.gofiID = f.gofiID
 		WHERE f.gofiID = ?
 	`
 	// others where on 3 fields max = 7 possibilities

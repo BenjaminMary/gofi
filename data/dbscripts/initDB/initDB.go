@@ -121,29 +121,29 @@ func initDB(folder string, dbName string) {
 				'trash-2', 'e90b', 'red', '(1,60,50)', '#CC3633')
 		;
 		/*
-		INSERT INTO category (gofiID, category, catWhereToUse, catOrder, 
+		INSERT INTO category (gofiID, category, catWhereToUse, catOrder, inUse,
 			iconName, iconCodePoint, colorName, colorHSL, colorHEX)
 		VALUES 
-			(-1, 'Besoin', 		'all', 		1, 'bed', 'e91f', 'green', '(130,60,50)', '#33CC4C'),
-			(-1, 'Envie', 		'all', 		2, 'film', 'e920', 'orange', '(30,60,50)', '#CC8033'),
-			(-1, 'Habitude-', 	'all', 		3, 'thumbs-down', 'e91e', 'red', '(1,60,50)', '#CC3633'),
-			(-1, 'Vehicule', 	'all', 		4, 'car-front', 'e900', 'orange', '(15,60,50)', '#CC5933'),
-			(-1, 'Transport', 	'all', 		5, 'train-front', 'e913', 'orange', '(30,60,50)', '#CC8033'),
-			(-1, 'Shopping', 	'basic', 	6, 'shopping-cart', 'e918', 'yellow', '(45,40,50)', '#B3994D'),
-			(-1, 'Cadeaux', 	'basic', 	7, 'gift', 'e91a', 'yellow', '(60,40,50)', '#B3B34D'),
-			(-1, 'Courses', 	'all', 		8, 'carrot', 'e916', 'yellow', '(70,50,50)', '#AABF40'),
-			(-1, 'Resto', 		'basic', 	9, 'chef-hat', 'e914', 'green', '(90,60,50)', '#80CC33'),
-			(-1, 'Loisirs', 	'all', 		10, 'drama', 'e901', 'green', '(110,60,50)', '#4DCC33'),
-			(-1, 'Voyage', 		'basic', 	11, 'earth', 'e902', 'green', '(130,60,50)', '#33CC4C'),
-			(-1, 'Revenu', 		'periodic', 12, 'credit-card', 'e903', 'teal', '(160,60,50)', '#33CC99'),
-			(-1, 'Enfants', 	'all', 		13, 'baby', 'e91d', 'teal', '(175,60,50)', '#33CCBF'),
-			(-1, 'Banque', 		'all', 		14, 'landmark', 'e919', 'light blue', '(190,60,50)', '#33B3CC'),
-			(-1, 'Epargne', 	'all', 		15, 'line-chart', 'e904', 'light blue', '(210,60,50)', '#3380CC'),
-			(-1, 'Societe', 	'all', 		16, 'briefcase', 'e905', 'blue', '(230,60,50)', '#334CCC'),
-			(-1, 'Loyer', 		'periodic', 17, 'home', 'e906', 'purple', '(260,60,50)', '#6633CC'),
-			(-1, 'Services', 	'periodic', 18, 'plug-zap', 'e907', 'purple', '(270,60,50)', '#8033CC'),
-			(-1, 'Sante', 		'all', 		19, 'heart-pulse', 'e908', 'pink', '(300,60,50)', '#CC33CC'),
-			(-1, 'Animaux', 	'all', 		20, 'paw-print', 'e91c', 'pink', '(320,60,50)', '#CC3399')
+			(-1, 'Besoin', 		'all', 		1, 1, 'bed', 'e91f', 'green', '(130,60,50)', '#33CC4C'),
+			(-1, 'Envie', 		'all', 		2, 1, 'film', 'e920', 'orange', '(30,60,50)', '#CC8033'),
+			(-1, 'Epargne', 	'all', 		3, 1, 'line-chart', 'e904', 'light blue', '(210,60,50)', '#3380CC'),
+			(-1, 'Habitude-', 	'all', 		4, 0, 'thumbs-down', 'e91e', 'red', '(1,60,50)', '#CC3633'),
+			(-1, 'Vehicule', 	'all', 		5, 0, 'car-front', 'e900', 'orange', '(15,60,50)', '#CC5933'),
+			(-1, 'Transport', 	'all', 		6, 0, 'train-front', 'e913', 'orange', '(30,60,50)', '#CC8033'),
+			(-1, 'Shopping', 	'basic', 	7, 0, 'shopping-cart', 'e918', 'yellow', '(45,40,50)', '#B3994D'),
+			(-1, 'Cadeaux', 	'basic', 	8, 0, 'gift', 'e91a', 'yellow', '(60,40,50)', '#B3B34D'),
+			(-1, 'Courses', 	'all', 		9, 0, 'carrot', 'e916', 'yellow', '(70,50,50)', '#AABF40'),
+			(-1, 'Resto', 		'basic', 	10, 0, 'chef-hat', 'e914', 'green', '(90,60,50)', '#80CC33'),
+			(-1, 'Loisirs', 	'all', 		11, 0, 'drama', 'e901', 'green', '(110,60,50)', '#4DCC33'),
+			(-1, 'Voyage', 		'basic', 	12, 0, 'earth', 'e902', 'green', '(130,60,50)', '#33CC4C'),
+			(-1, 'Revenu', 		'periodic', 13, 0, 'credit-card', 'e903', 'teal', '(160,60,50)', '#33CC99'),
+			(-1, 'Enfants', 	'all', 		14, 0, 'baby', 'e91d', 'teal', '(175,60,50)', '#33CCBF'),
+			(-1, 'Banque', 		'all', 		15, 0, 'landmark', 'e919', 'light blue', '(190,60,50)', '#33B3CC'),
+			(-1, 'Societe', 	'all', 		16, 0, 'briefcase', 'e905', 'blue', '(230,60,50)', '#334CCC'),
+			(-1, 'Loyer', 		'periodic', 17, 0, 'home', 'e906', 'purple', '(260,60,50)', '#6633CC'),
+			(-1, 'Services', 	'periodic', 18, 0, 'plug-zap', 'e907', 'purple', '(270,60,50)', '#8033CC'),
+			(-1, 'Sante', 		'all', 		19, 0, 'heart-pulse', 'e908', 'pink', '(300,60,50)', '#CC33CC'),
+			(-1, 'Animaux', 	'all', 		20, 0, 'paw-print', 'e91c', 'pink', '(320,60,50)', '#CC3399')
 		;
 		*/
 
