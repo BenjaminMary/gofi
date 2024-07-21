@@ -82,6 +82,21 @@ func GetCategoryIcon(w http.ResponseWriter, r *http.Request, isFrontRequest bool
 	return appdata.RenderAPIorUI(w, r, isFrontRequest, false, true, http.StatusOK, "category info found", cd)
 }
 
+func PutParamCategory(w http.ResponseWriter, r *http.Request, isFrontRequest bool) *appdata.HttpStruct {
+	categoryPut := &appdata.CategoryPut{}
+	if err := render.Bind(r, categoryPut); err != nil {
+		fmt.Printf("error: %v\n", err.Error())
+		return appdata.RenderAPIorUI(w, r, isFrontRequest, true, false, http.StatusBadRequest, "invalid request, double check each field", "")
+	}
+	userContext := r.Context().Value(appdata.ContextUserKey).(*appdata.UserRequest)
+	categoryPut.GofiID = userContext.GofiID
+	successBool := sqlite.PutCategory(r.Context(), appdata.DB, categoryPut)
+	if !successBool {
+		return appdata.RenderAPIorUI(w, r, isFrontRequest, false, false, http.StatusNotFound, "category not updated", categoryPut.ID)
+	}
+	return appdata.RenderAPIorUI(w, r, isFrontRequest, false, true, http.StatusOK, "category updated", categoryPut.ID)
+}
+
 func PatchParamCategoryInUse(w http.ResponseWriter, r *http.Request, isFrontRequest bool) *appdata.HttpStruct {
 	categoryInUse := &appdata.CategoryPatchInUse{}
 	if err := render.Bind(r, categoryInUse); err != nil {
@@ -90,7 +105,6 @@ func PatchParamCategoryInUse(w http.ResponseWriter, r *http.Request, isFrontRequ
 	}
 	userContext := r.Context().Value(appdata.ContextUserKey).(*appdata.UserRequest)
 	categoryInUse.GofiID = userContext.GofiID
-	// fmt.Printf("category: %#v\n", category)
 	successBool := sqlite.PatchCategoryInUse(r.Context(), appdata.DB, categoryInUse)
 	if !successBool {
 		return appdata.RenderAPIorUI(w, r, isFrontRequest, false, false, http.StatusNotFound, "category inUse not updated", categoryInUse.ID)
@@ -106,7 +120,6 @@ func PatchParamCategoryOrder(w http.ResponseWriter, r *http.Request, isFrontRequ
 	}
 	userContext := r.Context().Value(appdata.ContextUserKey).(*appdata.UserRequest)
 	categoryOrder.GofiID = userContext.GofiID
-	// fmt.Printf("category: %#v\n", category)
 	successBool := sqlite.PatchCategoryOrder(r.Context(), appdata.DB, categoryOrder)
 	if !successBool {
 		return appdata.RenderAPIorUI(w, r, isFrontRequest, false, false, http.StatusNotFound, "category order not updated", "")

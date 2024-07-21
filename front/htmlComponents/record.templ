@@ -217,7 +217,7 @@ templ GetRecordInsert(jsonFT []appdata.FinanceTracker, jsonUP appdata.UserParams
 
                             <fieldset role="group">
                                 <div>
-                                    @dateInput(currentDate)
+                                    @dateInput(currentDate, "date")
                                 </div>
                                 <div><!-- separator --></div>
                                 <div>
@@ -284,7 +284,7 @@ templ GetRecordTransfer(jsonFT []appdata.FinanceTracker, jsonUP appdata.UserPara
 
                             <fieldset role="group">
                                 <div>
-                                    @dateInput(currentDate)
+                                    @dateInput(currentDate, "date")
                                 </div>
                                 <div><!-- separator --></div>
                                 <div>
@@ -376,7 +376,7 @@ templ GetRecordRecurrent(jsonRR []appdata.RecurrentRecord, jsonFT []appdata.Fina
                                 </select>
                                 <fieldset role="group">
                                     <div>
-                                        @dateInput(currentDate)
+                                        @dateInput(currentDate, "date")
                                     </div>
                                     <div><!-- separator --></div>
                                     <div>
@@ -847,7 +847,7 @@ templ GetRecordValidateOrCancel(jsonFT []appdata.FinanceTracker, jsonUP appdata.
                             </div>
                             <fieldset role="group">
                                 <div>
-                                    @dateInput(currentDate)
+                                    @dateInput(currentDate, "date")
                                 </div>
                                 <div><!-- separator --></div>
                                 <div>

@@ -288,6 +288,29 @@ func GetList(ctx context.Context, db *sql.DB, up *appdata.UserParams) {
 	up.CategoryRendering = categoryRendering
 }
 
+func PutCategory(ctx context.Context, db *sql.DB, category *appdata.CategoryPut) bool {
+	q := ` 
+		UPDATE category 
+		SET catWhereToUse = ?, defaultInStats = ?, description = ?,
+			budgetPrice = ?, budgetPeriod = ?, budgetType = ?, budgetCurrentPeriodStartDate = ?
+		WHERE id = ?
+			AND gofiID = ?
+	`
+	result, err := db.ExecContext(ctx, q, category.Type, category.InStats, category.Description,
+		category.BudgetPrice, category.BudgetPrice, category.BudgetType, category.BudgetCurrentPeriodStartDate,
+		category.ID, category.GofiID)
+	if err != nil {
+		fmt.Printf("error1 PutCategory categoryID: %v, gofiID: %v, err: %#v\n", category.ID, category.GofiID, err)
+		return false
+	}
+	rowsAffected, err := result.RowsAffected()
+	if err != nil || rowsAffected != 1 {
+		fmt.Printf("error2 PutCategory categoryID: %v, gofiID: %v, rowsAffected: %v\n", category.ID, category.GofiID, rowsAffected)
+		return false
+	}
+	return true
+}
+
 func PatchCategoryInUse(ctx context.Context, db *sql.DB, category *appdata.CategoryPatchInUse) bool {
 	q := ` 
 		UPDATE category 

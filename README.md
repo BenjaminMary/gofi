@@ -140,5 +140,5 @@ Delete    | DELETE (params) | DELETE
 
 ## GO struct usage
 - the HTML attribute `name` is used when a form is sent to the backend (application/x-www-form-urlencoded)
-    - the used `name` in the HTML file must correspond to the struct name
+    - the used `name` in the HTML file must correspond to the struct name (case sensitive)
 - the struct `JSON name` is used for API calls with JSON body (case insensitive)

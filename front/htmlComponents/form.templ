@@ -18,14 +18,14 @@ templ formEmailPasswordInput() {
     <div id="htmxInfo"></div>
 }
 
-templ dateInput(dateStr string) {
+templ dateInput(dateStr string, idAndName string) {
     <!-- Date-->
-    <label for="date">
+    <label for={ idAndName }>
         <!-- calendar = Date -->
         <svg stroke="currenColor" width="18" heigth="18" viewBox="0 0 24 24"><use xlink:href="/img/icons.svg#lucide-calendar"></use></svg>
         Date
     </label>
-    <input type="date" id="date" name="date" value={ dateStr } required />
+    <input type="date" id={ idAndName } name={ idAndName } value={ dateStr } required />
 }
 
 templ accountInput(idName string, accountList []string, forceSelect bool) {

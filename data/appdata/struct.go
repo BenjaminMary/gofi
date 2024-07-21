@@ -225,20 +225,84 @@ type UserCategories struct {
 	Categories   []Category
 }
 type Category struct {
-	ID            int
-	GofiID        int
-	Name          string
-	Type          string
-	Order         int
-	InUse         int
-	InStats       int
-	Description   string
-	BudgetPrice   int
-	BudgetPeriod  string
-	BudgetType    string
-	IconCodePoint string
-	ColorHEX      string
+	ID                           int
+	GofiID                       int
+	Name                         string
+	Type                         string
+	Order                        int
+	InUse                        int
+	InStats                      int
+	Description                  string
+	BudgetPrice                  int
+	BudgetPeriod                 string
+	BudgetType                   string
+	BudgetCurrentPeriodStartDate string
+	BudgetCurrentPeriodEndDate   string
+	IconCodePoint                string
+	ColorHEX                     string
 }
+type CategoryPut struct {
+	ID                           int
+	IDstr                        string `json:"idStrJson"`
+	GofiID                       int
+	Type                         string
+	InStats                      int
+	InStatsStr                   string
+	Description                  string
+	BudgetPrice                  int
+	BudgetPriceStr               string
+	BudgetPeriod                 string
+	BudgetType                   string
+	BudgetCurrentPeriodStartDate string
+}
+
+func (a *CategoryPut) Bind(r *http.Request) error {
+	if a.IDstr == "" {
+		fmt.Println("Bind CategoryPut err1")
+		return errors.New("missing required field")
+	}
+	var err error
+	a.ID, err = strconv.Atoi(a.IDstr)
+	if err != nil || a.ID < 1 {
+		fmt.Println("Bind CategoryPut err2")
+		return errors.New("missing required field")
+	}
+	if a.Type == "" || !(a.Type == "all" || a.Type == "periodic" || a.Type == "basic") {
+		fmt.Println("Bind CategoryPut err3")
+		return errors.New("missing required field")
+	}
+	if a.InStatsStr == "on" {
+		a.InStats = 1
+	} else if a.InStatsStr == "" {
+		a.InStats = 0
+	} else {
+		fmt.Println("Bind CategoryPut err5")
+		return errors.New("missing required field")
+	}
+	if a.Description == "" {
+		a.Description = "-"
+	}
+	if a.BudgetPriceStr == "" {
+		a.BudgetPriceStr = "0"
+		a.BudgetPrice = 0
+	} else {
+		a.BudgetPrice, err = strconv.Atoi(a.BudgetPriceStr)
+		if err != nil || a.BudgetPrice < 0 {
+			fmt.Println("Bind CategoryPut err6")
+			return errors.New("missing required field")
+		}
+	}
+	if a.BudgetType == "" || !(a.BudgetType == "-" || a.BudgetType == "cumulative" || a.BudgetType == "reset") {
+		fmt.Println("Bind CategoryPut err7")
+		return errors.New("missing required field")
+	}
+	if len(a.BudgetCurrentPeriodStartDate) != 10 {
+		fmt.Println("Bind CategoryPut err8")
+		return errors.New("missing required field")
+	}
+	return nil
+}
+
 type CategoryPatchInUse struct {
 	ID       int
 	IDstr    string `json:"idStrJson"`

@@ -137,6 +137,9 @@ templ PostParamCategory(httpStatus int, ParamJSONstringData string) {
 	}
     @PageRefreshButton()
 }
+templ PutParamCategory() {
+
+}
 templ PatchParamCategoryInUse() {
     
 }
@@ -177,33 +180,21 @@ templ GetParamCategory(json appdata.UserParams, jsonUC *appdata.UserCategories, 
             <main>
                 <h1>Gérer les catégories</h1>
 
-                <section id="openForm" hidden>
+                <section id="openForm" name="openForm" hidden>
                     <div id="htmxInfo"> <!-- via header: "HX-Retarget", "#htmxInfo" -->
                         <form name="mainForm">
 
                             <h5>Editer la catégorie</h5>
-                            <span id="categoryIcon" class="icomoon e900">&#xe900;</span>
+                            <span id="categoryIcon1" class="icomoon e900">&#xe900;</span>
                             &nbsp;<span id="categoryName">Catégorie</span>
                             <hr/>
-
-                            // <strong>Utilisation de cette catégorie</strong>
-                            // <label for="inUse">
-                            //     Inactive
-                            //     <!-- red x square -->
-                            //     <svg width="24" height="24" viewBox="0 0 24 24" stroke="firebrick"><use xlink:href="/img/icons.svg#feather-x-square"></use></svg>
-                            //     <input type="checkbox" id="inUse" name="inUse" role="switch" checked />
-                            //     <!-- green check square -->
-                            //     <svg width="24" height="24" viewBox="0 0 24 24"><use xlink:href="/img/icons.svg#feather-green-check-square"></use></svg>
-                            //     Active
-                            // </label>
-                            // <hr/>
 
                             <strong>Affichage par défaut dans les statistiques</strong>
                             <label for="defaultInStats">
                                 Masquer
                                 <!-- red x square -->
                                 <svg width="24" height="24" viewBox="0 0 24 24" stroke="firebrick"><use xlink:href="/img/icons.svg#feather-x-square"></use></svg>
-                                <input type="checkbox" id="defaultInStats" name="defaultInStats" role="switch" checked />
+                                <input type="checkbox" id="defaultInStats" name="InStatsStr" role="switch" checked />
                                 <!-- green check square -->
                                 <svg width="24" height="24" viewBox="0 0 24 24"><use xlink:href="/img/icons.svg#feather-green-check-square"></use></svg>
                                 Afficher
@@ -216,7 +207,7 @@ templ GetParamCategory(json appdata.UserParams, jsonUC *appdata.UserCategories, 
                                 <svg width="18" height="18" viewBox="0 0 24 24"><use xlink:href="/img/icons.svg#lucide-locate"></use></svg>
                                 Où utiliser cette catégorie
                             </label>
-                            <select id="catWhereToUse" name="catWhereToUse" required>
+                            <select id="catWhereToUse" name="Type" required>
                                 <option value="all">Partout</option>
                                 <option value="basic">Enregistrement standard</option>
                                 <option value="periodic">Enr. régulier/périodique</option>
@@ -228,21 +219,61 @@ templ GetParamCategory(json appdata.UserParams, jsonUC *appdata.UserCategories, 
                                 <svg stroke="currenColor" width="18" heigth="18" viewBox="0 0 24 24"><use xlink:href="/img/icons.svg#lucide-text"></use></svg>
                                 Description
                             </label>
-                            <textarea id="description" name="description" rows="2"></textarea>
+                            <textarea id="description" name="Description" rows="2"></textarea>
                             <hr/>
 
                             <h5>Budget lié à la catégorie</h5>
-                            <!-- Select -->
-                            <label for="budgetType">
-                                <!-- wallet -->
-                                <svg width="18" height="18" viewBox="0 0 24 24"><use xlink:href="/img/icons.svg#lucide-wallet"></use></svg>
-                                Type
-                            </label>
-                            <select id="budgetType" name="budgetType" required>
-                                <option value="-">-</option>
-                                <option value="reset">Réinitialiser à chaque fin de période</option>
-                                <option value="cumulative">Cumulé</option>
-                            </select>
+                            <small><i>
+                                Fonctionnement:
+                                <ul>
+                                    <li>
+                                        <!-- wallet -->
+                                        <svg width="18" height="18" viewBox="0 0 24 24"><use xlink:href="/img/icons.svg#lucide-wallet"></use></svg>
+                                        type "Réinitialiser": 
+                                        <ul>
+                                            <li>fixe un budget sur une période et redémarre à 0 la suivante</li>
+                                            <li>
+                                                <!-- calendar = Date -->
+                                                <svg stroke="currenColor" width="18" heigth="18" viewBox="0 0 24 24"><use xlink:href="/img/icons.svg#lucide-calendar"></use></svg>
+                                                la date ne sert pas pour ce cas
+                                            </li>
+                                        </ul>
+                                    </li>
+                                    <li>
+                                        <!-- wallet -->
+                                        <svg width="18" height="18" viewBox="0 0 24 24"><use xlink:href="/img/icons.svg#lucide-wallet"></use></svg>
+                                        type "Cumulé":
+                                        <ul>
+                                            <li>garde le relicat en fin de période et l'ajoute à la suivante</li>
+                                            <li>
+                                                <!-- calendar = Date -->
+                                                <svg stroke="currenColor" width="18" heigth="18" viewBox="0 0 24 24"><use xlink:href="/img/icons.svg#lucide-calendar"></use></svg>
+                                                la date utilisée sert à calculer le nombre de période à cumuler
+                                            </li>
+                                        </ul>
+                                    </li>
+                                </ul>
+                            </i></small>
+
+                            <fieldset role="group">
+                                <div>
+                                    <!-- Select -->
+                                    <label for="budgetType">
+                                        <!-- wallet -->
+                                        <svg width="18" height="18" viewBox="0 0 24 24"><use xlink:href="/img/icons.svg#lucide-wallet"></use></svg>
+                                        Type
+                                    </label>
+                                    <select id="budgetType" name="BudgetType" required>
+                                        <option value="-">-</option>
+                                        <option value="reset">Réinitialiser</option>
+                                        <option value="cumulative">Cumulé</option>
+                                    </select>
+                                </div>
+                                <div><!-- separator --></div>
+                                <div>
+                                    @dateInput("9999-12-31", "BudgetCurrentPeriodStartDate")
+                                </div>
+                            </fieldset>
 
                             <fieldset role="group">
                                 <div>
@@ -252,7 +283,7 @@ templ GetParamCategory(json appdata.UserParams, jsonUC *appdata.UserCategories, 
                                         <svg width="18" height="18" viewBox="0 0 24 24"><use xlink:href="/img/icons.svg#feather-refresh-cw"></use></svg>
                                         Période
                                     </label>
-                                    <select id="budgetPeriod" name="budgetPeriod">
+                                    <select id="budgetPeriod" name="BudgetPeriod">
                                         <option value="-">-</option>
                                         <option value="mensuelle">Mensuelle</option>
                                         <option value="annuelle">Annuelle</option>
@@ -267,25 +298,25 @@ templ GetParamCategory(json appdata.UserParams, jsonUC *appdata.UserCategories, 
                                         <svg stroke="currenColor" width="18" heigth="18" viewBox="0 0 24 24"><use xlink:href="/img/icons.svg#lucide-banknote"></use></svg>
                                         Montant
                                     </label>
-                                    <input type="number" id="budgetPrice" name="budgetPrice" min="0" max="100000" step="1" />
+                                    <input type="number" id="budgetPrice" name="BudgetPriceStr" min="0" max="100000" step="1" />
                                 </div>
                             </fieldset>
 
                             <!-- Text -->
-                            <input type="text" id="idRRmain" name="idRRmain" value="0" hidden readonly required />
+                            <input type="text" id="idRRmain" name="IDstr" value="0" hidden readonly required />
                             <!-- Buttons -->
                             <button id="editRR"
                                 type="submit" value="Submit"
                                 hx-put="/param/category" 
-                                hx-target="#tableActiveCat" 
-                                hx-swap="afterbegin" 
+                                hx-target="#infoMainForm" 
                                 hx-sync="this:drop"
                                 hx-indicator="#spinnerB"
-                                hx-on::after-request="if(event.detail.successful) document.mainForm.reset()">
+                                hx-on::after-request="if(event.detail.successful) location.reload();">
                                 <span id="spinnerB" class="htmx-indicator" aria-busy="true"></span>
                                 <!-- edit -->
                                 <svg width="24" height="24" viewBox="0 0 24 24"><use xlink:href="/img/icons.svg#feather-edit"></use></svg>
-                                Editer la catégorie
+                                Editer la catégorie 
+                                <span id="categoryIcon2" class="icomoon e900">&#xe900;</span>
                             </button>
                             <hr/>
                         </form>
@@ -413,28 +444,33 @@ script botScriptAddClickEventToTableCatButtons() {
             case "e":
                 // edit button, paste the info in the form to edit whole thing
                 document.getElementById(strButtonId).addEventListener('click', function(e){
-                    bID = this.id.split("-")[1];
+                    bIndex = this.id.split("-")[1];
+                    bID = this.id.split("-")[2];
                     document.getElementById('openForm').hidden = false;
                     document.getElementById('idRRmain').value = bID;
                     document.getElementById('infoMainForm').innerHTML = "";
                     userCategoriesJsonString = document.getElementById("struct-complet").value;
                     userCategories = JSON.parse(userCategoriesJsonString);
-                    // console.log(userCategories.Categories[bID]);
-                    document.getElementById('categoryIcon').innerHTML = "&#x" + userCategories.Categories[bID].IconCodePoint + ";";
-                    bgclass = document.getElementById('categoryIcon').classList.item(1);
-                    document.getElementById('categoryIcon').classList.remove(bgclass);
-                    document.getElementById('categoryIcon').classList.add(userCategories.Categories[bID].IconCodePoint);
-                    document.getElementById('categoryName').innerHTML = "&nbsp;" + userCategories.Categories[bID].Name;
-                    if (userCategories.Categories[bID].InStats == 1) {
+                    // console.log(userCategories.Categories[bIndex]);
+                    document.getElementById('categoryIcon1').innerHTML = "&#x" + userCategories.Categories[bIndex].IconCodePoint + ";";
+                    bgclass = document.getElementById('categoryIcon1').classList.item(1);
+                    document.getElementById('categoryIcon1').classList.remove(bgclass);
+                    document.getElementById('categoryIcon1').classList.add(userCategories.Categories[bIndex].IconCodePoint);
+                    document.getElementById('categoryIcon2').innerHTML = "&#x" + userCategories.Categories[bIndex].IconCodePoint + ";";
+                    bgclass = document.getElementById('categoryIcon2').classList.item(1);
+                    document.getElementById('categoryIcon2').classList.remove(bgclass);
+                    document.getElementById('categoryIcon2').classList.add(userCategories.Categories[bIndex].IconCodePoint);
+                    document.getElementById('categoryName').innerHTML = "&nbsp;" + userCategories.Categories[bIndex].Name;
+                    if (userCategories.Categories[bIndex].InStats == 1) {
                         document.getElementById('defaultInStats').checked = true;
                     } else {
                         document.getElementById('defaultInStats').checked = false;
                     };
-                    document.getElementById('catWhereToUse').value = userCategories.Categories[bID].Type;
-                    document.getElementById('description').innerHTML =  userCategories.Categories[bID].Description;
-                    document.getElementById('budgetType').value =  userCategories.Categories[bID].BudgetType;
-                    document.getElementById('budgetPeriod').value =  userCategories.Categories[bID].BudgetPeriod;
-                    document.getElementById('budgetPrice').value =  userCategories.Categories[bID].BudgetPrice;
+                    document.getElementById('catWhereToUse').value = userCategories.Categories[bIndex].Type;
+                    document.getElementById('description').innerHTML =  userCategories.Categories[bIndex].Description;
+                    document.getElementById('budgetType').value =  userCategories.Categories[bIndex].BudgetType;
+                    document.getElementById('budgetPeriod').value =  userCategories.Categories[bIndex].BudgetPeriod;
+                    document.getElementById('budgetPrice').value =  userCategories.Categories[bIndex].BudgetPrice;
                     document.getElementById('openForm').scrollIntoView({behavior: 'smooth'});
                 });
                 break;
@@ -525,7 +561,7 @@ templ categoryTable(jsonUC *appdata.UserCategories) {
                     </td>
                     <td>
                         // the edit button ID is the index of the corresponding element in the JSON : e = edit
-                        <button id={ "e-" + strconv.Itoa(i) } class="small-padding">
+                        <button id={ "e-" + strconv.Itoa(i) + "-" + strconv.Itoa(category.ID) } class="small-padding">
                             <!-- edit -->
                             <svg width="18" height="18" viewBox="0 0 24 24"><use xlink:href="/img/icons.svg#feather-edit"></use></svg>
                         </button>

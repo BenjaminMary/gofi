@@ -93,6 +93,8 @@ func initDB(folder string, dbName string) {
 			budgetPrice INTEGER DEFAULT 0,
 			budgetPeriod TEXT DEFAULT '-', /* -,month,year,week */
 			budgetType TEXT DEFAULT '-', /* -,cumulative,reset */
+			budgetCurrentPeriodStartDate TEXT DEFAULT '9999-12-30',
+			budgetCurrentPeriodEndDate TEXT DEFAULT '9999-12-31',
 			iconName TEXT NOT NULL,
 			iconCodePoint TEXT NOT NULL, /* "error" icon exemple: e909 */
 			colorName TEXT NOT NULL,

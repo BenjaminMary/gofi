@@ -98,6 +98,10 @@ func GetParamCategory(w http.ResponseWriter, r *http.Request) {
 	}
 	htmlComponents.GetParamCategory(jsonUserParam, userCategories, string(userCategoriesJson)).Render(r.Context(), w)
 }
+func PutParamCategory(w http.ResponseWriter, r *http.Request) {
+	api.PutParamCategory(w, r, true)
+	htmlComponents.PutParamCategory().Render(r.Context(), w)
+}
 func PatchParamCategoryInUse(w http.ResponseWriter, r *http.Request) {
 	api.PatchParamCategoryInUse(w, r, true)
 	htmlComponents.PatchParamCategoryInUse().Render(r.Context(), w)
