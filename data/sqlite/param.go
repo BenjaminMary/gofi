@@ -109,31 +109,29 @@ func InitCategoriesForUser(ctx context.Context, db *sql.DB, gofiID int) {
 			INSERT INTO category (gofiID, category, catWhereToUse, catOrder, inUse,
 				iconName, iconCodePoint, colorName, colorHSL, colorHEX)
 			VALUES 
-				(?, 'Besoin', 		'all', 		1, 1, 'bed', 'e91f', 'green', '(130,60,50)', '#33CC4C'),
-				(?, 'Envie', 		'all', 		2, 1, 'film', 'e920', 'orange', '(30,60,50)', '#CC8033'),
-				(?, 'Revenu', 		'periodic', 3, 1, 'credit-card', 'e903', 'teal', '(160,60,50)', '#33CC99'),
-				(?, 'Epargne', 		'all', 		4, 1, 'line-chart', 'e904', 'light blue', '(210,60,50)', '#3380CC'),
-				(?, 'Habitude-', 	'all', 		5, 0, 'thumbs-down', 'e91e', 'red', '(1,60,50)', '#CC3633'),
-				(?, 'Vehicule', 	'all', 		6, 0, 'car-front', 'e900', 'orange', '(15,60,50)', '#CC5933'),
-				(?, 'Transport', 	'all', 		7, 0, 'train-front', 'e913', 'orange', '(30,60,50)', '#CC8033'),
-				(?, 'Shopping', 	'basic', 	8, 0, 'shopping-cart', 'e918', 'yellow', '(45,40,50)', '#B3994D'),
-				(?, 'Cadeaux', 		'basic', 	9, 0, 'gift', 'e91a', 'yellow', '(60,40,50)', '#B3B34D'),
-				(?, 'Courses', 		'all', 		10, 0, 'carrot', 'e916', 'yellow', '(70,50,50)', '#AABF40'),
-				(?, 'Resto', 		'basic', 	11, 0, 'chef-hat', 'e914', 'green', '(90,60,50)', '#80CC33'),
-				(?, 'Loisirs', 		'all', 		12, 0, 'drama', 'e901', 'green', '(110,60,50)', '#4DCC33'),
-				(?, 'Voyage', 		'basic', 	13, 0, 'earth', 'e902', 'green', '(130,60,50)', '#33CC4C'),
-				(?, 'Enfants', 		'all', 		14, 0, 'baby', 'e91d', 'teal', '(175,60,50)', '#33CCBF'),
-				(?, 'Banque', 		'all', 		15, 0, 'landmark', 'e919', 'light blue', '(190,60,50)', '#33B3CC'),
-				(?, 'Societe', 		'all', 		16, 0, 'briefcase', 'e905', 'blue', '(230,60,50)', '#334CCC'),
-				(?, 'Loyer', 		'periodic', 17, 0, 'home', 'e906', 'purple', '(260,60,50)', '#6633CC'),
-				(?, 'Services', 	'periodic', 18, 0, 'plug-zap', 'e907', 'purple', '(270,60,50)', '#8033CC'),
-				(?, 'Sante', 		'all', 		19, 0, 'heart-pulse', 'e908', 'pink', '(300,60,50)', '#CC33CC'),
-				(?, 'Animaux', 		'all', 		20, 0, 'paw-print', 'e91c', 'pink', '(320,60,50)', '#CC3399')
+				(?1, 'Besoin', 		'all', 		1, 1, 'bed', 'e91f', 'green', '(130,60,50)', '#33CC4C'),
+				(?1, 'Envie', 		'all', 		2, 1, 'film', 'e920', 'orange', '(30,60,50)', '#CC8033'),
+				(?1, 'Revenu', 		'periodic', 3, 1, 'credit-card', 'e903', 'teal', '(160,60,50)', '#33CC99'),
+				(?1, 'Epargne', 	'all', 		4, 1, 'line-chart', 'e904', 'light blue', '(210,60,50)', '#3380CC'),
+				(?1, 'Habitude-', 	'all', 		5, 0, 'thumbs-down', 'e91e', 'red', '(1,60,50)', '#CC3633'),
+				(?1, 'Vehicule', 	'all', 		6, 0, 'car-front', 'e900', 'orange', '(15,60,50)', '#CC5933'),
+				(?1, 'Transport', 	'all', 		7, 0, 'train-front', 'e913', 'orange', '(30,60,50)', '#CC8033'),
+				(?1, 'Shopping', 	'basic', 	8, 0, 'shopping-cart', 'e918', 'yellow', '(45,40,50)', '#B3994D'),
+				(?1, 'Cadeaux', 	'basic', 	9, 0, 'gift', 'e91a', 'yellow', '(60,40,50)', '#B3B34D'),
+				(?1, 'Courses', 	'all', 		10, 0, 'carrot', 'e916', 'yellow', '(70,50,50)', '#AABF40'),
+				(?1, 'Resto', 		'basic', 	11, 0, 'chef-hat', 'e914', 'green', '(90,60,50)', '#80CC33'),
+				(?1, 'Loisirs', 	'all', 		12, 0, 'drama', 'e901', 'green', '(110,60,50)', '#4DCC33'),
+				(?1, 'Voyage', 		'basic', 	13, 0, 'earth', 'e902', 'green', '(130,60,50)', '#33CC4C'),
+				(?1, 'Enfants', 	'all', 		14, 0, 'baby', 'e91d', 'teal', '(175,60,50)', '#33CCBF'),
+				(?1, 'Banque', 		'all', 		15, 0, 'landmark', 'e919', 'light blue', '(190,60,50)', '#33B3CC'),
+				(?1, 'Societe', 	'all', 		16, 0, 'briefcase', 'e905', 'blue', '(230,60,50)', '#334CCC'),
+				(?1, 'Loyer', 		'periodic', 17, 0, 'home', 'e906', 'purple', '(260,60,50)', '#6633CC'),
+				(?1, 'Services', 	'periodic', 18, 0, 'plug-zap', 'e907', 'purple', '(270,60,50)', '#8033CC'),
+				(?1, 'Sante', 		'all', 		19, 0, 'heart-pulse', 'e908', 'pink', '(300,60,50)', '#CC33CC'),
+				(?1, 'Animaux', 	'all', 		20, 0, 'paw-print', 'e91c', 'pink', '(320,60,50)', '#CC3399')
 			;
 		`
-		result, err := db.ExecContext(ctx, q,
-			gofiID, gofiID, gofiID, gofiID, gofiID, gofiID, gofiID, gofiID, gofiID, gofiID,
-			gofiID, gofiID, gofiID, gofiID, gofiID, gofiID, gofiID, gofiID, gofiID, gofiID)
+		result, err := db.ExecContext(ctx, q, gofiID)
 		if err != nil {
 			fmt.Printf("error1 on InitCategoriesForUser err: %#v\n", err)
 			log.Fatalf("InitCategoriesForUser query error1: %v\n", err)
