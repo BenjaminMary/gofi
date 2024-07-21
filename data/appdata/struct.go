@@ -267,41 +267,27 @@ func (a *CategoryPatchInUse) Bind(r *http.Request) error {
 }
 
 type CategoryPatchOrder struct {
-	ID           int
-	IDstr        string `json:"idStrJson"`
-	GofiID       int
-	CurrentOrder int
-	NewOrder     int
-	OrderStr     string `json:"orderStrJson"`
-	Direction    string `json:"directionStrJson"`
+	ID1    int
+	ID1str string `json:"id1StrJson"`
+	ID2    int
+	ID2str string `json:"id2StrJson"`
+	GofiID int
 }
 
 func (a *CategoryPatchOrder) Bind(r *http.Request) error {
-	if a.IDstr == "" || a.OrderStr == "" || a.Direction == "" {
-		fmt.Println("Bind CategoryPatchOrder err0")
-		return errors.New("missing required field")
-	}
-	var err error
-	a.ID, err = strconv.Atoi(a.IDstr)
-	if err != nil || a.ID < 1 {
+	if a.ID1str == "" || a.ID2str == "" || a.ID1str == a.ID2str {
 		fmt.Println("Bind CategoryPatchOrder err1")
 		return errors.New("missing required field")
 	}
-	a.CurrentOrder, err = strconv.Atoi(a.OrderStr)
-	if err != nil || a.CurrentOrder < 1 || a.CurrentOrder > 30 {
+	var err error
+	a.ID1, err = strconv.Atoi(a.ID1str)
+	if err != nil || a.ID1 < 1 {
 		fmt.Println("Bind CategoryPatchOrder err2")
 		return errors.New("missing required field")
 	}
-	if a.Direction == "up" {
-		a.NewOrder = a.CurrentOrder - 1
-	} else if a.Direction == "down" {
-		a.NewOrder = a.CurrentOrder + 1
-	} else {
+	a.ID2, err = strconv.Atoi(a.ID2str)
+	if err != nil || a.ID2 < 1 {
 		fmt.Println("Bind CategoryPatchOrder err3")
-		return errors.New("missing required field")
-	}
-	if a.NewOrder < 1 || a.NewOrder > 30 {
-		fmt.Println("Bind CategoryPatchOrder err4")
 		return errors.New("missing required field")
 	}
 	return nil

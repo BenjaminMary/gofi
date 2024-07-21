@@ -308,30 +308,26 @@ func PatchCategoryInUse(ctx context.Context, db *sql.DB, category *appdata.Categ
 	return true
 }
 
-func PatchCategoryOrder(ctx context.Context, db *sql.DB, category *appdata.CategoryPatchOrder) bool {
+func PatchCategoryOrder(ctx context.Context, db *sql.DB, categoriesSwitch *appdata.CategoryPatchOrder) bool {
 	// need to change the order of 2 categories: +1 for one and -1 for the other
-	var categoryIDtoSwap int = 0
+	// switch the order between 2 categories
+	var categoryOrder1, categoryOrder2 int = 0, 0
 	q1 := `
-		SELECT id
+		SELECT catOrder
 		FROM category
 		WHERE gofiID = ?
-			AND catOrder = ?;
+			AND id = ?;
 	`
-	err := db.QueryRowContext(ctx, q1, category.GofiID, category.CurrentOrder).Scan(&categoryIDtoSwap)
+	err := db.QueryRowContext(ctx, q1, categoriesSwitch.GofiID, categoriesSwitch.ID1).Scan(&categoryOrder1)
 	switch {
 	case err == sql.ErrNoRows:
-		fmt.Printf("PatchCategoryOrder query error0: %v\n", err)
-		return false
-	case err != nil:
 		fmt.Printf("PatchCategoryOrder query error1: %v\n", err)
 		return false
-	}
-	if categoryIDtoSwap != category.ID {
-		fmt.Printf("PatchCategoryOrder query error2, categoryIDtoSwap: %v vs category.ID: %v\n", categoryIDtoSwap, category.ID)
+	case err != nil:
+		fmt.Printf("PatchCategoryOrder query error2: %v\n", err)
 		return false
 	}
-	categoryIDtoSwap = 0
-	err = db.QueryRowContext(ctx, q1, category.GofiID, category.NewOrder).Scan(&categoryIDtoSwap)
+	err = db.QueryRowContext(ctx, q1, categoriesSwitch.GofiID, categoriesSwitch.ID2).Scan(&categoryOrder2)
 	switch {
 	case err == sql.ErrNoRows:
 		fmt.Printf("PatchCategoryOrder query error3: %v\n", err)
@@ -340,36 +336,32 @@ func PatchCategoryOrder(ctx context.Context, db *sql.DB, category *appdata.Categ
 		fmt.Printf("PatchCategoryOrder query error4: %v\n", err)
 		return false
 	}
-	if categoryIDtoSwap == 0 {
-		fmt.Printf("PatchCategoryOrder query error5: %v\n", err)
-		return false
-	}
 
 	q2 := ` 
 		UPDATE category 
 		SET catOrder = ? 
-		WHERE id = ?
-			AND gofiID = ?;
+		WHERE gofiID = ?
+			AND id = ?;
 	`
-	result, err := db.ExecContext(ctx, q2, category.NewOrder, category.ID, category.GofiID)
+	result, err := db.ExecContext(ctx, q2, categoryOrder2, categoriesSwitch.GofiID, categoriesSwitch.ID1)
 	if err != nil {
-		fmt.Printf("error6 PatchCategoryOrder categoryID: %v, gofiID: %v, err: %#v\n", category.ID, category.GofiID, err)
+		fmt.Printf("error5 PatchCategoryOrder categoryID: %v, gofiID: %v, err: %#v\n", categoriesSwitch.ID1, categoriesSwitch.GofiID, err)
 		return false
 	}
 	rowsAffected, err := result.RowsAffected()
 	if err != nil || rowsAffected != 1 {
-		fmt.Printf("error7 PatchCategoryOrder categoryID: %v, gofiID: %v, rowsAffected: %v\n", category.ID, category.GofiID, rowsAffected)
+		fmt.Printf("error6 PatchCategoryOrder categoryID: %v, gofiID: %v, rowsAffected: %v\n", categoriesSwitch.ID1, categoriesSwitch.GofiID, rowsAffected)
 		return false
 	}
 
-	result, err = db.ExecContext(ctx, q2, category.CurrentOrder, categoryIDtoSwap, category.GofiID)
+	result, err = db.ExecContext(ctx, q2, categoryOrder1, categoriesSwitch.GofiID, categoriesSwitch.ID2)
 	if err != nil {
-		fmt.Printf("error8 PatchCategoryOrder categoryID: %v, gofiID: %v, err: %#v\n", categoryIDtoSwap, category.GofiID, err)
+		fmt.Printf("error7 PatchCategoryOrder categoryID: %v, gofiID: %v, err: %#v\n", categoriesSwitch.ID2, categoriesSwitch.GofiID, err)
 		return false
 	}
 	rowsAffected, err = result.RowsAffected()
 	if err != nil || rowsAffected != 1 {
-		fmt.Printf("error9 PatchCategoryOrder categoryID: %v, gofiID: %v, rowsAffected: %v\n", categoryIDtoSwap, category.GofiID, rowsAffected)
+		fmt.Printf("error8 PatchCategoryOrder categoryID: %v, gofiID: %v, rowsAffected: %v\n", categoriesSwitch.ID2, categoriesSwitch.GofiID, rowsAffected)
 		return false
 	}
 

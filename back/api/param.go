@@ -109,9 +109,9 @@ func PatchParamCategoryOrder(w http.ResponseWriter, r *http.Request, isFrontRequ
 	// fmt.Printf("category: %#v\n", category)
 	successBool := sqlite.PatchCategoryOrder(r.Context(), appdata.DB, categoryOrder)
 	if !successBool {
-		return appdata.RenderAPIorUI(w, r, isFrontRequest, false, false, http.StatusNotFound, "category order not updated", categoryOrder.ID)
+		return appdata.RenderAPIorUI(w, r, isFrontRequest, false, false, http.StatusNotFound, "category order not updated", "")
 	}
-	return appdata.RenderAPIorUI(w, r, isFrontRequest, false, true, http.StatusOK, "category order updated", categoryOrder.ID)
+	return appdata.RenderAPIorUI(w, r, isFrontRequest, false, true, http.StatusOK, "category order updated", "")
 }
 
 /*
