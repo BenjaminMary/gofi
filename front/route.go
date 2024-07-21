@@ -102,6 +102,10 @@ func PatchParamCategoryInUse(w http.ResponseWriter, r *http.Request) {
 	api.PatchParamCategoryInUse(w, r, true)
 	htmlComponents.PatchParamCategoryInUse().Render(r.Context(), w)
 }
+func PatchParamCategoryOrder(w http.ResponseWriter, r *http.Request) {
+	api.PatchParamCategoryOrder(w, r, true)
+	htmlComponents.PatchParamCategoryOrder().Render(r.Context(), w)
+}
 
 // RECORD
 func GetRecordInsert(w http.ResponseWriter, r *http.Request) {

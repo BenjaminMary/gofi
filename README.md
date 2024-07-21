@@ -18,6 +18,10 @@ Features supported (all the data are registered in a local SQLite DB):
     - import CSV files to insert/update data in bulk
     - export CSV files to keep/use all the data with other apps
     - stats year by year with current balance available per account
+    - smartphone first front-end, tested on the viewport:
+        - Screen Width: 360 pixels
+        - Screen Height: 640 pixels
+        - [screen viewport on viewportsizer](https://viewportsizer.com/lite/)
 - admin features
     - ~~(optional) generate and manage backup~~ (with another app)
     - shutdown the application (also checkpoint SQLite, then clean the `db-shm` and `db-wal` files)

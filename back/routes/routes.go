@@ -171,6 +171,7 @@ func (s *Server) MountFrontHandlers() {
 				r.Post("/category-rendering", front.PostParamCategoryRendering)
 				r.Get("/category", front.GetParamCategory)
 				r.Patch("/category/in-use", front.PatchParamCategoryInUse)
+				r.Patch("/category/order", front.PatchParamCategoryOrder)
 			})
 			// RECORDS
 			r.Route("/record", func(r chi.Router) {
