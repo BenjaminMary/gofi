@@ -28,9 +28,9 @@ func GetRowsInFinanceTracker(ctx context.Context, db *sql.DB, filter *appdata.Fi
 	// (golang sql package does not support dynamic sql on other things than values)
 	q := ` 
 		SELECT COUNT(1) 
-		FROM financeTracker AS f
-			LEFT JOIN category AS c ON c.category = f.category AND c.gofiID = f.gofiID
-		WHERE f.gofiID = ?
+		FROM financeTracker AS fT
+			LEFT JOIN category AS c ON c.category = fT.category AND c.gofiID = fT.gofiID
+		WHERE fT.gofiID = ?
 	`
 	// others where on 3 fields max = 7 possibilities
 	if filter.WhereAccount != "" { //1

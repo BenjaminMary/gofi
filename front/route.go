@@ -96,7 +96,8 @@ func GetParamCategory(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		fmt.Println(err)
 	}
-	htmlComponents.GetParamCategory(jsonUserParam, userCategories, string(userCategoriesJson)).Render(r.Context(), w)
+	unhandledCategoryList := sqlite.GetUnhandledCategoryList(r.Context(), appdata.DB, userCategories.GofiID)
+	htmlComponents.GetParamCategory(jsonUserParam, userCategories, string(userCategoriesJson), unhandledCategoryList).Render(r.Context(), w)
 }
 func PutParamCategory(w http.ResponseWriter, r *http.Request) {
 	api.PutParamCategory(w, r, true)

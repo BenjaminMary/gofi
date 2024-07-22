@@ -206,6 +206,35 @@ func GetFullCategoryList(ctx context.Context, db *sql.DB, uc *appdata.UserCatego
 	rows.Close()
 }
 
+func GetUnhandledCategoryList(ctx context.Context, db *sql.DB, gofiID int) []string {
+	var categoryList []string
+	q := ` 
+		SELECT DISTINCT fT.category
+		FROM financeTracker AS fT
+			LEFT JOIN category AS c ON c.category = fT.category AND c.gofiID = fT.gofiID
+		WHERE fT.gofiID = ?
+			AND c.category IS NULL
+			AND fT.category NOT IN (SELECT category FROM category WHERE gofiID = 0)
+		ORDER BY fT.category
+	`
+	rows, err := db.QueryContext(ctx, q, gofiID)
+	if err != nil {
+		fmt.Printf("error1 in GetUnhandledCategoryList QueryContext: %v\n", err)
+		return categoryList
+	}
+	for rows.Next() {
+		var category string
+		err := rows.Scan(&category)
+		if err != nil {
+			fmt.Printf("error2 in GetUnhandledCategoryList category: %v\n", err)
+			return categoryList
+		}
+		categoryList = append(categoryList, category)
+	}
+	rows.Close()
+	return categoryList
+}
+
 func GetCategoryIcon(ctx context.Context, db *sql.DB, categoryName string) (string, string) {
 	q := ` 
 		SELECT iconCodePoint, colorHEX

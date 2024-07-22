@@ -169,7 +169,7 @@ templ PostParamCategoryRendering(httpStatus int, ParamJSONstringData string) {
     @PageRefreshButton()
 }
 
-templ GetParamCategory(json appdata.UserParams, jsonUC *appdata.UserCategories, userCategoriesJson string) {
+templ GetParamCategory(json appdata.UserParams, jsonUC *appdata.UserCategories, userCategoriesJson string, unhandledCategoryList []string) {
     <html>
         <head>
             @Header()
@@ -385,6 +385,39 @@ templ GetParamCategory(json appdata.UserParams, jsonUC *appdata.UserCategories, 
                         <input type="text" id="formPatchCategoryID2order" name="ID2str" value="0" hidden readonly required />
                     </form>
                     <hr/>
+                    if len(unhandledCategoryList) > 0 {
+                        <h5>Catégories utilisées inconnus</h5>
+                        <small><i>
+                            Pour corriger ces catégories: 
+                            <ul>
+                                <li>exporter les données sous format <code>.csv</code></li>
+                                <li>rechercher les catégories de la liste ci-dessous</li>
+                                <li>garder uniquement les lignes concernées par cette recherche dans le fichier <code>.csv</code></li>
+                                <li>modifier les cas trouvés avec des catégories utilisées de la liste ci-dessus</li>
+                                <li>importer le <code>.csv</code> corrigé</li>
+                            </ul>
+                        </i></small>
+                        <div class="overflow-auto">
+                            <figure>
+                                <table class="striped">
+                                    <thead>
+                                        <tr>
+                                            <th scope="col">
+                                                <!-- boxes = Catégorie -->
+                                                <svg stroke="currenColor" width="28" heigth="28" viewBox="0 0 24 24"><use xlink:href="/img/icons.svg#lucide-tag"></use></svg>
+                                            </th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        for _, category := range unhandledCategoryList {
+                                            <tr><td>{ category }</td></tr>
+                                        }
+                                    </tbody>
+                                </table>
+                            </figure>
+                        </div>
+                        <hr/>
+                    }
                     <h5>
                         <!-- red x square -->
                         <svg width="18" height="18" viewBox="0 0 24 24" stroke="firebrick"><use xlink:href="/img/icons.svg#feather-x-square"></use></svg>
