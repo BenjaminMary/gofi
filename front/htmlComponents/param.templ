@@ -363,7 +363,7 @@ templ GetParamCategory(json appdata.UserParams, jsonUC *appdata.UserCategories, 
 
                     <div class="overflow-auto">
                         <figure>
-                            <table id="refreshToTopTable" class="striped">
+                            <table class="striped">
                                 @categoryTable(jsonUC)
                             </table>
                         </figure>
@@ -405,7 +405,7 @@ templ GetParamCategory(json appdata.UserParams, jsonUC *appdata.UserCategories, 
                     </i></small>
                     <div class="overflow-auto">
                         <figure>
-                            <table id="refreshToTopTable" class="striped">
+                            <table class="striped">
                                 @categoryTableInactive(jsonUC)
                             </table>
                         </figure>
@@ -414,7 +414,7 @@ templ GetParamCategory(json appdata.UserParams, jsonUC *appdata.UserCategories, 
                     <h5>Catégories système</h5>
                     <div class="overflow-auto">
                         <figure>
-                            <table id="refreshToTopTable" class="striped">
+                            <table class="striped">
                                 @categoryTableSystem(jsonUC)
                             </table>
                         </figure>
@@ -432,6 +432,10 @@ templ GetParamCategory(json appdata.UserParams, jsonUC *appdata.UserCategories, 
 }
 
 script botScriptAddClickEventToTableCatButtons() {
+    window.onbeforeunload = function () {
+        window.scrollTo(0, 0);
+    }
+
     // this script adds click events for buttons under tables
     var childButtons = document.getElementById('tableActiveCat').getElementsByTagName('button');
     var childActiveInputs = document.getElementById('tableActiveCat').getElementsByTagName('input');

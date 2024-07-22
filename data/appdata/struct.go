@@ -245,15 +245,15 @@ type CategoryPut struct {
 	ID                           int
 	IDstr                        string `json:"idStrJson"`
 	GofiID                       int
-	Type                         string
+	Type                         string `json:"type"`
 	InStats                      int
-	InStatsStr                   string
-	Description                  string
+	InStatsStr                   string `json:"inStatsStr"`
+	Description                  string `json:"description"`
 	BudgetPrice                  int
-	BudgetPriceStr               string
-	BudgetPeriod                 string
-	BudgetType                   string
-	BudgetCurrentPeriodStartDate string
+	BudgetPriceStr               string `json:"budgetPriceStr"`
+	BudgetPeriod                 string `json:"budgetPeriod"`
+	BudgetType                   string `json:"budgetType"`
+	BudgetCurrentPeriodStartDate string `json:"budgetCurrentPeriodStartDate"`
 }
 
 func (a *CategoryPut) Bind(r *http.Request) error {

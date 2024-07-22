@@ -295,7 +295,7 @@ func PutCategory(ctx context.Context, db *sql.DB, category *appdata.CategoryPut)
 			AND gofiID = ?
 	`
 	result, err := db.ExecContext(ctx, q, category.Type, category.InStats, category.Description,
-		category.BudgetPrice, category.BudgetPrice, category.BudgetType, category.BudgetCurrentPeriodStartDate,
+		category.BudgetPrice, category.BudgetPeriod, category.BudgetType, category.BudgetCurrentPeriodStartDate,
 		category.ID, category.GofiID)
 	if err != nil {
 		fmt.Printf("error1 PutCategory categoryID: %v, gofiID: %v, err: %#v\n", category.ID, category.GofiID, err)

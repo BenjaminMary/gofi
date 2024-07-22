@@ -255,6 +255,36 @@ func TestUser(t *testing.T) {
 	response = executeRequest(req, s)
 	require.Equal(t, http.StatusOK, response.Code, "should be equal")
 
+	// 22. PATCH PARAM Order
+	req, _ = http.NewRequest("PUT", "/api/param/category", strings.NewReader(`{
+		"idStrJson": "27",
+		"type": "basic",
+		"inStatsStr": "",
+		"description": "test description category envie",
+		"budgetPriceStr": "100",
+		"budgetPeriod": "month",
+		"budgetType": "reset",
+		"budgetCurrentPeriodStartDate": "2000-01-01"
+	}`))
+	req.Header.Set("sessionID", fstwo)
+	response = executeRequest(req, s)
+	require.Equal(t, http.StatusOK, response.Code, "should be equal")
+
+	// 23. PATCH PARAM Order
+	req, _ = http.NewRequest("PUT", "/api/param/category", strings.NewReader(`{
+		"idStrJson": "28",
+		"type": "periodic",
+		"inStatsStr": "on",
+		"description": "revenus",
+		"budgetPriceStr": "0",
+		"budgetPeriod": "-",
+		"budgetType": "-",
+		"budgetCurrentPeriodStartDate": "9999-12-31"
+	}`))
+	req.Header.Set("sessionID", fstwo)
+	response = executeRequest(req, s)
+	require.Equal(t, http.StatusOK, response.Code, "should be equal")
+
 	// fmt.Printf("response: %#v\n", response.Body.String())
 	// require.Equal(t, 1, 0, "force fail")
 	require.WithinDuration(t, time.Now(), testStartTime, 5*time.Second)
