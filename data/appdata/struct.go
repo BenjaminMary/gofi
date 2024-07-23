@@ -211,6 +211,7 @@ type UserParams struct {
 	CategoryListSingleString string
 	CategoryList             [][]string
 	CategoryRendering        string
+	Categories               *UserCategories
 }
 
 func NewUserCategories() *UserCategories {
@@ -406,10 +407,11 @@ type ApexChartStats struct {
 	Series    []ApexChartSerie
 }
 type ApexChartSerie struct {
-	Name   string
-	Icon   string
-	Color  string
-	Values []string
+	Name    string
+	Icon    string
+	Color   string
+	InStats int
+	Values  []string
 }
 
 type HttpStruct struct {

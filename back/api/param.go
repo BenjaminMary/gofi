@@ -11,11 +11,14 @@ import (
 	"github.com/go-chi/render"
 )
 
-func GetParam(w http.ResponseWriter, r *http.Request, isFrontRequest bool) *appdata.HttpStruct {
+func GetParam(w http.ResponseWriter, r *http.Request, isFrontRequest bool, categoryTypeFilter string, categoryTypeFilterValue string) *appdata.HttpStruct {
 	userContext := r.Context().Value(appdata.ContextUserKey).(*appdata.UserRequest)
 	var userParams appdata.UserParams
 	userParams.GofiID = userContext.GofiID
-	sqlite.GetList(r.Context(), appdata.DB, &userParams)
+	userCategories := appdata.NewUserCategories()
+	userCategories.GofiID = userContext.GofiID
+	sqlite.GetList(r.Context(), appdata.DB, &userParams, userCategories, categoryTypeFilter, categoryTypeFilterValue)
+	userParams.Categories = userCategories
 	return appdata.RenderAPIorUI(w, r, isFrontRequest, true, true, http.StatusOK, "user params retrieved", userParams)
 }
 
@@ -72,7 +75,8 @@ func PostParamCategoryRendering(w http.ResponseWriter, r *http.Request, isFrontR
 func GetCategoryIcon(w http.ResponseWriter, r *http.Request, isFrontRequest bool, categoryNameFuncParam string, cd *appdata.CategoryDetails) *appdata.HttpStruct {
 	categoryName := getURLorFUNCparam(r, categoryNameFuncParam, "")
 	cd.CategoryIcon = "e909"
-	iconCodePoint, colorHEX := sqlite.GetCategoryIcon(r.Context(), appdata.DB, categoryName)
+	userContext := r.Context().Value(appdata.ContextUserKey).(*appdata.UserRequest)
+	iconCodePoint, colorHEX := sqlite.GetCategoryIcon(r.Context(), appdata.DB, categoryName, userContext.GofiID)
 	// fmt.Printf("GetCategoryIcon iconCodePoint: %v, colorHEX: %v \n", iconCodePoint, colorHEX)
 	if iconCodePoint == "" || colorHEX == "" {
 		return appdata.RenderAPIorUI(w, r, isFrontRequest, false, false, http.StatusNotFound, "category not found", "")

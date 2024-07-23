@@ -578,7 +578,7 @@ templ categoryTable(jsonUC *appdata.UserCategories) {
     </thead>
     <tbody id="tableActiveCat">
         for i, category := range jsonUC.Categories {
-            if category.GofiID != 0 && category.InUse == 1 {
+            if category.Type != "specific" && category.InUse == 1 {
                 <tr>
                     <td>
                         <span class={ "icomoon", category.IconCodePoint }>&#x{ category.IconCodePoint };</span>
@@ -634,7 +634,7 @@ templ categoryTableInactive(jsonUC *appdata.UserCategories) {
     </thead>
     <tbody id="tableInactiveCat">
         for _, category := range jsonUC.Categories {
-            if category.GofiID != 0 && category.InUse == 0 {
+            if category.InUse == 0 {
                 <tr>
                     <td>
                         <span class={ "icomoon", category.IconCodePoint }>&#x{ category.IconCodePoint };</span>
@@ -663,7 +663,7 @@ templ categoryTableSystem(jsonUC *appdata.UserCategories) {
     </thead>
     <tbody>
         for _, category := range jsonUC.Categories {
-            if category.GofiID == 0 {
+            if category.Type == "specific" {
                 <tr>
                     <td>
                         <span class={ "icomoon", category.IconCodePoint }>&#x{ category.IconCodePoint };</span>

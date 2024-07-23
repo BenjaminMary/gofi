@@ -101,28 +101,8 @@ func initDB(folder string, dbName string) {
 			colorHSL TEXT NOT NULL,
 			colorHEX TEXT NOT NULL
 		);
-		DELETE FROM category;
-		INSERT INTO category (gofiID, category, catWhereToUse, catOrder, defaultInStats,
-			description,
-			iconName, iconCodePoint, colorName, colorHSL, colorHEX)
-		VALUES
-			(0, 'Autre', 		'basic', 	95, 1, 
-				'Permet de ranger un élément qu''on ne sait pas où placer, temporairement ou définitivement.',
-				'more-horizontal', 'e90c', 'grey', '(0,0,40)', '#666666'),
-			(0, 'Erreur', 		'basic', 	96, 1, 
-				'Utile lorsqu''on souhaite corriger un montant global sans savoir réellement quel était l''achat en question.',
-				'bug', 'e909', 'red', '(335,60,50)', '#CC3373'),
-			(0, 'Transfert', 	'specific', 97, 0, 
-				'Utilisé uniquement par le système lors de l''utilisation de la fonction transfert.',
-				'arrow-right-left', 'e91b', 'grey', '(0,0,60)', '#999999'),
-			(0, '?', 			'specific', 98, 0, 
-				'Utilisé uniquement comme icône par le système lorsqu''aucune icône ne correspond à la catégorie demandée.',
-				'help-circle', 'e90a', 'grey', '(0,0,50)', '#808080'),
-			(0, '-', 			'specific', 99, 0, 
-				'Utilisé uniquement par le système lorsqu''on supprime une ligne.',
-				'trash-2', 'e90b', 'red', '(1,60,50)', '#CC3633')
-		;
 		/*
+		DELETE FROM category;
 		INSERT INTO category (gofiID, category, catWhereToUse, catOrder, inUse,
 			iconName, iconCodePoint, colorName, colorHSL, colorHEX)
 		VALUES 
@@ -146,6 +126,26 @@ func initDB(folder string, dbName string) {
 			(-1, 'Services', 	'periodic', 18, 0, 'plug-zap', 'e907', 'purple', '(270,60,50)', '#8033CC'),
 			(-1, 'Sante', 		'all', 		19, 0, 'heart-pulse', 'e908', 'pink', '(300,60,50)', '#CC33CC'),
 			(-1, 'Animaux', 	'all', 		20, 0, 'paw-print', 'e91c', 'pink', '(320,60,50)', '#CC3399')
+		;
+		INSERT INTO category (gofiID, category, catWhereToUse, catOrder, inUse, defaultInStats,
+			description,
+			iconName, iconCodePoint, colorName, colorHSL, colorHEX)
+		VALUES
+			(-1, 'Autre', 		'basic', 	21, 0, 1, 
+				'Permet de ranger un élément qu''on ne sait pas où placer, temporairement ou définitivement.',
+				'more-horizontal', 'e90c', 'grey', '(0,0,60)', '#999999'),
+			(-1, 'Erreur', 		'basic', 	22, 0, 1, 
+				'Utile lorsqu''on souhaite corriger un montant global sans savoir réellement quel était l''achat en question.',
+				'bug', 'e909', 'red', '(335,60,50)', '#CC3373'),
+			(-1, 'Transfert', 	'specific', 97, 1, 0, 
+				'Utilisé uniquement par le système lors de l''utilisation de la fonction transfert.',
+				'arrow-right-left', 'e91b', 'grey', '(0,0,40)', '#666666'),
+			(-1, '?', 			'specific', 98, 1, 0, 
+				'Utilisé uniquement comme icône par le système lorsqu''aucune icône ne correspond à la catégorie demandée.',
+				'help-circle', 'e90a', 'grey', '(0,0,50)', '#808080'),
+			(-1, '-', 			'specific', 99, 1, 0, 
+				'Utilisé uniquement par le système lorsqu''on supprime une ligne.',
+				'trash-2', 'e90b', 'red', '(1,60,50)', '#CC3633')
 		;
 		*/
 

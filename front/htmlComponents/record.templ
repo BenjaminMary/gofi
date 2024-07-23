@@ -224,7 +224,7 @@ templ GetRecordInsert(jsonFT []appdata.FinanceTracker, jsonUP appdata.UserParams
                                     @accountInput("compte", jsonUP.AccountList, false)
                                 </div>
                             </fieldset>
-                            @categoryCustomRadioInput(jsonUP.CategoryList)
+                            @categoriesCustomRadioInput(jsonUP.Categories)
                             <fieldset role="group">
                                 <div>
                                     @amountInput()
@@ -383,7 +383,7 @@ templ GetRecordRecurrent(jsonRR []appdata.RecurrentRecord, jsonFT []appdata.Fina
                                         @accountInput("compte", jsonUP.AccountList, false)
                                     </div>
                                 </fieldset>
-                                @categoryCustomRadioInput(jsonUP.CategoryList)
+                                @categoriesCustomRadioInput(jsonUP.Categories)
                                 <fieldset role="group">
                                     <div>
                                         @amountInput()
@@ -790,7 +790,7 @@ templ GetRecordValidateOrCancel(jsonFT []appdata.FinanceTracker, jsonUP appdata.
                             <br/>
                             (revalider une ligne précédemment validée changera sa date de validation)
                         </small>
-                        @categoryCustomRadioInput(jsonUP.CategoryList)
+                        @categoriesCustomRadioInput(jsonUP.Categories)
                         <hr/>
                         <h5>Trier</h5>
                         <fieldset role="group">

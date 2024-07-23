@@ -51,7 +51,7 @@ func GetLogout(w http.ResponseWriter, r *http.Request) {
 
 // PARAM
 func GetParam(w http.ResponseWriter, r *http.Request) {
-	json := api.GetParam(w, r, true)
+	json := api.GetParam(w, r, true, "", "")
 	jsonUserParam := json.AnyStruct.(appdata.UserParams)
 	htmlComponents.GetParam(jsonUserParam).Render(r.Context(), w)
 }
@@ -81,7 +81,7 @@ func PostParamCategoryRendering(w http.ResponseWriter, r *http.Request) {
 }
 
 func GetParamCategory(w http.ResponseWriter, r *http.Request) {
-	jsonUP := api.GetParam(w, r, true)
+	jsonUP := api.GetParam(w, r, true, "", "")
 	jsonUserParam := jsonUP.AnyStruct.(appdata.UserParams)
 	for i, item := range jsonUserParam.CategoryList {
 		jsonUserParam.CategoryList[i] = append(item, "input"+strconv.Itoa(i))
@@ -91,7 +91,7 @@ func GetParamCategory(w http.ResponseWriter, r *http.Request) {
 	// categoryList, iconCodePointList, colorHEXList := sqlite.GetCategoryList(r.Context(), appdata.DB)
 	userCategories := appdata.NewUserCategories()
 	userCategories.GofiID = jsonUserParam.GofiID
-	sqlite.GetFullCategoryList(r.Context(), appdata.DB, userCategories)
+	sqlite.GetFullCategoryList(r.Context(), appdata.DB, userCategories, "", "")
 	userCategoriesJson, err := json.Marshal(userCategories)
 	if err != nil {
 		fmt.Println(err)
@@ -116,7 +116,7 @@ func PatchParamCategoryOrder(w http.ResponseWriter, r *http.Request) {
 func GetRecordInsert(w http.ResponseWriter, r *http.Request) {
 	jsonFT := api.GetRecords(w, r, true)
 	jsonFTlist := jsonFT.AnyStruct.([]appdata.FinanceTracker)
-	jsonUP := api.GetParam(w, r, true)
+	jsonUP := api.GetParam(w, r, true, "type", "basic")
 	jsonUserParam := jsonUP.AnyStruct.(appdata.UserParams)
 	for i, item := range jsonUserParam.CategoryList {
 		jsonUserParam.CategoryList[i] = append(item, "input"+strconv.Itoa(i))
@@ -139,7 +139,7 @@ func PostRecordInsert(w http.ResponseWriter, r *http.Request) {
 func GetRecordTransfer(w http.ResponseWriter, r *http.Request) {
 	jsonFT := api.GetRecords(w, r, true)
 	jsonFTlist := jsonFT.AnyStruct.([]appdata.FinanceTracker)
-	jsonUP := api.GetParam(w, r, true)
+	jsonUP := api.GetParam(w, r, true, "", "")
 	jsonUserParam := jsonUP.AnyStruct.(appdata.UserParams)
 	for i, item := range jsonUserParam.CategoryList {
 		jsonUserParam.CategoryList[i] = append(item, "input"+strconv.Itoa(i))
@@ -165,7 +165,7 @@ func GetRecordRecurrent(w http.ResponseWriter, r *http.Request) {
 	if jsonFT.IsValidResponse {
 		jsonFTlist = jsonFT.AnyStruct.([]appdata.FinanceTracker)
 	}
-	jsonUP := api.GetParam(w, r, true)
+	jsonUP := api.GetParam(w, r, true, "type", "periodic")
 	jsonUserParam := jsonUP.AnyStruct.(appdata.UserParams)
 	for i, item := range jsonUserParam.CategoryList {
 		jsonUserParam.CategoryList[i] = append(item, "input"+strconv.Itoa(i))
@@ -242,7 +242,7 @@ func GetRecordValidateOrCancel(w http.ResponseWriter, r *http.Request) {
 			jsonFTlist[i].IDstr = "v" + strconv.Itoa(item.ID)
 		}
 	}
-	jsonUP := api.GetParam(w, r, true)
+	jsonUP := api.GetParam(w, r, true, "", "")
 	jsonUserParam := jsonUP.AnyStruct.(appdata.UserParams)
 	forceSelectCategory := [][]string{{"", "e90a", "#808080", "input0", "icon0"}} // ? icon for default value
 	currentCategoryList := jsonUserParam.CategoryList

@@ -107,7 +107,7 @@ func (s *Server) MountBackHandlers() {
 			r.Use(appmiddleware.AuthenticatedUserOnly)
 			// PARAMS
 			r.Route("/param", func(r chi.Router) {
-				r.Get("/", func(w http.ResponseWriter, r *http.Request) { api.GetParam(w, r, false) })
+				r.Get("/", func(w http.ResponseWriter, r *http.Request) { api.GetParam(w, r, false, "", "") })
 				r.Post("/account", func(w http.ResponseWriter, r *http.Request) { api.PostParamAccount(w, r, false) })
 				r.Get("/category/{categoryName}", func(w http.ResponseWriter, r *http.Request) {
 					api.GetCategoryIcon(w, r, false, "", &appdata.CategoryDetails{})

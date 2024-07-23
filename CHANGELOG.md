@@ -1,6 +1,12 @@
 # Changelog
 
 ## v1 rework with go-chi
+- 2024-07-23 : 
+    - packages update + go 1.22
+    - category rework
+- REVOIR LES CATEGORIES SYSTEMES
+    - impossible de mettre un gofiID différent, sinon complique toutes les jointures, voir pour générer les champs systèmes pour chaque user
+    - permettra aussi de lui laisser la main sur l'utilisation de Autre et Erreur, bloquer la modif sur les types "specific"
 - 2024-07-13 : 
     - add a transfer category with iconfont
     - add more distance between category colors

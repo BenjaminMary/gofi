@@ -190,7 +190,7 @@ func GetStatsInFinanceTracker(ctx context.Context, db *sql.DB, gofiID int,
 
 	// initialize all categories with values to 0
 	q3 := ` 
-		SELECT DISTINCT fT.category, ifnull(c.iconCodePoint,'e90a') AS icp, ifnull(c.colorHEX,'#808080') AS ch
+		SELECT DISTINCT fT.category, ifnull(c.iconCodePoint,'e90a') AS icp, ifnull(c.colorHEX,'#808080') AS ch, ifnull(c.defaultInStats,1) AS inst
 		FROM financeTracker AS fT
 			LEFT JOIN category AS c ON c.category = fT.category AND c.gofiID = fT.gofiID
 		WHERE fT.gofiID = ?
@@ -222,12 +222,14 @@ func GetStatsInFinanceTracker(ctx context.Context, db *sql.DB, gofiID int,
 		loop += 1
 		var apexChartSerie appdata.ApexChartSerie
 		var category, iconCodePoint, colorHEX string
-		if err := rows.Scan(&category, &iconCodePoint, &colorHEX); err != nil {
+		var defaultInStats int
+		if err := rows.Scan(&category, &iconCodePoint, &colorHEX, &defaultInStats); err != nil {
 			log.Fatal(err)
 		}
 		apexChartSerie.Name = category
 		apexChartSerie.Icon = "&#x" + iconCodePoint + ";"
 		apexChartSerie.Color = colorHEX
+		apexChartSerie.InStats = defaultInStats
 		for i := 0; i < len(apexChartStats.Labels); i++ {
 			apexChartSerie.Values = append(apexChartSerie.Values, "0")
 		}

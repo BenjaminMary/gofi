@@ -17,47 +17,25 @@
             - ☑ ajouter un switch gains/dépense
             - ☐ afficher les noms des catégories lors du clic/survol d'une catégo dans le graph
             - ☑ retirer la fonctionnalité de grouper les catégories, inutile
-- ☑ sur toutes les tables, mettre la désignation à la fin pour gagner de la visibilité sur smartphone (voir partie validation qui est ok)
-- ☑ dates via svg = 22 jan, fev, mar, avr, mai, juin, juil, aou ...
-- ☑ dès que toutes les fonctionnalités essentielles sont en place, démarrer des tests fonctionnels
 - ☐ faire des tests automatisés pour la partie front
-- ☑ ajout système de données récurrentes:
-    - ☑ factures + revenus mensuelles
-    - ☑ création, édition, suppression
-    - ☑ enregistrement avec ajout de jour/mois/année auto à chaque enregistrement
-    - ☑ fix remettre le submit en mode création après avoir utilisé le mode édition/suppression
+- ☐ ajout système de données récurrentes:
     - ☐ améliorer l'UI en bloquant l'espace via `visibility: hidden`, permettra de ne plus faire de trou dans la page au changement
         - vérif si bien impossible de cliquer sur l'elem invisible, sinon ajouter un `disable`
 - ☐❗❗ ajout système de budget:
+    - ☑ ajout des champs et possibilité de modification des infos de budget
     - ☐ budget de dépense par catégorie
-- ☐❗ simplifier les catégories:
+    - ☐ stats sur les budgets activés
+    - ☐ info sur le budget en cours à la saisie ?
+- ☐ simplifier les catégories:
     - ☐ ajouter 2 niveaux de catégories, avec en mode simple 1 seul niveau obligatoire
-    - ☑ ajouter des logos + couleurs par catégorie
-    - ☐ nouvelle page de modif des catégories à faire, améliorer l'UI actuelle
-    - ☑ rajouter des catégories:
-        - ☑ "Autre" par défaut, avec ... en icone et couleur grise ? (more_horiz e5d3 = ...)
-        - ☑ "-" avec corbeille en icone = delete e872 couleur rouge
-    - ☑ renommer Véhicule qui semble faire planter les correspondances à cause de l'accent (ne faisait pas planter mais é retiré pour ne plus avoir le doute)
-    - ☑ renommer Investissement + Restaurant trop long sur smartphone (max 8 car)
-    - ☑ voir si possible d'ajouter le logo dans les listes déroulantes de sélection de catégorie
-    - ☑ voir si possible d'ajouter les icones et couleurs dans les listes d'articles, à la place d'écrire les noms des catégories (gain de place dans les tables)
-        - ☑ mettre cette fonctionnalité en paramètre, pour pouvoir garder les noms de catégories si souhaité (accessibilité)
-    - nouvelles tables 
-        - ☑ catégorie dédiée: id, nom, couleur, icone
-        - ☐ join: user ID associé à category ID
 - ☐ ajout préférences utilisateur:
     - ☐ gestion des préférences de format de date EN + FR avec / ou -
     - ☐ gestion des préférences de format csv séparateur colonne + separateur décimal
     - ☐ laisser l'overide possible dans les parties import/export csv, mais préselectionner la préférence
 - ☐ partie import export CSV: 
-    - ☑ MAJ le champ `exported` lors des exports et modifications de données
     - ☐❗❗ ajouter un champ `-` à la fin du csv pour permettre l'édition dans Excel + sauvegarde et réimporter directement
     - ☐ mettre un champ `lastCSVexport` de type date par user à ramener dans le menu (ok si - d'1 mois, ko sinon)
         - ☐ compter le nombre de lignes à exporter et afficher/bloquer un import si différent de 0 ?
-    - ☑ ajouter un template de fichier csv (dispo partie import dans les explications)
-    - ☑ objectif: chaque export génère un fichier avec l'ensemble des dernières modifs
-        - ☑ en jouant toutes les sauvegardes historisées dans l'ordre chronologique, on retrouve l'état des données souhaité
-        - ☑ ajout d'une option de RAZ de la colonne `exported`
 - ☐ ajout validation des dépenses: POST ValidateRows
     - ☑ système qui ramène l'ensemble des lignes encore non validées
     - ☑ voir pour permettre de la validation de groupe en saisissant une date unique et en sélectionnant X lignes
@@ -70,15 +48,34 @@
     - ☐ les autres utilisateurs peuvent se connecter en simultané sur le compte sans possibilité d'ajout d'autres nouveaux
     - ☐ 1 ligne de login active par utilisateur, permettra du multi utilisateur / multi login sur différentes plateformes
 - ☐ Ajout de statistiques 
-    - ☑ pouvoir différencier les montants déjà validés vs non validés
-    - ☑ visualisation des données avec filtre et tri via table simple
-        - ☐ voir pour mettre un tableur ? + rendre editable ou suppr de ligne
-            - https://github.com/wenzhixin/bootstrap-table
-            - https://github.com/jspreadsheet/ce
-                - https://bossanova.uk/jspreadsheet/v4/docs/quick-reference
     - ☐ sur le nombre de requêtes des utilisateurs pour voir les actifs ? (tableau admin?)
     - ☐ ajouter un graph des dépenses mois par mois (des 6/12 derniers mois ?)
-    - ☑ ajouter le montant total en cours de validation/annulation lors de la sélection des lignes
+
+
+## Done
+- ☑ sur toutes les tables, mettre la désignation à la fin pour gagner de la visibilité sur smartphone (voir partie validation qui est ok)
+- ☑ dates via svg = 22 jan, fev, mar, avr, mai, juin, juil, aou ...
+- ☑ dès que toutes les fonctionnalités essentielles sont en place, démarrer des tests fonctionnels
+
+- ☑ ajout système de données récurrentes:
+    - ☑ factures + revenus mensuelles
+    - ☑ création, édition, suppression
+    - ☑ enregistrement avec ajout de jour/mois/année auto à chaque enregistrement
+    - ☑ fix remettre le submit en mode création après avoir utilisé le mode édition/suppression
+- ☑ simplifier les catégories:
+    - ☑ ajouter des logos + couleurs par catégorie
+    - ☑ nouvelle page de modif des catégories à faire, améliorer l'UI actuelle
+    - ☑ rajouter des catégories:
+        - ☑ "Autre" par défaut, avec ... en icone et couleur grise ? (more_horiz e5d3 = ...)
+        - ☑ "-" avec corbeille en icone = delete e872 couleur rouge
+    - ☑ renommer Véhicule qui semble faire planter les correspondances à cause de l'accent (ne faisait pas planter mais é retiré pour ne plus avoir le doute)
+    - ☑ renommer Investissement + Restaurant trop long sur smartphone (max 8 car)
+    - ☑ voir si possible d'ajouter le logo dans les listes déroulantes de sélection de catégorie
+    - ☑ voir si possible d'ajouter les icones et couleurs dans les listes d'articles, à la place d'écrire les noms des catégories (gain de place dans les tables)
+        - ☑ mettre cette fonctionnalité en paramètre, pour pouvoir garder les noms de catégories si souhaité (accessibilité)
+    - nouvelles tables 
+        - ☑ catégorie dédiée: id, nom, couleur, icone
+        - ☑ join: user ID associé à category ID
 - ☑ Ajout sauvegarde DB SQLite sur Drive
     - ☑ avec table SQLite qui garde les ID + nom + date de fichiers sauvegardés + le statut de l'upload (pas besoin l'API Google redonne toutes les infos)
     - ☑ voir pour fermer le server et faire la sauvegarde au restart après quelques commandes de nettoyage de DB (semble ok)
@@ -87,6 +84,22 @@
     - ☑ cron based backup : 
         - ☑ made with a go scheduler
         - ☒ https://litestream.io/alternatives/cron/ + monitoring : https://deadmanssnitch.com/account/sign_up?plan=the_lone_snitch
+- ☑ partie import export CSV: 
+    - ☑ MAJ le champ `exported` lors des exports et modifications de données
+    - ☑ ajouter un template de fichier csv (dispo partie import dans les explications)
+    - ☑ objectif: chaque export génère un fichier avec l'ensemble des dernières modifs
+        - ☑ en jouant toutes les sauvegardes historisées dans l'ordre chronologique, on retrouve l'état des données souhaité
+        - ☑ ajout d'une option de RAZ de la colonne `exported`
+- ☑ Ajout de statistiques 
+    - ☑ pouvoir différencier les montants déjà validés vs non validés
+    - ☑ visualisation des données avec filtre et tri via table simple
+        - ☒ voir pour mettre un tableur ? + rendre editable ou suppr de ligne
+            - https://github.com/wenzhixin/bootstrap-table
+            - https://github.com/jspreadsheet/ce
+                - https://bossanova.uk/jspreadsheet/v4/docs/quick-reference
+    - ☑ ajouter le montant total en cours de validation/annulation lors de la sélection des lignes
+
+## Infos
 - PWA
     - Ajout SQLite en WebAssembly ?
 - voir pour réduire le nombre d'ouverture/fermeture de DB

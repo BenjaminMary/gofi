@@ -488,6 +488,12 @@ script barChart() {
     };
     var barChart = new ApexCharts(document.getElementById("bar-chart"), options); //.querySelector("#bar-chart")
     barChart.render();
+    // hide categories with defaultInStats at 0
+    for (let i = 0; i < seriesList.length; i++) {
+        if (apexChartStats.Series[i].InStats == 0) {
+            barChart.hideSeries(seriesList[i]["name"]);
+        };
+    };
 
     document.getElementById("btn-hide-categories").addEventListener('click', function (evt) {
         // console.log(seriesList);
