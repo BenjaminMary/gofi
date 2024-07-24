@@ -175,13 +175,13 @@ func InitCategoriesForUser(ctx context.Context, db *sql.DB, gofiID int) {
 		rowsAffected, err = result.RowsAffected()
 		switch {
 		case err == sql.ErrNoRows:
-			rowsAffected = 5
+			rowsAffected = 0
 		case err != nil:
 			log.Fatalf("InitCategoriesForUser query error5: %v\n", err)
 			//default:
 		}
-		if rowsAffected != 20 {
-			log.Fatalf("InitCategoriesForUser query error6: %v\n", err)
+		if rowsAffected != 5 {
+			log.Fatalf("InitCategoriesForUser query error6 rowsAffected: %v\n", rowsAffected)
 		}
 	}
 }
