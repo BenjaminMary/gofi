@@ -81,23 +81,16 @@ func PostParamCategoryRendering(w http.ResponseWriter, r *http.Request) {
 }
 
 func GetParamCategory(w http.ResponseWriter, r *http.Request) {
-	jsonUP := api.GetParam(w, r, true, "", "")
-	jsonUserParam := jsonUP.AnyStruct.(appdata.UserParams)
-	for i, item := range jsonUserParam.CategoryList {
-		jsonUserParam.CategoryList[i] = append(item, "input"+strconv.Itoa(i))
-		jsonUserParam.CategoryList[i] = append(jsonUserParam.CategoryList[i], "icon"+strconv.Itoa(i))
-	}
-	// fmt.Printf("jsonUserParam.CategoryList: %#v \n", jsonUserParam.CategoryList)
-	// categoryList, iconCodePointList, colorHEXList := sqlite.GetCategoryList(r.Context(), appdata.DB)
+	userContext := r.Context().Value(appdata.ContextUserKey).(*appdata.UserRequest)
 	userCategories := appdata.NewUserCategories()
-	userCategories.GofiID = jsonUserParam.GofiID
+	userCategories.GofiID = userContext.GofiID
 	sqlite.GetFullCategoryList(r.Context(), appdata.DB, userCategories, "", "")
 	userCategoriesJson, err := json.Marshal(userCategories)
 	if err != nil {
 		fmt.Println(err)
 	}
 	unhandledCategoryList := sqlite.GetUnhandledCategoryList(r.Context(), appdata.DB, userCategories.GofiID)
-	htmlComponents.GetParamCategory(jsonUserParam, userCategories, string(userCategoriesJson), unhandledCategoryList).Render(r.Context(), w)
+	htmlComponents.GetParamCategory(userCategories, string(userCategoriesJson), unhandledCategoryList).Render(r.Context(), w)
 }
 func PutParamCategory(w http.ResponseWriter, r *http.Request) {
 	api.PutParamCategory(w, r, true)
@@ -109,7 +102,11 @@ func PatchParamCategoryInUse(w http.ResponseWriter, r *http.Request) {
 }
 func PatchParamCategoryOrder(w http.ResponseWriter, r *http.Request) {
 	api.PatchParamCategoryOrder(w, r, true)
-	htmlComponents.PatchParamCategoryOrder().Render(r.Context(), w)
+	userContext := r.Context().Value(appdata.ContextUserKey).(*appdata.UserRequest)
+	userCategories := appdata.NewUserCategories()
+	userCategories.GofiID = userContext.GofiID
+	sqlite.GetFullCategoryList(r.Context(), appdata.DB, userCategories, "", "")
+	htmlComponents.PatchParamCategoryOrder(userCategories).Render(r.Context(), w)
 }
 
 // RECORD

@@ -143,8 +143,9 @@ templ PutParamCategory() {
 templ PatchParamCategoryInUse() {
     
 }
-templ PatchParamCategoryOrder() {
-    
+templ PatchParamCategoryOrder(jsonUC *appdata.UserCategories) {
+    @categoryTable(jsonUC)
+    @botScriptAddClickEventToTableCatButtons()
 }
 templ PostParamCategoryRendering(httpStatus int, ParamJSONstringData string) {
     switch httpStatus {
@@ -169,7 +170,7 @@ templ PostParamCategoryRendering(httpStatus int, ParamJSONstringData string) {
     @PageRefreshButton()
 }
 
-templ GetParamCategory(json appdata.UserParams, jsonUC *appdata.UserCategories, userCategoriesJson string, unhandledCategoryList []string) {
+templ GetParamCategory(jsonUC *appdata.UserCategories, userCategoriesJson string, unhandledCategoryList []string) {
     <html>
         <head>
             @Header()
@@ -363,7 +364,7 @@ templ GetParamCategory(json appdata.UserParams, jsonUC *appdata.UserCategories, 
 
                     <div class="overflow-auto">
                         <figure>
-                            <table class="striped">
+                            <table id="activeCategoryTable" class="striped">
                                 @categoryTable(jsonUC)
                             </table>
                         </figure>
@@ -371,6 +372,7 @@ templ GetParamCategory(json appdata.UserParams, jsonUC *appdata.UserCategories, 
                     <form id="formPatchInUseCategory" 
                         hx-trigger="onCheckboxSwitch"
                         hx-patch="/param/category/in-use" 
+                        hx-swap="none"
                         hx-sync="this:drop">
                         <!-- Text -->
                         <input type="text" id="formPatchCategoryID" name="IDstr" value="0" hidden readonly required />
@@ -379,6 +381,8 @@ templ GetParamCategory(json appdata.UserParams, jsonUC *appdata.UserCategories, 
                     <form id="formPatchOrderCategory" 
                         hx-trigger="onArrowClick"
                         hx-patch="/param/category/order" 
+                        hx-swap="innerHTML"
+                        hx-target="#activeCategoryTable" 
                         hx-sync="this:drop">
                         <!-- Text -->
                         <input type="text" id="formPatchCategoryID1order" name="ID1str" value="0" hidden readonly required />
@@ -519,7 +523,6 @@ script botScriptAddClickEventToTableCatButtons() {
                     document.getElementById('formPatchCategoryID1order').value = bID1;
                     document.getElementById('formPatchCategoryID2order').value = bID2;
                     htmx.trigger("#formPatchOrderCategory", "onArrowClick");
-                    location.reload();
                 });
                 break;
         };
@@ -533,7 +536,7 @@ script botScriptAddClickEventToTableCatButtons() {
             document.getElementById('formPatchCategoryID').value = idActiveCategoryInput;
             document.getElementById('formPatchCategoryInUse').value = "0";
             htmx.trigger("#formPatchInUseCategory", "onCheckboxSwitch");
-            location.reload();
+            document.getElementById('tr-'+idActiveCategoryInput).remove();
         });
     };
     for (var i = 0; i < childInactiveInputs.length; i++) {
@@ -546,7 +549,7 @@ script botScriptAddClickEventToTableCatButtons() {
             document.getElementById('formPatchCategoryInUse').value = "1";
             // console.log("id: " + (idInactiveCategoryInput).toString());
             htmx.trigger("#formPatchInUseCategory", "onCheckboxSwitch");
-            location.reload();
+            document.getElementById('tr-'+idInactiveCategoryInput).remove();
         });
     };
 }
@@ -579,7 +582,7 @@ templ categoryTable(jsonUC *appdata.UserCategories) {
     <tbody id="tableActiveCat">
         for i, category := range jsonUC.Categories {
             if category.Type != "specific" && category.InUse == 1 {
-                <tr>
+                <tr id={ "tr-" + strconv.Itoa(category.ID) }>
                     <td>
                         <span class={ "icomoon", category.IconCodePoint }>&#x{ category.IconCodePoint };</span>
                         <br/>
@@ -635,7 +638,7 @@ templ categoryTableInactive(jsonUC *appdata.UserCategories) {
     <tbody id="tableInactiveCat">
         for _, category := range jsonUC.Categories {
             if category.InUse == 0 {
-                <tr>
+                <tr id={ "tr-" + strconv.Itoa(category.ID) }>
                     <td>
                         <span class={ "icomoon", category.IconCodePoint }>&#x{ category.IconCodePoint };</span>
                         { category.Name }

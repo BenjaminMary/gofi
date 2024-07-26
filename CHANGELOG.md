@@ -3,6 +3,7 @@
 ## v1 rework with go-chi
 - 2024-07-26 : 
     - change stats calculation to stop showing negative and positive value for the same category, now only show 1 total for each category
+    - remove the autoreload on change in the category front page
 - 2024-07-23 : 
     - packages update + go 1.22
     - category rework
