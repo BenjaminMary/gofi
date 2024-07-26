@@ -11,11 +11,14 @@ import (
 	"github.com/go-chi/render"
 )
 
-func GetParamSetup(w http.ResponseWriter, r *http.Request, isFrontRequest bool) *appdata.HttpStruct {
+func GetParam(w http.ResponseWriter, r *http.Request, isFrontRequest bool, categoryTypeFilter string, categoryTypeFilterValue string) *appdata.HttpStruct {
 	userContext := r.Context().Value(appdata.ContextUserKey).(*appdata.UserRequest)
 	var userParams appdata.UserParams
 	userParams.GofiID = userContext.GofiID
-	sqlite.GetList(r.Context(), appdata.DB, &userParams)
+	userCategories := appdata.NewUserCategories()
+	userCategories.GofiID = userContext.GofiID
+	sqlite.GetList(r.Context(), appdata.DB, &userParams, userCategories, categoryTypeFilter, categoryTypeFilterValue)
+	userParams.Categories = userCategories
 	return appdata.RenderAPIorUI(w, r, isFrontRequest, true, true, http.StatusOK, "user params retrieved", userParams)
 }
 
@@ -35,7 +38,7 @@ func cleanStringList(stringList string) string {
 	}
 	return cleanedStringResult
 }
-func postParamSetup(w http.ResponseWriter, r *http.Request, isFrontRequest bool, paramName string, paramInfo string) *appdata.HttpStruct {
+func postParam(w http.ResponseWriter, r *http.Request, isFrontRequest bool, paramName string, paramInfo string) *appdata.HttpStruct {
 	param := &appdata.Param{}
 	if err := render.Bind(r, param); err != nil {
 		fmt.Printf("error: %v\n", err.Error())
@@ -53,18 +56,18 @@ func postParamSetup(w http.ResponseWriter, r *http.Request, isFrontRequest bool,
 	}
 	return appdata.RenderAPIorUI(w, r, isFrontRequest, true, true, http.StatusOK, "user param updated", param)
 }
-func PostParamSetupAccount(w http.ResponseWriter, r *http.Request, isFrontRequest bool) *appdata.HttpStruct {
-	return postParamSetup(w, r, isFrontRequest,
+func PostParamAccount(w http.ResponseWriter, r *http.Request, isFrontRequest bool) *appdata.HttpStruct {
+	return postParam(w, r, isFrontRequest,
 		"accountList",
 		"Liste des comptes (séparer par des , sans espaces)")
 }
-func PostParamSetupCategory(w http.ResponseWriter, r *http.Request, isFrontRequest bool) *appdata.HttpStruct {
-	return postParamSetup(w, r, isFrontRequest,
+func PostParamCategory(w http.ResponseWriter, r *http.Request, isFrontRequest bool) *appdata.HttpStruct {
+	return postParam(w, r, isFrontRequest,
 		"categoryList",
 		"Liste des catégories (séparer par des , sans espaces)")
 }
-func PostParamSetupCategoryRendering(w http.ResponseWriter, r *http.Request, isFrontRequest bool) *appdata.HttpStruct {
-	return postParamSetup(w, r, isFrontRequest,
+func PostParamCategoryRendering(w http.ResponseWriter, r *http.Request, isFrontRequest bool) *appdata.HttpStruct {
+	return postParam(w, r, isFrontRequest,
 		"categoryRendering",
 		"Affichage des catégories: icons | names")
 }
@@ -72,7 +75,8 @@ func PostParamSetupCategoryRendering(w http.ResponseWriter, r *http.Request, isF
 func GetCategoryIcon(w http.ResponseWriter, r *http.Request, isFrontRequest bool, categoryNameFuncParam string, cd *appdata.CategoryDetails) *appdata.HttpStruct {
 	categoryName := getURLorFUNCparam(r, categoryNameFuncParam, "")
 	cd.CategoryIcon = "e909"
-	iconCodePoint, colorHEX := sqlite.GetCategoryIcon(r.Context(), appdata.DB, categoryName)
+	userContext := r.Context().Value(appdata.ContextUserKey).(*appdata.UserRequest)
+	iconCodePoint, colorHEX := sqlite.GetCategoryIcon(r.Context(), appdata.DB, categoryName, userContext.GofiID)
 	// fmt.Printf("GetCategoryIcon iconCodePoint: %v, colorHEX: %v \n", iconCodePoint, colorHEX)
 	if iconCodePoint == "" || colorHEX == "" {
 		return appdata.RenderAPIorUI(w, r, isFrontRequest, false, false, http.StatusNotFound, "category not found", "")
@@ -82,20 +86,65 @@ func GetCategoryIcon(w http.ResponseWriter, r *http.Request, isFrontRequest bool
 	return appdata.RenderAPIorUI(w, r, isFrontRequest, false, true, http.StatusOK, "category info found", cd)
 }
 
+func PutParamCategory(w http.ResponseWriter, r *http.Request, isFrontRequest bool) *appdata.HttpStruct {
+	categoryPut := &appdata.CategoryPut{}
+	if err := render.Bind(r, categoryPut); err != nil {
+		fmt.Printf("error: %v\n", err.Error())
+		return appdata.RenderAPIorUI(w, r, isFrontRequest, true, false, http.StatusBadRequest, "invalid request, double check each field", "")
+	}
+	userContext := r.Context().Value(appdata.ContextUserKey).(*appdata.UserRequest)
+	categoryPut.GofiID = userContext.GofiID
+	successBool := sqlite.PutCategory(r.Context(), appdata.DB, categoryPut)
+	if !successBool {
+		return appdata.RenderAPIorUI(w, r, isFrontRequest, false, false, http.StatusNotFound, "category not updated", categoryPut.ID)
+	}
+	return appdata.RenderAPIorUI(w, r, isFrontRequest, false, true, http.StatusOK, "category updated", categoryPut.ID)
+}
+
+func PatchParamCategoryInUse(w http.ResponseWriter, r *http.Request, isFrontRequest bool) *appdata.HttpStruct {
+	categoryInUse := &appdata.CategoryPatchInUse{}
+	if err := render.Bind(r, categoryInUse); err != nil {
+		fmt.Printf("error: %v\n", err.Error())
+		return appdata.RenderAPIorUI(w, r, isFrontRequest, true, false, http.StatusBadRequest, "invalid request, double check each field", "")
+	}
+	userContext := r.Context().Value(appdata.ContextUserKey).(*appdata.UserRequest)
+	categoryInUse.GofiID = userContext.GofiID
+	successBool := sqlite.PatchCategoryInUse(r.Context(), appdata.DB, categoryInUse)
+	if !successBool {
+		return appdata.RenderAPIorUI(w, r, isFrontRequest, false, false, http.StatusNotFound, "category inUse not updated", categoryInUse.ID)
+	}
+	return appdata.RenderAPIorUI(w, r, isFrontRequest, false, true, http.StatusOK, "category inUse updated", categoryInUse.ID)
+}
+
+func PatchParamCategoryOrder(w http.ResponseWriter, r *http.Request, isFrontRequest bool) *appdata.HttpStruct {
+	categoryOrder := &appdata.CategoryPatchOrder{}
+	if err := render.Bind(r, categoryOrder); err != nil {
+		fmt.Printf("error: %v\n", err.Error())
+		return appdata.RenderAPIorUI(w, r, isFrontRequest, true, false, http.StatusBadRequest, "invalid request, double check each field", "")
+	}
+	userContext := r.Context().Value(appdata.ContextUserKey).(*appdata.UserRequest)
+	categoryOrder.GofiID = userContext.GofiID
+	successBool := sqlite.PatchCategoryOrder(r.Context(), appdata.DB, categoryOrder)
+	if !successBool {
+		return appdata.RenderAPIorUI(w, r, isFrontRequest, false, false, http.StatusNotFound, "category order not updated", "")
+	}
+	return appdata.RenderAPIorUI(w, r, isFrontRequest, false, true, http.StatusOK, "category order updated", "")
+}
+
 /*
-// GET CategorySetup.html
-func getCategorySetup() {
+// GET Category.html
+func getCategory() {
 	// var CategoryList, IconCodePointList, ColorHEXList []string
 	// CategoryList, IconCodePointList, ColorHEXList = sqlite.GetCategoryList(ctx, db)
-	// c.HTML(http.StatusOK, "2.2.categorySetup.html", gin.H{
+	// c.HTML(http.StatusOK, "2.2.category.html", gin.H{
 	//     "CategoryList": CategoryList,
 	//     "IconCodePointList": IconCodePointList,
 	//     "ColorHEXList": ColorHEXList,
 	// })
 }
 
-// POST CategorySetup.html
-func postCategorySetup() {
+// POST Category.html
+func postCategory() {
 	var returnedString string
 	returnedString = "empty"
 	// c.String(200, returnedString)
@@ -103,6 +152,6 @@ func postCategorySetup() {
 */
 /*
 ```powershell
-curl -X GET -H "Content-Type: application/json" --include --location "http://localhost:8083/api/param/setup"
+curl -X GET -H "Content-Type: application/json" --include --location "http://localhost:8083/api/param"
 ```
 */

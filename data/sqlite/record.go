@@ -28,9 +28,9 @@ func GetRowsInFinanceTracker(ctx context.Context, db *sql.DB, filter *appdata.Fi
 	// (golang sql package does not support dynamic sql on other things than values)
 	q := ` 
 		SELECT COUNT(1) 
-		FROM financeTracker AS f
-			LEFT JOIN category AS c ON c.category = f.category
-		WHERE gofiID = ?
+		FROM financeTracker AS fT
+			LEFT JOIN category AS c ON c.category = fT.category AND c.gofiID = fT.gofiID
+		WHERE fT.gofiID = ?
 	`
 	// others where on 3 fields max = 7 possibilities
 	if filter.WhereAccount != "" { //1
@@ -41,7 +41,7 @@ func GetRowsInFinanceTracker(ctx context.Context, db *sql.DB, filter *appdata.Fi
 	if filter.WhereCategory != "" { //2
 		queryValues += 2
 		fmt.Println("filter.WhereCategory is used")
-		q += ` AND f.category = ? `
+		q += ` AND fT.category = ? `
 	}
 	if filter.WhereYear != 0 { //4
 		queryValues += 4
@@ -92,7 +92,7 @@ func GetRowsInFinanceTracker(ctx context.Context, db *sql.DB, filter *appdata.Fi
 	q += ` ORDER BY `
 	switch filter.OrderBy {
 	case "id":
-		q += ` f.id `
+		q += ` fT.id `
 	case "date":
 		fmt.Println("case date is used")
 		q += ` (year*10000 + month*100 + day) `
@@ -101,7 +101,7 @@ func GetRowsInFinanceTracker(ctx context.Context, db *sql.DB, filter *appdata.Fi
 		} else {
 			q += ` ASC `
 		}
-		q += ` , f.id `
+		q += ` , fT.id `
 	case "price":
 		q += ` priceIntx100 `
 		if filter.OrderSort == "DESC" {
@@ -109,9 +109,9 @@ func GetRowsInFinanceTracker(ctx context.Context, db *sql.DB, filter *appdata.Fi
 		} else {
 			q += ` ASC `
 		}
-		q += ` , f.id `
+		q += ` , fT.id `
 	default:
-		q += ` f.id `
+		q += ` fT.id `
 	}
 	if filter.OrderSort == "DESC" {
 		q += ` DESC `
@@ -124,13 +124,13 @@ func GetRowsInFinanceTracker(ctx context.Context, db *sql.DB, filter *appdata.Fi
 	//fmt.Printf("q: %v\n", q)
 	// end building query
 	q2 := strings.Replace(q, `COUNT(1)`,
-		`f.id, f.gofiID, year, month, day, account, product, priceIntx100, 
-			f.category, ifnull(c.iconCodePoint,'e90a') AS icp, ifnull(c.colorHEX,'#808080') AS ch, 
+		`fT.id, fT.gofiID, year, month, day, account, product, priceIntx100, 
+			fT.category, ifnull(c.iconCodePoint,'e90a') AS icp, ifnull(c.colorHEX,'#808080') AS ch, 
 			checked, dateChecked`, 1)
 
 	row := execSingleRow(queryValues, db, ctx, q, filter)
 	if err := row.Scan(&totalRowsWithoutLimit); err != nil {
-		fmt.Printf("err: %v\n", err)
+		fmt.Printf("GetRowsInFinanceTracker err1: %v\n", err)
 		log.Fatal(err)
 	}
 	var totalPriceIntx100 int = 0
@@ -144,7 +144,7 @@ func GetRowsInFinanceTracker(ctx context.Context, db *sql.DB, filter *appdata.Fi
 		var ft appdata.FinanceTracker
 		if err := row.Scan(&ft.ID, &ft.GofiID, &ft.DateDetails.Year, &ft.DateDetails.Month, &ft.DateDetails.Day, &ft.Account, &ft.Product, &ft.PriceIntx100,
 			&ft.Category, &ft.CategoryDetails.CategoryIcon, &ft.CategoryDetails.CategoryColor, &ft.Checked, &ft.DateChecked); err != nil {
-			fmt.Printf("err: %v\n", err)
+			fmt.Printf("GetRowsInFinanceTracker err2: %v\n", err)
 			log.Fatal(err)
 		}
 		ft.FormPriceStr2Decimals = ConvertPriceIntToStr(ft.PriceIntx100, true)
@@ -161,14 +161,14 @@ func GetRowsInFinanceTracker(ctx context.Context, db *sql.DB, filter *appdata.Fi
 		var rows *sql.Rows
 		rows, err = execMultipleRow(queryValues, db, ctx, q2, filter)
 		if err != nil {
-			fmt.Printf("err: %v\n", err)
+			fmt.Printf("GetRowsInFinanceTracker err3: %v\n", err)
 			log.Fatal("error on DB query: ", err)
 		}
 		for rows.Next() {
 			var ft appdata.FinanceTracker
 			if err := rows.Scan(&ft.ID, &ft.GofiID, &ft.DateDetails.Year, &ft.DateDetails.Month, &ft.DateDetails.Day, &ft.Account, &ft.Product, &ft.PriceIntx100,
 				&ft.Category, &ft.CategoryDetails.CategoryIcon, &ft.CategoryDetails.CategoryColor, &ft.Checked, &ft.DateChecked); err != nil {
-				fmt.Printf("err: %v\n", err)
+				fmt.Printf("GetRowsInFinanceTracker err4: %v\n", err)
 				log.Fatal(err)
 			}
 			ft.FormPriceStr2Decimals = ConvertPriceIntToStr(ft.PriceIntx100, true)
@@ -310,7 +310,7 @@ func ValidateRowsInFinanceTracker(ctx context.Context, db *sql.DB, gofiID int, c
 		return
 	}
 	for _, intValue := range checkedListInt {
-		_, err := db.Exec(query,
+		_, err := db.ExecContext(ctx, query,
 			dateValidated, gofiID, intValue,
 		)
 		if err != nil {

@@ -107,13 +107,16 @@ func (s *Server) MountBackHandlers() {
 			r.Use(appmiddleware.AuthenticatedUserOnly)
 			// PARAMS
 			r.Route("/param", func(r chi.Router) {
-				r.Get("/setup", func(w http.ResponseWriter, r *http.Request) { api.GetParamSetup(w, r, false) })
+				r.Get("/", func(w http.ResponseWriter, r *http.Request) { api.GetParam(w, r, false, "", "") })
+				r.Post("/account", func(w http.ResponseWriter, r *http.Request) { api.PostParamAccount(w, r, false) })
 				r.Get("/category/{categoryName}", func(w http.ResponseWriter, r *http.Request) {
 					api.GetCategoryIcon(w, r, false, "", &appdata.CategoryDetails{})
 				})
-				r.Post("/setup/account", func(w http.ResponseWriter, r *http.Request) { api.PostParamSetupAccount(w, r, false) })
-				r.Post("/setup/category", func(w http.ResponseWriter, r *http.Request) { api.PostParamSetupCategory(w, r, false) })
-				r.Post("/setup/category-rendering", func(w http.ResponseWriter, r *http.Request) { api.PostParamSetupCategoryRendering(w, r, false) })
+				r.Put("/category", func(w http.ResponseWriter, r *http.Request) { api.PutParamCategory(w, r, false) })
+				r.Patch("/category/in-use", func(w http.ResponseWriter, r *http.Request) { api.PatchParamCategoryInUse(w, r, false) })
+				r.Patch("/category/order", func(w http.ResponseWriter, r *http.Request) { api.PatchParamCategoryOrder(w, r, false) })
+				r.Post("/category", func(w http.ResponseWriter, r *http.Request) { api.PostParamCategory(w, r, false) })
+				r.Post("/category-rendering", func(w http.ResponseWriter, r *http.Request) { api.PostParamCategoryRendering(w, r, false) })
 			})
 			// RECORDS
 			r.Route("/record", func(r chi.Router) {
@@ -163,10 +166,14 @@ func (s *Server) MountFrontHandlers() {
 
 			// PARAMS
 			r.Route("/param", func(r chi.Router) {
-				r.Get("/setup", front.GetParamSetup)
-				r.Post("/setup/account", front.PostParamSetupAccount)
-				r.Post("/setup/category", front.PostParamSetupCategory)
-				r.Post("/setup/category-rendering", front.PostParamSetupCategoryRendering)
+				r.Get("/", front.GetParam)
+				r.Post("/account", front.PostParamAccount)
+				r.Post("/category", front.PostParamCategory)
+				r.Post("/category-rendering", front.PostParamCategoryRendering)
+				r.Get("/category", front.GetParamCategory)
+				r.Put("/category", front.PutParamCategory)
+				r.Patch("/category/in-use", front.PatchParamCategoryInUse)
+				r.Patch("/category/order", front.PatchParamCategoryOrder)
 			})
 			// RECORDS
 			r.Route("/record", func(r chi.Router) {

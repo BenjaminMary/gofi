@@ -50,41 +50,73 @@ func GetLogout(w http.ResponseWriter, r *http.Request) {
 }
 
 // PARAM
-func GetParamSetup(w http.ResponseWriter, r *http.Request) {
-	json := api.GetParamSetup(w, r, true)
+func GetParam(w http.ResponseWriter, r *http.Request) {
+	json := api.GetParam(w, r, true, "", "")
 	jsonUserParam := json.AnyStruct.(appdata.UserParams)
-	htmlComponents.GetParamSetup(jsonUserParam).Render(r.Context(), w)
+	htmlComponents.GetParam(jsonUserParam).Render(r.Context(), w)
 }
-func PostParamSetupAccount(w http.ResponseWriter, r *http.Request) {
-	json := api.PostParamSetupAccount(w, r, true)
+func PostParamAccount(w http.ResponseWriter, r *http.Request) {
+	json := api.PostParamAccount(w, r, true)
 	jsonParam := &appdata.Param{}
 	if json.IsValidResponse {
 		jsonParam = json.AnyStruct.(*appdata.Param)
 	}
-	htmlComponents.PostParamSetupAccount(json.HttpStatus, jsonParam.ParamJSONstringData).Render(r.Context(), w)
+	htmlComponents.PostParamAccount(json.HttpStatus, jsonParam.ParamJSONstringData).Render(r.Context(), w)
 }
-func PostParamSetupCategory(w http.ResponseWriter, r *http.Request) {
-	json := api.PostParamSetupCategory(w, r, true)
+func PostParamCategory(w http.ResponseWriter, r *http.Request) {
+	json := api.PostParamCategory(w, r, true)
 	jsonParam := &appdata.Param{}
 	if json.IsValidResponse {
 		jsonParam = json.AnyStruct.(*appdata.Param)
 	}
-	htmlComponents.PostParamSetupCategory(json.HttpStatus, jsonParam.ParamJSONstringData).Render(r.Context(), w)
+	htmlComponents.PostParamCategory(json.HttpStatus, jsonParam.ParamJSONstringData).Render(r.Context(), w)
 }
-func PostParamSetupCategoryRendering(w http.ResponseWriter, r *http.Request) {
-	json := api.PostParamSetupCategoryRendering(w, r, true)
+func PostParamCategoryRendering(w http.ResponseWriter, r *http.Request) {
+	json := api.PostParamCategoryRendering(w, r, true)
 	jsonParam := &appdata.Param{}
 	if json.IsValidResponse {
 		jsonParam = json.AnyStruct.(*appdata.Param)
 	}
-	htmlComponents.PostParamSetupCategoryRendering(json.HttpStatus, jsonParam.ParamJSONstringData).Render(r.Context(), w)
+	htmlComponents.PostParamCategoryRendering(json.HttpStatus, jsonParam.ParamJSONstringData).Render(r.Context(), w)
+}
+
+func GetParamCategory(w http.ResponseWriter, r *http.Request) {
+	jsonUP := api.GetParam(w, r, true, "", "")
+	jsonUserParam := jsonUP.AnyStruct.(appdata.UserParams)
+	for i, item := range jsonUserParam.CategoryList {
+		jsonUserParam.CategoryList[i] = append(item, "input"+strconv.Itoa(i))
+		jsonUserParam.CategoryList[i] = append(jsonUserParam.CategoryList[i], "icon"+strconv.Itoa(i))
+	}
+	// fmt.Printf("jsonUserParam.CategoryList: %#v \n", jsonUserParam.CategoryList)
+	// categoryList, iconCodePointList, colorHEXList := sqlite.GetCategoryList(r.Context(), appdata.DB)
+	userCategories := appdata.NewUserCategories()
+	userCategories.GofiID = jsonUserParam.GofiID
+	sqlite.GetFullCategoryList(r.Context(), appdata.DB, userCategories, "", "")
+	userCategoriesJson, err := json.Marshal(userCategories)
+	if err != nil {
+		fmt.Println(err)
+	}
+	unhandledCategoryList := sqlite.GetUnhandledCategoryList(r.Context(), appdata.DB, userCategories.GofiID)
+	htmlComponents.GetParamCategory(jsonUserParam, userCategories, string(userCategoriesJson), unhandledCategoryList).Render(r.Context(), w)
+}
+func PutParamCategory(w http.ResponseWriter, r *http.Request) {
+	api.PutParamCategory(w, r, true)
+	htmlComponents.PutParamCategory().Render(r.Context(), w)
+}
+func PatchParamCategoryInUse(w http.ResponseWriter, r *http.Request) {
+	api.PatchParamCategoryInUse(w, r, true)
+	htmlComponents.PatchParamCategoryInUse().Render(r.Context(), w)
+}
+func PatchParamCategoryOrder(w http.ResponseWriter, r *http.Request) {
+	api.PatchParamCategoryOrder(w, r, true)
+	htmlComponents.PatchParamCategoryOrder().Render(r.Context(), w)
 }
 
 // RECORD
 func GetRecordInsert(w http.ResponseWriter, r *http.Request) {
 	jsonFT := api.GetRecords(w, r, true)
 	jsonFTlist := jsonFT.AnyStruct.([]appdata.FinanceTracker)
-	jsonUP := api.GetParamSetup(w, r, true)
+	jsonUP := api.GetParam(w, r, true, "type", "basic")
 	jsonUserParam := jsonUP.AnyStruct.(appdata.UserParams)
 	for i, item := range jsonUserParam.CategoryList {
 		jsonUserParam.CategoryList[i] = append(item, "input"+strconv.Itoa(i))
@@ -107,7 +139,7 @@ func PostRecordInsert(w http.ResponseWriter, r *http.Request) {
 func GetRecordTransfer(w http.ResponseWriter, r *http.Request) {
 	jsonFT := api.GetRecords(w, r, true)
 	jsonFTlist := jsonFT.AnyStruct.([]appdata.FinanceTracker)
-	jsonUP := api.GetParamSetup(w, r, true)
+	jsonUP := api.GetParam(w, r, true, "", "")
 	jsonUserParam := jsonUP.AnyStruct.(appdata.UserParams)
 	for i, item := range jsonUserParam.CategoryList {
 		jsonUserParam.CategoryList[i] = append(item, "input"+strconv.Itoa(i))
@@ -133,7 +165,7 @@ func GetRecordRecurrent(w http.ResponseWriter, r *http.Request) {
 	if jsonFT.IsValidResponse {
 		jsonFTlist = jsonFT.AnyStruct.([]appdata.FinanceTracker)
 	}
-	jsonUP := api.GetParamSetup(w, r, true)
+	jsonUP := api.GetParam(w, r, true, "type", "periodic")
 	jsonUserParam := jsonUP.AnyStruct.(appdata.UserParams)
 	for i, item := range jsonUserParam.CategoryList {
 		jsonUserParam.CategoryList[i] = append(item, "input"+strconv.Itoa(i))
@@ -210,7 +242,7 @@ func GetRecordValidateOrCancel(w http.ResponseWriter, r *http.Request) {
 			jsonFTlist[i].IDstr = "v" + strconv.Itoa(item.ID)
 		}
 	}
-	jsonUP := api.GetParamSetup(w, r, true)
+	jsonUP := api.GetParam(w, r, true, "", "")
 	jsonUserParam := jsonUP.AnyStruct.(appdata.UserParams)
 	forceSelectCategory := [][]string{{"", "e90a", "#808080", "input0", "icon0"}} // ? icon for default value
 	currentCategoryList := jsonUserParam.CategoryList

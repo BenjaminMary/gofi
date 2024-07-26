@@ -159,6 +159,7 @@ func UserCreate(w http.ResponseWriter, r *http.Request, isFrontRequest bool) *ap
 		return appdata.RenderAPIorUI(w, r, isFrontRequest, true, false, http.StatusInternalServerError, "can't create the requested user", "")
 	}
 	sqlite.CheckIfIdExists(ctx, appdata.DB, int(gofiID))
+	sqlite.InitCategoriesForUser(ctx, appdata.DB, int(gofiID))
 	return appdata.RenderAPIorUI(w, r, isFrontRequest, true, true, http.StatusCreated, "user created", User)
 }
 

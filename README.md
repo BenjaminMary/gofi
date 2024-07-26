@@ -18,6 +18,10 @@ Features supported (all the data are registered in a local SQLite DB):
     - import CSV files to insert/update data in bulk
     - export CSV files to keep/use all the data with other apps
     - stats year by year with current balance available per account
+    - smartphone first front-end, tested on the viewport:
+        - Screen Width: 360 pixels
+        - Screen Height: 640 pixels
+        - [screen viewport on viewportsizer](https://viewportsizer.com/lite/)
 - admin features
     - ~~(optional) generate and manage backup~~ (with another app)
     - shutdown the application (also checkpoint SQLite, then clean the `db-shm` and `db-wal` files)
@@ -126,8 +130,15 @@ Operation | HTTP Method     | SQL Statement
 --------- | --------------- | -------------
 Create    | POST (body)     | INSERT
 Read      | GET (params)    | SELECT
-Edit      | PUT (body)      | UPDATE
+FullEdit  | PUT (body)      | UPDATE
+PartEdit  | PATCH (body)    | UPDATE
 Delete    | DELETE (params) | DELETE
 
-- POST and PUT with JSON body
-- GET and DELETE with URL params
+- POST + PUT + PATCH with JSON body
+- GET + DELETE with URL params
+
+
+## GO struct usage
+- the HTML attribute `name` is used when a form is sent to the backend (application/x-www-form-urlencoded)
+    - the used `name` in the HTML file must correspond to the struct name (case sensitive)
+- the struct `JSON name` is used for API calls with JSON body (case insensitive)

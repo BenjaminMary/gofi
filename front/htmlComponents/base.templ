@@ -83,6 +83,12 @@ templ Header() {
         .apexcharts-canvas{
             margin: 0 auto;
         }
+        .round-button{
+            border-radius: 100%;
+        }
+        .small-padding{
+            padding: 0.3em 0.3em 0.3em 0.3em; /* top | right | bottom | left */
+        }
     </style>
 }
 
@@ -187,7 +193,7 @@ templ indexLinksConnected(IsAdmin bool) {
     <section id="links">
         <h2 class="center">Fonctionnalités</h2>
         <aside><nav class="center"><ul>
-            <li><a href="/param/setup" role="button" class="contrast outline">
+            <li><a href="/param" role="button" class="contrast outline">
                 <!-- tool -->
                 <svg width="24" height="24" viewBox="0 0 24 24"><use xlink:href="/img/icons.svg#feather-tool"></use></svg>
                 Configurer l'application
