@@ -249,12 +249,12 @@ func GetStatsInFinanceTracker(ctx context.Context, db *sql.DB, gofiID int,
 				AND year > 1999
 				AND year >= ?
 				AND year <= ?
-				AND priceIntx100 < 0
 			GROUP BY category, year
+			HAVING SUM(priceIntx100) < 0;
 		`
 		if checkedGainsStats == 1 {
-			q4 = strings.Replace(q4, `AND priceIntx100 < 0`,
-				`AND priceIntx100 > 0`, 1)
+			q4 = strings.Replace(q4, `SUM(priceIntx100) < 0`,
+				`SUM(priceIntx100) > 0`, 1)
 		}
 		rows, err = db.QueryContext(ctx, q4, gofiID, checkedValidData, yearMin, year)
 	} else {
@@ -266,10 +266,11 @@ func GetStatsInFinanceTracker(ctx context.Context, db *sql.DB, gofiID int,
 				AND year = ?
 				AND priceIntx100 < 0
 			GROUP BY category, year, month
+			HAVING SUM(priceIntx100) < 0;
 		`
 		if checkedGainsStats == 1 {
-			q4 = strings.Replace(q4, `AND priceIntx100 < 0`,
-				`AND priceIntx100 > 0`, 1)
+			q4 = strings.Replace(q4, `SUM(priceIntx100) < 0`,
+				`SUM(priceIntx100) > 0`, 1)
 		}
 		rows, err = db.QueryContext(ctx, q4, gofiID, checkedValidData, year)
 	}
