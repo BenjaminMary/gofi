@@ -300,7 +300,7 @@ func ValidateRowsInFinanceTracker(ctx context.Context, db *sql.DB, gofiID int, c
 	} else if mode == "cancel" {
 		query = `
 			UPDATE financeTracker 
-			SET year = 1999, month = 12, day = 31, account = '-', product = 'DELETED LINE', 
+			SET dateIn = 1999-12-31, year = 1999, month = 12, day = 31, account = '-', product = 'DELETED LINE', 
 				priceIntx100 = 0, category = '-', commentInt = 0, commentString = '-', 
 				checked = 1, dateChecked = ?, exported = 0
 			WHERE gofiID = ?
@@ -321,10 +321,10 @@ func ValidateRowsInFinanceTracker(ctx context.Context, db *sql.DB, gofiID int, c
 
 func InsertRowInFinanceTracker(ctx context.Context, db *sql.DB, ft appdata.FinanceTracker) (int64, error) {
 	result, _ := db.ExecContext(ctx, `
-		INSERT INTO financeTracker (gofiID, year, month, day, account, product, priceIntx100, category)
-		VALUES (?,?,?,?,?,?,?,?);
+		INSERT INTO financeTracker (gofiID, dateIn, year, month, day, account, product, priceIntx100, category)
+		VALUES (?,?,?,?,?,?,?,?,?);
 		`,
-		ft.GofiID, ft.DateDetails.Year, ft.DateDetails.Month, ft.DateDetails.Day, ft.Account, ft.Product, ft.PriceIntx100, ft.Category,
+		ft.GofiID, ft.Date, ft.DateDetails.Year, ft.DateDetails.Month, ft.DateDetails.Day, ft.Account, ft.Product, ft.PriceIntx100, ft.Category,
 	)
 	id, err := result.LastInsertId()
 	if err != nil {

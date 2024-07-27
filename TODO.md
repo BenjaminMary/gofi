@@ -21,10 +21,10 @@
 - ☐ ajout système de données récurrentes:
     - ☐ améliorer l'UI en bloquant l'espace via `visibility: hidden`, permettra de ne plus faire de trou dans la page au changement
         - vérif si bien impossible de cliquer sur l'elem invisible, sinon ajouter un `disable`
-- ☐❗❗ ajout système de budget:
+- ☐ ajout système de budget:
     - ☑ ajout des champs et possibilité de modification des infos de budget
-    - ☐ budget de dépense par catégorie
-    - ☐ stats sur les budgets activés
+    - ☑ budget de dépense par catégorie
+    - ☑ stats sur les budgets activés
     - ☐ info sur le budget en cours à la saisie ?
 - ☐ simplifier les catégories:
     - ☐ ajouter 2 niveaux de catégories, avec en mode simple 1 seul niveau obligatoire

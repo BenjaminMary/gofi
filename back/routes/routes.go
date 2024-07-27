@@ -115,7 +115,6 @@ func (s *Server) MountBackHandlers() {
 				r.Put("/category", func(w http.ResponseWriter, r *http.Request) { api.PutParamCategory(w, r, false) })
 				r.Patch("/category/in-use", func(w http.ResponseWriter, r *http.Request) { api.PatchParamCategoryInUse(w, r, false) })
 				r.Patch("/category/order", func(w http.ResponseWriter, r *http.Request) { api.PatchParamCategoryOrder(w, r, false) })
-				r.Post("/category", func(w http.ResponseWriter, r *http.Request) { api.PostParamCategory(w, r, false) })
 				r.Post("/category-rendering", func(w http.ResponseWriter, r *http.Request) { api.PostParamCategoryRendering(w, r, false) })
 			})
 			// RECORDS
@@ -168,7 +167,6 @@ func (s *Server) MountFrontHandlers() {
 			r.Route("/param", func(r chi.Router) {
 				r.Get("/", front.GetParam)
 				r.Post("/account", front.PostParamAccount)
-				r.Post("/category", front.PostParamCategory)
 				r.Post("/category-rendering", front.PostParamCategoryRendering)
 				r.Get("/category", front.GetParamCategory)
 				r.Put("/category", front.PutParamCategory)
@@ -200,6 +198,7 @@ func (s *Server) MountFrontHandlers() {
 			})
 			// STATS
 			r.Get("/stats/{checkedValidData}-{year}-{checkedYearStats}-{checkedGainsStats}", front.GetStats)
+			r.Get("/budget", front.GetBudget)
 		})
 	})
 }

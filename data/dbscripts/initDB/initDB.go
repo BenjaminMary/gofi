@@ -153,6 +153,7 @@ func initDB(folder string, dbName string) {
 		CREATE TABLE IF NOT EXISTS financeTracker (
 			id INTEGER PRIMARY KEY AUTOINCREMENT, 
 			gofiID INTEGER NOT NULL,
+			dateIn TEXT DEFAULT '1999-12-31',
 			year INTEGER DEFAULT (strftime('%Y','now')),
 			month INTEGER DEFAULT (strftime('%m','now')),
 			day INTEGER DEFAULT (strftime('%d','now')),

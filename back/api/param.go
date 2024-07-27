@@ -61,11 +61,6 @@ func PostParamAccount(w http.ResponseWriter, r *http.Request, isFrontRequest boo
 		"accountList",
 		"Liste des comptes (séparer par des , sans espaces)")
 }
-func PostParamCategory(w http.ResponseWriter, r *http.Request, isFrontRequest bool) *appdata.HttpStruct {
-	return postParam(w, r, isFrontRequest,
-		"categoryList",
-		"Liste des catégories (séparer par des , sans espaces)")
-}
 func PostParamCategoryRendering(w http.ResponseWriter, r *http.Request, isFrontRequest bool) *appdata.HttpStruct {
 	return postParam(w, r, isFrontRequest,
 		"categoryRendering",
@@ -130,28 +125,3 @@ func PatchParamCategoryOrder(w http.ResponseWriter, r *http.Request, isFrontRequ
 	}
 	return appdata.RenderAPIorUI(w, r, isFrontRequest, false, true, http.StatusOK, "category order updated", "")
 }
-
-/*
-// GET Category.html
-func getCategory() {
-	// var CategoryList, IconCodePointList, ColorHEXList []string
-	// CategoryList, IconCodePointList, ColorHEXList = sqlite.GetCategoryList(ctx, db)
-	// c.HTML(http.StatusOK, "2.2.category.html", gin.H{
-	//     "CategoryList": CategoryList,
-	//     "IconCodePointList": IconCodePointList,
-	//     "ColorHEXList": ColorHEXList,
-	// })
-}
-
-// POST Category.html
-func postCategory() {
-	var returnedString string
-	returnedString = "empty"
-	// c.String(200, returnedString)
-}
-*/
-/*
-```powershell
-curl -X GET -H "Content-Type: application/json" --include --location "http://localhost:8083/api/param"
-```
-*/

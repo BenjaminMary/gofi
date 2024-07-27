@@ -6,7 +6,7 @@ import (
     "gofi/gofi/data/appdata"
 )
 
-script categoryDropdown(categoryList [][]string) {
+script categoryDropdown(uc *appdata.UserCategories) {
     // this script add click event on inputs inside the categoryDropdown
     document.getElementById('input0').checked = true;
     // var categoryList = {{.UserParams.CategoryList}};
@@ -15,14 +15,14 @@ script categoryDropdown(categoryList [][]string) {
         inputId = childInputs[i].id;
         //console.log(inputId + ": " + childInputs[i].value);
         document.getElementById(inputId).addEventListener('click', function(c){
-            idInt = parseInt(this.id.replace("input",""));
-            //console.log(categoryList[idInt]);
-            document.getElementById('summaryCategory').innerHTML = categoryList[idInt][0]
-            document.getElementById('summaryIcon').innerHTML = "&#x" + categoryList[idInt][1] + ";"
-            // document.getElementById('summaryIcon').style.backgroundColor = categoryList[idInt][2]
+            index = parseInt(this.id.replace("input",""));
+            //console.log(categoryList[index]);
+            document.getElementById('summaryCategory').innerHTML = uc.Categories[index].Name
+            document.getElementById('summaryIcon').innerHTML = "&#x" + uc.Categories[index].IconCodePoint + ";"
+            // document.getElementById('summaryIcon').style.backgroundColor = categoryList[index][2]
             bgclass = document.getElementById('summaryIcon').classList.item(1)
             document.getElementById('summaryIcon').classList.remove(bgclass)
-            document.getElementById('summaryIcon').classList.add(categoryList[idInt][1])
+            document.getElementById('summaryIcon').classList.add(uc.Categories[index].IconCodePoint)
             document.getElementById('categoryDropdown').open = false;
         });
     };
@@ -256,7 +256,7 @@ templ GetRecordInsert(jsonFT []appdata.FinanceTracker, jsonUP appdata.UserParams
             </main>
             @BotScriptThemeSwitcher()
             @BotScriptHTMXhandleError()
-            @categoryDropdown(jsonUP.CategoryList)
+            @categoryDropdown(jsonUP.Categories)
         </body>
     </html>
 }
@@ -542,7 +542,7 @@ templ GetRecordRecurrent(jsonRR []appdata.RecurrentRecord, jsonFT []appdata.Fina
             </main>
             @BotScriptThemeSwitcher()
             @BotScriptHTMXhandleError()
-            @categoryDropdown(jsonUP.CategoryList)
+            @categoryDropdown(jsonUP.Categories)
             @botScriptShowCreateButton()
             @botScriptAddClickEventToTableButtons()
 
@@ -901,7 +901,7 @@ templ GetRecordValidateOrCancel(jsonFT []appdata.FinanceTracker, jsonUP appdata.
             </main>
             @BotScriptThemeSwitcher()
             @BotScriptHTMXhandleError()
-            @categoryDropdown(jsonUP.CategoryList)
+            @categoryDropdown(jsonUP.Categories)
             @botScriptSwitchMode()
             @botScriptTableRowSelectAndLastRowCalc()
             @botScriptAutoReloadOnAccountChange()

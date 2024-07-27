@@ -205,13 +205,11 @@ func (a *UserRequest) Bind(r *http.Request) error {
 }
 
 type UserParams struct {
-	GofiID                   int // UNIQUE
-	AccountListSingleString  string
-	AccountList              []string
-	CategoryListSingleString string
-	CategoryList             [][]string
-	CategoryRendering        string
-	Categories               *UserCategories
+	GofiID                  int // UNIQUE
+	AccountListSingleString string
+	AccountList             []string
+	CategoryRendering       string
+	Categories              *UserCategories
 }
 
 func NewUserCategories() *UserCategories {
@@ -239,6 +237,7 @@ type Category struct {
 	BudgetType                   string
 	BudgetCurrentPeriodStartDate string
 	BudgetCurrentPeriodEndDate   string
+	BudgetAmount                 string // not in DB
 	IconCodePoint                string
 	ColorHEX                     string
 }

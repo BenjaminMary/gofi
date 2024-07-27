@@ -63,14 +63,6 @@ func PostParamAccount(w http.ResponseWriter, r *http.Request) {
 	}
 	htmlComponents.PostParamAccount(json.HttpStatus, jsonParam.ParamJSONstringData).Render(r.Context(), w)
 }
-func PostParamCategory(w http.ResponseWriter, r *http.Request) {
-	json := api.PostParamCategory(w, r, true)
-	jsonParam := &appdata.Param{}
-	if json.IsValidResponse {
-		jsonParam = json.AnyStruct.(*appdata.Param)
-	}
-	htmlComponents.PostParamCategory(json.HttpStatus, jsonParam.ParamJSONstringData).Render(r.Context(), w)
-}
 func PostParamCategoryRendering(w http.ResponseWriter, r *http.Request) {
 	json := api.PostParamCategoryRendering(w, r, true)
 	jsonParam := &appdata.Param{}
@@ -115,10 +107,6 @@ func GetRecordInsert(w http.ResponseWriter, r *http.Request) {
 	jsonFTlist := jsonFT.AnyStruct.([]appdata.FinanceTracker)
 	jsonUP := api.GetParam(w, r, true, "type", "basic")
 	jsonUserParam := jsonUP.AnyStruct.(appdata.UserParams)
-	for i, item := range jsonUserParam.CategoryList {
-		jsonUserParam.CategoryList[i] = append(item, "input"+strconv.Itoa(i))
-		jsonUserParam.CategoryList[i] = append(jsonUserParam.CategoryList[i], "icon"+strconv.Itoa(i))
-	}
 	currentTime := time.Now()
 	currentDate := currentTime.Format(time.DateOnly) // YYYY-MM-DD
 	htmlComponents.GetRecordInsert(jsonFTlist, jsonUserParam, currentDate).Render(r.Context(), w)
@@ -138,10 +126,6 @@ func GetRecordTransfer(w http.ResponseWriter, r *http.Request) {
 	jsonFTlist := jsonFT.AnyStruct.([]appdata.FinanceTracker)
 	jsonUP := api.GetParam(w, r, true, "", "")
 	jsonUserParam := jsonUP.AnyStruct.(appdata.UserParams)
-	for i, item := range jsonUserParam.CategoryList {
-		jsonUserParam.CategoryList[i] = append(item, "input"+strconv.Itoa(i))
-		jsonUserParam.CategoryList[i] = append(jsonUserParam.CategoryList[i], "icon"+strconv.Itoa(i))
-	}
 	currentTime := time.Now()
 	currentDate := currentTime.Format(time.DateOnly) // YYYY-MM-DD
 	htmlComponents.GetRecordTransfer(jsonFTlist, jsonUserParam, currentDate).Render(r.Context(), w)
@@ -164,10 +148,6 @@ func GetRecordRecurrent(w http.ResponseWriter, r *http.Request) {
 	}
 	jsonUP := api.GetParam(w, r, true, "type", "periodic")
 	jsonUserParam := jsonUP.AnyStruct.(appdata.UserParams)
-	for i, item := range jsonUserParam.CategoryList {
-		jsonUserParam.CategoryList[i] = append(item, "input"+strconv.Itoa(i))
-		jsonUserParam.CategoryList[i] = append(jsonUserParam.CategoryList[i], "icon"+strconv.Itoa(i))
-	}
 	jsonRR := api.RecordRecurrentRead(w, r, true)
 	jsonRRlist := []appdata.RecurrentRecord{}
 	if jsonRR.IsValidResponse {
@@ -241,15 +221,6 @@ func GetRecordValidateOrCancel(w http.ResponseWriter, r *http.Request) {
 	}
 	jsonUP := api.GetParam(w, r, true, "", "")
 	jsonUserParam := jsonUP.AnyStruct.(appdata.UserParams)
-	forceSelectCategory := [][]string{{"", "e90a", "#808080", "input0", "icon0"}} // ? icon for default value
-	currentCategoryList := jsonUserParam.CategoryList
-	jsonUserParam.CategoryList = forceSelectCategory
-	for i, item := range currentCategoryList {
-		j := i + 1 //gap with the added element at the first position 0
-		jsonUserParam.CategoryList = append(jsonUserParam.CategoryList, item)
-		jsonUserParam.CategoryList[j] = append(item, "input"+strconv.Itoa(j), "icon"+strconv.Itoa(j))
-	}
-	// fmt.Printf("jsonUserParam.CategoryList: %#v\n", jsonUserParam.CategoryList)
 	currentTime := time.Now()
 	currentDate := currentTime.Format(time.DateOnly) // YYYY-MM-DD
 	htmlComponents.GetRecordValidateOrCancel(jsonFTlist, jsonUserParam, currentDate, r.Header.Get("totalRowsWithoutLimit")).Render(r.Context(), w)
@@ -371,6 +342,13 @@ func GetStats(w http.ResponseWriter, r *http.Request) {
 		CategoryLabelList, CategoryValueList, IconCodePointList, ColorHEXList,
 		string(ApexLineChartStatsJson), string(ApexChartStatsJson),
 	).Render(r.Context(), w)
+}
+
+func GetBudget(w http.ResponseWriter, r *http.Request) {
+	jsonUP := api.GetParam(w, r, true, "budget", "")
+	jsonUserParam := jsonUP.AnyStruct.(appdata.UserParams)
+	sqlite.GetBudgetStats(r.Context(), appdata.DB, jsonUserParam.Categories)
+	htmlComponents.GetBudget(2024, jsonUserParam.Categories).Render(r.Context(), w)
 }
 
 // fmt.Printf("json1: %#v\n", json)

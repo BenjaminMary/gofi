@@ -186,34 +186,10 @@ func InitCategoriesForUser(ctx context.Context, db *sql.DB, gofiID int) {
 	}
 }
 
-func GetCategoryList(ctx context.Context, db *sql.DB) ([]string, []string, []string) {
-	q := ` 
-		SELECT category, iconCodePoint, colorHEX
-		FROM category
-		ORDER BY id
-	`
-	rows, _ := db.QueryContext(ctx, q)
-
-	var category, iconCodePoint, colorHEX string
-	var categoryList, iconCodePointList, colorHEXList []string
-	for rows.Next() {
-		if err := rows.Scan(&category, &iconCodePoint, &colorHEX); err != nil {
-			log.Fatal(err)
-			return categoryList, iconCodePointList, colorHEXList
-		}
-		categoryList = append(categoryList, category)
-		iconCodePointList = append(iconCodePointList, iconCodePoint)
-		colorHEXList = append(colorHEXList, colorHEX)
-	}
-	// fmt.Printf("\naccountList: %v\n", up.AccountList)
-	rows.Close()
-	return categoryList, iconCodePointList, colorHEXList
-}
-
 func GetFullCategoryList(ctx context.Context, db *sql.DB, uc *appdata.UserCategories, filterName string, filterValue any) {
 	q := ` 
 		SELECT id, gofiID, category, catWhereToUse, catOrder, inUse, defaultInStats, description, 
-			budgetPrice, budgetPeriod, budgetType, iconCodePoint, colorHEX
+			budgetPrice, budgetPeriod, budgetType, budgetCurrentPeriodStartDate, iconCodePoint, colorHEX
 		FROM category
 		WHERE gofiID = ?
 			AND OTHER FILTERS
@@ -235,6 +211,11 @@ func GetFullCategoryList(ctx context.Context, db *sql.DB, uc *appdata.UserCatego
 		q = strings.Replace(q, `OTHER FILTERS`,
 			` defaultInStats = 1 `, 1)
 		rows, err = db.QueryContext(ctx, q, uc.GofiID)
+	case "budget":
+		q = strings.Replace(q, `OTHER FILTERS`,
+			` budgetPrice <> 0 
+			 AND inUse = 1 `, 1)
+		rows, err = db.QueryContext(ctx, q, uc.GofiID, filterValue)
 	}
 	if err != nil {
 		fmt.Printf("error in GetFullCategoryList QueryContext: %v\n", err)
@@ -247,7 +228,7 @@ func GetFullCategoryList(ctx context.Context, db *sql.DB, uc *appdata.UserCatego
 		loop += 1
 		var category appdata.Category
 		err := rows.Scan(&category.ID, &category.GofiID, &category.Name, &category.Type, &category.Order, &category.InUse, &category.InStats, &category.Description,
-			&category.BudgetPrice, &category.BudgetPeriod, &category.BudgetType, &category.IconCodePoint, &category.ColorHEX)
+			&category.BudgetPrice, &category.BudgetPeriod, &category.BudgetType, &category.BudgetCurrentPeriodStartDate, &category.IconCodePoint, &category.ColorHEX)
 		if err != nil {
 			fmt.Printf("error in category loop: %v, category: %v\n", loop, category.Name)
 			log.Fatal(err)
@@ -335,29 +316,8 @@ func GetList(ctx context.Context, db *sql.DB, up *appdata.UserParams, uc *appdat
 		log.Fatal(err)
 	}
 	rows.Close()
-	up.CategoryListSingleString = categoryListStr
-
-	var categoryListA, categoryListB, iconCodePointList, colorHEXList []string
-	categoryListA = strings.Split(categoryListStr, ",")
-	categoryListB, iconCodePointList, colorHEXList = GetCategoryList(ctx, db)
 
 	GetFullCategoryList(ctx, db, uc, categoryTypeFilter, categoryTypeFilterValue)
-	for i, v := range categoryListA {
-		var found bool = false
-		var stringToAppend []string
-		if i < len(categoryListB) {
-			for i2, v2 := range categoryListB {
-				if v == v2 {
-					stringToAppend = append(stringToAppend, v, iconCodePointList[i2], colorHEXList[i2])
-					found = true
-				}
-			}
-		}
-		if !found {
-			stringToAppend = append(stringToAppend, v, "e90a", "#808080")
-		}
-		up.CategoryList = append(up.CategoryList, stringToAppend)
-	}
 
 	rows, _ = db.QueryContext(ctx, q, up.GofiID, "categoryRendering")
 	rows.Next()

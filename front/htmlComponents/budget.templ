@@ -1,0 +1,48 @@
+package htmlComponents
+
+import (
+    "strconv"
+    "gofi/gofi/data/appdata"
+)
+
+templ GetBudget(Year int, uc *appdata.UserCategories) {
+    <html>
+        <head>
+            @Header()
+            // @TopScriptHTMX()
+            <link rel="stylesheet" href="/fonts/style.css"/>
+        </head>
+        <body class="container-fluid">
+            <main>
+                <h1>Budgets</h1>
+                
+                <section id="budgets">
+                    for _, category := range uc.Categories {
+                        <p>
+                            <span class={ "icomoon", category.IconCodePoint }>&#x{ category.IconCodePoint };</span>
+                            { category.Name } ({ category.BudgetPeriod }-{ category.BudgetType })
+                        </p>
+                        Période: du { category.BudgetCurrentPeriodStartDate } au { category.BudgetCurrentPeriodEndDate }<br/>
+                        Montant dépensé/budgété: { category.BudgetAmount } / { strconv.Itoa(category.BudgetPrice) }
+                        <progress value={ category.BudgetAmount } max={ strconv.Itoa(category.BudgetPrice) } />
+                        <hr/>
+                    }
+                    // TODO: Voir pour calculer un revenu moyen en hebdo/mensuel/annuel et afficher les dépenses en cours hebdo/mensuel/annuel
+                </section>
+                <section>
+                    <aside><nav class="center"><ul>
+                        <li><a href="/param/category" role="button" class="contrast outline">
+                            <!-- tool -->
+                            <svg width="24" height="24" viewBox="0 0 24 24"><use xlink:href="/img/icons.svg#feather-tool"></use></svg>
+                            Configurer les catégories
+                        </a></li>
+                    </ul></nav></aside>
+                </section>
+                @Nav("top", "/", "/img/icons.svg#feather-home", "Accueil", "contrast outline",
+                    "/record/insert", "/img/icons.svg#lucide-notebook-pen", "Saisie", "contrast")
+            </main>
+            @BotScriptThemeSwitcher()
+            // @BotScriptHTMXhandleError()
+        </body>
+    </html>
+}

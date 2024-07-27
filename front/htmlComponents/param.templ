@@ -38,17 +38,6 @@ templ GetParam(json appdata.UserParams) {
                             @FormSubmit("idSubmit1", "/img/icons.svg#feather-save", "Enregistrer la liste des comptes")
                         </form>
                         <hr/>
-                        <form hx-post="/param/category" 
-                            hx-target="#categoryList" 
-                            hx-swap="outerHTML"
-                            hx-sync="this:drop"
-                            hx-on::after-request="if(event.detail.successful) document.getElementById('idSubmit2').remove()">
-                            <!-- Text -->
-                            <label for="ParamJSONstringData"><strong><small>Liste des catégories (séparer par des , sans espaces, ordre repris à l'identique)</small></strong></label>
-                            <textarea id="categoryList" name="ParamJSONstringData" rows="4" required>{json.CategoryListSingleString}</textarea>
-                            @FormSubmit("idSubmit2", "/img/icons.svg#feather-save", "Enregistrer la liste des catégories")
-                        </form>
-                        <hr/>
                         <form hx-post="/param/category-rendering" 
                             hx-target="#refresh" 
                             hx-swap="innerHTML"
@@ -76,11 +65,10 @@ templ GetParam(json appdata.UserParams) {
                 </section>
                 <section>
                     <aside><nav class="center"><ul>
-                        // TODO: link to 404 for now
                         <li><a href="/param/category" role="button" class="contrast outline">
-                            <!-- eye -->
-                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-eye"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
-                            Voir les catégories existantes
+                            <!-- tool -->
+                            <svg width="24" height="24" viewBox="0 0 24 24"><use xlink:href="/img/icons.svg#feather-tool"></use></svg>
+                            Configurer les catégories
                         </a></li>
                     </ul></nav></aside>
                 </section>
@@ -110,28 +98,6 @@ templ PostParamAccount(httpStatus int, ParamJSONstringData string) {
         default:
             <p>
                 ERREUR3: Impossible de modifier la liste des comptes.<br/> 
-                Requête annulée, merci de recommencer.
-            </p>
-	}
-    @PageRefreshButton()
-}
-templ PostParamCategory(httpStatus int, ParamJSONstringData string) {
-    switch httpStatus {
-        case http.StatusOK:
-            <textarea id="categoryList" name="categoryList" rows="3" aria-invalid="false" disabled>{ParamJSONstringData}</textarea>
-        case http.StatusBadRequest:
-            <p>
-                ERREUR1: Impossible de modifier la liste des catégories.<br/> 
-                Requête annulée, merci de recommencer.
-            </p>
-        case http.StatusInternalServerError:
-            <p>
-                ERREUR2: Impossible de modifier la liste des catégories.<br/> 
-                Requête annulée, merci de recommencer.
-            </p>
-        default:
-            <p>
-                ERREUR3: Impossible de modifier la liste des catégories.<br/> 
                 Requête annulée, merci de recommencer.
             </p>
 	}
@@ -459,7 +425,7 @@ templ GetParamCategory(jsonUC *appdata.UserCategories, userCategoriesJson string
                 </section>
                 <textarea id="struct-complet" hidden readonly>{ userCategoriesJson }</textarea>
                 @Nav("top", "/", "/img/icons.svg#feather-home", "Accueil", "contrast outline",
-                    "/record/transfer", "/img/icons.svg#lucide-arrow-right-left", "Transfert", "contrast")
+                    "/budget", "/img/icons.svg#lucide-wallet", "Budgets", "contrast")
             </main>
             @BotScriptThemeSwitcher()
             @BotScriptHTMXhandleError()

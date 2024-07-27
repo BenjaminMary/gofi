@@ -292,11 +292,11 @@ func ImportCSV(ctx context.Context, db *sql.DB,
 		if ft.ID == 0 {
 			// INSERT
 			exec, err := db.ExecContext(ctx, `
-				INSERT INTO financeTracker (gofiID, year, month, day, account, product, priceIntx100, category,
+				INSERT INTO financeTracker (gofiID, dateIn, year, month, day, account, product, priceIntx100, category,
 					commentInt, commentString, checked, dateChecked, exported)
-				VALUES (?,?,?,?,?,?,?,?,?,?,?,?,0);
+				VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,0);
 				`,
-				ft.GofiID, ft.DateDetails.Year, ft.DateDetails.Month, ft.DateDetails.Day, ft.Account, ft.Product, ft.PriceIntx100, ft.Category,
+				ft.GofiID, ft.Date, ft.DateDetails.Year, ft.DateDetails.Month, ft.DateDetails.Day, ft.Account, ft.Product, ft.PriceIntx100, ft.Category,
 				ft.CommentInt, ft.CommentString, ft.Checked, ft.DateChecked,
 			)
 			if err != nil {
@@ -317,12 +317,12 @@ func ImportCSV(ctx context.Context, db *sql.DB,
 			// UPDATE
 			result, err := db.ExecContext(ctx, `
 				UPDATE financeTracker 
-				SET year = ?, month = ?, day = ?, account = ?, product = ?, priceIntx100 = ?, category = ?,
+				SET dateIn = ?, year = ?, month = ?, day = ?, account = ?, product = ?, priceIntx100 = ?, category = ?,
 					commentInt = ?, commentString = ?, checked = ?, dateChecked = ?, exported = 0
 				WHERE ID = ?
 					AND gofiID = ?;
 				`,
-				ft.DateDetails.Year, ft.DateDetails.Month, ft.DateDetails.Day, ft.Account, ft.Product, ft.PriceIntx100, ft.Category,
+				ft.Date, ft.DateDetails.Year, ft.DateDetails.Month, ft.DateDetails.Day, ft.Account, ft.Product, ft.PriceIntx100, ft.Category,
 				ft.CommentInt, ft.CommentString, ft.Checked, ft.DateChecked,
 				ft.ID, ft.GofiID,
 			)

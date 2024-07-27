@@ -3,9 +3,11 @@ package sqlite
 import (
 	"context"
 	"database/sql"
+	"fmt"
 	"log"
 	"strconv"
 	"strings"
+	"time"
 
 	"gofi/gofi/data/appdata"
 )
@@ -304,4 +306,91 @@ func GetStatsInFinanceTracker(ctx context.Context, db *sql.DB, gofiID int,
 
 	// fmt.Printf("apexChartStats: %#v\n", apexChartStats)
 	return statsAccountList, statsCategoryList, totalAccountList, totalCategoryList, *apexChartStats
+}
+
+func GetBudgetStats(ctx context.Context, db *sql.DB, uc *appdata.UserCategories) {
+	// for the current user, get the budget stats for each category GetBudget
+	currentTime := time.Now()
+	currentDate := currentTime.Format(time.DateOnly) // YYYY-MM-DD
+	// fmt.Printf("currentDate: %v\n", currentDate)
+	// rollingDateWeek := currentTime.AddDate(0, 0, -7).Format(time.DateOnly)
+	// rollingDateMonth := currentTime.AddDate(0, -1, 0).Format(time.DateOnly)
+	// rollingDateYear := currentTime.AddDate(-1, 0, 0).Format(time.DateOnly)
+	startingDateCurrentWeek := currentTime.AddDate(0, 0, int(currentTime.Weekday())*-1) // 1=monday, 7=sunday
+	startingDateCurrentMonth := time.Date(currentTime.Year(), currentTime.Month(), 1, 0, 0, 0, 0, time.UTC)
+	startingDateCurrentYear := time.Date(currentTime.Year(), time.January, 1, 0, 0, 0, 0, time.UTC)
+	q := ` 
+		SELECT IFNULL(SUM(priceIntx100)*-1, 0) AS sum
+		FROM financeTracker
+		WHERE gofiID = ?
+			AND category = ?
+			AND dateIn BETWEEN ? AND ?;
+	`
+	for i := 0; i < len(uc.Categories); i++ {
+		// fmt.Printf("uc.Categories[i]: %#v\n", uc.Categories[i])
+		var sum int = 0
+		switch uc.Categories[i].BudgetType {
+		case "reset":
+			switch uc.Categories[i].BudgetPeriod {
+			case "hebdomadaire":
+				uc.Categories[i].BudgetCurrentPeriodStartDate = startingDateCurrentWeek.Format(time.DateOnly)
+				uc.Categories[i].BudgetCurrentPeriodEndDate = startingDateCurrentWeek.AddDate(0, 0, 7).Format(time.DateOnly)
+			case "mensuelle":
+				uc.Categories[i].BudgetCurrentPeriodStartDate = startingDateCurrentMonth.Format(time.DateOnly)
+				uc.Categories[i].BudgetCurrentPeriodEndDate = startingDateCurrentMonth.AddDate(0, 1, -1).Format(time.DateOnly)
+			case "annuelle":
+				uc.Categories[i].BudgetCurrentPeriodStartDate = startingDateCurrentYear.Format(time.DateOnly)
+				uc.Categories[i].BudgetCurrentPeriodEndDate = startingDateCurrentYear.AddDate(1, 0, -1).Format(time.DateOnly)
+			default:
+				fmt.Println("err0 BudgetPeriod")
+				continue
+			}
+			err := db.QueryRowContext(ctx, q, uc.GofiID, uc.Categories[i].Name,
+				uc.Categories[i].BudgetCurrentPeriodStartDate, uc.Categories[i].BudgetCurrentPeriodEndDate).Scan(&sum)
+			switch {
+			case err == sql.ErrNoRows:
+				fmt.Println("err1 GetBudgetStats query")
+				continue
+			case err != nil:
+				fmt.Println("err2 GetBudgetStats query")
+				continue
+			}
+		case "cumulative":
+			t, _ := time.Parse(time.DateOnly, uc.Categories[i].BudgetCurrentPeriodStartDate)
+			duration := currentTime.Sub(t)
+			switch uc.Categories[i].BudgetPeriod {
+			case "hebdomadaire":
+				// fmt.Println("Weeks : ", int(duration.Hours()/168))
+				// uc.Categories[i].BudgetPriceXPeriod = int(duration.Hours()/168) * uc.Categories[i].BudgetPrice
+				uc.Categories[i].BudgetPrice = int(duration.Hours()/168) * uc.Categories[i].BudgetPrice
+			case "mensuelle":
+				// fmt.Println("Months : ", int(duration.Hours()/730))
+				// uc.Categories[i].BudgetPriceXPeriod = int(duration.Hours()/730) * uc.Categories[i].BudgetPrice
+				uc.Categories[i].BudgetPrice = int(duration.Hours()/730) * uc.Categories[i].BudgetPrice
+			case "annuelle":
+				// fmt.Println("Years : ", int(duration.Hours()/8760))
+				// uc.Categories[i].BudgetPriceXPeriod = int(duration.Hours()/8760) * uc.Categories[i].BudgetPrice
+				uc.Categories[i].BudgetPrice = int(duration.Hours()/8760) * uc.Categories[i].BudgetPrice
+			default:
+				// fmt.Println("Days : ", int(duration.Hours()/24))
+				fmt.Println("err0 BudgetPeriod")
+				continue
+			}
+			uc.Categories[i].BudgetCurrentPeriodEndDate = currentDate
+			err := db.QueryRowContext(ctx, q, uc.GofiID, uc.Categories[i].Name,
+				uc.Categories[i].BudgetCurrentPeriodStartDate, uc.Categories[i].BudgetCurrentPeriodEndDate).Scan(&sum)
+			switch {
+			case err == sql.ErrNoRows:
+				fmt.Println("err3 GetBudgetStats query")
+				continue
+			case err != nil:
+				fmt.Printf("err4 GetBudgetStats query: %v\n", err)
+				continue
+			}
+		default:
+			continue
+		}
+		uc.Categories[i].BudgetAmount = ConvertPriceIntToStr(sum, false)
+		// fmt.Printf("Name: %v, Amount: %v\n", uc.Categories[i].Name, uc.Categories[i].BudgetAmount)
+	}
 }
