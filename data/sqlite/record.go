@@ -38,7 +38,7 @@ func GetRowsInFinanceTracker(ctx context.Context, db *sql.DB, filter *appdata.Fi
 		fmt.Println("filter.WhereAccount is used")
 		q += ` AND account = ? `
 	}
-	if filter.WhereCategory != "" { //2
+	if filter.WhereCategory != "" && filter.WhereCategory != "Toutes" { //2
 		queryValues += 2
 		fmt.Println("filter.WhereCategory is used")
 		q += ` AND fT.category = ? `

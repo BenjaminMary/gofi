@@ -186,7 +186,7 @@ func InitCategoriesForUser(ctx context.Context, db *sql.DB, gofiID int) {
 	}
 }
 
-func GetFullCategoryList(ctx context.Context, db *sql.DB, uc *appdata.UserCategories, filterName string, filterValue any) {
+func GetFullCategoryList(ctx context.Context, db *sql.DB, uc *appdata.UserCategories, filterName string, filterValue any, firstEmptyCategory bool) {
 	q := ` 
 		SELECT id, gofiID, category, catWhereToUse, catOrder, inUse, defaultInStats, description, 
 			budgetPrice, budgetPeriod, budgetType, budgetCurrentPeriodStartDate, iconCodePoint, colorHEX
@@ -222,8 +222,19 @@ func GetFullCategoryList(ctx context.Context, db *sql.DB, uc *appdata.UserCatego
 		log.Fatal(err)
 		return
 	}
-
 	loop := -1
+	if firstEmptyCategory {
+		loop += 1
+		var firstCategory appdata.Category
+		firstCategory.GofiID = uc.GofiID
+		firstCategory.Name = "Toutes"
+		firstCategory.Type = "all"
+		firstCategory.Order = 0
+		firstCategory.InUse = 1
+		firstCategory.IconCodePoint = "e90a"
+		uc.FindCategory[firstCategory.Name] = loop
+		uc.Categories = append(uc.Categories, firstCategory)
+	}
 	for rows.Next() {
 		loop += 1
 		var category appdata.Category
@@ -290,7 +301,8 @@ func GetCategoryIcon(ctx context.Context, db *sql.DB, categoryName string, gofiI
 	}
 }
 
-func GetList(ctx context.Context, db *sql.DB, up *appdata.UserParams, uc *appdata.UserCategories, categoryTypeFilter string, categoryTypeFilterValue string) {
+func GetList(ctx context.Context, db *sql.DB, up *appdata.UserParams, uc *appdata.UserCategories,
+	categoryTypeFilter string, categoryTypeFilterValue string, firstEmptyCategory bool) {
 	q := ` 
 		SELECT paramJSONstringData
 		FROM param
@@ -317,7 +329,7 @@ func GetList(ctx context.Context, db *sql.DB, up *appdata.UserParams, uc *appdat
 	}
 	rows.Close()
 
-	GetFullCategoryList(ctx, db, uc, categoryTypeFilter, categoryTypeFilterValue)
+	GetFullCategoryList(ctx, db, uc, categoryTypeFilter, categoryTypeFilterValue, firstEmptyCategory)
 
 	rows, _ = db.QueryContext(ctx, q, up.GofiID, "categoryRendering")
 	rows.Next()

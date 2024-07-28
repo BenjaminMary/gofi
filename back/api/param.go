@@ -11,13 +11,14 @@ import (
 	"github.com/go-chi/render"
 )
 
-func GetParam(w http.ResponseWriter, r *http.Request, isFrontRequest bool, categoryTypeFilter string, categoryTypeFilterValue string) *appdata.HttpStruct {
+func GetParam(w http.ResponseWriter, r *http.Request, isFrontRequest bool,
+	categoryTypeFilter string, categoryTypeFilterValue string, firstEmptyCategory bool) *appdata.HttpStruct {
 	userContext := r.Context().Value(appdata.ContextUserKey).(*appdata.UserRequest)
 	var userParams appdata.UserParams
 	userParams.GofiID = userContext.GofiID
 	userCategories := appdata.NewUserCategories()
 	userCategories.GofiID = userContext.GofiID
-	sqlite.GetList(r.Context(), appdata.DB, &userParams, userCategories, categoryTypeFilter, categoryTypeFilterValue)
+	sqlite.GetList(r.Context(), appdata.DB, &userParams, userCategories, categoryTypeFilter, categoryTypeFilterValue, firstEmptyCategory)
 	userParams.Categories = userCategories
 	return appdata.RenderAPIorUI(w, r, isFrontRequest, true, true, http.StatusOK, "user params retrieved", userParams)
 }

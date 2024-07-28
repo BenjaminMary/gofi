@@ -51,7 +51,7 @@ func GetLogout(w http.ResponseWriter, r *http.Request) {
 
 // PARAM
 func GetParam(w http.ResponseWriter, r *http.Request) {
-	json := api.GetParam(w, r, true, "", "")
+	json := api.GetParam(w, r, true, "", "", false)
 	jsonUserParam := json.AnyStruct.(appdata.UserParams)
 	htmlComponents.GetParam(jsonUserParam).Render(r.Context(), w)
 }
@@ -76,7 +76,7 @@ func GetParamCategory(w http.ResponseWriter, r *http.Request) {
 	userContext := r.Context().Value(appdata.ContextUserKey).(*appdata.UserRequest)
 	userCategories := appdata.NewUserCategories()
 	userCategories.GofiID = userContext.GofiID
-	sqlite.GetFullCategoryList(r.Context(), appdata.DB, userCategories, "", "")
+	sqlite.GetFullCategoryList(r.Context(), appdata.DB, userCategories, "", "", false)
 	userCategoriesJson, err := json.Marshal(userCategories)
 	if err != nil {
 		fmt.Println(err)
@@ -97,7 +97,7 @@ func PatchParamCategoryOrder(w http.ResponseWriter, r *http.Request) {
 	userContext := r.Context().Value(appdata.ContextUserKey).(*appdata.UserRequest)
 	userCategories := appdata.NewUserCategories()
 	userCategories.GofiID = userContext.GofiID
-	sqlite.GetFullCategoryList(r.Context(), appdata.DB, userCategories, "", "")
+	sqlite.GetFullCategoryList(r.Context(), appdata.DB, userCategories, "", "", false)
 	htmlComponents.PatchParamCategoryOrder(userCategories).Render(r.Context(), w)
 }
 
@@ -105,7 +105,7 @@ func PatchParamCategoryOrder(w http.ResponseWriter, r *http.Request) {
 func GetRecordInsert(w http.ResponseWriter, r *http.Request) {
 	jsonFT := api.GetRecords(w, r, true)
 	jsonFTlist := jsonFT.AnyStruct.([]appdata.FinanceTracker)
-	jsonUP := api.GetParam(w, r, true, "type", "basic")
+	jsonUP := api.GetParam(w, r, true, "type", "basic", false)
 	jsonUserParam := jsonUP.AnyStruct.(appdata.UserParams)
 	currentTime := time.Now()
 	currentDate := currentTime.Format(time.DateOnly) // YYYY-MM-DD
@@ -124,7 +124,7 @@ func PostRecordInsert(w http.ResponseWriter, r *http.Request) {
 func GetRecordTransfer(w http.ResponseWriter, r *http.Request) {
 	jsonFT := api.GetRecords(w, r, true)
 	jsonFTlist := jsonFT.AnyStruct.([]appdata.FinanceTracker)
-	jsonUP := api.GetParam(w, r, true, "", "")
+	jsonUP := api.GetParam(w, r, true, "", "", false)
 	jsonUserParam := jsonUP.AnyStruct.(appdata.UserParams)
 	currentTime := time.Now()
 	currentDate := currentTime.Format(time.DateOnly) // YYYY-MM-DD
@@ -146,7 +146,7 @@ func GetRecordRecurrent(w http.ResponseWriter, r *http.Request) {
 	if jsonFT.IsValidResponse {
 		jsonFTlist = jsonFT.AnyStruct.([]appdata.FinanceTracker)
 	}
-	jsonUP := api.GetParam(w, r, true, "type", "periodic")
+	jsonUP := api.GetParam(w, r, true, "type", "periodic", false)
 	jsonUserParam := jsonUP.AnyStruct.(appdata.UserParams)
 	jsonRR := api.RecordRecurrentRead(w, r, true)
 	jsonRRlist := []appdata.RecurrentRecord{}
@@ -219,7 +219,7 @@ func GetRecordValidateOrCancel(w http.ResponseWriter, r *http.Request) {
 			jsonFTlist[i].IDstr = "v" + strconv.Itoa(item.ID)
 		}
 	}
-	jsonUP := api.GetParam(w, r, true, "", "")
+	jsonUP := api.GetParam(w, r, true, "", "", true)
 	jsonUserParam := jsonUP.AnyStruct.(appdata.UserParams)
 	currentTime := time.Now()
 	currentDate := currentTime.Format(time.DateOnly) // YYYY-MM-DD
@@ -345,7 +345,7 @@ func GetStats(w http.ResponseWriter, r *http.Request) {
 }
 
 func GetBudget(w http.ResponseWriter, r *http.Request) {
-	jsonUP := api.GetParam(w, r, true, "budget", "")
+	jsonUP := api.GetParam(w, r, true, "budget", "", false)
 	jsonUserParam := jsonUP.AnyStruct.(appdata.UserParams)
 	sqlite.GetBudgetStats(r.Context(), appdata.DB, jsonUserParam.Categories)
 	htmlComponents.GetBudget(2024, jsonUserParam.Categories).Render(r.Context(), w)

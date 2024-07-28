@@ -1,6 +1,7 @@
 # Changelog
 
 ## v1 rework with go-chi
+- 2024-07-28 : fix all categories in validate/cancel front page
 - 2024-07-27 : 
     - add new front page to show budgets
     - add a new date string field in financeTracker table

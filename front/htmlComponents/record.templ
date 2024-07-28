@@ -716,6 +716,18 @@ templ PostRecordRecurrentSave(httpStatus int, ft appdata.FinanceTracker) {
 	}
 }
 
+templ infoFilter() {
+    <small>
+        <!-- info -->
+        <svg width="24" height="24" viewBox="0 0 24 24" stroke="#FFC000"><use xlink:href="/img/icons.svg#feather-info"></use></svg>
+        Sélectioner/modifier le 
+        <!-- landmark = Compte -->
+        <svg stroke="currenColor" width="18" heigth="18" viewBox="0 0 24 24"><use xlink:href="/img/icons.svg#lucide-landmark"></use></svg>
+        Compte pour appliquer les filtres.
+    </small>
+    <hr/>
+}
+
 templ GetRecordValidateOrCancel(jsonFT []appdata.FinanceTracker, jsonUP appdata.UserParams, currentDate string, totalRowsWithoutLimit string) {
     <html>
         <head>
@@ -740,6 +752,7 @@ templ GetRecordValidateOrCancel(jsonFT []appdata.FinanceTracker, jsonUP appdata.
                         </summary>
 
                         <h5>Filtrer</h5>
+                        @infoFilter()
                         <fieldset role="group">
                             <div>
                                 <!-- Number -->
@@ -792,6 +805,7 @@ templ GetRecordValidateOrCancel(jsonFT []appdata.FinanceTracker, jsonUP appdata.
                         </small>
                         @categoriesCustomRadioInput(jsonUP.Categories)
                         <hr/>
+
                         <h5>Trier</h5>
                         <fieldset role="group">
                             <div>
@@ -813,18 +827,14 @@ templ GetRecordValidateOrCancel(jsonFT []appdata.FinanceTracker, jsonUP appdata.
                                 </select>
                             </div>
                         </fieldset>
-
                         <hr/>
+
                         <!-- Number -->
                         <label for="limitStr">Nombre max d'enregistrements (1-500)</label>
                         <input type="number" id="limitStr" name="limitStr" min="1" max="500" step="1" value="8" required />
-
-                        <small>
-                            <!-- info -->
-                            <svg width="24" height="24" viewBox="0 0 24 24" stroke="currentColor"><use xlink:href="/img/icons.svg#feather-info"></use></svg>
-                            Sélectioner un compte pour appliquer les filtres.
-                        </small>
                         <hr/>
+
+                        @infoFilter()
                     </details>
                 </section>
 
