@@ -313,12 +313,21 @@ func GetBudgetStats(ctx context.Context, db *sql.DB, uc *appdata.UserCategories)
 	currentTime := time.Now()
 	currentDate := currentTime.Format(time.DateOnly) // YYYY-MM-DD
 	// fmt.Printf("currentDate: %v\n", currentDate)
-	// rollingDateWeek := currentTime.AddDate(0, 0, -7).Format(time.DateOnly)
-	// rollingDateMonth := currentTime.AddDate(0, -1, 0).Format(time.DateOnly)
-	// rollingDateYear := currentTime.AddDate(-1, 0, 0).Format(time.DateOnly)
-	startingDateCurrentWeek := currentTime.AddDate(0, 0, int(currentTime.Weekday())*-1) // 1=monday, 7=sunday
-	startingDateCurrentMonth := time.Date(currentTime.Year(), currentTime.Month(), 1, 0, 0, 0, 0, time.UTC)
-	startingDateCurrentYear := time.Date(currentTime.Year(), time.January, 1, 0, 0, 0, 0, time.UTC)
+	startDateCurrentWeek := currentTime.AddDate(0, 0, int(currentTime.Weekday())*-1) // 1=monday, 7=sunday
+	startDateCurrentMonth := time.Date(currentTime.Year(), currentTime.Month(), 1, 0, 0, 0, 0, time.UTC)
+	startDateCurrentYear := time.Date(currentTime.Year(), time.January, 1, 0, 0, 0, 0, time.UTC)
+	endDateCurrentWeek := startDateCurrentWeek.AddDate(0, 0, 6).Format(time.DateOnly)
+	endDateCurrentMonth := startDateCurrentMonth.AddDate(0, 1, -1).Format(time.DateOnly)
+	endDateCurrentYear := startDateCurrentYear.AddDate(1, 0, -1).Format(time.DateOnly)
+	startDatePreviousWeek := startDateCurrentWeek.AddDate(0, 0, -7).Format(time.DateOnly)
+	startDatePreviousMonth := startDateCurrentMonth.AddDate(0, -1, 0).Format(time.DateOnly)
+	startDatePreviousYear := startDateCurrentYear.AddDate(-1, 0, 0).Format(time.DateOnly)
+	endDatePreviousWeek := startDateCurrentWeek.AddDate(0, 0, -1).Format(time.DateOnly)
+	endDatePreviousMonth := startDateCurrentMonth.AddDate(0, 0, -1).Format(time.DateOnly)
+	endDatePreviousYear := startDateCurrentYear.AddDate(0, 0, -1).Format(time.DateOnly)
+	startDateCurrentWeekFormated := startDateCurrentWeek.Format(time.DateOnly)
+	startDateCurrentMonthFormated := startDateCurrentMonth.Format(time.DateOnly)
+	startDateCurrentYearFormated := startDateCurrentYear.Format(time.DateOnly)
 	q := ` 
 		SELECT IFNULL(SUM(priceIntx100)*-1, 0) AS sum
 		FROM financeTracker
@@ -326,33 +335,50 @@ func GetBudgetStats(ctx context.Context, db *sql.DB, uc *appdata.UserCategories)
 			AND category = ?
 			AND dateIn BETWEEN ? AND ?;
 	`
+	var err error
 	for i := 0; i < len(uc.Categories); i++ {
 		// fmt.Printf("uc.Categories[i]: %#v\n", uc.Categories[i])
-		var sum int = 0
+		var sumCurrent, sumPrevious int = 0, 0
 		switch uc.Categories[i].BudgetType {
 		case "reset":
 			switch uc.Categories[i].BudgetPeriod {
 			case "hebdomadaire":
-				uc.Categories[i].BudgetCurrentPeriodStartDate = startingDateCurrentWeek.Format(time.DateOnly)
-				uc.Categories[i].BudgetCurrentPeriodEndDate = startingDateCurrentWeek.AddDate(0, 0, 7).Format(time.DateOnly)
+				uc.Categories[i].BudgetCurrentPeriodStartDate = startDateCurrentWeekFormated
+				uc.Categories[i].BudgetCurrentPeriodEndDate = endDateCurrentWeek
+				uc.Categories[i].BudgetPreviousPeriodStartDate = startDatePreviousWeek
+				uc.Categories[i].BudgetPreviousPeriodEndDate = endDatePreviousWeek
 			case "mensuelle":
-				uc.Categories[i].BudgetCurrentPeriodStartDate = startingDateCurrentMonth.Format(time.DateOnly)
-				uc.Categories[i].BudgetCurrentPeriodEndDate = startingDateCurrentMonth.AddDate(0, 1, -1).Format(time.DateOnly)
+				uc.Categories[i].BudgetCurrentPeriodStartDate = startDateCurrentMonthFormated
+				uc.Categories[i].BudgetCurrentPeriodEndDate = endDateCurrentMonth
+				uc.Categories[i].BudgetPreviousPeriodStartDate = startDatePreviousMonth
+				uc.Categories[i].BudgetPreviousPeriodEndDate = endDatePreviousMonth
 			case "annuelle":
-				uc.Categories[i].BudgetCurrentPeriodStartDate = startingDateCurrentYear.Format(time.DateOnly)
-				uc.Categories[i].BudgetCurrentPeriodEndDate = startingDateCurrentYear.AddDate(1, 0, -1).Format(time.DateOnly)
+				uc.Categories[i].BudgetCurrentPeriodStartDate = startDateCurrentYearFormated
+				uc.Categories[i].BudgetCurrentPeriodEndDate = endDateCurrentYear
+				uc.Categories[i].BudgetPreviousPeriodStartDate = startDatePreviousYear
+				uc.Categories[i].BudgetPreviousPeriodEndDate = endDatePreviousYear
 			default:
 				fmt.Println("err0 BudgetPeriod")
 				continue
 			}
-			err := db.QueryRowContext(ctx, q, uc.GofiID, uc.Categories[i].Name,
-				uc.Categories[i].BudgetCurrentPeriodStartDate, uc.Categories[i].BudgetCurrentPeriodEndDate).Scan(&sum)
+			err = db.QueryRowContext(ctx, q, uc.GofiID, uc.Categories[i].Name,
+				uc.Categories[i].BudgetCurrentPeriodStartDate, uc.Categories[i].BudgetCurrentPeriodEndDate).Scan(&sumCurrent)
 			switch {
 			case err == sql.ErrNoRows:
 				fmt.Println("err1 GetBudgetStats query")
 				continue
 			case err != nil:
 				fmt.Println("err2 GetBudgetStats query")
+				continue
+			}
+			err = db.QueryRowContext(ctx, q, uc.GofiID, uc.Categories[i].Name,
+				uc.Categories[i].BudgetPreviousPeriodStartDate, uc.Categories[i].BudgetPreviousPeriodEndDate).Scan(&sumPrevious)
+			switch {
+			case err == sql.ErrNoRows:
+				fmt.Println("err3 GetBudgetStats query")
+				continue
+			case err != nil:
+				fmt.Println("err4 GetBudgetStats query")
 				continue
 			}
 		case "cumulative":
@@ -377,20 +403,31 @@ func GetBudgetStats(ctx context.Context, db *sql.DB, uc *appdata.UserCategories)
 				continue
 			}
 			uc.Categories[i].BudgetCurrentPeriodEndDate = currentDate
-			err := db.QueryRowContext(ctx, q, uc.GofiID, uc.Categories[i].Name,
-				uc.Categories[i].BudgetCurrentPeriodStartDate, uc.Categories[i].BudgetCurrentPeriodEndDate).Scan(&sum)
+			err = db.QueryRowContext(ctx, q, uc.GofiID, uc.Categories[i].Name,
+				uc.Categories[i].BudgetCurrentPeriodStartDate, uc.Categories[i].BudgetCurrentPeriodEndDate).Scan(&sumCurrent)
 			switch {
 			case err == sql.ErrNoRows:
-				fmt.Println("err3 GetBudgetStats query")
+				fmt.Println("err5 GetBudgetStats query")
 				continue
 			case err != nil:
-				fmt.Printf("err4 GetBudgetStats query: %v\n", err)
+				fmt.Printf("err6 GetBudgetStats query: %v\n", err)
+				continue
+			}
+			err = db.QueryRowContext(ctx, q, uc.GofiID, uc.Categories[i].Name,
+				uc.Categories[i].BudgetPreviousPeriodStartDate, uc.Categories[i].BudgetPreviousPeriodEndDate).Scan(&sumPrevious)
+			switch {
+			case err == sql.ErrNoRows:
+				fmt.Println("err7 GetBudgetStats query")
+				continue
+			case err != nil:
+				fmt.Printf("err8 GetBudgetStats query: %v\n", err)
 				continue
 			}
 		default:
 			continue
 		}
-		uc.Categories[i].BudgetAmount = ConvertPriceIntToStr(sum, false)
+		uc.Categories[i].BudgetAmount = ConvertPriceIntToStr(sumCurrent, false)
+		uc.Categories[i].BudgetPreviousAmount = ConvertPriceIntToStr(sumPrevious, false)
 		// fmt.Printf("Name: %v, Amount: %v\n", uc.Categories[i].Name, uc.Categories[i].BudgetAmount)
 	}
 }

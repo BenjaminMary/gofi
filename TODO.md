@@ -2,6 +2,7 @@
 
 > ☑☐☒❗
 
+- ☐❗❗ système de gestion de prêt/emprunt
 - stats, 
     - new apex chart, 
         - ☑ lines
@@ -21,11 +22,6 @@
 - ☐ ajout système de données récurrentes:
     - ☐ améliorer l'UI en bloquant l'espace via `visibility: hidden`, permettra de ne plus faire de trou dans la page au changement
         - vérif si bien impossible de cliquer sur l'elem invisible, sinon ajouter un `disable`
-- ☐ ajout système de budget:
-    - ☑ ajout des champs et possibilité de modification des infos de budget
-    - ☑ budget de dépense par catégorie
-    - ☑ stats sur les budgets activés
-    - ☐ info sur le budget en cours à la saisie ?
 - ☐ simplifier les catégories:
     - ☐ ajouter 2 niveaux de catégories, avec en mode simple 1 seul niveau obligatoire
 - ☐ ajout préférences utilisateur:
@@ -49,7 +45,7 @@
     - ☐ 1 ligne de login active par utilisateur, permettra du multi utilisateur / multi login sur différentes plateformes
 - ☐ Ajout de statistiques 
     - ☐ sur le nombre de requêtes des utilisateurs pour voir les actifs ? (tableau admin?)
-    - ☐ ajouter un graph des dépenses mois par mois (des 6/12 derniers mois ?)
+    - ☑ ajouter un graph des dépenses mois par mois (des 12 derniers mois)
 
 
 ## Done
@@ -98,6 +94,11 @@
             - https://github.com/jspreadsheet/ce
                 - https://bossanova.uk/jspreadsheet/v4/docs/quick-reference
     - ☑ ajouter le montant total en cours de validation/annulation lors de la sélection des lignes
+- ☑ ajout système de budget:
+    - ☑ ajout des champs et possibilité de modification des infos de budget
+    - ☑ budget de dépense par catégorie
+    - ☑ stats sur les budgets activés
+    - ☒ info sur le budget en cours à la saisie ?
 
 ## Infos
 - PWA

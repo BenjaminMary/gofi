@@ -14,6 +14,9 @@ Features supported (all the data are registered in a local SQLite DB):
     - record expenses per user, account and category
     - manage recurrent expenses or gains
     - handle multiple bank accounts per user and allow transfer between them
+    - handle multiple categories per user and allow budgeting for each, 2 budgeting options:
+        - reset the budget each period
+        - keep the rest of the last budget period and add it to the next
     - validate or cancel each record
     - import CSV files to insert/update data in bulk
     - export CSV files to keep/use all the data with other apps
@@ -52,6 +55,7 @@ Both uses the same functions, but return JSON for the API and HTML for the UI.
         go test ./back/api/test/params
         go test ./back/api/test/records
         go test ./back/api/test/csv
+        go test ./back/api/test/save
         go test ./back/api/test/shutdown
     ```
 - run the app with the real database :

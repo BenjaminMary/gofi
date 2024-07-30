@@ -86,7 +86,7 @@ func PutParamCategory(w http.ResponseWriter, r *http.Request, isFrontRequest boo
 	categoryPut := &appdata.CategoryPut{}
 	if err := render.Bind(r, categoryPut); err != nil {
 		fmt.Printf("error: %v\n", err.Error())
-		return appdata.RenderAPIorUI(w, r, isFrontRequest, true, false, http.StatusBadRequest, "invalid request, double check each field", "")
+		return appdata.RenderAPIorUI(w, r, isFrontRequest, false, false, http.StatusBadRequest, "invalid request, double check each field", "")
 	}
 	userContext := r.Context().Value(appdata.ContextUserKey).(*appdata.UserRequest)
 	categoryPut.GofiID = userContext.GofiID

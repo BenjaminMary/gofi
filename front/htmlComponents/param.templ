@@ -238,7 +238,7 @@ templ GetParamCategory(jsonUC *appdata.UserCategories, userCategoriesJson string
                                 </div>
                                 <div><!-- separator --></div>
                                 <div>
-                                    @dateInput("9999-12-31", "BudgetCurrentPeriodStartDate")
+                                    @dateInput("", "BudgetCurrentPeriodStartDate")
                                 </div>
                             </fieldset>
 
@@ -476,6 +476,9 @@ script botScriptAddClickEventToTableCatButtons() {
                     document.getElementById('catWhereToUse').value = userCategories.Categories[bIndex].Type;
                     document.getElementById('description').innerHTML =  userCategories.Categories[bIndex].Description;
                     document.getElementById('budgetType').value =  userCategories.Categories[bIndex].BudgetType;
+                    dateValue = userCategories.Categories[bIndex].BudgetCurrentPeriodStartDate;
+                    if (dateValue.substr(0, 4) == "9999") {dateValue = "";};
+                    document.getElementById('BudgetCurrentPeriodStartDate').value =  dateValue;
                     document.getElementById('budgetPeriod').value =  userCategories.Categories[bIndex].BudgetPeriod;
                     document.getElementById('budgetPrice').value =  userCategories.Categories[bIndex].BudgetPrice;
                     document.getElementById('openForm').scrollIntoView({behavior: 'smooth'});

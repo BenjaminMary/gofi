@@ -1,6 +1,10 @@
 # Changelog
 
 ## v1 rework with go-chi
+- 2024-07-30 : 
+    - add previous period budget info
+    - add colors to the progress bar by switching it to meter bar
+    - remove the default date at 9999-12-30 in the UI for the budget starting date and show nothing instead
 - 2024-07-28 : fix all categories in validate/cancel front page
 - 2024-07-27 : 
     - add new front page to show budgets

@@ -22,9 +22,22 @@ templ GetBudget(Year int, uc *appdata.UserCategories) {
                             <span class={ "icomoon", category.IconCodePoint }>&#x{ category.IconCodePoint };</span>
                             { category.Name } ({ category.BudgetPeriod }-{ category.BudgetType })
                         </p>
+                        if category.BudgetType == "reset" {
+                            Période: du { category.BudgetPreviousPeriodStartDate } au { category.BudgetPreviousPeriodEndDate }<br/>
+                            Montant dépensé/budgété: { category.BudgetPreviousAmount } / { strconv.Itoa(category.BudgetPrice) }
+                            <meter value={ category.BudgetPreviousAmount } optimum={ strconv.Itoa(category.BudgetPrice/2) } 
+                                low={ strconv.Itoa(category.BudgetPrice*3/4) } high={ strconv.Itoa(category.BudgetPrice-1) } max={ strconv.Itoa(category.BudgetPrice) } />
+                            -<br/>
+                        }
                         Période: du { category.BudgetCurrentPeriodStartDate } au { category.BudgetCurrentPeriodEndDate }<br/>
                         Montant dépensé/budgété: { category.BudgetAmount } / { strconv.Itoa(category.BudgetPrice) }
-                        <progress value={ category.BudgetAmount } max={ strconv.Itoa(category.BudgetPrice) } />
+                        <meter value={ category.BudgetAmount } optimum={ strconv.Itoa(category.BudgetPrice/2) } 
+                            low={ strconv.Itoa(category.BudgetPrice*3/4) } high={ strconv.Itoa(category.BudgetPrice-1) } max={ strconv.Itoa(category.BudgetPrice) } />
+                        // -<br/>
+                        // test
+                        // <meter min="0" optimum="65" low="70" high="99" max="100" value="60" /> //green
+                        // <meter min="0" optimum="65" low="70" high="99" max="100" value="75" /> //orange
+                        // <meter min="0" optimum="65" low="70" high="99" max="100" value="100" /> //red
                         <hr/>
                     }
                     // TODO: Voir pour calculer un revenu moyen en hebdo/mensuel/annuel et afficher les dépenses en cours hebdo/mensuel/annuel

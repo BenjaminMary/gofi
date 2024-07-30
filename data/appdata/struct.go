@@ -224,22 +224,25 @@ type UserCategories struct {
 	Categories   []Category
 }
 type Category struct {
-	ID                           int
-	GofiID                       int
-	Name                         string
-	Type                         string
-	Order                        int
-	InUse                        int
-	InStats                      int
-	Description                  string
-	BudgetPrice                  int
-	BudgetPeriod                 string
-	BudgetType                   string
-	BudgetCurrentPeriodStartDate string
-	BudgetCurrentPeriodEndDate   string
-	BudgetAmount                 string // not in DB
-	IconCodePoint                string
-	ColorHEX                     string
+	ID                            int
+	GofiID                        int
+	Name                          string
+	Type                          string
+	Order                         int
+	InUse                         int
+	InStats                       int
+	Description                   string
+	BudgetPrice                   int
+	BudgetPeriod                  string
+	BudgetType                    string
+	BudgetCurrentPeriodStartDate  string
+	BudgetCurrentPeriodEndDate    string
+	BudgetAmount                  string // not in DB
+	BudgetPreviousPeriodStartDate string // not in DB
+	BudgetPreviousPeriodEndDate   string // not in DB
+	BudgetPreviousAmount          string // not in DB
+	IconCodePoint                 string
+	ColorHEX                      string
 }
 type CategoryPut struct {
 	ID                           int
@@ -295,6 +298,9 @@ func (a *CategoryPut) Bind(r *http.Request) error {
 	if a.BudgetType == "" || !(a.BudgetType == "-" || a.BudgetType == "cumulative" || a.BudgetType == "reset") {
 		fmt.Println("Bind CategoryPut err7")
 		return errors.New("missing required field")
+	}
+	if a.BudgetCurrentPeriodStartDate == "" {
+		a.BudgetCurrentPeriodStartDate = "9999-12-30"
 	}
 	if len(a.BudgetCurrentPeriodStartDate) != 10 {
 		fmt.Println("Bind CategoryPut err8")
