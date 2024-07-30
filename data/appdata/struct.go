@@ -238,9 +238,9 @@ type Category struct {
 	BudgetCurrentPeriodStartDate  string
 	BudgetCurrentPeriodEndDate    string
 	BudgetAmount                  string // not in DB
-	BudgetPreviousPeriodStartDate string // not in DB
-	BudgetPreviousPeriodEndDate   string // not in DB
-	BudgetPreviousAmount          string // not in DB
+	BudgetPreviousPeriodStartDate string `json:"-"` // not in DB
+	BudgetPreviousPeriodEndDate   string `json:"-"` // not in DB
+	BudgetPreviousAmount          string `json:"-"` // not in DB
 	IconCodePoint                 string
 	ColorHEX                      string
 }
