@@ -200,7 +200,7 @@ func GetStatsInFinanceTracker(ctx context.Context, db *sql.DB, gofiID int,
 			AND year > 1999
 			AND year >= ?
 			AND year <= ?
-		ORDER BY fT.category
+		ORDER BY c.catOrder
 	`
 	yearMin := year - 11
 	rows, err = db.QueryContext(ctx, q3, gofiID, checkedValidData, yearMin, year)
@@ -266,7 +266,6 @@ func GetStatsInFinanceTracker(ctx context.Context, db *sql.DB, gofiID int,
 			WHERE gofiID = ?
 				AND checked IN (1, ?)
 				AND year = ?
-				AND priceIntx100 < 0
 			GROUP BY category, year, month
 			HAVING SUM(priceIntx100) < 0;
 		`

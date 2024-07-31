@@ -213,7 +213,7 @@ templ GetRecordInsert(jsonFT []appdata.FinanceTracker, jsonUP appdata.UserParams
                             hx-swap="afterbegin" 
                             hx-sync="this:drop"
                             hx-indicator="#spinner"
-                            hx-on::after-request="if(event.detail.successful) document.getElementById('prix').value=''">
+                            hx-on::after-request="if(event.detail.successful) document.getElementById('prix').value='';document.getElementById('designation').value='';">
 
                             <fieldset role="group">
                                 <div>
