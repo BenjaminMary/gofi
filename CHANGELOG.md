@@ -1,7 +1,9 @@
 # Changelog
 
 ## v1 rework with go-chi
-- 2024-08-04 : main front page rework
+- 2024-08-04 : 
+    - main front page rework
+    - fix: switch specific date svg (because of a wrong display on Mozilla) to simple text
 - 2024-07-31 : 
     - fix stats calculation for the month part that still showed + and - values for the same category
     - show order of categories in stats based on user preference

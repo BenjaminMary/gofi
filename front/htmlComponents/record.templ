@@ -29,14 +29,19 @@ script categoryDropdown(uc *appdata.UserCategories) {
 }
 
 templ dateSVG(year int, monthStr string, day int) {
-    <svg width="34" height="30" viewBox="0 0 34 30">
-        <text x="34" y="6" alignment-baseline="central" text-anchor="end" fill="currentColor" font-size="16" font-weight="normal" 
-            font-family="Roboto">{ strconv.Itoa(day) }</text>
-        <text x="34" y="20" alignment-baseline="central" text-anchor="end" fill="currentColor" font-size="16" font-weight="normal" 
-            font-family="Roboto">{ monthStr }</text>
-        <text x="-10" y="5" alignment-baseline="central" text-anchor="middle" fill="currentColor" font-size="9" font-weight="normal" 
-            font-family="Roboto" transform="rotate(-90)">{ strconv.Itoa(year) }</text>
-    </svg>
+    <small>
+        { strconv.Itoa(day) }{ monthStr }<br/>
+        <i>{ strconv.Itoa(year) }</i>
+    </small>
+    // TODO: bug on Mozilla for this SVG, add this as an option param
+    // <svg width="34" height="30" viewBox="0 0 34 30">
+    //     <text x="34" y="6" alignment-baseline="central" text-anchor="end" fill="currentColor" font-size="16" font-weight="normal" 
+    //         font-family="Roboto">{ strconv.Itoa(day) }</text>
+    //     <text x="34" y="20" alignment-baseline="central" text-anchor="end" fill="currentColor" font-size="16" font-weight="normal" 
+    //         font-family="Roboto">{ monthStr }</text>
+    //     <text x="-10" y="5" alignment-baseline="central" text-anchor="middle" fill="currentColor" font-size="9" font-weight="normal" 
+    //         font-family="Roboto" transform="rotate(-90)">{ strconv.Itoa(year) }</text>
+    // </svg>
 }
 
 templ lastInsertedRowsTable(jsonFT []appdata.FinanceTracker, validORcancelMode bool, totalRowsWithoutLimit string) {
