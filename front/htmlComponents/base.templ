@@ -132,7 +132,7 @@ templ navThemeSwitcher() {
                 </a>
             </li>
         </ul>
-        <ul><li><strong>GOFI</strong></li></ul>
+        <ul><li><h1>GOFI</h1></li></ul>
         <ul>
             <li>
                 <a href="#" class="contrast outline dark" data-theme-switcher="dark">
@@ -194,28 +194,27 @@ templ gofiImg(email string) {
 
 templ indexLinksConnected(IsAdmin bool) {
     <section id="links">
-        <h2 class="center">Fonctionnalités</h2>
+        <h5 class="center">Saisie de données</h5>
         <aside><nav class="center"><ul>
-            <li><a href="/param" role="button" class="contrast outline">
-                <!-- tool -->
-                <svg width="24" height="24" viewBox="0 0 24 24"><use xlink:href="/img/icons.svg#feather-tool"></use></svg>
-                Configurer l'application
-            </a></li>
             <li><a href="/record/insert" role="button" class="contrast">
                 <!-- lucide-notebook-pen -->
                 <svg width="24" height="24" viewBox="0 0 24 24"><use xlink:href="/img/icons.svg#lucide-notebook-pen"></use></svg>
-                Saisie de données
+                Saisie simple
             </a></li>
-            <li><a href="/record/transfer" role="button" class="contrast">
+            <li><a href="/record/transfer" role="button" class="contrast outline">
                 <!-- arrow-right-left -->
                 <svg width="24" height="24" viewBox="0 0 24 24"><use xlink:href="/img/icons.svg#lucide-arrow-right-left"></use></svg>
                 Transfert entre comptes
             </a></li>
-            <li><a href="/record/recurrent" role="button" class="contrast">
+            <li><a href="/record/recurrent" role="button" class="contrast outline">
                 <!-- refresh clockwise -->
                 <svg width="24" height="24" viewBox="0 0 24 24"><use xlink:href="/img/icons.svg#feather-refresh-cw"></use></svg>
                 Enregistrements réguliers
             </a></li>
+        </ul></nav></aside>
+        <hr/>
+        <h5 class="center">Validation</h5>
+        <aside><nav class="center"><ul>
             <li><a href="/record/validate-or-cancel" role="button" class="contrast outline">
                 <!-- check-square -->
                 <svg width="24" height="24" viewBox="0 0 24 24" stroke="currentColor"><use xlink:href="/img/icons.svg#feather-check-square"></use></svg>
@@ -229,6 +228,10 @@ templ indexLinksConnected(IsAdmin bool) {
             //     <svg width="24" height="24" viewBox="0 0 24 24" stroke="currentColor"><use xlink:href="/img/icons.svg#feather-search"></use></svg>
             //     Rechercher des données
             // </a></li>
+        </ul></nav></aside>
+        <hr/>
+        <h5 class="center">Statistiques</h5>
+        <aside><nav class="center"><ul>
             <li><a href="/stats/false-0-false-false" role="button" class="contrast outline">
                 <!-- pie-chart -->
                 <svg width="24" height="24" viewBox="0 0 24 24" stroke="currentColor"><use xlink:href="/img/icons.svg#feather-pie-chart"></use></svg>
@@ -241,39 +244,35 @@ templ indexLinksConnected(IsAdmin bool) {
             </a></li>
         </ul></nav></aside>
         <hr/>
-        <h5 class="center">Gestion des données via fichier CSV</h5>
+        <h5 class="center">Configuration</h5>
+        <aside><nav class="center"><ul>
+            <li><a href="/param" role="button" class="contrast outline">
+                <!-- tool -->
+                <svg width="24" height="24" viewBox="0 0 24 24"><use xlink:href="/img/icons.svg#feather-tool"></use></svg>
+                Liste des comptes
+            </a></li>
+            <li><a href="/param/category" role="button" class="contrast outline">
+                <!-- tool -->
+                <svg width="24" height="24" viewBox="0 0 24 24"><use xlink:href="/img/icons.svg#feather-tool"></use></svg>
+                Liste des catégories
+            </a></li>
+        </ul></nav></aside>
+        <hr/>
+        <h5 class="center">Gestion des données en masse</h5>
         <aside><nav class="center"><ul>
             <li><a href="/csv/export" role="button" class="contrast outline">
                 <!-- file text -->
                 <svg width="24" height="24" viewBox="0 0 24 24"><use xlink:href="/img/icons.svg#feather-file-text"></use></svg>
-                Exporter en CSV
+                Exporter en fichier .csv
             </a></li>
             <li><a href="/csv/import" role="button" class="contrast outline">
                 <!-- file text -->
                 <svg width="24" height="24" viewBox="0 0 24 24"><use xlink:href="/img/icons.svg#feather-file-text"></use></svg>
-                Importer via CSV
+                Importer via fichier .csv
             </a></li>
         </ul></nav></aside>
-        // if IsAdmin {
-        //     <hr/>
-        //     <h5 class="center">Administration</h5>
-        //     <aside><nav class="center"><ul>
-        //         <li><a href="/admin/backup" role="button" class="secondary outline">
-        //             <!-- database -->
-        //             <svg width="24" height="24" viewBox="0 0 24 24"><use xlink:href="/img/icons.svg#feather-database"></use></svg>
-        //             Gérer les backups
-        //         </a></li>
-        //         <li><a href="/admin/backup?save=1" role="button" class="secondary outline">
-        //             <!-- upload cloud -->
-        //             <svg width="24" height="24" viewBox="0 0 24 24"><use xlink:href="/img/icons.svg#feather-upload-cloud"></use></svg>
-        //             <!-- database -->
-        //             <svg width="24" height="24" viewBox="0 0 24 24"><use xlink:href="/img/icons.svg#feather-database"></use></svg>
-        //             Générer backup DB SQLite
-        //         </a></li>
-        //     </ul></nav></aside>
-        // }
         <hr/>
-        <h5 class="center">Autre</h5>
+        <h5 class="center">Compte</h5>
         <aside><nav class="center"><ul>
             <li><a href="/user/logout" role="button" class="secondary outline">
                 <!-- user x -->

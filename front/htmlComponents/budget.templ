@@ -42,17 +42,8 @@ templ GetBudget(Year int, uc *appdata.UserCategories) {
                     }
                     // TODO: Voir pour calculer un revenu moyen en hebdo/mensuel/annuel et afficher les dépenses en cours hebdo/mensuel/annuel
                 </section>
-                <section>
-                    <aside><nav class="center"><ul>
-                        <li><a href="/param/category" role="button" class="contrast outline">
-                            <!-- tool -->
-                            <svg width="24" height="24" viewBox="0 0 24 24"><use xlink:href="/img/icons.svg#feather-tool"></use></svg>
-                            Configurer les catégories
-                        </a></li>
-                    </ul></nav></aside>
-                </section>
                 @Nav("top", "/", "/img/icons.svg#feather-home", "Accueil", "contrast outline",
-                    "/record/insert", "/img/icons.svg#lucide-notebook-pen", "Saisie", "contrast")
+                    "/param/category", "/img/icons.svg#feather-tool", "Catégories", "contrast")
             </main>
             @BotScriptThemeSwitcher()
             // @BotScriptHTMXhandleError()
