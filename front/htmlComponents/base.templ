@@ -211,6 +211,11 @@ templ indexLinksConnected(IsAdmin bool) {
                 <svg width="24" height="24" viewBox="0 0 24 24"><use xlink:href="/img/icons.svg#feather-refresh-cw"></use></svg>
                 Enregistrements réguliers
             </a></li>
+            <li><a href="/record/lend-or-borrow" role="button" class="contrast outline">
+                <!-- hand coins -->
+                <svg width="24" height="24" viewBox="0 0 24 24"><use xlink:href="/img/icons.svg#lucide-hand-coins"></use></svg>
+                Prêt / Emprunt
+            </a></li>
         </ul></nav></aside>
         <hr/>
         <h5 class="center">Validation</h5>
@@ -341,7 +346,8 @@ templ PageRefreshButton() {
 }
 
 templ IndexHtmlContent(json *appdata.UserRequest) {
-    <html>
+    <!DOCTYPE html>
+    <html lang="fr">
         <head>
             @Header()
         </head>

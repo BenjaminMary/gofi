@@ -51,6 +51,20 @@ func initDB(folder string, dbName string) {
 		// REAL are not exacts, even 0.01 through a form is 0.00999999977648258 in DB
 		// instead, store money as cents, so 0.01 = 1 and 1.01 = 101
 		`
+		--DROP TABLE IF EXISTS modes;
+		CREATE TABLE IF NOT EXISTS modes (
+			mode INTEGER NOT NULL, 
+			info TEXT NOT NULL
+		);
+		INSERT INTO modes
+		VALUES 
+			(0, '+- standard'),
+			(1, '+ emprunt'),
+			(2, '- pret'),
+			(3, '- remboursement emprunt'),
+			(4, '+ remboursement pret')
+		;
+
 		--DROP TABLE IF EXISTS user;
 		CREATE TABLE IF NOT EXISTS user (
 			gofiID INTEGER PRIMARY KEY AUTOINCREMENT, 
@@ -165,6 +179,7 @@ func initDB(folder string, dbName string) {
 			commentString TEXT DEFAULT '',
 			checked INTEGER DEFAULT 0,
 			dateChecked TEXT DEFAULT '9999-12-31',
+			mode INTEGER DEFAULT 0,
 			exported INTEGER DEFAULT 0
 		);
 
@@ -180,6 +195,31 @@ func initDB(folder string, dbName string) {
 			product TEXT NOT NULL,
 			priceIntx100 INTEGER NOT NULL,
 			category TEXT NOT NULL
+		);
+
+		--DROP TABLE IF EXISTS lenderBorrower;
+		CREATE TABLE IF NOT EXISTS lenderBorrower (
+			id INTEGER PRIMARY KEY AUTOINCREMENT, 
+			gofiID INTEGER NOT NULL,
+			name TEXT NOT NULL,
+			isActive INTEGER DEFAULT 1
+			
+			-- dateFirstLentBorrowed TEXT DEFAULT '9999-12-31',
+			-- dateLastLentBorrowed TEXT DEFAULT '9999-12-31',
+			-- numberLentBorrowed INTEGER DEFAULT 0,
+			-- sumIntx100lentBorrowed INTEGER DEFAULT 0,
+			-- sumIntx100refunded INTEGER DEFAULT 0
+		);
+
+		--DROP TABLE IF EXISTS specificRecordsByMode;
+		CREATE TABLE IF NOT EXISTS specificRecordsByMode (
+			id INTEGER PRIMARY KEY AUTOINCREMENT, 
+			gofiID INTEGER NOT NULL,
+			mode INTEGER NOT NULL,
+			idFinanceTracker INTEGER NOT NULL,
+			idLenderBorrower INTEGER DEFAULT 0
+
+			-- parentIdIfRefund INTEGER DEFAULT 0,
 		);
 
 		--DROP TABLE IF EXISTS backupSave;

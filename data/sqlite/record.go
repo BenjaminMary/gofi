@@ -300,7 +300,7 @@ func ValidateRowsInFinanceTracker(ctx context.Context, db *sql.DB, gofiID int, c
 	} else if mode == "cancel" {
 		query = `
 			UPDATE financeTracker 
-			SET dateIn = 1999-12-31, year = 1999, month = 12, day = 31, account = '-', product = 'DELETED LINE', 
+			SET dateIn = '1999-12-31', year = 1999, month = 12, day = 31, account = '-', product = 'DELETED LINE', 
 				priceIntx100 = 0, category = '-', commentInt = 0, commentString = '-', 
 				checked = 1, dateChecked = ?, exported = 0
 			WHERE gofiID = ?
@@ -319,15 +319,22 @@ func ValidateRowsInFinanceTracker(ctx context.Context, db *sql.DB, gofiID int, c
 	}
 }
 
-func InsertRowInFinanceTracker(ctx context.Context, db *sql.DB, ft appdata.FinanceTracker) (int64, error) {
-	result, _ := db.ExecContext(ctx, `
-		INSERT INTO financeTracker (gofiID, dateIn, year, month, day, account, product, priceIntx100, category)
-		VALUES (?,?,?,?,?,?,?,?,?);
+func InsertRowInFinanceTracker(ctx context.Context, db *sql.DB, ft *appdata.FinanceTracker) (int64, error) {
+	result, err := db.ExecContext(ctx, `
+		INSERT INTO financeTracker (gofiID, dateIn, year, month, day, 
+			account, product, priceIntx100, category, mode)
+		VALUES (?,?,?,?,?,?,?,?,?,?);
 		`,
-		ft.GofiID, ft.Date, ft.DateDetails.Year, ft.DateDetails.Month, ft.DateDetails.Day, ft.Account, ft.Product, ft.PriceIntx100, ft.Category,
+		ft.GofiID, ft.Date, ft.DateDetails.Year, ft.DateDetails.Month, ft.DateDetails.Day,
+		ft.Account, ft.Product, ft.PriceIntx100, ft.Category, ft.Mode,
 	)
+	if err != nil {
+		fmt.Printf("InsertRowInFinanceTracker err1: %#v\n", err)
+		return 0, err
+	}
 	id, err := result.LastInsertId()
 	if err != nil {
+		fmt.Printf("InsertRowInFinanceTracker err2: %#v\n", err)
 		return 0, err
 	}
 	return id, nil
@@ -394,4 +401,85 @@ func UpdateDateInRecurrentRecord(ctx context.Context, db *sql.DB, rr *appdata.Re
 	if err != nil {
 		fmt.Printf("error on UPDATE recurrentRecord err: %#v\n", err)
 	}
+}
+
+func InsertUpdateInLenderBorrower(ctx context.Context, db *sql.DB, lb *appdata.LendBorrow) bool {
+	q := ` 
+		SELECT COALESCE(MIN(id), 0), 
+			COUNT(1), 
+			COALESCE(SUM(lb.isActive), 0)
+		FROM lenderBorrower AS lb
+		WHERE lb.gofiID = ?
+			AND name = ?;
+	`
+	var err error
+	var lbID, nbRows, sumActive int = 0, 0, 0
+	var id int64
+	var result sql.Result
+	row := db.QueryRowContext(ctx, q, lb.FT.GofiID, lb.Who)
+	if err := row.Scan(&lbID, &nbRows, &sumActive); err != nil {
+		fmt.Printf("InsertUpdateInLenderBorrower err1: %v\n", err)
+		return true
+	}
+	lb.ID = lbID
+	if nbRows == 0 {
+		if lb.ModeInt == 1 || lb.ModeInt == 2 {
+			fmt.Println("InsertUpdateInLenderBorrower in 0 row, create")
+			q = ` 
+				INSERT INTO lenderBorrower (gofiID, name)
+				VALUES (?,?);
+			`
+			result, err = db.ExecContext(ctx, q,
+				lb.FT.GofiID, lb.Who, //lb.FT.Date, lb.FT.Date, 1, lb.FT.PriceIntx100,
+			)
+			if err != nil {
+				fmt.Printf("InsertUpdateInLenderBorrower err2: %v\n", err)
+				return true
+			}
+			id, err = result.LastInsertId()
+			if err != nil {
+				fmt.Printf("InsertUpdateInLenderBorrower err3: %v\n", err)
+				return true
+			}
+			lb.ID = int(id)
+		} else {
+			fmt.Println("InsertUpdateInLenderBorrower in 0 row, error wrong mode")
+			return true
+		}
+	} else if nbRows == 1 && sumActive == 1 {
+		fmt.Println("InsertUpdateInLenderBorrower in single row active")
+	} else if nbRows == 1 && sumActive == 0 {
+		fmt.Println("InsertUpdateInLenderBorrower in single row inactive")
+		_, err := db.ExecContext(ctx, `
+			UPDATE lenderBorrower
+			SET isActive = 1
+			WHERE id = ?;
+			`,
+			lbID,
+		)
+		if err != nil {
+			fmt.Printf("InsertUpdateInLenderBorrower err4: %#v\n", err)
+			return true
+		}
+	} else {
+		fmt.Printf("InsertUpdateInLenderBorrower in multiple rows, nb: %v\n", nbRows)
+		return true
+	}
+	isErr := InsertInSpecificRecordsByMode(ctx, db, lb)
+	return isErr
+}
+
+func InsertInSpecificRecordsByMode(ctx context.Context, db *sql.DB, lb *appdata.LendBorrow) bool {
+	q := ` 
+		INSERT INTO specificRecordsByMode (gofiID, idFinanceTracker, idLenderBorrower, mode)
+		VALUES (?,?,?,?);
+	`
+	_, err := db.ExecContext(ctx, q,
+		lb.FT.GofiID, lb.FT.ID, lb.ID, lb.ModeInt,
+	)
+	if err != nil {
+		fmt.Printf("InsertInSpecificRecordsByMode err1: %v\n", err)
+		return true
+	}
+	return false
 }

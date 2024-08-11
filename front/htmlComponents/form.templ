@@ -50,6 +50,36 @@ templ accountInput(idName string, accountList []string, forceSelect bool) {
     </select>
 }
 
+templ modeInput() {
+    <!-- Select -->
+    <label for="modeStr">
+        <!-- lucide-hand-coins -->
+        <svg stroke="currenColor" width="18" heigth="18" viewBox="0 0 24 24"><use xlink:href="/img/icons.svg#lucide-hand-coins"></use></svg>
+        Mode
+    </label>
+    <select id="modeStr" name="modeStr" required>
+        <option value="4">On me rembourse un prêt</option>
+        <option value="3">Je rembourse un emprunt</option>
+        <option value="2">Je prête</option>
+        <option value="1">J'emprunte</option>
+    </select>
+}
+
+templ whoDataList() {
+    <!-- Select -->
+    <label for="who">
+        <!-- lucide-user-search -->
+        <svg stroke="currenColor" width="18" heigth="18" viewBox="0 0 24 24"><use xlink:href="/img/icons.svg#lucide-user-search"></use></svg>
+        De/à qui?
+    </label>
+    <select id="who" name="who" required>
+        <option value="A">A</option>
+        <option value="B">B</option>
+        <option value="C">C</option>
+        <option value="D">D</option>
+    </select>
+}
+
 templ categoryCustomRadioInput(categoryListOfList [][]string) {
     <!-- Custom Radios Select Dropdown -->
     <span id="categoryLabel">
@@ -76,7 +106,7 @@ templ categoryCustomRadioInput(categoryListOfList [][]string) {
     </details>
 }
 
-templ categoriesCustomRadioInput(uc *appdata.UserCategories) {
+templ categoriesCustomRadioInput(uc *appdata.UserCategories, inputName string) {
     <!-- Custom Radios Select Dropdown -->
     <span id="categoryLabel">
         <!-- boxes = Catégorie -->
@@ -92,7 +122,7 @@ templ categoriesCustomRadioInput(uc *appdata.UserCategories) {
             for i, category := range uc.Categories {
                 <li>
                     <label>
-                        <input id={ "input"+strconv.Itoa(i) } type="radio" name="categorie" value={ category.Name }/>
+                        <input id={ "input"+strconv.Itoa(i) } type="radio" name={ inputName } value={ category.Name }/>
                         <span id={ "icon"+strconv.Itoa(i) } class={ "icomoon", category.IconCodePoint }>&#x{ category.IconCodePoint };</span>
                         { category.Name }
                     </label>
@@ -102,39 +132,47 @@ templ categoriesCustomRadioInput(uc *appdata.UserCategories) {
     </details>
 }
 
-templ amountInput() {
+templ amountInput(idName string) {
     <!-- Number -->
-    <label for="prix">
+    <label for={ idName }>
         <!-- banknote = Montant -->
         <svg stroke="currenColor" width="18" heigth="18" viewBox="0 0 24 24"><use xlink:href="/img/icons.svg#lucide-banknote"></use></svg>
         Montant
     </label>
-    <input type="number" id="prix" name="prix" min="0.00" max="100000.00" step="0.01" required />
+    <input type="number" id={ idName } name={ idName } min="0.00" max="100000.00" step="0.01" required />
 }
 
-templ amountDirectionRadio() {
+templ amountDirectionRadio(defaultCheck string) {
     <!-- Radio buttons -->
     <legend>Type</legend>
     <label for="gain">
-        <input type="radio" id="gain" name="gain-expense" value="gain" />
+        if defaultCheck == "gain" {
+            <input type="radio" id="gain" name="gain-expense" value="gain" checked />
+        } else {
+            <input type="radio" id="gain" name="gain-expense" value="gain" />
+        }
         <!-- trending up -->
         <svg width="24" height="24" viewBox="0 0 24 24"><use xlink:href="/img/icons.svg#feather-trending-up"></use></svg>
         Gain
     </label>
     <label for="expense">
-        <input type="radio" id="expense" name="gain-expense" value="expense" checked />
+        if defaultCheck == "expense" {
+            <input type="radio" id="expense" name="gain-expense" value="expense" checked />
+        } else {
+            <input type="radio" id="expense" name="gain-expense" value="expense" />
+        }
         <!-- trending down -->
         <svg width="24" height="24" viewBox="0 0 24 24"><use xlink:href="/img/icons.svg#feather-trending-down"></use></svg>
         Dépense
     </label>
 }
 
-templ textInput() {
+templ textInput(idName string) {
     <!-- Text -->
-    <label for="designation">
+    <label for={ idName }>
         <!-- text = Designation -->
         <svg stroke="currenColor" width="18" heigth="18" viewBox="0 0 24 24"><use xlink:href="/img/icons.svg#lucide-text"></use></svg>
         Désignation
     </label>
-    <input type="text" id="designation" name="designation" placeholder="(Facultatif) description de l'achat" />
+    <input type="text" id={ idName } name={ idName } placeholder="(Facultatif) description de la transaction" />
 }

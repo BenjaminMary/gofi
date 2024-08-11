@@ -229,17 +229,17 @@ templ GetRecordInsert(jsonFT []appdata.FinanceTracker, jsonUP appdata.UserParams
                                     @accountInput("compte", jsonUP.AccountList, false)
                                 </div>
                             </fieldset>
-                            @categoriesCustomRadioInput(jsonUP.Categories)
+                            @categoriesCustomRadioInput(jsonUP.Categories, "categorie")
                             <fieldset role="group">
                                 <div>
-                                    @amountInput()
+                                    @amountInput("prix")
                                 </div>
                                 <div><!-- separator --></div>
                                 <div>
-                                    @amountDirectionRadio()
+                                    @amountDirectionRadio("expense")
                                 </div>
                             </fieldset>
-                            @textInput()
+                            @textInput("designation")
                             @FormSubmit("idSubmit1", "/img/icons.svg#feather-save", "Enregistrer")
                         </form>
                     </div> <!-- via header: "HX-Retarget", "#htmxInfo" -->
@@ -264,6 +264,91 @@ templ GetRecordInsert(jsonFT []appdata.FinanceTracker, jsonUP appdata.UserParams
             @categoryDropdown(jsonUP.Categories)
         </body>
     </html>
+}
+
+
+templ GetLendBorrowRecord(jsonFT []appdata.FinanceTracker, jsonUP appdata.UserParams, currentDate string) {
+    <html>
+        <head>
+            @Header()
+            @TopScriptHTMX()
+            <link rel="stylesheet" href="/fonts/style.css"/>
+        </head>
+        <body class="container-fluid">
+            <main>
+                <h1>Prêt / Emprunt</h1>
+
+                <section id="form">
+                    <div id="htmxInfo"> <!-- via header: "HX-Retarget", "#htmxInfo" -->
+                        <form hx-post="/record/lend-or-borrow" 
+                            hx-target="#lastInsert" 
+                            hx-swap="afterbegin" 
+                            hx-sync="this:drop"
+                            hx-indicator="#spinner"
+                            hx-on::after-request="if(event.detail.successful) document.getElementById('FT.prix').value='';document.getElementById('FT.designation').value='';">
+
+                            @modeInput()
+                            @whoDataList()
+                            <fieldset role="group">
+                                <div>
+                                    @dateInput(currentDate, "FT.date")
+                                </div>
+                                <div><!-- separator --></div>
+                                <div>
+                                    @accountInput("FT.compte", jsonUP.AccountList, false)
+                                </div>
+                            </fieldset>
+                            @categoriesCustomRadioInput(jsonUP.Categories, "FT.categorie")
+                            <fieldset role="group">
+                                <div>
+                                    @amountInput("FT.prix")
+                                </div>
+                                <div><!-- separator --></div>
+                                <div>
+                                    @amountDirectionRadio("gain")
+                                </div>
+                            </fieldset>
+                            @textInput("FT.designation")
+                            @FormSubmit("idSubmit1", "/img/icons.svg#feather-save", "Enregistrer")
+                        </form>
+                    </div> <!-- via header: "HX-Retarget", "#htmxInfo" -->
+                </section>
+
+                <section id="recap">
+                    @lastInsertedRowsTable(jsonFT, false, "")
+                </section>
+
+                <section id="infos">
+                    <p>
+                        Un récapitulatif des derniers enregistrements est disponible ci-dessus.<br/> 
+                        Le dernier effectué se trouve en haut de la liste.
+                    </p>
+                </section>
+
+                @Nav("top", "/", "/img/icons.svg#feather-home", "Accueil", "contrast outline",
+                    "/record/transfer", "/img/icons.svg#lucide-arrow-right-left", "Transfert", "contrast")
+            </main>
+            @BotScriptThemeSwitcher()
+            @BotScriptHTMXhandleError()
+            @categoryDropdown(jsonUP.Categories)
+            @amountDirection()
+        </body>
+    </html>
+}
+script amountDirection() {
+    // this script adapt the amount direction with the mode selected
+    document.getElementById('gain').disabled = true;
+    document.getElementById('expense').disabled = true;
+    document.getElementById("modeStr").addEventListener('change', function(m){
+        // console.log(this.value);
+        if (["1","4"].includes(this.value)){
+            document.getElementById('gain').checked = true;
+        }
+        else if (["2","3"].includes(this.value)){
+            document.getElementById('expense').checked = true;
+        }
+        else {console.log("unhandled")};
+    });
 }
 
 templ GetRecordTransfer(jsonFT []appdata.FinanceTracker, jsonUP appdata.UserParams, currentDate string) {
@@ -293,7 +378,7 @@ templ GetRecordTransfer(jsonFT []appdata.FinanceTracker, jsonUP appdata.UserPara
                                 </div>
                                 <div><!-- separator --></div>
                                 <div>
-                                    @amountInput()
+                                    @amountInput("prix")
                                 </div>
                             </fieldset>
                             <fieldset role="group">
@@ -388,17 +473,17 @@ templ GetRecordRecurrent(jsonRR []appdata.RecurrentRecord, jsonFT []appdata.Fina
                                         @accountInput("compte", jsonUP.AccountList, false)
                                     </div>
                                 </fieldset>
-                                @categoriesCustomRadioInput(jsonUP.Categories)
+                                @categoriesCustomRadioInput(jsonUP.Categories, "categorie")
                                 <fieldset role="group">
                                     <div>
-                                        @amountInput()
+                                        @amountInput("prix")
                                     </div>
                                     <div><!-- separator --></div>
                                     <div>
-                                        @amountDirectionRadio()
+                                        @amountDirectionRadio("expense")
                                     </div>
                                 </fieldset>
-                                @textInput()
+                                @textInput("designation")
                                 <!-- Text -->
                                 <input type="text" id="idRRmain" name="idRRmain" value="0" hidden readonly required />
                                 <!-- Buttons -->
@@ -808,7 +893,7 @@ templ GetRecordValidateOrCancel(jsonFT []appdata.FinanceTracker, jsonUP appdata.
                             <br/>
                             (revalider une ligne précédemment validée changera sa date de validation)
                         </small>
-                        @categoriesCustomRadioInput(jsonUP.Categories)
+                        @categoriesCustomRadioInput(jsonUP.Categories, "categorie")
                         <hr/>
 
                         <h5>Trier</h5>

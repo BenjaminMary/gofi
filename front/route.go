@@ -121,6 +121,25 @@ func PostRecordInsert(w http.ResponseWriter, r *http.Request) {
 	}
 	htmlComponents.PostRecordSingle(json.HttpStatus, jsonFT).Render(r.Context(), w)
 }
+func GetLendBorrowRecord(w http.ResponseWriter, r *http.Request) {
+	jsonFT := api.GetRecords(w, r, true)
+	jsonFTlist := jsonFT.AnyStruct.([]appdata.FinanceTracker)
+	jsonUP := api.GetParam(w, r, true, "type", "basic", false)
+	jsonUserParam := jsonUP.AnyStruct.(appdata.UserParams)
+	currentTime := time.Now()
+	currentDate := currentTime.Format(time.DateOnly) // YYYY-MM-DD
+	htmlComponents.GetLendBorrowRecord(jsonFTlist, jsonUserParam, currentDate).Render(r.Context(), w)
+}
+func PostLendOrBorrowRecord(w http.ResponseWriter, r *http.Request) {
+	json := api.PostLendOrBorrowRecords(w, r, true)
+	jsonFT := appdata.FinanceTracker{}
+	if json.IsValidResponse {
+		jsonFT = json.AnyStruct.(appdata.FinanceTracker)
+		jsonFT.DateDetails.MonthStr = appdata.MonthIto3A(jsonFT.DateDetails.Month)
+		api.GetCategoryIcon(w, r, true, jsonFT.Category, &jsonFT.CategoryDetails)
+	}
+	htmlComponents.PostRecordSingle(json.HttpStatus, jsonFT).Render(r.Context(), w)
+}
 func GetRecordTransfer(w http.ResponseWriter, r *http.Request) {
 	jsonFT := api.GetRecords(w, r, true)
 	jsonFTlist := jsonFT.AnyStruct.([]appdata.FinanceTracker)

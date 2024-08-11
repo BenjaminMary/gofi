@@ -2,7 +2,58 @@
 
 > ☑☐☒❗
 
+- ☐❗❗ système de gestion d'achat sur la durée
+    - période prévisionnelle avant nouvel achat
 - ☐❗❗ système de gestion de prêt/emprunt
+    - faire un système de specific record générique, avec mode qui change le fonctionnement de la table 
+    - partie .csv, on peut complètement décoreller le .csv des tables
+    - tables
+        1. financeTracker: pour reconstruire les infos depuis le .csv, nécessite:
+            - int: mode
+            - int: id de liaison
+            - int: qui ? (texte dans le .csv)
+                - si texte introuvable dans la table, recréer un ID avec
+        2. lenderBorrower
+            - id
+            - actif ?
+            - nom (texte)
+            - nombre d'emprunt/pret
+            - montant total emprunté/prêté
+            - montant total remboursé
+
+    - écrit dans financeTracker OU table dédiée ?
+        1. financeTracker
+            - avantage+: 
+                - permet la modification via .csv
+                - ajoute de la valeur au mode payant 
+                    - pas de suppr en mode payant tant que remboursement pas arrivé à 0
+                    - limite d'utilisation de cette feature à X selon le niveau de paiement
+            - inconvénient-: 
+                - suppression auto impossible sur ce type de ligne pas encore à 0
+                - ajoute 
+        2. table dédiée + écriture simple dans financeTracker
+            - table dédiée avec ID correspondant à l'insert dans financeTracker
+            - avantage+: 
+                - permet de ne pas ajouter trop de champs inutiles dans financeTracker
+            - inconvénient-: 
+                - ne permet pas la modification en masse via .csv
+    - champs spécifiques:
+        - modes: 0=standard, 1=prêt, 2=remboursement prêt, 3=emprunt, 4=remboursement emprunt
+        - montant remboursé par défaut à 0
+        - à qui ou provenant de qui ? (liste dédiée)
+        - id de liaison (modes 2 et 4 réutilisent les ID des modes 1 et 3)
+    - lors d'un mode création de nouveau prêt ou emprunt:
+        - préciser pour qui via liste existante ou écriture libre
+        - obliger une désignation qui servira d'identifiant pour les remboursements
+    - lors d'un mode remboursement:
+        - préciser pour qui via liste
+        - retourner 
+    - page dédiée
+    - remboursement mensuel uniquement
+    - spécifier montant global 
+        - et remb mensuel: déterminer le temps restant avant remboursement complet
+        - et durée de remboursement: déterminer le montant mensuel
+    - récap par produit + récap par personne/entitée (avec liste des produits concernées)
 - stats, 
     - new apex chart, 
         - ☑ lines

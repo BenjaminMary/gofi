@@ -88,6 +88,26 @@ func resetData() {
 	if err != nil {
 		panic(err)
 	}
+
+	fmt.Println("cleaning lenderBorrower table")
+	_, err = appdata.DB.Exec(`
+		DELETE FROM lenderBorrower;
+		DELETE FROM SQLITE_SEQUENCE WHERE name='lenderBorrower';
+		`,
+	)
+	if err != nil {
+		panic(err)
+	}
+
+	fmt.Println("cleaning specificRecordsByMode table")
+	_, err = appdata.DB.Exec(`
+		DELETE FROM specificRecordsByMode;
+		DELETE FROM SQLITE_SEQUENCE WHERE name='specificRecordsByMode';
+		`,
+	)
+	if err != nil {
+		panic(err)
+	}
 }
 
 func TestRecord(t *testing.T) {
@@ -585,6 +605,91 @@ func TestRecord(t *testing.T) {
 	require.Equal(t,
 		"{\"isValidResponse\":true,\"httpStatus\":200,\"info\":\"record list retrieved\",\"jsonContent\":[{\"ID\":1,\"GofiID\":2,\"Date\":\"2011-11-11\",\"Account\":\"CB\",\"Product\":\"testb\",\"PriceDirection\":\"\",\"FormPriceStr2Decimals\":\"-1.00\",\"PriceIntx100\":-100,\"Category\":\"Courses\",\"CommentInt\":0,\"CommentString\":\"\",\"Checked\":true,\"DateChecked\":\"2013-05-31\",\"Exported\":false},{\"ID\":3,\"GofiID\":2,\"Date\":\"2010-12-31\",\"Account\":\"CB\",\"Product\":\"testb\",\"PriceDirection\":\"\",\"FormPriceStr2Decimals\":\"-1.00\",\"PriceIntx100\":-100,\"Category\":\"Courses\",\"CommentInt\":0,\"CommentString\":\"\",\"Checked\":true,\"DateChecked\":\"2013-05-31\",\"Exported\":false},{\"ID\":8,\"GofiID\":2,\"Date\":\"2012-01-31\",\"Account\":\"CB\",\"Product\":\"ToDelete\",\"PriceDirection\":\"\",\"FormPriceStr2Decimals\":\"-34.53\",\"PriceIntx100\":-3453,\"Category\":\"Courses\",\"CommentInt\":0,\"CommentString\":\"\",\"Checked\":false,\"DateChecked\":\"9999-12-31\",\"Exported\":false}]}\n",
 		response.Body.String(), "should be equal")
+
+	// 47. POST RECORD LEND BORROW
+	req, _ = http.NewRequest("POST", "/api/record/lend-or-borrow", strings.NewReader(`{
+		"ModeStr": "1",
+		"Who": "Mr X",
+		"FT":{
+			"Date": "2011-11-11",
+			"Account": "CB",
+			"Product": "+ emprunt 1",
+			"PriceDirection": "gain",
+			"FormPriceStr2Decimals": "1000.00",
+			"Category": "Cadeaux"
+		}
+	}`))
+	req.Header.Set("sessionID", fstwo)
+	response = executeRequest(req, s)
+	require.Equal(t, http.StatusCreated, response.Code, "should be equal")
+
+	// 48. POST RECORD LEND BORROW
+	req, _ = http.NewRequest("POST", "/api/record/lend-or-borrow", strings.NewReader(`{
+		"ModeStr": "1",
+		"Who": "Mr X",
+		"FT":{
+			"Date": "2010-11-11",
+			"Account": "CB",
+			"Product": "+ emprunt 2",
+			"PriceDirection": "gain",
+			"FormPriceStr2Decimals": "1200.00",
+			"Category": "Cadeaux"
+		}
+	}`))
+	req.Header.Set("sessionID", fstwo)
+	response = executeRequest(req, s)
+	require.Equal(t, http.StatusCreated, response.Code, "should be equal")
+
+	// 49. POST RECORD LEND BORROW
+	req, _ = http.NewRequest("POST", "/api/record/lend-or-borrow", strings.NewReader(`{
+		"ModeStr": "3",
+		"Who": "Mr X",
+		"FT":{
+			"Date": "2010-11-11",
+			"Account": "CB",
+			"Product": "- remboursement emprunt 3",
+			"PriceDirection": "expense",
+			"FormPriceStr2Decimals": "2200.00",
+			"Category": "Cadeaux"
+		}
+	}`))
+	req.Header.Set("sessionID", fstwo)
+	response = executeRequest(req, s)
+	require.Equal(t, http.StatusCreated, response.Code, "should be equal")
+
+	// 50. POST RECORD LEND BORROW
+	req, _ = http.NewRequest("POST", "/api/record/lend-or-borrow", strings.NewReader(`{
+		"ModeStr": "2",
+		"Who": "Mr Y",
+		"FT":{
+			"Date": "2010-11-11",
+			"Account": "CB",
+			"Product": "- pret",
+			"PriceDirection": "expense",
+			"FormPriceStr2Decimals": "1600.00",
+			"Category": "Cadeaux"
+		}
+	}`))
+	req.Header.Set("sessionID", fstwo)
+	response = executeRequest(req, s)
+	require.Equal(t, http.StatusCreated, response.Code, "should be equal")
+
+	// 51. POST RECORD LEND BORROW
+	req, _ = http.NewRequest("POST", "/api/record/lend-or-borrow", strings.NewReader(`{
+		"ModeStr": "4",
+		"Who": "Mr Y",
+		"FT":{
+			"Date": "2010-11-11",
+			"Account": "CB",
+			"Product": "+ remboursement emprunt",
+			"PriceDirection": "gain",
+			"FormPriceStr2Decimals": "1100.00",
+			"Category": "Cadeaux"
+		}
+	}`))
+	req.Header.Set("sessionID", fstwo)
+	response = executeRequest(req, s)
+	require.Equal(t, http.StatusCreated, response.Code, "should be equal")
 
 	// fmt.Printf("response: %#v\n", response.Body.String())
 	// require.Equal(t, 1, 0, "force fail")
