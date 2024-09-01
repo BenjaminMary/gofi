@@ -430,3 +430,59 @@ func GetBudgetStats(ctx context.Context, db *sql.DB, uc *appdata.UserCategories)
 		// fmt.Printf("Name: %v, Amount: %v\n", uc.Categories[i].Name, uc.Categories[i].BudgetAmount)
 	}
 }
+
+func GetLenderBorrowerStats(ctx context.Context, db *sql.DB, gofiID int) []appdata.LenderBorrower {
+	// list the lenders and borrowers
+	var lbList []appdata.LenderBorrower
+	q1 := ` 
+		SELECT id, name
+		FROM lenderBorrower
+		WHERE gofiID = ?
+			AND isActive = 1;
+	`
+	q2 := ` 
+		SELECT SUM(ft.priceIntx100)
+		FROM lenderBorrower AS lb
+			INNER JOIN specificRecordsByMode AS srm ON lb.id = srm.idLenderBorrower
+			INNER JOIN financeTracker AS ft ON srm.idFinanceTracker = ft.id
+		WHERE lb.id = ?
+			AND lb.gofiID = ?
+			AND srm.mode IN (?,?)
+		GROUP BY lb.id;
+	`
+	rows, err := db.QueryContext(ctx, q1, gofiID)
+	if err != nil {
+		fmt.Printf("error on GetLenderBorrowerStats query1: %v\n", err)
+	}
+	for rows.Next() {
+		var lb appdata.LenderBorrower
+		if err := rows.Scan(&lb.ID, &lb.Name); err != nil {
+			fmt.Println("error in loop on GetLenderBorrowerStats query2")
+			log.Fatal(err)
+		}
+		err = db.QueryRowContext(ctx, q2, lb.ID, gofiID, 1, 2).Scan(&lb.AmountLentBorrowedIntx100)
+		switch {
+		case err == sql.ErrNoRows:
+			fmt.Println("GetLenderBorrowerStats err3")
+			continue
+		case err != nil:
+			fmt.Printf("GetLenderBorrowerStats err4: %v\n", err)
+			continue
+		}
+		err = db.QueryRowContext(ctx, q2, lb.ID, gofiID, 3, 4).Scan(&lb.AmountSentReceivedIntx100)
+		switch {
+		case err == sql.ErrNoRows:
+			fmt.Println("GetLenderBorrowerStats err5")
+			continue
+		case err != nil:
+			fmt.Printf("GetLenderBorrowerStats err6: %v\n", err)
+			continue
+		}
+		lb.AmountLentBorrowedStr2Decimals = ConvertPriceIntToStr(lb.AmountLentBorrowedIntx100, true)
+		lb.AmountSentReceivedStr2Decimals = ConvertPriceIntToStr(lb.AmountSentReceivedIntx100, true)
+		lbList = append(lbList, lb)
+	}
+	rows.Close()
+	// fmt.Printf("lbList: %#v\n", lbList)
+	return lbList
+}

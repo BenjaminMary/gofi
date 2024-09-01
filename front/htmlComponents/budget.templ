@@ -50,3 +50,96 @@ templ GetBudget(Year int, uc *appdata.UserCategories) {
         </body>
     </html>
 }
+
+templ GetLenderBorrowerStats(lbList []appdata.LenderBorrower) {
+    <html>
+        <head>
+            @Header()
+            // @TopScriptHTMX()
+            <link rel="stylesheet" href="/fonts/style.css"/>
+        </head>
+        <body class="container-fluid">
+            <main>
+                <h1>Stats Prêt / Emprunt</h1>
+                
+                // list all lenders and borrowers with associated amounts lent + borrowed and refunded 
+                // TODO: filtre possible en selectionnant une ligne pour avoir l'ensemble du détail associé
+                // mettre le détail du 1er de la liste par défaut
+                // permettre un post pour changer de ligne dans la liste
+                <section id="lenderBorrower">
+                    <small><i>
+                        Fonctionnement:
+                        <ul>
+                            <li>
+                                <!-- text = Designation -->
+                                <svg stroke="currenColor" width="18" heigth="18" viewBox="0 0 24 24"><use xlink:href="/img/icons.svg#lucide-text"></use></svg>
+                                nom de la personne / société concernée.
+                            </li>
+                            <li>
+                                <!-- hand coins -->
+                                <svg width="18" height="18" viewBox="0 0 24 24"><use xlink:href="/img/icons.svg#lucide-hand-coins"></use></svg>
+                                montant prêté / emprunté.
+                            </li>
+                            <li>
+                                <!-- banknote = Prix -->
+                                <svg stroke="currenColor" width="18" heigth="18" viewBox="0 0 24 24"><use xlink:href="/img/icons.svg#lucide-banknote"></use></svg>
+                                montant déjà récupéré / remboursé.
+                            </li>
+                        </ul>
+                    </i></small>
+                    @lenderBorrowerTable(lbList)
+                </section>
+                <section id="lendBorrowDetails">
+                    <h3>Détails de X</h3>
+                    // TODO: changer X par le détail actif
+                    <h3>Détails prêt et emprunts</h3>
+                    // TODO: pret emprunt 
+                    <h3>Détails remboursements</h3>
+                    // TODO: remboursements 
+                </section>
+                @Nav("top", "/", "/img/icons.svg#feather-home", "Accueil", "contrast outline",
+                    "/record/lend-or-borrow", "/img/icons.svg#lucide-hand-coins", "Prêt/Emprunt", "contrast")
+            </main>
+            @BotScriptThemeSwitcher()
+            // @BotScriptHTMXhandleError()
+        </body>
+    </html>
+}
+
+templ lenderBorrowerTable(lbListSent []appdata.LenderBorrower) {
+    <div class="overflow-auto">
+        <figure>
+            <table class="striped">
+                <thead>
+                    <tr>
+                        <th scope="col">
+                            <!-- text = Designation -->
+                            <svg stroke="currenColor" width="28" heigth="28" viewBox="0 0 24 24"><use xlink:href="/img/icons.svg#lucide-text"></use></svg>
+                        </th>
+                        <th scope="col">
+                            <!-- hand coins -->
+                            <svg width="24" height="24" viewBox="0 0 24 24"><use xlink:href="/img/icons.svg#lucide-hand-coins"></use></svg>
+                        </th>
+                        <th scope="col">
+                            <!-- banknote = Prix -->
+                            <svg stroke="currenColor" width="28" heigth="28" viewBox="0 0 24 24"><use xlink:href="/img/icons.svg#lucide-banknote"></use></svg>
+                        </th>
+                    </tr>
+                </thead>
+                <tbody id="lastInsert">
+                    for _, lb := range lbListSent {
+                        @oneRowInLenderBorrowerTable(lb)
+                    }
+                </tbody>
+            </table>
+        </figure>
+    </div>
+}
+
+templ oneRowInLenderBorrowerTable(lb appdata.LenderBorrower) {
+    <tr>
+        <td>{lb.Name}</td>
+        <td>{lb.AmountLentBorrowedStr2Decimals}</td>
+        <td>{lb.AmountSentReceivedStr2Decimals}</td>
+    </tr>
+}

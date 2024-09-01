@@ -142,14 +142,14 @@ templ amountInput(idName string) {
     <input type="number" id={ idName } name={ idName } min="0.00" max="100000.00" step="0.01" required />
 }
 
-templ amountDirectionRadio(defaultCheck string) {
+templ amountDirectionRadio(defaultCheck string, nameStr string) {
     <!-- Radio buttons -->
     <legend>Type</legend>
     <label for="gain">
         if defaultCheck == "gain" {
-            <input type="radio" id="gain" name="gain-expense" value="gain" checked />
+            <input type="radio" id="gain" name={ nameStr } value="gain" checked />
         } else {
-            <input type="radio" id="gain" name="gain-expense" value="gain" />
+            <input type="radio" id="gain" name={ nameStr } value="gain" />
         }
         <!-- trending up -->
         <svg width="24" height="24" viewBox="0 0 24 24"><use xlink:href="/img/icons.svg#feather-trending-up"></use></svg>
@@ -157,9 +157,9 @@ templ amountDirectionRadio(defaultCheck string) {
     </label>
     <label for="expense">
         if defaultCheck == "expense" {
-            <input type="radio" id="expense" name="gain-expense" value="expense" checked />
+            <input type="radio" id="expense" name={ nameStr } value="expense" checked />
         } else {
-            <input type="radio" id="expense" name="gain-expense" value="expense" />
+            <input type="radio" id="expense" name={ nameStr } value="expense" />
         }
         <!-- trending down -->
         <svg width="24" height="24" viewBox="0 0 24 24"><use xlink:href="/img/icons.svg#feather-trending-down"></use></svg>

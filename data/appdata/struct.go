@@ -82,6 +82,15 @@ func (a *FinanceTracker) Bind(r *http.Request) error {
 	return nil
 }
 
+type LenderBorrower struct {
+	ID                             int
+	Name                           string
+	AmountLentBorrowedIntx100      int
+	AmountLentBorrowedStr2Decimals string
+	AmountSentReceivedIntx100      int
+	AmountSentReceivedStr2Decimals string
+}
+
 type LendBorrow struct {
 	ID      int
 	ModeStr string `form:"modeStr" binding:"required" json:"modeStr"`
@@ -93,7 +102,7 @@ type LendBorrow struct {
 func (a *LendBorrow) Bind(r *http.Request) error {
 	// trigger an error if field = "" or is missing/wrong
 	// fmt.Printf("Date: %v, Account: %v, Category: %v, FormPriceStr2Decimals: %v\n", a.Date, a.Account, a.Category, a.FormPriceStr2Decimals)
-	fmt.Printf("a: %#v\n", a)
+	// fmt.Printf("a: %#v\n", a)
 	var err error
 	a.ModeInt, err = strconv.Atoi(a.ModeStr)
 	if err != nil || a.ModeInt < 1 || a.ModeInt > 4 {

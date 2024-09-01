@@ -467,7 +467,7 @@ func handleFTinsert(r *http.Request, ft *appdata.FinanceTracker) (int64, bool, i
 	// 	fmt.Printf("handleFTinsert error1: %v\n", err.Error())
 	// 	return 0, true, http.StatusBadRequest, "invalid request, double check each field"
 	// }
-	fmt.Printf("ft: %#v\n", ft)
+	// fmt.Printf("ft: %#v\n", ft)
 	_, err := time.Parse(time.DateOnly, ft.Date)
 	if err != nil {
 		fmt.Printf("handleFTinsert error2 invalid date: %v\n", err.Error())
@@ -488,7 +488,10 @@ func handleFTinsert(r *http.Request, ft *appdata.FinanceTracker) (int64, bool, i
 		fmt.Println("handleFTinsert error5 invalid PriceDirection and Mode combinaison")
 		return 0, true, http.StatusBadRequest, "invalid PriceDirection and Mode combinaison"
 	}
-	if ft.PriceDirection == "expense" {
+	if ft.PriceDirection == "" {
+		fmt.Println("handleFTinsert error6 invalid PriceDirection")
+		return 0, true, http.StatusBadRequest, "invalid PriceDirection"
+	} else if ft.PriceDirection == "expense" {
 		ft.FormPriceStr2Decimals = "-" + ft.FormPriceStr2Decimals
 	}
 	ft.PriceIntx100 = sqlite.ConvertPriceStrToInt(ft.FormPriceStr2Decimals, ".") // always "." as decimal separator from the form

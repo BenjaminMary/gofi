@@ -236,7 +236,7 @@ templ GetRecordInsert(jsonFT []appdata.FinanceTracker, jsonUP appdata.UserParams
                                 </div>
                                 <div><!-- separator --></div>
                                 <div>
-                                    @amountDirectionRadio("expense")
+                                    @amountDirectionRadio("expense", "gain-expense")
                                 </div>
                             </fieldset>
                             @textInput("designation")
@@ -305,7 +305,7 @@ templ GetLendBorrowRecord(jsonFT []appdata.FinanceTracker, jsonUP appdata.UserPa
                                 </div>
                                 <div><!-- separator --></div>
                                 <div>
-                                    @amountDirectionRadio("gain")
+                                    @amountDirectionRadio("gain", "FT.gain-expense")
                                 </div>
                             </fieldset>
                             @textInput("FT.designation")
@@ -326,7 +326,7 @@ templ GetLendBorrowRecord(jsonFT []appdata.FinanceTracker, jsonUP appdata.UserPa
                 </section>
 
                 @Nav("top", "/", "/img/icons.svg#feather-home", "Accueil", "contrast outline",
-                    "/record/transfer", "/img/icons.svg#lucide-arrow-right-left", "Transfert", "contrast")
+                    "/stats/lender-borrower", "/img/icons.svg#lucide-hand-coins", "Prêt/Emprunt", "contrast")
             </main>
             @BotScriptThemeSwitcher()
             @BotScriptHTMXhandleError()
@@ -336,15 +336,20 @@ templ GetLendBorrowRecord(jsonFT []appdata.FinanceTracker, jsonUP appdata.UserPa
     </html>
 }
 script amountDirection() {
-    // this script adapt the amount direction with the mode selected
-    document.getElementById('gain').disabled = true;
+    // this script adapt the amount direction with the mode selected 
+    // .disabled on radio buttons, because .readOnly does not work on radio
+    // document.getElementById('gain').disabled = true; not disabled because default option 
     document.getElementById('expense').disabled = true;
     document.getElementById("modeStr").addEventListener('change', function(m){
         // console.log(this.value);
         if (["1","4"].includes(this.value)){
+            document.getElementById('gain').disabled = false;
+            document.getElementById('expense').disabled = true;
             document.getElementById('gain').checked = true;
         }
         else if (["2","3"].includes(this.value)){
+            document.getElementById('expense').disabled = false;
+            document.getElementById('gain').disabled = true;
             document.getElementById('expense').checked = true;
         }
         else {console.log("unhandled")};
@@ -480,7 +485,7 @@ templ GetRecordRecurrent(jsonRR []appdata.RecurrentRecord, jsonFT []appdata.Fina
                                     </div>
                                     <div><!-- separator --></div>
                                     <div>
-                                        @amountDirectionRadio("expense")
+                                        @amountDirectionRadio("expense", "gain-expense")
                                     </div>
                                 </fieldset>
                                 @textInput("designation")
