@@ -51,7 +51,7 @@ templ GetBudget(Year int, uc *appdata.UserCategories) {
     </html>
 }
 
-templ GetLenderBorrowerStats(lbList []appdata.LenderBorrower) {
+templ GetLenderBorrowerStats(lbList []appdata.LenderBorrower, ftList1 []appdata.FinanceTracker, ftList2 []appdata.FinanceTracker, lbName string) {
     <html>
         <head>
             @Header()
@@ -88,14 +88,16 @@ templ GetLenderBorrowerStats(lbList []appdata.LenderBorrower) {
                         </ul>
                     </i></small>
                     @lenderBorrowerTable(lbList)
+                    <hr/>
                 </section>
                 <section id="lendBorrowDetails">
-                    <h3>Détails de X</h3>
-                    // TODO: changer X par le détail actif
+                    <h2>Détails de: "<span id="lbActive">{ lbName }</span>"</h2>
+                    <hr/>
                     <h3>Détails prêt et emprunts</h3>
-                    // TODO: pret emprunt 
+                    @lastInsertedRowsTable(ftList1, false, "")
+                    <hr/>
                     <h3>Détails remboursements</h3>
-                    // TODO: remboursements 
+                    @lastInsertedRowsTable(ftList2, false, "")
                 </section>
                 @Nav("top", "/", "/img/icons.svg#feather-home", "Accueil", "contrast outline",
                     "/record/lend-or-borrow", "/img/icons.svg#lucide-hand-coins", "Prêt/Emprunt", "contrast")

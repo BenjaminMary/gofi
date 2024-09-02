@@ -486,3 +486,71 @@ func GetLenderBorrowerStats(ctx context.Context, db *sql.DB, gofiID int) []appda
 	// fmt.Printf("lbList: %#v\n", lbList)
 	return lbList
 }
+
+func GetLenderBorrowerDetailedStats(ctx context.Context, db *sql.DB, gofiID int, lbID int) ([]appdata.FinanceTracker, []appdata.FinanceTracker, string) {
+	var ftList1, ftList2 []appdata.FinanceTracker
+	var lbName string
+	q1 := ` 
+		SELECT name
+		FROM lenderBorrower
+		WHERE gofiID = ?
+			AND isActive = 1
+			AND id = ?;
+	`
+	err := db.QueryRowContext(ctx, q1, gofiID, lbID).Scan(&lbName)
+	switch {
+	case err == sql.ErrNoRows:
+		fmt.Println("GetLenderBorrowerDetailedStats err1")
+		return ftList1, ftList2, lbName
+	case err != nil:
+		fmt.Printf("GetLenderBorrowerDetailedStats err2: %v\n", err)
+		return ftList1, ftList2, lbName
+	}
+	q2 := ` 
+		SELECT ft.dateIn, ft.account, ft.category, ft.priceIntx100, ft.product, ft.mode,
+			ft.year, ft.month, ft.day,
+			ifnull(c.iconCodePoint,'e90a') AS icp, ifnull(c.colorHEX,'#808080') AS ch
+		FROM specificRecordsByMode AS srm
+			INNER JOIN financeTracker AS ft ON srm.idFinanceTracker = ft.id
+			LEFT JOIN category AS c ON c.category = fT.category AND c.gofiID = fT.gofiID
+		WHERE srm.idLenderBorrower = ?
+			AND srm.gofiID = ?
+			AND srm.mode IN (?,?)
+		ORDER BY ft.dateIn DESC, ft.id DESC;
+	`
+	rows, err := db.QueryContext(ctx, q2, lbID, gofiID, 1, 2)
+	if err != nil {
+		fmt.Printf("error on GetLenderBorrowerStats query1: %v\n", err)
+	}
+	for rows.Next() {
+		var ft appdata.FinanceTracker
+		if err := rows.Scan(&ft.Date, &ft.Account, &ft.Category, &ft.PriceIntx100, &ft.Product, &ft.Mode,
+			&ft.DateDetails.Year, &ft.DateDetails.Month, &ft.DateDetails.Day,
+			&ft.CategoryDetails.CategoryIcon, &ft.CategoryDetails.CategoryColor); err != nil {
+			fmt.Println("error in loop on GetLenderBorrowerStats query2")
+			log.Fatal(err)
+		}
+		ft.DateDetails.MonthStr = appdata.MonthIto3A(ft.DateDetails.Month)
+		ft.FormPriceStr2Decimals = ConvertPriceIntToStr(ft.PriceIntx100, true)
+		ftList1 = append(ftList1, ft)
+	}
+	rows.Close()
+	rows, err = db.QueryContext(ctx, q2, lbID, gofiID, 3, 4)
+	if err != nil {
+		fmt.Printf("error on GetLenderBorrowerStats query3: %v\n", err)
+	}
+	for rows.Next() {
+		var ft appdata.FinanceTracker
+		if err := rows.Scan(&ft.Date, &ft.Account, &ft.Category, &ft.PriceIntx100, &ft.Product, &ft.Mode,
+			&ft.DateDetails.Year, &ft.DateDetails.Month, &ft.DateDetails.Day,
+			&ft.CategoryDetails.CategoryIcon, &ft.CategoryDetails.CategoryColor); err != nil {
+			fmt.Println("error in loop on GetLenderBorrowerStats query4")
+			log.Fatal(err)
+		}
+		ft.DateDetails.MonthStr = appdata.MonthIto3A(ft.DateDetails.Month)
+		ft.FormPriceStr2Decimals = ConvertPriceIntToStr(ft.PriceIntx100, true)
+		ftList2 = append(ftList2, ft)
+	}
+	rows.Close()
+	return ftList1, ftList2, lbName
+}
