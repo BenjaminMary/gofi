@@ -505,7 +505,7 @@ func handleFTinsert(r *http.Request, ft *appdata.FinanceTracker) (int64, bool, i
 	return idInserted, false, 0, ""
 }
 
-// TODO
+// TODO DeleteLendOrBorrowRecords
 // func DeleteLendOrBorrowRecords(w http.ResponseWriter, r *http.Request, isFrontRequest bool, idrrFuncParam string) *appdata.HttpStruct {
 // 	/*
 // 		need

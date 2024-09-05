@@ -51,7 +51,7 @@ templ GetBudget(Year int, uc *appdata.UserCategories) {
     </html>
 }
 
-templ GetLenderBorrowerStats(lbList []appdata.LenderBorrower, ftList1 []appdata.FinanceTracker, ftList2 []appdata.FinanceTracker, lbName string) {
+templ GetLenderBorrowerStats(lbList []appdata.LenderBorrower, ftList1 []appdata.FinanceTracker, ftList2 []appdata.FinanceTracker, lbName string, lbIDint int) {
     <html>
         <head>
             @Header()
@@ -63,9 +63,6 @@ templ GetLenderBorrowerStats(lbList []appdata.LenderBorrower, ftList1 []appdata.
                 <h1>Stats Prêt / Emprunt</h1>
                 
                 // list all lenders and borrowers with associated amounts lent + borrowed and refunded 
-                // TODO: filtre possible en selectionnant une ligne pour avoir l'ensemble du détail associé
-                // mettre le détail du 1er de la liste par défaut
-                // permettre un post pour changer de ligne dans la liste
                 <section id="lenderBorrower">
                     <small><i>
                         Fonctionnement:
@@ -87,7 +84,7 @@ templ GetLenderBorrowerStats(lbList []appdata.LenderBorrower, ftList1 []appdata.
                             </li>
                         </ul>
                     </i></small>
-                    @lenderBorrowerTable(lbList)
+                    @lenderBorrowerTable(lbList, lbIDint)
                     <hr/>
                 </section>
                 <section id="lendBorrowDetails">
@@ -101,14 +98,36 @@ templ GetLenderBorrowerStats(lbList []appdata.LenderBorrower, ftList1 []appdata.
                 </section>
                 @Nav("top", "/", "/img/icons.svg#feather-home", "Accueil", "contrast outline",
                     "/record/lend-or-borrow", "/img/icons.svg#lucide-hand-coins", "Prêt/Emprunt", "contrast")
+
+                <section hidden>
+                    <form id="form" name="form" action="/stats/lender-borrower/0" method="get"></form>
+                </section>
+
             </main>
             @BotScriptThemeSwitcher()
             // @BotScriptHTMXhandleError()
+            @selectionSwitchLB()
         </body>
     </html>
 }
 
-templ lenderBorrowerTable(lbListSent []appdata.LenderBorrower) {
+script selectionSwitchLB() {
+    // this script handle a selection switch on the LB main table to show details of this line in the 2 other tables 
+    var checkboxesList = document.getElementById('lbTableRows').getElementsByTagName('input');
+    for (var i = 0; i < checkboxesList.length; i++) {
+        document.getElementById(checkboxesList[i].id).addEventListener('click', function(e){
+            if (this.checked) {
+                // changes only if the state switch from off to on
+                // refresh the page with the requested id to get the matching details
+                document.getElementById('form').action = "/stats/lender-borrower/"+this.id.split("-")[1];
+                document.getElementById("form").submit();
+            };
+        });
+    };
+}
+
+
+templ lenderBorrowerTable(lbListSent []appdata.LenderBorrower, lbIDint int) {
     <div class="overflow-auto">
         <figure>
             <table class="striped">
@@ -117,6 +136,10 @@ templ lenderBorrowerTable(lbListSent []appdata.LenderBorrower) {
                         <th scope="col">
                             <!-- text = Designation -->
                             <svg stroke="currenColor" width="28" heigth="28" viewBox="0 0 24 24"><use xlink:href="/img/icons.svg#lucide-text"></use></svg>
+                        </th>
+                        <th scope="col">
+                            <!-- inUse = ON/OFF -->
+                            <svg stroke="currenColor" width="32" heigth="32" viewBox="0 0 24 24"><use xlink:href="/img/icons.svg#lucide-toggle-right"></use></svg>
                         </th>
                         <th scope="col">
                             <!-- hand coins -->
@@ -128,9 +151,9 @@ templ lenderBorrowerTable(lbListSent []appdata.LenderBorrower) {
                         </th>
                     </tr>
                 </thead>
-                <tbody id="lastInsert">
+                <tbody id="lbTableRows">
                     for _, lb := range lbListSent {
-                        @oneRowInLenderBorrowerTable(lb)
+                        @oneRowInLenderBorrowerTable(lb, lbIDint)
                     }
                 </tbody>
             </table>
@@ -138,9 +161,16 @@ templ lenderBorrowerTable(lbListSent []appdata.LenderBorrower) {
     </div>
 }
 
-templ oneRowInLenderBorrowerTable(lb appdata.LenderBorrower) {
+templ oneRowInLenderBorrowerTable(lb appdata.LenderBorrower, lbIDint int) {
     <tr>
         <td>{lb.Name}</td>
+        <td>
+            if lbIDint == lb.ID {
+                <input type="checkbox" id={ "checkbox-" + strconv.Itoa(lb.ID) } role="switch" checked />
+            } else {
+                <input type="checkbox" id={ "checkbox-" + strconv.Itoa(lb.ID) } role="switch" />
+            }
+        </td>
         <td>{lb.AmountLentBorrowedStr2Decimals}</td>
         <td>{lb.AmountSentReceivedStr2Decimals}</td>
     </tr>

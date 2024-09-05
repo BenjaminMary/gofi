@@ -122,11 +122,18 @@ func PostRecordInsert(w http.ResponseWriter, r *http.Request) {
 	htmlComponents.PostRecordSingle(json.HttpStatus, jsonFT).Render(r.Context(), w)
 }
 func GetLenderBorrowerStats(w http.ResponseWriter, r *http.Request) {
-	fmt.Println("in front part")
+	// fmt.Println("in front part")
 	userContext := r.Context().Value(appdata.ContextUserKey).(*appdata.UserRequest)
 	lbList := sqlite.GetLenderBorrowerStats(r.Context(), appdata.DB, userContext.GofiID)
-	ftList1, ftList2, lbName := sqlite.GetLenderBorrowerDetailedStats(r.Context(), appdata.DB, userContext.GofiID, lbList[0].ID)
-	htmlComponents.GetLenderBorrowerStats(lbList, ftList1, ftList2, lbName).Render(r.Context(), w)
+	lbIDstr := chi.URLParam(r, "lbID")
+	var lbIDint int
+	if lbIDstr == "" || lbIDstr == "0" {
+		lbIDint = lbList[0].ID
+	} else {
+		lbIDint, _ = strconv.Atoi(lbIDstr)
+	}
+	ftList1, ftList2, lbName := sqlite.GetLenderBorrowerDetailedStats(r.Context(), appdata.DB, userContext.GofiID, lbIDint)
+	htmlComponents.GetLenderBorrowerStats(lbList, ftList1, ftList2, lbName, lbIDint).Render(r.Context(), w)
 }
 func GetLendBorrowRecord(w http.ResponseWriter, r *http.Request) {
 	jsonFT := api.GetRecords(w, r, true)

@@ -202,7 +202,7 @@ func (s *Server) MountFrontHandlers() {
 			// STATS
 			r.Get("/stats/{checkedValidData}-{year}-{checkedYearStats}-{checkedGainsStats}", front.GetStats)
 			r.Get("/budget", front.GetBudget)
-			r.Get("/stats/lender-borrower", front.GetLenderBorrowerStats)
+			r.Get("/stats/lender-borrower/{lbID}", front.GetLenderBorrowerStats)
 		})
 	})
 }

@@ -472,10 +472,10 @@ func GetLenderBorrowerStats(ctx context.Context, db *sql.DB, gofiID int) []appda
 		err = db.QueryRowContext(ctx, q2, lb.ID, gofiID, 3, 4).Scan(&lb.AmountSentReceivedIntx100)
 		switch {
 		case err == sql.ErrNoRows:
-			fmt.Println("GetLenderBorrowerStats err5")
-			continue
+			fmt.Println("GetLenderBorrowerStats no row in the received part, set to 0")
+			lb.AmountSentReceivedIntx100 = 0
 		case err != nil:
-			fmt.Printf("GetLenderBorrowerStats err6: %v\n", err)
+			fmt.Printf("GetLenderBorrowerStats err5: %v\n", err)
 			continue
 		}
 		lb.AmountLentBorrowedStr2Decimals = ConvertPriceIntToStr(lb.AmountLentBorrowedIntx100, true)
