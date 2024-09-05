@@ -121,6 +121,9 @@ script selectionSwitchLB() {
                 // refresh the page with the requested id to get the matching details
                 document.getElementById('form').action = "/stats/lender-borrower/"+this.id.split("-")[1];
                 document.getElementById("form").submit();
+            } else {
+                console.log("WARNING: can't change the current list with the same one")
+                this.checked = true;
             };
         });
     };
