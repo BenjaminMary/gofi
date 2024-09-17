@@ -469,6 +469,21 @@ func InsertUpdateInLenderBorrower(ctx context.Context, db *sql.DB, lb *appdata.L
 	return isErr
 }
 
+func UpdateStateInLenderBorrower(ctx context.Context, db *sql.DB, lb *appdata.LenderBorrower) bool {
+	_, err := db.ExecContext(ctx, `
+		UPDATE lenderBorrower
+		SET isActive = ?
+		WHERE id = ?;
+		`,
+		lb.IsActive, lb.ID,
+	)
+	if err != nil {
+		fmt.Printf("InsertUpdateInLenderBorrower err1: %#v\n", err)
+		return true
+	}
+	return false
+}
+
 func InsertInSpecificRecordsByMode(ctx context.Context, db *sql.DB, lb *appdata.LendBorrow) bool {
 	q := ` 
 		INSERT INTO specificRecordsByMode (gofiID, idFinanceTracker, idLenderBorrower, mode)

@@ -431,14 +431,13 @@ func GetBudgetStats(ctx context.Context, db *sql.DB, uc *appdata.UserCategories)
 	}
 }
 
-func GetLenderBorrowerStats(ctx context.Context, db *sql.DB, gofiID int) []appdata.LenderBorrower {
+func GetLenderBorrowerStats(ctx context.Context, db *sql.DB, gofiID int) ([]appdata.LenderBorrower, []appdata.LenderBorrower) {
 	// list the lenders and borrowers
-	var lbList []appdata.LenderBorrower
+	var lbListActive, lbListInactive []appdata.LenderBorrower
 	q1 := ` 
-		SELECT id, name
+		SELECT id, name, isActive
 		FROM lenderBorrower
-		WHERE gofiID = ?
-			AND isActive = 1;
+		WHERE gofiID = ?;
 	`
 	q2 := ` 
 		SELECT SUM(ft.priceIntx100)
@@ -456,7 +455,8 @@ func GetLenderBorrowerStats(ctx context.Context, db *sql.DB, gofiID int) []appda
 	}
 	for rows.Next() {
 		var lb appdata.LenderBorrower
-		if err := rows.Scan(&lb.ID, &lb.Name); err != nil {
+		var isActive int
+		if err := rows.Scan(&lb.ID, &lb.Name, &isActive); err != nil {
 			fmt.Println("error in loop on GetLenderBorrowerStats query2")
 			log.Fatal(err)
 		}
@@ -478,13 +478,17 @@ func GetLenderBorrowerStats(ctx context.Context, db *sql.DB, gofiID int) []appda
 			fmt.Printf("GetLenderBorrowerStats err5: %v\n", err)
 			continue
 		}
-		lb.AmountLentBorrowedStr2Decimals = ConvertPriceIntToStr(lb.AmountLentBorrowedIntx100, true)
-		lb.AmountSentReceivedStr2Decimals = ConvertPriceIntToStr(lb.AmountSentReceivedIntx100, true)
-		lbList = append(lbList, lb)
+		lb.AmountLentBorrowedStr2Decimals = ConvertPriceIntToStr(lb.AmountLentBorrowedIntx100, false)
+		lb.AmountSentReceivedStr2Decimals = ConvertPriceIntToStr(lb.AmountSentReceivedIntx100, false)
+		if isActive == 1 {
+			lbListActive = append(lbListActive, lb)
+		} else if isActive == 0 {
+			lbListInactive = append(lbListInactive, lb)
+		}
 	}
 	rows.Close()
 	// fmt.Printf("lbList: %#v\n", lbList)
-	return lbList
+	return lbListActive, lbListInactive
 }
 
 func GetLenderBorrowerDetailedStats(ctx context.Context, db *sql.DB, gofiID int, lbID int) ([]appdata.FinanceTracker, []appdata.FinanceTracker, string) {
@@ -520,14 +524,14 @@ func GetLenderBorrowerDetailedStats(ctx context.Context, db *sql.DB, gofiID int,
 	`
 	rows, err := db.QueryContext(ctx, q2, lbID, gofiID, 1, 2)
 	if err != nil {
-		fmt.Printf("error on GetLenderBorrowerStats query1: %v\n", err)
+		fmt.Printf("error on GetLenderBorrowerDetailedStats query1: %v\n", err)
 	}
 	for rows.Next() {
 		var ft appdata.FinanceTracker
 		if err := rows.Scan(&ft.Date, &ft.Account, &ft.Category, &ft.PriceIntx100, &ft.Product, &ft.Mode,
 			&ft.DateDetails.Year, &ft.DateDetails.Month, &ft.DateDetails.Day,
 			&ft.CategoryDetails.CategoryIcon, &ft.CategoryDetails.CategoryColor); err != nil {
-			fmt.Println("error in loop on GetLenderBorrowerStats query2")
+			fmt.Println("error in loop on GetLenderBorrowerDetailedStats query2")
 			log.Fatal(err)
 		}
 		ft.DateDetails.MonthStr = appdata.MonthIto3A(ft.DateDetails.Month)
@@ -537,14 +541,14 @@ func GetLenderBorrowerDetailedStats(ctx context.Context, db *sql.DB, gofiID int,
 	rows.Close()
 	rows, err = db.QueryContext(ctx, q2, lbID, gofiID, 3, 4)
 	if err != nil {
-		fmt.Printf("error on GetLenderBorrowerStats query3: %v\n", err)
+		fmt.Printf("error on GetLenderBorrowerDetailedStats query3: %v\n", err)
 	}
 	for rows.Next() {
 		var ft appdata.FinanceTracker
 		if err := rows.Scan(&ft.Date, &ft.Account, &ft.Category, &ft.PriceIntx100, &ft.Product, &ft.Mode,
 			&ft.DateDetails.Year, &ft.DateDetails.Month, &ft.DateDetails.Day,
 			&ft.CategoryDetails.CategoryIcon, &ft.CategoryDetails.CategoryColor); err != nil {
-			fmt.Println("error in loop on GetLenderBorrowerStats query4")
+			fmt.Println("error in loop on GetLenderBorrowerDetailedStats query4")
 			log.Fatal(err)
 		}
 		ft.DateDetails.MonthStr = appdata.MonthIto3A(ft.DateDetails.Month)

@@ -84,11 +84,32 @@ func (a *FinanceTracker) Bind(r *http.Request) error {
 
 type LenderBorrower struct {
 	ID                             int
+	IDstr                          string `form:"lbID" json:"lbID"`
 	Name                           string
 	AmountLentBorrowedIntx100      int
 	AmountLentBorrowedStr2Decimals string
 	AmountSentReceivedIntx100      int
 	AmountSentReceivedStr2Decimals string
+	State                          string `form:"lbState" json:"lbState"`
+	IsActive                       int
+}
+
+func (a *LenderBorrower) Bind(r *http.Request) error {
+	var err error
+	a.ID, err = strconv.Atoi(a.IDstr)
+	if err != nil || a.ID < 1 {
+		fmt.Println("missing ID")
+		return errors.New("missing required field")
+	}
+	if a.State == "activate" {
+		a.IsActive = 1
+	} else if a.State == "deactivate" {
+		a.IsActive = 0
+	} else {
+		fmt.Println("missing State")
+		return errors.New("missing required field")
+	}
+	return nil
 }
 
 type LendBorrow struct {

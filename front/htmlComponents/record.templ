@@ -346,6 +346,14 @@ script amountDirection() {
         else {console.log("unhandled")};
     });
 }
+templ PostLenderBorrowerStateChange(httpStatus int) {
+    switch httpStatus {
+        case http.StatusOK:
+            ok       
+        default:
+            err
+	}
+}
 
 templ GetRecordTransfer(jsonFT []appdata.FinanceTracker, jsonUP appdata.UserParams, currentDate string) {
     <html>

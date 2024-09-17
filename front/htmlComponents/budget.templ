@@ -51,7 +51,7 @@ templ GetBudget(Year int, uc *appdata.UserCategories) {
     </html>
 }
 
-templ GetLenderBorrowerStats(lbList []appdata.LenderBorrower, ftList1 []appdata.FinanceTracker, ftList2 []appdata.FinanceTracker, lbName string, lbIDint int) {
+templ GetLenderBorrowerStats(lbListActive []appdata.LenderBorrower, lbListInactive []appdata.LenderBorrower, ftList1 []appdata.FinanceTracker, ftList2 []appdata.FinanceTracker, lbName string, lbIDint int) {
     <html>
         <head>
             @Header()
@@ -64,6 +64,7 @@ templ GetLenderBorrowerStats(lbList []appdata.LenderBorrower, ftList1 []appdata.
                 
                 // list all lenders and borrowers with associated amounts lent + borrowed and refunded 
                 <section id="lenderBorrower">
+                    <h2>Liste active</h2>
                     <small><i>
                         Fonctionnement:
                         <ul>
@@ -71,6 +72,11 @@ templ GetLenderBorrowerStats(lbList []appdata.LenderBorrower, ftList1 []appdata.
                                 <!-- text = Designation -->
                                 <svg stroke="currenColor" width="18" heigth="18" viewBox="0 0 24 24"><use xlink:href="/img/icons.svg#lucide-text"></use></svg>
                                 nom de la personne / société concernée.
+                            </li>
+                            <li>
+                                <!-- inUse = ON/OFF -->
+                                <svg stroke="currenColor" width="20" heigth="20" viewBox="0 0 24 24"><use xlink:href="/img/icons.svg#lucide-toggle-right"></use></svg>
+                                affiche les détails de la ligne active.
                             </li>
                             <li>
                                 <!-- hand coins -->
@@ -82,9 +88,15 @@ templ GetLenderBorrowerStats(lbList []appdata.LenderBorrower, ftList1 []appdata.
                                 <svg stroke="currenColor" width="18" heigth="18" viewBox="0 0 24 24"><use xlink:href="/img/icons.svg#lucide-banknote"></use></svg>
                                 montant déjà récupéré / remboursé.
                             </li>
+                            <li>
+                                <!-- inUse = ON/OFF -->
+                                <svg stroke="firebrick" width="20" heigth="20" viewBox="0 0 24 24"><use xlink:href="/img/icons.svg#lucide-toggle-right-red"></use></svg>
+                                désactiver la ligne.
+                            </li>
                         </ul>
                     </i></small>
-                    @lenderBorrowerTable(lbList, lbIDint)
+                    @lenderBorrowerTable(lbListActive, lbIDint, true, "lbTableRows")
+                    // TODO: permettre de modifier la prio d'affichage ? pour changer la ligne par défaut + choisir l'ordre d'affichage de la liste lors de la saisie ? 
                     <hr/>
                 </section>
                 <section id="lendBorrowDetails">
@@ -95,12 +107,32 @@ templ GetLenderBorrowerStats(lbList []appdata.LenderBorrower, ftList1 []appdata.
                     <hr/>
                     <h3>Détails remboursements</h3>
                     @lastInsertedRowsTable(ftList2, false, "")
+                    <hr/>
+                </section>
+                <section id="lenderBorrowerInactive">
+                    <h2>Liste inactive</h2>
+                    <small><i>
+                        Fonctionnement:
+                        <ul>
+                            <li>
+                                <!-- inUse = ON/OFF -->
+                                <svg stroke="green" width="20" heigth="20" viewBox="0 0 24 24"><use xlink:href="/img/icons.svg#lucide-toggle-right-green"></use></svg>
+                                réactiver la ligne.
+                            </li>
+                        </ul>
+                    </i></small>
+                    @lenderBorrowerTable(lbListInactive, lbIDint, false, "lbTableRowsInactive")
                 </section>
                 @Nav("top", "/", "/img/icons.svg#feather-home", "Accueil", "contrast outline",
                     "/record/lend-or-borrow", "/img/icons.svg#lucide-hand-coins", "Prêt/Emprunt", "contrast")
 
                 <section hidden>
-                    <form id="form" name="form" action="/stats/lender-borrower/0" method="get"></form>
+                    <form id="form1" name="form1" action="/stats/lender-borrower/0" method="get"></form>
+                    <form id="form2" name="form2" action="/record/lender-borrower-state-change" method="post">
+                        // full page reload
+                        <input type="number" id="lbID" name="lbID" required />
+                        <input type="text" id="lbState" name="lbState" required />
+                    </form>
                 </section>
 
             </main>
@@ -114,23 +146,42 @@ templ GetLenderBorrowerStats(lbList []appdata.LenderBorrower, ftList1 []appdata.
 script selectionSwitchLB() {
     // this script handle a selection switch on the LB main table to show details of this line in the 2 other tables 
     var checkboxesList = document.getElementById('lbTableRows').getElementsByTagName('input');
+    var checkboxesListInactive = document.getElementById('lbTableRowsInactive').getElementsByTagName('input');
     for (var i = 0; i < checkboxesList.length; i++) {
-        document.getElementById(checkboxesList[i].id).addEventListener('click', function(e){
-            if (this.checked) {
+        if (checkboxesList[i].id.split("-")[0] == "details") {
+            document.getElementById(checkboxesList[i].id).addEventListener('click', function(e){
                 // changes only if the state switch from off to on
                 // refresh the page with the requested id to get the matching details
-                document.getElementById('form').action = "/stats/lender-borrower/"+this.id.split("-")[1];
-                document.getElementById("form").submit();
-            } else {
-                console.log("WARNING: can't change the current list with the same one")
-                this.checked = true;
-            };
-        });
+                document.getElementById('form1').action = "/stats/lender-borrower/"+this.id.split("-")[1];
+                document.getElementById("form1").submit();
+            });
+        } else if (checkboxesList[i].id.split("-")[0] == "active") {
+            document.getElementById(checkboxesList[i].id).addEventListener('click', function(e){
+                // disable the current LB
+                // remove the line from the table
+                document.getElementById(this.id).remove();
+                document.getElementById("lbID").value = this.id.split("-")[1];
+                document.getElementById("lbState").value = "deactivate";
+                document.getElementById("form2").submit();
+            });
+        };
+    };
+    for (var i = 0; i < checkboxesListInactive.length; i++) {
+        if (checkboxesListInactive[i].id.split("-")[0] == "inactive") {
+            document.getElementById(checkboxesListInactive[i].id).addEventListener('click', function(e){
+                // enable the current LB
+                // remove the line from the table
+                document.getElementById(this.id).remove();
+                document.getElementById("lbID").value = this.id.split("-")[1];
+                document.getElementById("lbState").value = "activate";
+                document.getElementById("form2").submit();
+            });
+        };
     };
 }
 
 
-templ lenderBorrowerTable(lbListSent []appdata.LenderBorrower, lbIDint int) {
+templ lenderBorrowerTable(lbListSent []appdata.LenderBorrower, lbIDint int, isActive bool, tableId string) {
     <div class="overflow-auto">
         <figure>
             <table class="striped">
@@ -152,11 +203,19 @@ templ lenderBorrowerTable(lbListSent []appdata.LenderBorrower, lbIDint int) {
                             <!-- banknote = Prix -->
                             <svg stroke="currenColor" width="28" heigth="28" viewBox="0 0 24 24"><use xlink:href="/img/icons.svg#lucide-banknote"></use></svg>
                         </th>
+                        <th scope="col">
+                            <!-- inUse = ON/OFF -->
+                            if !isActive {
+                                <svg stroke="green" width="32" heigth="32" viewBox="0 0 24 24"><use xlink:href="/img/icons.svg#lucide-toggle-right-green"></use></svg>
+                            } else if isActive {
+                                <svg stroke="firebrick" width="32" heigth="32" viewBox="0 0 24 24"><use xlink:href="/img/icons.svg#lucide-toggle-right-red"></use></svg>
+                            }
+                        </th>
                     </tr>
                 </thead>
-                <tbody id="lbTableRows">
+                <tbody id={ tableId }>
                     for _, lb := range lbListSent {
-                        @oneRowInLenderBorrowerTable(lb, lbIDint)
+                        @oneRowInLenderBorrowerTable(lb, lbIDint, isActive)
                     }
                 </tbody>
             </table>
@@ -164,17 +223,26 @@ templ lenderBorrowerTable(lbListSent []appdata.LenderBorrower, lbIDint int) {
     </div>
 }
 
-templ oneRowInLenderBorrowerTable(lb appdata.LenderBorrower, lbIDint int) {
+templ oneRowInLenderBorrowerTable(lb appdata.LenderBorrower, lbIDint int, isActive bool) {
     <tr>
         <td>{lb.Name}</td>
         <td>
-            if lbIDint == lb.ID {
-                <input type="checkbox" id={ "checkbox-" + strconv.Itoa(lb.ID) } role="switch" checked />
+            if lbIDint == lb.ID && isActive {
+                <input type="checkbox" id={ "details-" + strconv.Itoa(lb.ID) } role="switch" checked disabled />
+            } else if !isActive {
+                <input type="checkbox" id={ "details-" + strconv.Itoa(lb.ID) } role="switch" disabled />
             } else {
-                <input type="checkbox" id={ "checkbox-" + strconv.Itoa(lb.ID) } role="switch" />
+                <input type="checkbox" id={ "details-" + strconv.Itoa(lb.ID) } role="switch" />
             }
         </td>
         <td>{lb.AmountLentBorrowedStr2Decimals}</td>
         <td>{lb.AmountSentReceivedStr2Decimals}</td>
+        <td>
+            if isActive {
+                <input type="checkbox" id={ "active-" + strconv.Itoa(lb.ID) } role="switch" aria-invalid="true" />
+            } else {
+                <input type="checkbox" id={ "inactive-" + strconv.Itoa(lb.ID) } role="switch" aria-invalid="false" />
+            }
+        </td>
     </tr>
 }

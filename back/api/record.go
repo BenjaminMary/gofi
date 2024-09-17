@@ -505,7 +505,21 @@ func handleFTinsert(r *http.Request, ft *appdata.FinanceTracker) (int64, bool, i
 	return idInserted, false, 0, ""
 }
 
+func PostLenderBorrowerStateChange(w http.ResponseWriter, r *http.Request, isFrontRequest bool) *appdata.HttpStruct {
+	lb := appdata.LenderBorrower{}
+	if err := render.Bind(r, &lb); err != nil {
+		fmt.Printf("PostLenderBorrowerStateChange error1: %v\n", err.Error())
+		return appdata.RenderAPIorUI(w, r, isFrontRequest, false, false, http.StatusBadRequest, "invalid request, double check each field", "")
+	}
+	b := sqlite.UpdateStateInLenderBorrower(r.Context(), appdata.DB, &lb)
+	if b {
+		return appdata.RenderAPIorUI(w, r, isFrontRequest, false, false, http.StatusInternalServerError, "can't update the state", "")
+	}
+	return appdata.RenderAPIorUI(w, r, isFrontRequest, false, true, http.StatusOK, "record state changed", "")
+}
+
 // TODO DeleteLendOrBorrowRecords
+// TODO voir pour retirer le lien d'une ligne DELETE partie prêt et emprunt
 // func DeleteLendOrBorrowRecords(w http.ResponseWriter, r *http.Request, isFrontRequest bool, idrrFuncParam string) *appdata.HttpStruct {
 // 	/*
 // 		need
