@@ -414,9 +414,15 @@ func InsertUpdateInLenderBorrower(ctx context.Context, db *sql.DB, lb *appdata.L
 	`
 	var err error
 	var lbID, nbRows, sumActive int = 0, 0, 0
+	var lbName string
 	var id int64
 	var result sql.Result
-	row := db.QueryRowContext(ctx, q, lb.FT.GofiID, lb.Who)
+	if lb.Who == "-" {
+		lbName = lb.CreateLenderBorrowerName
+	} else {
+		lbName = lb.Who
+	}
+	row := db.QueryRowContext(ctx, q, lb.FT.GofiID, lbName)
 	if err := row.Scan(&lbID, &nbRows, &sumActive); err != nil {
 		fmt.Printf("InsertUpdateInLenderBorrower err1: %v\n", err)
 		return true
@@ -430,7 +436,7 @@ func InsertUpdateInLenderBorrower(ctx context.Context, db *sql.DB, lb *appdata.L
 				VALUES (?,?);
 			`
 			result, err = db.ExecContext(ctx, q,
-				lb.FT.GofiID, lb.Who, //lb.FT.Date, lb.FT.Date, 1, lb.FT.PriceIntx100,
+				lb.FT.GofiID, lb.CreateLenderBorrowerName, //lb.FT.Date, lb.FT.Date, 1, lb.FT.PriceIntx100,
 			)
 			if err != nil {
 				fmt.Printf("InsertUpdateInLenderBorrower err2: %v\n", err)

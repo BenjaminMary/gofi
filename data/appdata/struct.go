@@ -113,11 +113,12 @@ func (a *LenderBorrower) Bind(r *http.Request) error {
 }
 
 type LendBorrow struct {
-	ID      int
-	ModeStr string `form:"modeStr" binding:"required" json:"modeStr"`
-	ModeInt int    `form:"-" json:"modeInt"`
-	Who     string `form:"who" binding:"required" json:"who"`
-	FT      FinanceTracker
+	ID      					int
+	ModeStr 					string `form:"modeStr" binding:"required" json:"modeStr"`
+	ModeInt 					int    `form:"-" json:"modeInt"`
+	Who     					string `form:"who" binding:"required" json:"who"`
+	CreateLenderBorrowerName 	string `form:"createLenderBorrowerName" json:"createLenderBorrowerName"`
+	FT      					FinanceTracker
 }
 
 func (a *LendBorrow) Bind(r *http.Request) error {
@@ -130,8 +131,8 @@ func (a *LendBorrow) Bind(r *http.Request) error {
 		fmt.Println("missing Mode")
 		return errors.New("missing required field")
 	}
-	if len(a.Who) == 0 {
-		fmt.Println("missing Who")
+	if a.Who == "-" && len(a.CreateLenderBorrowerName) == 0 {
+		fmt.Println("missing Who & CreateLenderBorrowerName")
 		return errors.New("missing required field")
 	}
 	return nil

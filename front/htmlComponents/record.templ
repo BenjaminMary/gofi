@@ -258,7 +258,7 @@ templ GetRecordInsert(jsonFT []appdata.FinanceTracker, jsonUP appdata.UserParams
 }
 
 
-templ GetLendBorrowRecord(jsonFT []appdata.FinanceTracker, jsonUP appdata.UserParams, currentDate string) {
+templ GetLendBorrowRecord(jsonFT []appdata.FinanceTracker, jsonUP appdata.UserParams, currentDate string, lbListActive []appdata.LenderBorrower) {
     <html>
         <head>
             @Header()
@@ -279,7 +279,7 @@ templ GetLendBorrowRecord(jsonFT []appdata.FinanceTracker, jsonUP appdata.UserPa
                             hx-on::after-request="if(event.detail.successful) document.getElementById('FT.prix').value='';document.getElementById('FT.designation').value='';">
 
                             @modeInput()
-                            @whoDataList()
+                            @whoDataList(lbListActive)
                             <fieldset role="group">
                                 <div>
                                     @dateInput(currentDate, "FT.date")
@@ -323,6 +323,7 @@ templ GetLendBorrowRecord(jsonFT []appdata.FinanceTracker, jsonUP appdata.UserPa
             @BotScriptHTMXhandleError()
             @categoryDropdown(jsonUP.Categories)
             @amountDirection()
+            @createLenderBorrower()
         </body>
     </html>
 }
@@ -344,6 +345,15 @@ script amountDirection() {
             document.getElementById('expense').checked = true;
         }
         else {console.log("unhandled")};
+    });
+}
+script createLenderBorrower() {
+    // this script only let 1 type of LenderBorrowerName field to be used 
+    document.getElementById("createLenderBorrowerName").addEventListener('click', function(c){
+        document.getElementById("who").value = "-";
+    });
+    document.getElementById("who").addEventListener('change', function(w){
+        document.getElementById("createLenderBorrowerName").value = "";
     });
 }
 templ PostLenderBorrowerStateChange(httpStatus int) {

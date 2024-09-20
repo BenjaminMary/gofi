@@ -431,7 +431,7 @@ func GetBudgetStats(ctx context.Context, db *sql.DB, uc *appdata.UserCategories)
 	}
 }
 
-func GetLenderBorrowerStats(ctx context.Context, db *sql.DB, gofiID int) ([]appdata.LenderBorrower, []appdata.LenderBorrower) {
+func GetLenderBorrowerStats(ctx context.Context, db *sql.DB, gofiID int, activeListOnly bool) ([]appdata.LenderBorrower, []appdata.LenderBorrower) {
 	// list the lenders and borrowers
 	var lbListActive, lbListInactive []appdata.LenderBorrower
 	q1 := ` 
@@ -460,30 +460,36 @@ func GetLenderBorrowerStats(ctx context.Context, db *sql.DB, gofiID int) ([]appd
 			fmt.Println("error in loop on GetLenderBorrowerStats query2")
 			log.Fatal(err)
 		}
-		err = db.QueryRowContext(ctx, q2, lb.ID, gofiID, 1, 2).Scan(&lb.AmountLentBorrowedIntx100)
-		switch {
-		case err == sql.ErrNoRows:
-			fmt.Println("GetLenderBorrowerStats err3")
-			continue
-		case err != nil:
-			fmt.Printf("GetLenderBorrowerStats err4: %v\n", err)
-			continue
-		}
-		err = db.QueryRowContext(ctx, q2, lb.ID, gofiID, 3, 4).Scan(&lb.AmountSentReceivedIntx100)
-		switch {
-		case err == sql.ErrNoRows:
-			fmt.Println("GetLenderBorrowerStats no row in the received part, set to 0")
-			lb.AmountSentReceivedIntx100 = 0
-		case err != nil:
-			fmt.Printf("GetLenderBorrowerStats err5: %v\n", err)
-			continue
-		}
-		lb.AmountLentBorrowedStr2Decimals = ConvertPriceIntToStr(lb.AmountLentBorrowedIntx100, false)
-		lb.AmountSentReceivedStr2Decimals = ConvertPriceIntToStr(lb.AmountSentReceivedIntx100, false)
-		if isActive == 1 {
-			lbListActive = append(lbListActive, lb)
-		} else if isActive == 0 {
-			lbListInactive = append(lbListInactive, lb)
+		if activeListOnly {
+			if isActive == 1 {
+				lbListActive = append(lbListActive, lb)
+			}
+		} else {
+			err = db.QueryRowContext(ctx, q2, lb.ID, gofiID, 1, 2).Scan(&lb.AmountLentBorrowedIntx100)
+			switch {
+			case err == sql.ErrNoRows:
+				fmt.Println("GetLenderBorrowerStats err3")
+				continue
+			case err != nil:
+				fmt.Printf("GetLenderBorrowerStats err4: %v\n", err)
+				continue
+			}
+			err = db.QueryRowContext(ctx, q2, lb.ID, gofiID, 3, 4).Scan(&lb.AmountSentReceivedIntx100)
+			switch {
+			case err == sql.ErrNoRows:
+				fmt.Println("GetLenderBorrowerStats no row in the received part, set to 0")
+				lb.AmountSentReceivedIntx100 = 0
+			case err != nil:
+				fmt.Printf("GetLenderBorrowerStats err5: %v\n", err)
+				continue
+			}
+			lb.AmountLentBorrowedStr2Decimals = ConvertPriceIntToStr(lb.AmountLentBorrowedIntx100, false)
+			lb.AmountSentReceivedStr2Decimals = ConvertPriceIntToStr(lb.AmountSentReceivedIntx100, false)
+			if isActive == 1 {
+				lbListActive = append(lbListActive, lb)
+			} else if isActive == 0 {
+				lbListInactive = append(lbListInactive, lb)
+			}
 		}
 	}
 	rows.Close()

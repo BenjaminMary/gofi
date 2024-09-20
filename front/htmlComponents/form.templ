@@ -65,7 +65,7 @@ templ modeInput() {
     </select>
 }
 
-templ whoDataList() {
+templ whoDataList(lbListActive []appdata.LenderBorrower) {
     <!-- Select -->
     <label for="who">
         <!-- lucide-user-search -->
@@ -73,12 +73,12 @@ templ whoDataList() {
         De/à qui?
     </label>
     <select id="who" name="who" required>
-        // TODO: gérer les options, pouvoir créer ou réutiliser un LB existant
-        <option value="A">A</option>
-        <option value="B">B</option>
-        <option value="C">C</option>
-        <option value="D">D</option>
+        for _, lb := range lbListActive {
+            <option value={ lb.Name }>{ lb.Name }</option>
+        }
+        <option value="-">-</option>
     </select>
+    <input type="text" id="createLenderBorrowerName" name="createLenderBorrowerName" placeholder="créer un nouveau nom" />
 }
 
 templ categoryCustomRadioInput(categoryListOfList [][]string) {

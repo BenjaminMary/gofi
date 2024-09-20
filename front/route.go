@@ -124,7 +124,7 @@ func PostRecordInsert(w http.ResponseWriter, r *http.Request) {
 func GetLenderBorrowerStats(w http.ResponseWriter, r *http.Request) {
 	// fmt.Println("in front part")
 	userContext := r.Context().Value(appdata.ContextUserKey).(*appdata.UserRequest)
-	lbListActive, lbListInactive := sqlite.GetLenderBorrowerStats(r.Context(), appdata.DB, userContext.GofiID)
+	lbListActive, lbListInactive := sqlite.GetLenderBorrowerStats(r.Context(), appdata.DB, userContext.GofiID, false)
 	lbIDstr := chi.URLParam(r, "lbID")
 	var lbIDint int
 	if len(lbListActive) == 0 {
@@ -144,7 +144,8 @@ func GetLendBorrowRecord(w http.ResponseWriter, r *http.Request) {
 	jsonUserParam := jsonUP.AnyStruct.(appdata.UserParams)
 	currentTime := time.Now()
 	currentDate := currentTime.Format(time.DateOnly) // YYYY-MM-DD
-	htmlComponents.GetLendBorrowRecord(jsonFTlist, jsonUserParam, currentDate).Render(r.Context(), w)
+	lbListActive, _ := sqlite.GetLenderBorrowerStats(r.Context(), appdata.DB, jsonUserParam.GofiID, true)
+	htmlComponents.GetLendBorrowRecord(jsonFTlist, jsonUserParam, currentDate, lbListActive).Render(r.Context(), w)
 }
 func PostLendOrBorrowRecord(w http.ResponseWriter, r *http.Request) {
 	json := api.PostLendOrBorrowRecords(w, r, true)
