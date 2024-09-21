@@ -182,8 +182,6 @@ func (s *Server) MountFrontHandlers() {
 				r.Post("/insert", front.PostRecordInsert)
 				r.Get("/lend-or-borrow", front.GetLendBorrowRecord)
 				r.Post("/lend-or-borrow", front.PostLendOrBorrowRecord)
-				r.Post("/lender-borrower-state-change", front.PostLenderBorrowerStateChange)
-				r.Post("/lend-or-borrow-unlink", front.PostUnlinkLendOrBorrowRecords)
 				r.Get("/transfer", front.GetRecordTransfer)
 				r.Post("/transfer", front.PostRecordTransfer)
 				r.Get("/recurrent", front.GetRecordRecurrent)
@@ -207,6 +205,8 @@ func (s *Server) MountFrontHandlers() {
 			r.Get("/stats/{checkedValidData}-{year}-{checkedYearStats}-{checkedGainsStats}", front.GetStats)
 			r.Get("/budget", front.GetBudget)
 			r.Get("/stats/lender-borrower/{lbID}", front.GetLenderBorrowerStats)
+			r.Post("/stats/lender-borrower/{lbID}/state-change", front.PostLenderBorrowerStateChange)
+			r.Post("/stats/lender-borrower/{lbID}/unlink", front.PostUnlinkLendOrBorrowRecords)
 		})
 	})
 }

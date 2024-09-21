@@ -140,12 +140,12 @@ templ GetLenderBorrowerStats(lbListActive []appdata.LenderBorrower, lbListInacti
 
                 <section hidden>
                     <form id="form1" name="form1" action="/stats/lender-borrower/0" method="get"></form>
-                    <form id="form2" name="form2" action="/record/lender-borrower-state-change" method="post">
+                    <form id="form2" name="form2" action="/stats/lender-borrower/0/state-change" method="post">
                         // full page reload
                         <input type="number" id="lbID" name="lbID" required />
                         <input type="text" id="lbState" name="lbState" required />
                     </form>
-                    <form id="form3" name="form3" action="/record/lend-or-borrow-unlink" method="post">
+                    <form id="form3" name="form3" action="/stats/lender-borrower/0/unlink" method="post">
                         // full page reload
                         <input type="text" id="checkedListLBid" name="checkedListLBid" required />
                     </form>
