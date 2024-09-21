@@ -609,7 +609,8 @@ func TestRecord(t *testing.T) {
 	// 47. POST RECORD LEND BORROW
 	req, _ = http.NewRequest("POST", "/api/record/lend-or-borrow", strings.NewReader(`{
 		"ModeStr": "1",
-		"Who": "Mr X",
+		"Who": "-",
+		"CreateLenderBorrowerName": "Mr X",
 		"FT":{
 			"Date": "2011-11-11",
 			"Account": "CB",
@@ -660,7 +661,8 @@ func TestRecord(t *testing.T) {
 	// 50. POST RECORD LEND BORROW
 	req, _ = http.NewRequest("POST", "/api/record/lend-or-borrow", strings.NewReader(`{
 		"ModeStr": "2",
-		"Who": "Mr Y",
+		"Who": "-",
+		"CreateLenderBorrowerName": "Mr Y",
 		"FT":{
 			"Date": "2010-11-11",
 			"Account": "CB",
@@ -691,7 +693,15 @@ func TestRecord(t *testing.T) {
 	response = executeRequest(req, s)
 	require.Equal(t, http.StatusCreated, response.Code, "should be equal")
 
-	// 52. GET RECORD
+	// 52. POST UNLINK LEND BORROW
+	req, _ = http.NewRequest("POST", "/api/record/lend-or-borrow-unlink", strings.NewReader(`{
+		"idsInOneString": "4,5,6"
+	}`))
+	req.Header.Set("sessionID", fstwo)
+	response = executeRequest(req, s)
+	require.Equal(t, http.StatusCreated, response.Code, "should be equal")
+
+	// 53. GET RECORD
 	req, _ = http.NewRequest("GET", "/api/record/id-desc-5", nil)
 	req.Header.Set("sessionID", fstwo)
 	response = executeRequest(req, s)

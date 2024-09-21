@@ -35,13 +35,13 @@ templ dateSVG(year int, monthStr string, day int) {
     </small>
 }
 
-templ lastInsertedRowsTable(jsonFT []appdata.FinanceTracker, validORcancelMode bool, totalRowsWithoutLimit string) {
+templ lastInsertedRowsTable(tbodyId string, jsonFT []appdata.FinanceTracker, checkboxMode bool, botRowsMode bool, totalRowsWithoutLimit string) {
     <div class="overflow-auto">
         <figure>
             <table class="striped">
                 <thead>
                     <tr>
-                        if validORcancelMode {
+                        if checkboxMode {
                             <th scope="col">
                                 <input type="checkbox" id="toggle" name="toggle" value="0"/>
                             </th>
@@ -68,11 +68,11 @@ templ lastInsertedRowsTable(jsonFT []appdata.FinanceTracker, validORcancelMode b
                         </th>
                     </tr>
                 </thead>
-                <tbody id="lastInsert">
+                <tbody id={ tbodyId }>
                     for _, ft := range jsonFT {
-                        @oneRowInLastInsertedRowsTable(ft, validORcancelMode)
+                        @oneRowInLastInsertedRowsTable(ft, checkboxMode)
                     }
-                    if validORcancelMode {
+                    if botRowsMode {
                         @addBotRows(totalRowsWithoutLimit)
                     }
                 </tbody>
@@ -80,9 +80,9 @@ templ lastInsertedRowsTable(jsonFT []appdata.FinanceTracker, validORcancelMode b
         </figure>
     </div>
 }
-templ oneRowInLastInsertedRowsTable(ft appdata.FinanceTracker, validORcancelMode bool) {
+templ oneRowInLastInsertedRowsTable(ft appdata.FinanceTracker, checkboxMode bool) {
     <tr>
-        if validORcancelMode {
+        if checkboxMode {
             <td>
                 <input type="checkbox" id={ strconv.Itoa(ft.ID) } name="idCheckbox" value={ strconv.Itoa(ft.ID) }/>
             </td>
@@ -94,7 +94,7 @@ templ oneRowInLastInsertedRowsTable(ft appdata.FinanceTracker, validORcancelMode
         <td>
             <span class={ "icomoon", ft.CategoryDetails.CategoryIcon }>&#x{ ft.CategoryDetails.CategoryIcon };</span>
         </td>
-        if validORcancelMode {
+        if checkboxMode {
             <td id={ ft.IDstr }>{ft.FormPriceStr2Decimals}</td>
         } else {
             <td>{ft.FormPriceStr2Decimals}</td>
@@ -237,7 +237,7 @@ templ GetRecordInsert(jsonFT []appdata.FinanceTracker, jsonUP appdata.UserParams
                 </section>
 
                 <section id="recap">
-                    @lastInsertedRowsTable(jsonFT, false, "")
+                    @lastInsertedRowsTable("lastInsert", jsonFT, false, false, "")
                 </section>
 
                 <section id="infos">
@@ -306,7 +306,7 @@ templ GetLendBorrowRecord(jsonFT []appdata.FinanceTracker, jsonUP appdata.UserPa
                 </section>
 
                 <section id="recap">
-                    @lastInsertedRowsTable(jsonFT, false, "")
+                    @lastInsertedRowsTable("lastInsert", jsonFT, false, false, "")
                 </section>
 
                 <section id="infos">
@@ -414,7 +414,7 @@ templ GetRecordTransfer(jsonFT []appdata.FinanceTracker, jsonUP appdata.UserPara
                 </section>
 
                 <section id="recap">
-                    @lastInsertedRowsTable(jsonFT, false, "")
+                    @lastInsertedRowsTable("lastInsert", jsonFT, false, false, "")
                 </section>
 
                 <section id="infos">
@@ -633,7 +633,7 @@ templ GetRecordRecurrent(jsonRR []appdata.RecurrentRecord, jsonFT []appdata.Fina
                     <hr/>
                 </section>
                 <section id="recap">
-                    @lastInsertedRowsTable(jsonFT, false, "")
+                    @lastInsertedRowsTable("lastInsert", jsonFT, false, false, "")
                 </section>
                 <section id="infos">
                     <p>
@@ -972,7 +972,7 @@ templ GetRecordValidateOrCancel(jsonFT []appdata.FinanceTracker, jsonUP appdata.
 
                         <div class="overflow-auto">
                             <section id="recap">
-                                @lastInsertedRowsTable(jsonFT, true, totalRowsWithoutLimit)
+                                @lastInsertedRowsTable("lastInsert", jsonFT, true, true, totalRowsWithoutLimit)
                             </section>
                         </div>
                         <form>
@@ -1114,14 +1114,14 @@ script botScriptAutoReloadOnAccountChange() {
             evtConfirm.detail.issueRequest();
             setTimeout(function() { document.getElementById('htmxInfo').innerHTML = ""; }, 3000);
             // put default value of checked back, and reload data
-            document.getElementById('checkedList').value = ""
+            document.getElementById('checkedList').value = "";
             document.getElementById('checked').value = "2";
             setTimeout(function() { reload(); }, 300); // wait 300ms before sending this 2nd request
         };
     }, false);
 }
 templ PostFullRecordRefresh(jsonFT []appdata.FinanceTracker, totalRowsWithoutLimit string) {
-    @lastInsertedRowsTable(jsonFT, true, totalRowsWithoutLimit)
+    @lastInsertedRowsTable("lastInsert", jsonFT, true, true, totalRowsWithoutLimit)
 }
 templ PostRecordValidate(httpStatus int) {
     switch httpStatus {

@@ -517,7 +517,7 @@ func GetLenderBorrowerDetailedStats(ctx context.Context, db *sql.DB, gofiID int,
 		return ftList1, ftList2, lbName
 	}
 	q2 := ` 
-		SELECT ft.dateIn, ft.account, ft.category, ft.priceIntx100, ft.product, ft.mode,
+		SELECT ft.id, ft.dateIn, ft.account, ft.category, ft.priceIntx100, ft.product, ft.mode,
 			ft.year, ft.month, ft.day,
 			ifnull(c.iconCodePoint,'e90a') AS icp, ifnull(c.colorHEX,'#808080') AS ch
 		FROM specificRecordsByMode AS srm
@@ -534,7 +534,7 @@ func GetLenderBorrowerDetailedStats(ctx context.Context, db *sql.DB, gofiID int,
 	}
 	for rows.Next() {
 		var ft appdata.FinanceTracker
-		if err := rows.Scan(&ft.Date, &ft.Account, &ft.Category, &ft.PriceIntx100, &ft.Product, &ft.Mode,
+		if err := rows.Scan(&ft.ID, &ft.Date, &ft.Account, &ft.Category, &ft.PriceIntx100, &ft.Product, &ft.Mode,
 			&ft.DateDetails.Year, &ft.DateDetails.Month, &ft.DateDetails.Day,
 			&ft.CategoryDetails.CategoryIcon, &ft.CategoryDetails.CategoryColor); err != nil {
 			fmt.Println("error in loop on GetLenderBorrowerDetailedStats query2")
@@ -551,7 +551,7 @@ func GetLenderBorrowerDetailedStats(ctx context.Context, db *sql.DB, gofiID int,
 	}
 	for rows.Next() {
 		var ft appdata.FinanceTracker
-		if err := rows.Scan(&ft.Date, &ft.Account, &ft.Category, &ft.PriceIntx100, &ft.Product, &ft.Mode,
+		if err := rows.Scan(&ft.ID, &ft.Date, &ft.Account, &ft.Category, &ft.PriceIntx100, &ft.Product, &ft.Mode,
 			&ft.DateDetails.Year, &ft.DateDetails.Month, &ft.DateDetails.Day,
 			&ft.CategoryDetails.CategoryIcon, &ft.CategoryDetails.CategoryColor); err != nil {
 			fmt.Println("error in loop on GetLenderBorrowerDetailedStats query4")

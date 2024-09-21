@@ -518,12 +518,42 @@ func PostLenderBorrowerStateChange(w http.ResponseWriter, r *http.Request, isFro
 	return appdata.RenderAPIorUI(w, r, isFrontRequest, false, true, http.StatusOK, "record state changed", "")
 }
 
-// TODO DeleteLendOrBorrowRecords
-// TODO voir pour retirer le lien d'une ligne DELETE partie prêt et emprunt
-// func DeleteLendOrBorrowRecords(w http.ResponseWriter, r *http.Request, isFrontRequest bool, idrrFuncParam string) *appdata.HttpStruct {
-// 	/*
-// 		need
-// 			id
-// 	*/
-// 	return appdata.RenderAPIorUI(w, r, isFrontRequest, false, true, http.StatusOK, "record deleted", "")
-// }
+// TODO voir pour retirer le lien d'une ligne DELETE partie prêt et emprunt lorsqu'une annulation de ligne est faite 
+func PostUnlinkLendOrBorrowRecords(w http.ResponseWriter, r *http.Request, isFrontRequest bool) *appdata.HttpStruct {
+	/*
+		input: list of fT ID
+		specificRecordsByMode (delete the row)
+		financeTracker (put back mode to 0)
+	*/
+	idL := appdata.IDlist{}
+	if err := render.Bind(r, &idL); err != nil {
+		fmt.Printf("PostUnlinkLendOrBorrowRecords error1: %v\n", err.Error())
+		return appdata.RenderAPIorUI(w, r, isFrontRequest, false, false, http.StatusBadRequest, "invalid request, double check each field", "")
+	}
+	idL.IDlistStr = strings.Split(idL.IDsInOneString, ",")
+	var err error
+	for _, element := range idL.IDlistStr {
+		var idInt int
+		idInt, err = strconv.Atoi(element)
+		if err != nil { // Always check errors even if they should not happen.
+			fmt.Printf("PostUnlinkLendOrBorrowRecords error2: %v\n", err.Error())
+			return appdata.RenderAPIorUI(w, r, isFrontRequest, false, false, http.StatusBadRequest, "invalid request, double check each field", "")
+		}
+		if idInt < 1 { // Always check errors even if they should not happen.
+			fmt.Printf("PostUnlinkLendOrBorrowRecords error3: %v\n", element)
+			return appdata.RenderAPIorUI(w, r, isFrontRequest, false, false, http.StatusBadRequest, "invalid request, double check each field", "")
+		}
+		idL.IDlistInt = append(idL.IDlistInt, idInt)
+	}
+	// fmt.Printf("idL: %#v\n", idL)
+	userContext := r.Context().Value(appdata.ContextUserKey).(*appdata.UserRequest)
+	b := sqlite.DeleteSpecificRecordsByMode(r.Context(), appdata.DB, userContext.GofiID, &idL.IDlistInt)
+	if b {
+		return appdata.RenderAPIorUI(w, r, isFrontRequest, false, false, http.StatusInternalServerError, "can't update the state", "")
+	}
+	b = sqlite.UpdateRowsInFinanceTrackerToMode0(r.Context(), appdata.DB, userContext.GofiID, &idL.IDlistInt)
+	if b {
+		return appdata.RenderAPIorUI(w, r, isFrontRequest, false, false, http.StatusInternalServerError, "can't update the state", "")
+	}
+	return appdata.RenderAPIorUI(w, r, isFrontRequest, false, true, http.StatusOK, "records unlinked", "")
+}

@@ -340,6 +340,45 @@ func InsertRowInFinanceTracker(ctx context.Context, db *sql.DB, ft *appdata.Fina
 	return id, nil
 }
 
+func UpdateRowsInFinanceTrackerToMode0(ctx context.Context, db *sql.DB, gofiID int, intList *[]int) bool {
+	// variadic funcs in Go : https://gobyexample.com/variadic-functions
+	q := `
+		UPDATE financeTracker
+		SET mode = 0
+		WHERE gofiID = ?
+			AND id IN (XnumberOf?);
+	`
+	nbParams := ""
+	for i, _ := range *intList {
+		if i == 0 {
+			nbParams = "?"
+		} else {
+			nbParams = nbParams + ",?"
+		}
+	}
+	if nbParams == "" {
+		fmt.Println("UpdateRowsInFinanceTrackerToMode0 err1: no param")
+		return true	
+	}
+    // Convert the list to a slice of 'any'
+    anyList := make([]any, len(*intList)+1)
+	anyList[0] = gofiID
+    for i, v := range *intList {
+		i += 1
+        anyList[i] = v
+    }
+	fmt.Printf("anyList: %#v\n", anyList)
+
+	q = strings.Replace(q, `XnumberOf?`, nbParams, 1)
+	fmt.Printf("q: %v\n", q)
+	_, err := db.ExecContext(ctx, q, anyList...,)
+	if err != nil {
+		fmt.Printf("UpdateRowsInFinanceTrackerToMode0 err2: %#v\n", err)
+		return true
+	}
+	return false
+}
+
 func InsertRowInRecurrentRecord(ctx context.Context, db *sql.DB, rr *appdata.RecurrentRecord) (int64, error) {
 	result, _ := db.ExecContext(ctx, `
 		INSERT INTO recurrentRecord (gofiID, year, month, day, recurrence, account, product, priceIntx100, category)
@@ -429,27 +468,32 @@ func InsertUpdateInLenderBorrower(ctx context.Context, db *sql.DB, lb *appdata.L
 	}
 	lb.ID = lbID
 	if nbRows == 0 {
-		if lb.ModeInt == 1 || lb.ModeInt == 2 {
-			fmt.Println("InsertUpdateInLenderBorrower in 0 row, create")
-			q = ` 
-				INSERT INTO lenderBorrower (gofiID, name)
-				VALUES (?,?);
-			`
-			result, err = db.ExecContext(ctx, q,
-				lb.FT.GofiID, lb.CreateLenderBorrowerName, //lb.FT.Date, lb.FT.Date, 1, lb.FT.PriceIntx100,
-			)
-			if err != nil {
-				fmt.Printf("InsertUpdateInLenderBorrower err2: %v\n", err)
+		if len(lb.CreateLenderBorrowerName) > 0 {
+			if lb.ModeInt == 1 || lb.ModeInt == 2 {
+				fmt.Println("InsertUpdateInLenderBorrower in 0 row, create")
+				q = ` 
+					INSERT INTO lenderBorrower (gofiID, name)
+					VALUES (?,?);
+				`
+				result, err = db.ExecContext(ctx, q,
+					lb.FT.GofiID, lb.CreateLenderBorrowerName, //lb.FT.Date, lb.FT.Date, 1, lb.FT.PriceIntx100,
+				)
+				if err != nil {
+					fmt.Printf("InsertUpdateInLenderBorrower err2: %v\n", err)
+					return true
+				}
+				id, err = result.LastInsertId()
+				if err != nil {
+					fmt.Printf("InsertUpdateInLenderBorrower err3: %v\n", err)
+					return true
+				}
+				lb.ID = int(id)
+			} else {
+				fmt.Println("InsertUpdateInLenderBorrower in 0 row, error wrong mode")
 				return true
 			}
-			id, err = result.LastInsertId()
-			if err != nil {
-				fmt.Printf("InsertUpdateInLenderBorrower err3: %v\n", err)
-				return true
-			}
-			lb.ID = int(id)
 		} else {
-			fmt.Println("InsertUpdateInLenderBorrower in 0 row, error wrong mode")
+			fmt.Println("InsertUpdateInLenderBorrower in 0 row, error no name")
 			return true
 		}
 	} else if nbRows == 1 && sumActive == 1 {
@@ -485,6 +529,44 @@ func UpdateStateInLenderBorrower(ctx context.Context, db *sql.DB, lb *appdata.Le
 	)
 	if err != nil {
 		fmt.Printf("InsertUpdateInLenderBorrower err1: %#v\n", err)
+		return true
+	}
+	return false
+}
+
+func DeleteSpecificRecordsByMode(ctx context.Context, db *sql.DB, gofiID int, intList *[]int) bool {
+	// variadic funcs in Go : https://gobyexample.com/variadic-functions
+	q := `
+		DELETE FROM specificRecordsByMode
+		WHERE gofiID = ?
+			AND idFinanceTracker IN (XnumberOf?);
+	`
+	nbParams := ""
+	for i, _ := range *intList {
+		if i == 0 {
+			nbParams = "?"
+		} else {
+			nbParams = nbParams + ",?"
+		}
+	}
+	if nbParams == "" {
+		fmt.Println("DeleteSpecificRecordsByMode err1: no param")
+		return true	
+	}
+    // Convert the list to a slice of 'any'
+    anyList := make([]any, len(*intList)+1)
+	anyList[0] = gofiID
+    for i, v := range *intList {
+		i += 1
+        anyList[i] = v
+    }
+	fmt.Printf("anyList: %#v\n", anyList)
+
+	q = strings.Replace(q, `XnumberOf?`, nbParams, 1)
+	fmt.Printf("q: %v\n", q)
+	_, err := db.ExecContext(ctx, q, anyList...,)
+	if err != nil {
+		fmt.Printf("DeleteSpecificRecordsByMode err2: %#v\n", err)
 		return true
 	}
 	return false

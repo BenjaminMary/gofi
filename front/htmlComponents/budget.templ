@@ -71,11 +71,11 @@ templ GetLenderBorrowerStats(lbListActive []appdata.LenderBorrower, lbListInacti
                             <li>
                                 <!-- text = Designation -->
                                 <svg stroke="currenColor" width="18" heigth="18" viewBox="0 0 24 24"><use xlink:href="/img/icons.svg#lucide-text"></use></svg>
-                                nom de la personne / société concernée.
+                                nom du tier concerné.
                             </li>
                             <li>
-                                <!-- inUse = ON/OFF -->
-                                <svg stroke="currenColor" width="20" heigth="20" viewBox="0 0 24 24"><use xlink:href="/img/icons.svg#lucide-toggle-right"></use></svg>
+                                <!-- lucide-toggle-right-no-stroke -->
+                                <svg width="20" height="20" viewBox="0 0 24 24" stroke="#a39e8f"><use xlink:href="/img/icons.svg#lucide-toggle-right-no-stroke"></use></svg>
                                 affiche les détails de la ligne active.
                             </li>
                             <li>
@@ -89,8 +89,8 @@ templ GetLenderBorrowerStats(lbListActive []appdata.LenderBorrower, lbListInacti
                                 montant déjà récupéré / remboursé.
                             </li>
                             <li>
-                                <!-- inUse = ON/OFF -->
-                                <svg stroke="firebrick" width="20" heigth="20" viewBox="0 0 24 24"><use xlink:href="/img/icons.svg#lucide-toggle-right-red"></use></svg>
+                                <!-- lucide-toggle-right-no-stroke -->
+                                <svg width="20" height="20" viewBox="0 0 24 24" stroke="firebrick"><use xlink:href="/img/icons.svg#lucide-toggle-right-no-stroke"></use></svg>
                                 désactiver la ligne.
                             </li>
                         </ul>
@@ -100,13 +100,25 @@ templ GetLenderBorrowerStats(lbListActive []appdata.LenderBorrower, lbListInacti
                     <hr/>
                 </section>
                 <section id="lendBorrowDetails">
-                    <h2>Détails de: "<span id="lbActive">{ lbName }</span>"</h2>
+                    <h2>Détails de: "<span>{ lbName }</span>"</h2>
+                    <small><i>
+                        Fonctionnement:
+                        <ul>
+                            <li>
+                                <!-- check square -->
+                                <svg width="20" height="20" viewBox="0 0 24 24" stroke="firebrick"><use xlink:href="/img/icons.svg#feather-check-square"></use></svg>
+                                couper le lien avec "<span>{ lbName }</span>" pour toutes les lignes selectionnées après confirmation via bouton "Annulation".
+                            </li>
+                        </ul>
+                    </i></small>
                     <hr/>
                     <h3>Détails prêt et emprunts</h3>
-                    @lastInsertedRowsTable(ftList1, false, "")
+                    @lastInsertedRowsTable("ftList1", ftList1, true, false, "")
+                    @button("submitCancel1", "/img/icons.svg#feather-red-x-square", "Annuler", "contrast outline")
                     <hr/>
                     <h3>Détails remboursements</h3>
-                    @lastInsertedRowsTable(ftList2, false, "")
+                    @lastInsertedRowsTable("ftList2", ftList2, true, false, "")
+                    @button("submitCancel2", "/img/icons.svg#feather-red-x-square", "Annuler", "contrast outline")
                     <hr/>
                 </section>
                 <section id="lenderBorrowerInactive">
@@ -115,8 +127,8 @@ templ GetLenderBorrowerStats(lbListActive []appdata.LenderBorrower, lbListInacti
                         Fonctionnement:
                         <ul>
                             <li>
-                                <!-- inUse = ON/OFF -->
-                                <svg stroke="green" width="20" heigth="20" viewBox="0 0 24 24"><use xlink:href="/img/icons.svg#lucide-toggle-right-green"></use></svg>
+                                <!-- lucide-toggle-right-no-stroke -->
+                                <svg width="20" height="20" viewBox="0 0 24 24" stroke="green"><use xlink:href="/img/icons.svg#lucide-toggle-right-no-stroke"></use></svg>
                                 réactiver la ligne.
                             </li>
                         </ul>
@@ -133,14 +145,44 @@ templ GetLenderBorrowerStats(lbListActive []appdata.LenderBorrower, lbListInacti
                         <input type="number" id="lbID" name="lbID" required />
                         <input type="text" id="lbState" name="lbState" required />
                     </form>
+                    <form id="form3" name="form3" action="/record/lend-or-borrow-unlink" method="post">
+                        // full page reload
+                        <input type="text" id="checkedListLBid" name="checkedListLBid" required />
+                    </form>
                 </section>
 
             </main>
             @BotScriptThemeSwitcher()
             // @BotScriptHTMXhandleError()
             @selectionSwitchLB()
+            @addCheckedListToInputField()
         </body>
     </html>
+}
+
+script addCheckedListToInputField() {
+    // check JS at submit, add the list of selected rows in the form before the request
+    function handleCheckedList(checkboxes) {
+        var array = [];
+        for (var i = 0; i < checkboxes.length; i++) {
+            if (checkboxes[i].value > 0) {
+                array.push(checkboxes[i].value);
+                document.getElementById(checkboxes[i].value).parentNode.parentNode.remove();
+            };
+        };
+        if (array.length > 0) {
+            document.getElementById('checkedListLBid').value = array;
+            document.getElementById("form3").submit();
+        };
+    }
+    document.getElementById("submitCancel1").addEventListener('click', function(sc1){
+        var checkboxes1 = document.querySelectorAll('#ftList1 input[type=checkbox][name=idCheckbox]:checked');
+        handleCheckedList(checkboxes1);
+    });
+    document.getElementById("submitCancel2").addEventListener('click', function(sc2){
+        var checkboxes2 = document.querySelectorAll('#ftList2 input[type=checkbox][name=idCheckbox]:checked');
+        handleCheckedList(checkboxes2);
+    });
 }
 
 script selectionSwitchLB() {
@@ -192,8 +234,8 @@ templ lenderBorrowerTable(lbListSent []appdata.LenderBorrower, lbIDint int, isAc
                             <svg stroke="currenColor" width="28" heigth="28" viewBox="0 0 24 24"><use xlink:href="/img/icons.svg#lucide-text"></use></svg>
                         </th>
                         <th scope="col">
-                            <!-- inUse = ON/OFF -->
-                            <svg stroke="currenColor" width="32" heigth="32" viewBox="0 0 24 24"><use xlink:href="/img/icons.svg#lucide-toggle-right"></use></svg>
+                            <!-- lucide-toggle-right-no-stroke -->
+                            <svg width="32" height="32" viewBox="0 0 24 24" stroke="#a39e8f"><use xlink:href="/img/icons.svg#lucide-toggle-right-no-stroke"></use></svg>
                         </th>
                         <th scope="col">
                             <!-- hand coins -->
@@ -204,11 +246,11 @@ templ lenderBorrowerTable(lbListSent []appdata.LenderBorrower, lbIDint int, isAc
                             <svg stroke="currenColor" width="28" heigth="28" viewBox="0 0 24 24"><use xlink:href="/img/icons.svg#lucide-banknote"></use></svg>
                         </th>
                         <th scope="col">
-                            <!-- inUse = ON/OFF -->
+                            <!-- lucide-toggle-right-no-stroke -->
                             if !isActive {
-                                <svg stroke="green" width="32" heigth="32" viewBox="0 0 24 24"><use xlink:href="/img/icons.svg#lucide-toggle-right-green"></use></svg>
+                                <svg width="32" height="32" viewBox="0 0 24 24" stroke="green"><use xlink:href="/img/icons.svg#lucide-toggle-right-no-stroke"></use></svg>
                             } else if isActive {
-                                <svg stroke="firebrick" width="32" heigth="32" viewBox="0 0 24 24"><use xlink:href="/img/icons.svg#lucide-toggle-right-red"></use></svg>
+                                <svg width="32" height="32" viewBox="0 0 24 24" stroke="firebrick"><use xlink:href="/img/icons.svg#lucide-toggle-right-no-stroke"></use></svg>
                             }
                         </th>
                     </tr>

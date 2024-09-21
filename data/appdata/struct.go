@@ -138,6 +138,19 @@ func (a *LendBorrow) Bind(r *http.Request) error {
 	return nil
 }
 
+type IDlist struct {
+	IDsInOneString 	string `form:"checkedListLBid" binding:"required" json:"idsInOneString"`
+	IDlistStr 		[]string 
+	IDlistInt 		[]int 
+}
+func (a *IDlist) Bind(r *http.Request) error {
+	if len(a.IDsInOneString) < 1 {
+		fmt.Println("missing IDsInOneString")
+		return errors.New("missing required field")
+	}
+	return nil
+}
+
 type RecurrentRecord struct {
 	ID                    int
 	IDstr                 string `form:"idRRmain"`

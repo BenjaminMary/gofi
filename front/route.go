@@ -165,6 +165,11 @@ func PostLenderBorrowerStateChange(w http.ResponseWriter, r *http.Request) {
 	//reload the get page
 	GetLenderBorrowerStats(w, r)
 }
+func PostUnlinkLendOrBorrowRecords(w http.ResponseWriter, r *http.Request) {
+	api.PostUnlinkLendOrBorrowRecords(w, r, true)
+	//reload the get page
+	GetLenderBorrowerStats(w, r)
+}
 
 func GetRecordTransfer(w http.ResponseWriter, r *http.Request) {
 	jsonFT := api.GetRecords(w, r, true)

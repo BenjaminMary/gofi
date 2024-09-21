@@ -13,6 +13,13 @@ templ FormSubmit(id string, icon string, name string) {
     </button>
 }
 
+templ button(id string, icon string, name string, class string) {
+    <button id={id} class={ class } type="submit">
+        <svg width="24" height="24" viewBox="0 0 24 24"><use xlink:href={icon}></use></svg>
+        {name}
+    </button>
+}
+
 templ formEmailPasswordInput() {
     <label for="Email">Email</label>
     <input type="Email" id="Email" name="Email" placeholder="exemple@gmail.com" required />
@@ -78,7 +85,7 @@ templ whoDataList(lbListActive []appdata.LenderBorrower) {
         }
         <option value="-">-</option>
     </select>
-    <input type="text" id="createLenderBorrowerName" name="createLenderBorrowerName" placeholder="créer un nouveau nom" />
+    <input type="text" id="createLenderBorrowerName" name="createLenderBorrowerName" placeholder="créer un nouveau tier" />
 }
 
 templ categoryCustomRadioInput(categoryListOfList [][]string) {
