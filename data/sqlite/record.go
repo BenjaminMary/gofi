@@ -11,6 +11,19 @@ import (
 	"gofi/gofi/data/appdata"
 )
 
+func getOrCompleteVarsWithAnyListAndQuestionMarks(offset int, addQuestionMarks bool, nbQuestionMarks string, intListIn *[]int,
+	anyListOut []any) (string, []any) {
+	for i, v := range *intListIn {
+        anyListOut[i+offset] = v
+		if len(nbQuestionMarks) == 0 && addQuestionMarks {
+			nbQuestionMarks = "?"
+		} else if addQuestionMarks {
+			nbQuestionMarks = nbQuestionMarks + ",?"
+		}
+    }
+	return nbQuestionMarks, anyListOut
+}
+
 func GetRowsInFinanceTracker(ctx context.Context, db *sql.DB, filter *appdata.FilterRows) ([]appdata.FinanceTracker, string, int) {
 	var ftList []appdata.FinanceTracker
 	var totalPriceStr2Decimals string
@@ -341,7 +354,6 @@ func InsertRowInFinanceTracker(ctx context.Context, db *sql.DB, ft *appdata.Fina
 }
 
 func UpdateRowsInFinanceTrackerToMode0(ctx context.Context, db *sql.DB, gofiID int, intList *[]int) bool {
-	// variadic funcs in Go : https://gobyexample.com/variadic-functions
 	q := `
 		UPDATE financeTracker
 		SET mode = 0
@@ -349,26 +361,13 @@ func UpdateRowsInFinanceTrackerToMode0(ctx context.Context, db *sql.DB, gofiID i
 			AND id IN (XnumberOf?);
 	`
 	nbParams := ""
-	for i, _ := range *intList {
-		if i == 0 {
-			nbParams = "?"
-		} else {
-			nbParams = nbParams + ",?"
-		}
-	}
+    anyList := make([]any, len(*intList)+1)
+	nbParams, anyList = getOrCompleteVarsWithAnyListAndQuestionMarks(0, false, nbParams, &[]int{gofiID}, anyList)
+	nbParams, anyList = getOrCompleteVarsWithAnyListAndQuestionMarks(1, true, nbParams, intList, anyList)
 	if nbParams == "" {
 		fmt.Println("UpdateRowsInFinanceTrackerToMode0 err1: no param")
 		return true	
 	}
-    // Convert the list to a slice of 'any'
-    anyList := make([]any, len(*intList)+1)
-	anyList[0] = gofiID
-    for i, v := range *intList {
-		i += 1
-        anyList[i] = v
-    }
-	fmt.Printf("anyList: %#v\n", anyList)
-
 	q = strings.Replace(q, `XnumberOf?`, nbParams, 1)
 	fmt.Printf("q: %v\n", q)
 	_, err := db.ExecContext(ctx, q, anyList...,)
@@ -535,33 +534,19 @@ func UpdateStateInLenderBorrower(ctx context.Context, db *sql.DB, lb *appdata.Le
 }
 
 func DeleteSpecificRecordsByMode(ctx context.Context, db *sql.DB, gofiID int, intList *[]int) bool {
-	// variadic funcs in Go : https://gobyexample.com/variadic-functions
 	q := `
 		DELETE FROM specificRecordsByMode
 		WHERE gofiID = ?
 			AND idFinanceTracker IN (XnumberOf?);
 	`
 	nbParams := ""
-	for i, _ := range *intList {
-		if i == 0 {
-			nbParams = "?"
-		} else {
-			nbParams = nbParams + ",?"
-		}
-	}
+    anyList := make([]any, len(*intList)+1)
+	nbParams, anyList = getOrCompleteVarsWithAnyListAndQuestionMarks(0, false, nbParams, &[]int{gofiID}, anyList)
+	nbParams, anyList = getOrCompleteVarsWithAnyListAndQuestionMarks(1, true, nbParams, intList, anyList)
 	if nbParams == "" {
-		fmt.Println("DeleteSpecificRecordsByMode err1: no param")
+		fmt.Println("UpdateRowsInFinanceTrackerToMode0 err1: no param")
 		return true	
 	}
-    // Convert the list to a slice of 'any'
-    anyList := make([]any, len(*intList)+1)
-	anyList[0] = gofiID
-    for i, v := range *intList {
-		i += 1
-        anyList[i] = v
-    }
-	fmt.Printf("anyList: %#v\n", anyList)
-
 	q = strings.Replace(q, `XnumberOf?`, nbParams, 1)
 	fmt.Printf("q: %v\n", q)
 	_, err := db.ExecContext(ctx, q, anyList...,)

@@ -614,7 +614,7 @@ func TestRecord(t *testing.T) {
 		"FT":{
 			"Date": "2011-11-11",
 			"Account": "CB",
-			"Product": "+ emprunt 1",
+			"Product": "+ emprunt a1",
 			"PriceDirection": "gain",
 			"FormPriceStr2Decimals": "1000.00",
 			"Category": "Cadeaux"
@@ -631,7 +631,7 @@ func TestRecord(t *testing.T) {
 		"FT":{
 			"Date": "2010-11-11",
 			"Account": "CB",
-			"Product": "+ emprunt 2",
+			"Product": "+ emprunt a2",
 			"PriceDirection": "gain",
 			"FormPriceStr2Decimals": "1200.00",
 			"Category": "Cadeaux"
@@ -648,7 +648,7 @@ func TestRecord(t *testing.T) {
 		"FT":{
 			"Date": "2010-11-11",
 			"Account": "CB",
-			"Product": "- remboursement emprunt 3",
+			"Product": "- remboursement emprunt a3",
 			"PriceDirection": "expense",
 			"FormPriceStr2Decimals": "2200.00",
 			"Category": "Cadeaux"
@@ -666,7 +666,7 @@ func TestRecord(t *testing.T) {
 		"FT":{
 			"Date": "2010-11-11",
 			"Account": "CB",
-			"Product": "- pret",
+			"Product": "- pret b1 puis dissocié",
 			"PriceDirection": "expense",
 			"FormPriceStr2Decimals": "1600.00",
 			"Category": "Cadeaux"
@@ -683,7 +683,7 @@ func TestRecord(t *testing.T) {
 		"FT":{
 			"Date": "2010-11-11",
 			"Account": "CB",
-			"Product": "+ remboursement emprunt",
+			"Product": "+ remb. pret b2 puis dissocié",
 			"PriceDirection": "gain",
 			"FormPriceStr2Decimals": "1100.00",
 			"Category": "Cadeaux"
@@ -695,11 +695,11 @@ func TestRecord(t *testing.T) {
 
 	// 52. POST UNLINK LEND BORROW
 	req, _ = http.NewRequest("POST", "/api/record/lend-or-borrow-unlink", strings.NewReader(`{
-		"idsInOneString": "4,5,6"
+		"idsInOneString": "14,15"
 	}`))
 	req.Header.Set("sessionID", fstwo)
 	response = executeRequest(req, s)
-	require.Equal(t, http.StatusCreated, response.Code, "should be equal")
+	require.Equal(t, http.StatusOK, response.Code, "should be equal")
 
 	// 53. GET RECORD
 	req, _ = http.NewRequest("GET", "/api/record/id-desc-5", nil)
@@ -707,7 +707,7 @@ func TestRecord(t *testing.T) {
 	response = executeRequest(req, s)
 	require.Equal(t, http.StatusOK, response.Code, "should be equal")
 	require.Equal(t,
-		"{\"isValidResponse\":true,\"httpStatus\":200,\"info\":\"record list retrieved\",\"jsonContent\":[{\"ID\":15,\"GofiID\":2,\"Date\":\"2010-11-11\",\"Account\":\"CB\",\"Product\":\"+ remboursement emprunt\",\"PriceDirection\":\"\",\"FormPriceStr2Decimals\":\"1100.00\",\"PriceIntx100\":110000,\"Category\":\"Cadeaux\",\"CommentInt\":0,\"CommentString\":\"\",\"Checked\":false,\"DateChecked\":\"9999-12-31\",\"Exported\":false},{\"ID\":14,\"GofiID\":2,\"Date\":\"2010-11-11\",\"Account\":\"CB\",\"Product\":\"- pret\",\"PriceDirection\":\"\",\"FormPriceStr2Decimals\":\"-1600.00\",\"PriceIntx100\":-160000,\"Category\":\"Cadeaux\",\"CommentInt\":0,\"CommentString\":\"\",\"Checked\":false,\"DateChecked\":\"9999-12-31\",\"Exported\":false},{\"ID\":13,\"GofiID\":2,\"Date\":\"2010-11-11\",\"Account\":\"CB\",\"Product\":\"- remboursement emprunt 3\",\"PriceDirection\":\"\",\"FormPriceStr2Decimals\":\"-2200.00\",\"PriceIntx100\":-220000,\"Category\":\"Cadeaux\",\"CommentInt\":0,\"CommentString\":\"\",\"Checked\":false,\"DateChecked\":\"9999-12-31\",\"Exported\":false},{\"ID\":12,\"GofiID\":2,\"Date\":\"2010-11-11\",\"Account\":\"CB\",\"Product\":\"+ emprunt 2\",\"PriceDirection\":\"\",\"FormPriceStr2Decimals\":\"1200.00\",\"PriceIntx100\":120000,\"Category\":\"Cadeaux\",\"CommentInt\":0,\"CommentString\":\"\",\"Checked\":false,\"DateChecked\":\"9999-12-31\",\"Exported\":false},{\"ID\":11,\"GofiID\":2,\"Date\":\"2011-11-11\",\"Account\":\"CB\",\"Product\":\"+ emprunt 1\",\"PriceDirection\":\"\",\"FormPriceStr2Decimals\":\"1000.00\",\"PriceIntx100\":100000,\"Category\":\"Cadeaux\",\"CommentInt\":0,\"CommentString\":\"\",\"Checked\":false,\"DateChecked\":\"9999-12-31\",\"Exported\":false}]}\n",
+		"{\"isValidResponse\":true,\"httpStatus\":200,\"info\":\"record list retrieved\",\"jsonContent\":[{\"ID\":15,\"GofiID\":2,\"Date\":\"2010-11-11\",\"Account\":\"CB\",\"Product\":\"+ remb. pret b2 puis dissocié\",\"PriceDirection\":\"\",\"FormPriceStr2Decimals\":\"1100.00\",\"PriceIntx100\":110000,\"Category\":\"Cadeaux\",\"CommentInt\":0,\"CommentString\":\"\",\"Checked\":false,\"DateChecked\":\"9999-12-31\",\"Exported\":false},{\"ID\":14,\"GofiID\":2,\"Date\":\"2010-11-11\",\"Account\":\"CB\",\"Product\":\"- pret b1 puis dissocié\",\"PriceDirection\":\"\",\"FormPriceStr2Decimals\":\"-1600.00\",\"PriceIntx100\":-160000,\"Category\":\"Cadeaux\",\"CommentInt\":0,\"CommentString\":\"\",\"Checked\":false,\"DateChecked\":\"9999-12-31\",\"Exported\":false},{\"ID\":13,\"GofiID\":2,\"Date\":\"2010-11-11\",\"Account\":\"CB\",\"Product\":\"- remboursement emprunt a3\",\"PriceDirection\":\"\",\"FormPriceStr2Decimals\":\"-2200.00\",\"PriceIntx100\":-220000,\"Category\":\"Cadeaux\",\"CommentInt\":0,\"CommentString\":\"\",\"Checked\":false,\"DateChecked\":\"9999-12-31\",\"Exported\":false},{\"ID\":12,\"GofiID\":2,\"Date\":\"2010-11-11\",\"Account\":\"CB\",\"Product\":\"+ emprunt a2\",\"PriceDirection\":\"\",\"FormPriceStr2Decimals\":\"1200.00\",\"PriceIntx100\":120000,\"Category\":\"Cadeaux\",\"CommentInt\":0,\"CommentString\":\"\",\"Checked\":false,\"DateChecked\":\"9999-12-31\",\"Exported\":false},{\"ID\":11,\"GofiID\":2,\"Date\":\"2011-11-11\",\"Account\":\"CB\",\"Product\":\"+ emprunt a1\",\"PriceDirection\":\"\",\"FormPriceStr2Decimals\":\"1000.00\",\"PriceIntx100\":100000,\"Category\":\"Cadeaux\",\"CommentInt\":0,\"CommentString\":\"\",\"Checked\":false,\"DateChecked\":\"9999-12-31\",\"Exported\":false}]}\n",
 		response.Body.String(), "should be equal")
 
 	// fmt.Printf("response: %#v\n", response.Body.String())
