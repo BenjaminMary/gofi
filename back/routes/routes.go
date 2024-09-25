@@ -124,6 +124,9 @@ func (s *Server) MountBackHandlers() {
 					api.GetRecordsViaPost(w, r, false, &appdata.FilterRows{})
 				})
 				r.Post("/insert", func(w http.ResponseWriter, r *http.Request) { api.PostRecordInsert(w, r, false) })
+				r.Post("/lend-or-borrow", func(w http.ResponseWriter, r *http.Request) { api.PostLendOrBorrowRecords(w, r, false) })
+				r.Post("/lender-borrower-state-change", func(w http.ResponseWriter, r *http.Request) { api.PostLenderBorrowerStateChange(w, r, false) })
+				r.Post("/lend-or-borrow-unlink", func(w http.ResponseWriter, r *http.Request) { api.PostUnlinkLendOrBorrowRecords(w, r, false) })
 				r.Post("/transfer", func(w http.ResponseWriter, r *http.Request) { api.PostRecordTransfer(w, r, false) })
 				r.Get("/recurrent", func(w http.ResponseWriter, r *http.Request) { api.RecordRecurrentRead(w, r, false) })
 				r.Post("/recurrent/create", func(w http.ResponseWriter, r *http.Request) { api.RecordRecurrentCreate(w, r, false) })
@@ -177,6 +180,8 @@ func (s *Server) MountFrontHandlers() {
 			r.Route("/record", func(r chi.Router) {
 				r.Get("/insert", front.GetRecordInsert)
 				r.Post("/insert", front.PostRecordInsert)
+				r.Get("/lend-or-borrow", front.GetLendBorrowRecord)
+				r.Post("/lend-or-borrow", front.PostLendOrBorrowRecord)
 				r.Get("/transfer", front.GetRecordTransfer)
 				r.Post("/transfer", front.PostRecordTransfer)
 				r.Get("/recurrent", front.GetRecordRecurrent)
@@ -199,6 +204,9 @@ func (s *Server) MountFrontHandlers() {
 			// STATS
 			r.Get("/stats/{checkedValidData}-{year}-{checkedYearStats}-{checkedGainsStats}", front.GetStats)
 			r.Get("/budget", front.GetBudget)
+			r.Get("/stats/lender-borrower/{lbID}", front.GetLenderBorrowerStats)
+			r.Post("/stats/lender-borrower/{lbID}/state-change", front.PostLenderBorrowerStateChange)
+			r.Post("/stats/lender-borrower/{lbID}/unlink", front.PostUnlinkLendOrBorrowRecords)
 		})
 	})
 }

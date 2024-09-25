@@ -128,39 +128,14 @@ func GetRecordsViaPost(w http.ResponseWriter, r *http.Request, isFrontRequest bo
 }
 
 func PostRecordInsert(w http.ResponseWriter, r *http.Request, isFrontRequest bool) *appdata.HttpStruct {
-	// WARNING when the 1st reader is used, no other read can occur
-	// bytedata, _ := io.ReadAll(r.Body)
-	// fmt.Printf("PostRecordInsert body: %v\n", string(bytedata))
-	// fmt.Printf("PostRecordInsert Header: %v\n", r.Header)
-
 	ft := appdata.FinanceTracker{}
 	if err := render.Bind(r, &ft); err != nil {
-		fmt.Printf("PostRecordInsert error1: %v\n", err.Error())
+		fmt.Printf("PostRecordInsert error0: %v\n", err.Error())
 		return appdata.RenderAPIorUI(w, r, isFrontRequest, false, false, http.StatusBadRequest, "invalid request, double check each field", "")
 	}
-	// check if valid date
-	_, err := time.Parse(time.DateOnly, ft.Date)
-	if err != nil {
-		fmt.Printf("PostRecordInsert error2: %v\n", err.Error())
-		return appdata.RenderAPIorUI(w, r, isFrontRequest, false, false, http.StatusBadRequest, "invalid date", "")
-	}
-	var successfull bool
-	var errStr string
-	ft.DateDetails.Year, ft.DateDetails.Month, ft.DateDetails.Day, successfull, errStr = sqlite.ConvertDateStrToInt(ft.Date, "EN", "-")
-	if !successfull {
-		fmt.Printf("PostRecordInsert error3: %v\n", errStr)
-		return appdata.RenderAPIorUI(w, r, isFrontRequest, false, false, http.StatusInternalServerError, "server error", "")
-	}
-	if ft.PriceDirection == "expense" {
-		ft.FormPriceStr2Decimals = "-" + ft.FormPriceStr2Decimals
-	}
-	ft.PriceIntx100 = sqlite.ConvertPriceStrToInt(ft.FormPriceStr2Decimals, ".") // always "." as decimal separator from the form
-	userContext := r.Context().Value(appdata.ContextUserKey).(*appdata.UserRequest)
-	ft.GofiID = userContext.GofiID
-	_, err = sqlite.InsertRowInFinanceTracker(r.Context(), appdata.DB, ft)
-	if err != nil { // Always check errors even if they should not happen.
-		fmt.Printf("PostRecordInsert error4: %v\n", err.Error())
-		return appdata.RenderAPIorUI(w, r, isFrontRequest, false, false, http.StatusInternalServerError, "server error", "")
+	_, isErr, httpCode, info := handleFTinsert(r, &ft)
+	if isErr {
+		return appdata.RenderAPIorUI(w, r, isFrontRequest, false, false, httpCode, info, "")
 	}
 	return appdata.RenderAPIorUI(w, r, isFrontRequest, false, true, http.StatusCreated, "record saved", ft)
 }
@@ -208,13 +183,13 @@ func PostRecordTransfer(w http.ResponseWriter, r *http.Request, isFrontRequest b
 	ftList = append(ftList, ft)
 
 	// insert the amount to remove from the first account
-	_, err = sqlite.InsertRowInFinanceTracker(r.Context(), appdata.DB, ftList[1])
+	_, err = sqlite.InsertRowInFinanceTracker(r.Context(), appdata.DB, &ftList[1])
 	if err != nil { // Always check errors even if they should not happen.
 		fmt.Printf("PostRecordTransfer error3: %v\n", err.Error())
 		return appdata.RenderAPIorUI(w, r, isFrontRequest, false, false, http.StatusInternalServerError, "server error", "")
 	}
 	// insert the amount to add to the second account
-	_, err = sqlite.InsertRowInFinanceTracker(r.Context(), appdata.DB, ftList[0])
+	_, err = sqlite.InsertRowInFinanceTracker(r.Context(), appdata.DB, &ftList[0])
 	if err != nil { // Always check errors even if they should not happen.
 		fmt.Printf("PostRecordTransfer error4: %v\n", err.Error())
 		return appdata.RenderAPIorUI(w, r, isFrontRequest, false, false, http.StatusInternalServerError, "server error", "")
@@ -366,7 +341,7 @@ func RecordRecurrentSave(w http.ResponseWriter, r *http.Request, isFrontRequest 
 	ft.PriceIntx100 = rrList[0].PriceIntx100
 	ft.Category = rrList[0].Category
 
-	_, err := sqlite.InsertRowInFinanceTracker(r.Context(), appdata.DB, ft)
+	_, err := sqlite.InsertRowInFinanceTracker(r.Context(), appdata.DB, &ft)
 	if err != nil { // Always check errors even if they should not happen.
 		fmt.Printf("RecordRecurrentSave error2: %v\n", err.Error())
 		return appdata.RenderAPIorUI(w, r, isFrontRequest, false, false, http.StatusInternalServerError, "server error", "")
@@ -459,4 +434,126 @@ func RecordCancel(w http.ResponseWriter, r *http.Request, isFrontRequest bool) *
 	//send the list of validated id with the date to SQLite for change
 	sqlite.ValidateRowsInFinanceTracker(r.Context(), appdata.DB, userContext.GofiID, rvc.IDcheckedListInt, rvc.Date, "cancel")
 	return appdata.RenderAPIorUI(w, r, isFrontRequest, false, true, http.StatusOK, "id list canceled", rvc.IDcheckedListStr)
+}
+
+func PostLendOrBorrowRecords(w http.ResponseWriter, r *http.Request, isFrontRequest bool) *appdata.HttpStruct {
+	// WARNING when the 1st reader is used, no other read can occur
+	// bytedata, _ := io.ReadAll(r.Body)
+	// fmt.Printf("PostRecordInsert body: %v\n", string(bytedata))
+	// fmt.Printf("PostRecordInsert Header: %v\n", r.Header)
+	// r.Body.Close() //  must close
+	// RESET the body reader
+	// r.Body = io.NopCloser(bytes.NewBuffer(bytedata))
+	lb := appdata.LendBorrow{}
+	if err := render.Bind(r, &lb); err != nil {
+		fmt.Printf("PostLendOrBorrowRecords error0: %v\n", err.Error())
+		return appdata.RenderAPIorUI(w, r, isFrontRequest, false, false, http.StatusBadRequest, "invalid request, double check each field", "")
+	}
+	lb.FT.Mode = lb.ModeInt
+	idFT, isErr, httpCode, info := handleFTinsert(r, &lb.FT)
+	if isErr {
+		return appdata.RenderAPIorUI(w, r, isFrontRequest, false, false, httpCode, info, "")
+	}
+	lb.FT.ID = int(idFT)
+	isErr = sqlite.InsertUpdateInLenderBorrower(r.Context(), appdata.DB, &lb)
+	if isErr {
+		return appdata.RenderAPIorUI(w, r, isFrontRequest, false, false, http.StatusInternalServerError, "error", "")
+	}
+	return appdata.RenderAPIorUI(w, r, isFrontRequest, false, true, http.StatusCreated, "record saved", lb.FT)
+}
+
+func handleFTinsert(r *http.Request, ft *appdata.FinanceTracker) (int64, bool, int, string) {
+	// if err := render.Bind(r, ft); err != nil {
+	// 	fmt.Printf("handleFTinsert error1: %v\n", err.Error())
+	// 	return 0, true, http.StatusBadRequest, "invalid request, double check each field"
+	// }
+	// fmt.Printf("ft: %#v\n", ft)
+	_, err := time.Parse(time.DateOnly, ft.Date)
+	if err != nil {
+		fmt.Printf("handleFTinsert error2 invalid date: %v\n", err.Error())
+		return 0, true, http.StatusBadRequest, "invalid date"
+	}
+	var successfull bool
+	var errStr string
+	ft.DateDetails.Year, ft.DateDetails.Month, ft.DateDetails.Day, successfull, errStr = sqlite.ConvertDateStrToInt(ft.Date, "EN", "-")
+	if !successfull {
+		fmt.Printf("handleFTinsert error3 invalid convert date str to int: %v\n", errStr)
+		return 0, true, http.StatusInternalServerError, "server error"
+	}
+	if (ft.Mode == 1 || ft.Mode == 4) && ft.PriceDirection == "expense" {
+		fmt.Println("handleFTinsert error4 invalid PriceDirection and Mode combinaison")
+		return 0, true, http.StatusBadRequest, "invalid PriceDirection and Mode combinaison"
+	}
+	if (ft.Mode == 2 || ft.Mode == 3) && ft.PriceDirection == "gain" {
+		fmt.Println("handleFTinsert error5 invalid PriceDirection and Mode combinaison")
+		return 0, true, http.StatusBadRequest, "invalid PriceDirection and Mode combinaison"
+	}
+	if ft.PriceDirection == "" {
+		fmt.Println("handleFTinsert error6 invalid PriceDirection")
+		return 0, true, http.StatusBadRequest, "invalid PriceDirection"
+	} else if ft.PriceDirection == "expense" {
+		ft.FormPriceStr2Decimals = "-" + ft.FormPriceStr2Decimals
+	}
+	ft.PriceIntx100 = sqlite.ConvertPriceStrToInt(ft.FormPriceStr2Decimals, ".") // always "." as decimal separator from the form
+	userContext := r.Context().Value(appdata.ContextUserKey).(*appdata.UserRequest)
+	ft.GofiID = userContext.GofiID
+	idInserted, err := sqlite.InsertRowInFinanceTracker(r.Context(), appdata.DB, ft)
+	if err != nil { // Always check errors even if they should not happen.
+		fmt.Printf("handleFTinsert error sqlite.InsertRowInFinanceTracker: %v\n", err.Error())
+		return 0, true, http.StatusInternalServerError, "server error"
+	}
+	return idInserted, false, 0, ""
+}
+
+func PostLenderBorrowerStateChange(w http.ResponseWriter, r *http.Request, isFrontRequest bool) *appdata.HttpStruct {
+	lb := appdata.LenderBorrower{}
+	if err := render.Bind(r, &lb); err != nil {
+		fmt.Printf("PostLenderBorrowerStateChange error1: %v\n", err.Error())
+		return appdata.RenderAPIorUI(w, r, isFrontRequest, false, false, http.StatusBadRequest, "invalid request, double check each field", "")
+	}
+	b := sqlite.UpdateStateInLenderBorrower(r.Context(), appdata.DB, &lb)
+	if b {
+		return appdata.RenderAPIorUI(w, r, isFrontRequest, false, false, http.StatusInternalServerError, "can't update the state", "")
+	}
+	return appdata.RenderAPIorUI(w, r, isFrontRequest, false, true, http.StatusOK, "record state changed", "")
+}
+
+// TODO voir pour retirer le lien d'une ligne DELETE partie prêt et emprunt lorsqu'une annulation de ligne est faite 
+func PostUnlinkLendOrBorrowRecords(w http.ResponseWriter, r *http.Request, isFrontRequest bool) *appdata.HttpStruct {
+	/*
+		input: list of fT ID
+		specificRecordsByMode (delete the row)
+		financeTracker (put back mode to 0)
+	*/
+	idL := appdata.IDlist{}
+	if err := render.Bind(r, &idL); err != nil {
+		fmt.Printf("PostUnlinkLendOrBorrowRecords error1: %v\n", err.Error())
+		return appdata.RenderAPIorUI(w, r, isFrontRequest, false, false, http.StatusBadRequest, "invalid request, double check each field", "")
+	}
+	idL.IDlistStr = strings.Split(idL.IDsInOneString, ",")
+	var err error
+	for _, element := range idL.IDlistStr {
+		var idInt int
+		idInt, err = strconv.Atoi(element)
+		if err != nil { // Always check errors even if they should not happen.
+			fmt.Printf("PostUnlinkLendOrBorrowRecords error2: %v\n", err.Error())
+			return appdata.RenderAPIorUI(w, r, isFrontRequest, false, false, http.StatusBadRequest, "invalid request, double check each field", "")
+		}
+		if idInt < 1 { // Always check errors even if they should not happen.
+			fmt.Printf("PostUnlinkLendOrBorrowRecords error3: %v\n", element)
+			return appdata.RenderAPIorUI(w, r, isFrontRequest, false, false, http.StatusBadRequest, "invalid request, double check each field", "")
+		}
+		idL.IDlistInt = append(idL.IDlistInt, idInt)
+	}
+	// fmt.Printf("idL: %#v\n", idL)
+	userContext := r.Context().Value(appdata.ContextUserKey).(*appdata.UserRequest)
+	b := sqlite.DeleteSpecificRecordsByMode(r.Context(), appdata.DB, userContext.GofiID, &idL.IDlistInt)
+	if b {
+		return appdata.RenderAPIorUI(w, r, isFrontRequest, false, false, http.StatusInternalServerError, "can't update the state", "")
+	}
+	b = sqlite.UpdateRowsInFinanceTrackerToMode0(r.Context(), appdata.DB, userContext.GofiID, &idL.IDlistInt)
+	if b {
+		return appdata.RenderAPIorUI(w, r, isFrontRequest, false, false, http.StatusInternalServerError, "can't update the state", "")
+	}
+	return appdata.RenderAPIorUI(w, r, isFrontRequest, false, true, http.StatusOK, "records unlinked", "")
 }

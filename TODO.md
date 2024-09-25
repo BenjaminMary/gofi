@@ -2,7 +2,40 @@
 
 > ☑☐☒❗
 
-- ☐❗❗ système de gestion de prêt/emprunt
+- ☐❗❗ passer l'affichage des boutons de l'accueil en option utilisateur
+    - possible de démarrer en commençant à mettre toutes les features non obligatoires dans une page dédiée 
+    - le + utile:
+        - saisie simple
+        - stats
+        - budgets
+        - stats prets
+        - autres options
+            - transfert
+            - enr reg
+            - pret / emprunt
+            - validation
+            - comptes
+            - catégos
+            - exp csv
+            - imp csv
+        - déco
+- ☐❗❗mini système de gestion de migration de la DB
+    - check coherence entre état de la DB actuel VS attendu via dernière migration
+    - table pour stocker l'ID de la dernière migration jouée 
+- ☐❗❗ système de gestion d'achat sur la durée
+    - période prévisionnelle avant nouvel achat
+- ☐❗ système de gestion de prêt/emprunt
+    - ☐ faire une page front de recap par personne avec les montants du et remboursés
+        - ☑ ajouter un script js qui gère la sélection de ligne d'en tête pour afficher le détail associé (via bouton switch on/off ?)
+        - ☑ ajouter la gestion des noms des LB
+        - ☑ ajouter système permettant de retirer un lien entre un prêt/emprunt/remboursement avec un tier 
+        - ☐❗ partie saisie: mettre 2 modes (ou en JS désactiver la case création si mauvais mode?)
+            1. créer un prêt ou emprunt qui autorise une création de tier ou utilisation d'un tier existant
+            2. remboursement qui autorise uniquement l'utilisation d'un tier existant
+        - ☐❗ gérer le mode + lien au tier partie .csv (import + export)
+            - partie .csv, on peut complètement décoreller le .csv des tables
+            - faire en sorte de récupérer le nom du tier lorsque relié et vérifier l'id correspondant (potentielle création) lors d'un import
+    - ☑ faire un système de specific record générique, avec mode qui change le fonctionnement de la table 
 - stats, 
     - new apex chart, 
         - ☑ lines

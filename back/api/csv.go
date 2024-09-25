@@ -12,7 +12,7 @@ import (
 
 // POST importCsv.html
 func PostCSVimport(w http.ResponseWriter, r *http.Request, isFrontRequest bool) *appdata.HttpStruct {
-	// ctx, cancel := context.WithTimeout(context.TODO(), 9*time.Second) // 9 sec in case of 10k rows import
+	// ctx, cancel := context.WithTimeout(context.?(), 9*time.Second) // 9 sec in case of 10k rows import
 	// defer cancel()
 
 	// WARNING when the 1st reader is used, no other read can occur

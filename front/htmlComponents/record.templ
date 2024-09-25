@@ -33,24 +33,15 @@ templ dateSVG(year int, monthStr string, day int) {
         { strconv.Itoa(day) }{ monthStr }<br/>
         <i>{ strconv.Itoa(year) }</i>
     </small>
-    // TODO: bug on Mozilla for this SVG, add this as an option param
-    // <svg width="34" height="30" viewBox="0 0 34 30">
-    //     <text x="34" y="6" alignment-baseline="central" text-anchor="end" fill="currentColor" font-size="16" font-weight="normal" 
-    //         font-family="Roboto">{ strconv.Itoa(day) }</text>
-    //     <text x="34" y="20" alignment-baseline="central" text-anchor="end" fill="currentColor" font-size="16" font-weight="normal" 
-    //         font-family="Roboto">{ monthStr }</text>
-    //     <text x="-10" y="5" alignment-baseline="central" text-anchor="middle" fill="currentColor" font-size="9" font-weight="normal" 
-    //         font-family="Roboto" transform="rotate(-90)">{ strconv.Itoa(year) }</text>
-    // </svg>
 }
 
-templ lastInsertedRowsTable(jsonFT []appdata.FinanceTracker, validORcancelMode bool, totalRowsWithoutLimit string) {
+templ lastInsertedRowsTable(tbodyId string, jsonFT []appdata.FinanceTracker, checkboxMode bool, botRowsMode bool, totalRowsWithoutLimit string) {
     <div class="overflow-auto">
         <figure>
             <table class="striped">
                 <thead>
                     <tr>
-                        if validORcancelMode {
+                        if checkboxMode {
                             <th scope="col">
                                 <input type="checkbox" id="toggle" name="toggle" value="0"/>
                             </th>
@@ -77,11 +68,11 @@ templ lastInsertedRowsTable(jsonFT []appdata.FinanceTracker, validORcancelMode b
                         </th>
                     </tr>
                 </thead>
-                <tbody id="lastInsert">
+                <tbody id={ tbodyId }>
                     for _, ft := range jsonFT {
-                        @oneRowInLastInsertedRowsTable(ft, validORcancelMode)
+                        @oneRowInLastInsertedRowsTable(ft, checkboxMode)
                     }
-                    if validORcancelMode {
+                    if botRowsMode {
                         @addBotRows(totalRowsWithoutLimit)
                     }
                 </tbody>
@@ -89,9 +80,9 @@ templ lastInsertedRowsTable(jsonFT []appdata.FinanceTracker, validORcancelMode b
         </figure>
     </div>
 }
-templ oneRowInLastInsertedRowsTable(ft appdata.FinanceTracker, validORcancelMode bool) {
+templ oneRowInLastInsertedRowsTable(ft appdata.FinanceTracker, checkboxMode bool) {
     <tr>
-        if validORcancelMode {
+        if checkboxMode {
             <td>
                 <input type="checkbox" id={ strconv.Itoa(ft.ID) } name="idCheckbox" value={ strconv.Itoa(ft.ID) }/>
             </td>
@@ -103,7 +94,7 @@ templ oneRowInLastInsertedRowsTable(ft appdata.FinanceTracker, validORcancelMode
         <td>
             <span class={ "icomoon", ft.CategoryDetails.CategoryIcon }>&#x{ ft.CategoryDetails.CategoryIcon };</span>
         </td>
-        if validORcancelMode {
+        if checkboxMode {
             <td id={ ft.IDstr }>{ft.FormPriceStr2Decimals}</td>
         } else {
             <td>{ft.FormPriceStr2Decimals}</td>
@@ -229,24 +220,24 @@ templ GetRecordInsert(jsonFT []appdata.FinanceTracker, jsonUP appdata.UserParams
                                     @accountInput("compte", jsonUP.AccountList, false)
                                 </div>
                             </fieldset>
-                            @categoriesCustomRadioInput(jsonUP.Categories)
+                            @categoriesCustomRadioInput(jsonUP.Categories, "categorie")
                             <fieldset role="group">
                                 <div>
-                                    @amountInput()
+                                    @amountInput("prix")
                                 </div>
                                 <div><!-- separator --></div>
                                 <div>
-                                    @amountDirectionRadio()
+                                    @amountDirectionRadio("expense", "gain-expense")
                                 </div>
                             </fieldset>
-                            @textInput()
+                            @textInput("designation")
                             @FormSubmit("idSubmit1", "/img/icons.svg#feather-save", "Enregistrer")
                         </form>
                     </div> <!-- via header: "HX-Retarget", "#htmxInfo" -->
                 </section>
 
                 <section id="recap">
-                    @lastInsertedRowsTable(jsonFT, false, "")
+                    @lastInsertedRowsTable("lastInsert", jsonFT, false, false, "")
                 </section>
 
                 <section id="infos">
@@ -264,6 +255,114 @@ templ GetRecordInsert(jsonFT []appdata.FinanceTracker, jsonUP appdata.UserParams
             @categoryDropdown(jsonUP.Categories)
         </body>
     </html>
+}
+
+
+templ GetLendBorrowRecord(jsonFT []appdata.FinanceTracker, jsonUP appdata.UserParams, currentDate string, lbListActive []appdata.LenderBorrower) {
+    <html>
+        <head>
+            @Header()
+            @TopScriptHTMX()
+            <link rel="stylesheet" href="/fonts/style.css"/>
+        </head>
+        <body class="container-fluid">
+            <main>
+                <h1>Prêt / Emprunt</h1>
+
+                <section id="form">
+                    <div id="htmxInfo"> <!-- via header: "HX-Retarget", "#htmxInfo" -->
+                        <form hx-post="/record/lend-or-borrow" 
+                            hx-target="#lastInsert" 
+                            hx-swap="afterbegin" 
+                            hx-sync="this:drop"
+                            hx-indicator="#spinner"
+                            hx-on::after-request="if(event.detail.successful) document.getElementById('FT.prix').value='';document.getElementById('FT.designation').value='';">
+
+                            @modeInput()
+                            @whoDataList(lbListActive)
+                            <fieldset role="group">
+                                <div>
+                                    @dateInput(currentDate, "FT.date")
+                                </div>
+                                <div><!-- separator --></div>
+                                <div>
+                                    @accountInput("FT.compte", jsonUP.AccountList, false)
+                                </div>
+                            </fieldset>
+                            @categoriesCustomRadioInput(jsonUP.Categories, "FT.categorie")
+                            <fieldset role="group">
+                                <div>
+                                    @amountInput("FT.prix")
+                                </div>
+                                <div><!-- separator --></div>
+                                <div>
+                                    @amountDirectionRadio("gain", "FT.gain-expense")
+                                </div>
+                            </fieldset>
+                            @textInput("FT.designation")
+                            @FormSubmit("idSubmit1", "/img/icons.svg#feather-save", "Enregistrer")
+                        </form>
+                    </div> <!-- via header: "HX-Retarget", "#htmxInfo" -->
+                </section>
+
+                <section id="recap">
+                    @lastInsertedRowsTable("lastInsert", jsonFT, false, false, "")
+                </section>
+
+                <section id="infos">
+                    <p>
+                        Un récapitulatif des derniers enregistrements est disponible ci-dessus.<br/> 
+                        Le dernier effectué se trouve en haut de la liste.
+                    </p>
+                </section>
+
+                @Nav("top", "/", "/img/icons.svg#feather-home", "Accueil", "contrast outline",
+                    "/stats/lender-borrower/0", "/img/icons.svg#lucide-hand-coins", "Prêt/Emprunt", "contrast")
+            </main>
+            @BotScriptThemeSwitcher()
+            @BotScriptHTMXhandleError()
+            @categoryDropdown(jsonUP.Categories)
+            @amountDirection()
+            @createLenderBorrower()
+        </body>
+    </html>
+}
+script amountDirection() {
+    // this script adapt the amount direction with the mode selected 
+    // .disabled on radio buttons, because .readOnly does not work on radio
+    // document.getElementById('gain').disabled = true; not disabled because default option 
+    document.getElementById('expense').disabled = true;
+    document.getElementById("modeStr").addEventListener('change', function(m){
+        // console.log(this.value);
+        if (["1","4"].includes(this.value)){
+            document.getElementById('gain').disabled = false;
+            document.getElementById('expense').disabled = true;
+            document.getElementById('gain').checked = true;
+        }
+        else if (["2","3"].includes(this.value)){
+            document.getElementById('expense').disabled = false;
+            document.getElementById('gain').disabled = true;
+            document.getElementById('expense').checked = true;
+        }
+        else {console.log("unhandled")};
+    });
+}
+script createLenderBorrower() {
+    // this script only let 1 type of LenderBorrowerName field to be used 
+    document.getElementById("createLenderBorrowerName").addEventListener('click', function(c){
+        document.getElementById("who").value = "-";
+    });
+    document.getElementById("who").addEventListener('change', function(w){
+        document.getElementById("createLenderBorrowerName").value = "";
+    });
+}
+templ PostLenderBorrowerStateChange(httpStatus int) {
+    switch httpStatus {
+        case http.StatusOK:
+            ok       
+        default:
+            err
+	}
 }
 
 templ GetRecordTransfer(jsonFT []appdata.FinanceTracker, jsonUP appdata.UserParams, currentDate string) {
@@ -293,7 +392,7 @@ templ GetRecordTransfer(jsonFT []appdata.FinanceTracker, jsonUP appdata.UserPara
                                 </div>
                                 <div><!-- separator --></div>
                                 <div>
-                                    @amountInput()
+                                    @amountInput("prix")
                                 </div>
                             </fieldset>
                             <fieldset role="group">
@@ -315,7 +414,7 @@ templ GetRecordTransfer(jsonFT []appdata.FinanceTracker, jsonUP appdata.UserPara
                 </section>
 
                 <section id="recap">
-                    @lastInsertedRowsTable(jsonFT, false, "")
+                    @lastInsertedRowsTable("lastInsert", jsonFT, false, false, "")
                 </section>
 
                 <section id="infos">
@@ -388,17 +487,17 @@ templ GetRecordRecurrent(jsonRR []appdata.RecurrentRecord, jsonFT []appdata.Fina
                                         @accountInput("compte", jsonUP.AccountList, false)
                                     </div>
                                 </fieldset>
-                                @categoriesCustomRadioInput(jsonUP.Categories)
+                                @categoriesCustomRadioInput(jsonUP.Categories, "categorie")
                                 <fieldset role="group">
                                     <div>
-                                        @amountInput()
+                                        @amountInput("prix")
                                     </div>
                                     <div><!-- separator --></div>
                                     <div>
-                                        @amountDirectionRadio()
+                                        @amountDirectionRadio("expense", "gain-expense")
                                     </div>
                                 </fieldset>
-                                @textInput()
+                                @textInput("designation")
                                 <!-- Text -->
                                 <input type="text" id="idRRmain" name="idRRmain" value="0" hidden readonly required />
                                 <!-- Buttons -->
@@ -534,7 +633,7 @@ templ GetRecordRecurrent(jsonRR []appdata.RecurrentRecord, jsonFT []appdata.Fina
                     <hr/>
                 </section>
                 <section id="recap">
-                    @lastInsertedRowsTable(jsonFT, false, "")
+                    @lastInsertedRowsTable("lastInsert", jsonFT, false, false, "")
                 </section>
                 <section id="infos">
                     <p>
@@ -808,7 +907,7 @@ templ GetRecordValidateOrCancel(jsonFT []appdata.FinanceTracker, jsonUP appdata.
                             <br/>
                             (revalider une ligne précédemment validée changera sa date de validation)
                         </small>
-                        @categoriesCustomRadioInput(jsonUP.Categories)
+                        @categoriesCustomRadioInput(jsonUP.Categories, "categorie")
                         <hr/>
 
                         <h5>Trier</h5>
@@ -873,7 +972,7 @@ templ GetRecordValidateOrCancel(jsonFT []appdata.FinanceTracker, jsonUP appdata.
 
                         <div class="overflow-auto">
                             <section id="recap">
-                                @lastInsertedRowsTable(jsonFT, true, totalRowsWithoutLimit)
+                                @lastInsertedRowsTable("lastInsert", jsonFT, true, true, totalRowsWithoutLimit)
                             </section>
                         </div>
                         <form>
@@ -1015,14 +1114,14 @@ script botScriptAutoReloadOnAccountChange() {
             evtConfirm.detail.issueRequest();
             setTimeout(function() { document.getElementById('htmxInfo').innerHTML = ""; }, 3000);
             // put default value of checked back, and reload data
-            document.getElementById('checkedList').value = ""
+            document.getElementById('checkedList').value = "";
             document.getElementById('checked').value = "2";
             setTimeout(function() { reload(); }, 300); // wait 300ms before sending this 2nd request
         };
     }, false);
 }
 templ PostFullRecordRefresh(jsonFT []appdata.FinanceTracker, totalRowsWithoutLimit string) {
-    @lastInsertedRowsTable(jsonFT, true, totalRowsWithoutLimit)
+    @lastInsertedRowsTable("lastInsert", jsonFT, true, true, totalRowsWithoutLimit)
 }
 templ PostRecordValidate(httpStatus int) {
     switch httpStatus {

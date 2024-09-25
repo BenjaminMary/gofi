@@ -121,6 +121,56 @@ func PostRecordInsert(w http.ResponseWriter, r *http.Request) {
 	}
 	htmlComponents.PostRecordSingle(json.HttpStatus, jsonFT).Render(r.Context(), w)
 }
+func GetLenderBorrowerStats(w http.ResponseWriter, r *http.Request) {
+	// fmt.Println("in front part")
+	userContext := r.Context().Value(appdata.ContextUserKey).(*appdata.UserRequest)
+	lbListActive, lbListInactive := sqlite.GetLenderBorrowerStats(r.Context(), appdata.DB, userContext.GofiID, false)
+	lbIDstr := chi.URLParam(r, "lbID")
+	var lbIDint int
+	if len(lbListActive) == 0 {
+		lbIDint = 0
+	} else if lbIDstr == "" || lbIDstr == "0" {
+		lbIDint = lbListActive[0].ID
+	} else {
+		lbIDint, _ = strconv.Atoi(lbIDstr)
+	}
+	ftList1, ftList2, lbName := sqlite.GetLenderBorrowerDetailedStats(r.Context(), appdata.DB, userContext.GofiID, lbIDint)
+	htmlComponents.GetLenderBorrowerStats(lbListActive, lbListInactive, ftList1, ftList2, lbName, lbIDint).Render(r.Context(), w)
+}
+func GetLendBorrowRecord(w http.ResponseWriter, r *http.Request) {
+	jsonFT := api.GetRecords(w, r, true)
+	jsonFTlist := jsonFT.AnyStruct.([]appdata.FinanceTracker)
+	jsonUP := api.GetParam(w, r, true, "type", "basic", false)
+	jsonUserParam := jsonUP.AnyStruct.(appdata.UserParams)
+	currentTime := time.Now()
+	currentDate := currentTime.Format(time.DateOnly) // YYYY-MM-DD
+	lbListActive, _ := sqlite.GetLenderBorrowerStats(r.Context(), appdata.DB, jsonUserParam.GofiID, true)
+	htmlComponents.GetLendBorrowRecord(jsonFTlist, jsonUserParam, currentDate, lbListActive).Render(r.Context(), w)
+}
+func PostLendOrBorrowRecord(w http.ResponseWriter, r *http.Request) {
+	json := api.PostLendOrBorrowRecords(w, r, true)
+	jsonFT := appdata.FinanceTracker{}
+	if json.IsValidResponse {
+		jsonFT = json.AnyStruct.(appdata.FinanceTracker)
+		jsonFT.DateDetails.MonthStr = appdata.MonthIto3A(jsonFT.DateDetails.Month)
+		api.GetCategoryIcon(w, r, true, jsonFT.Category, &jsonFT.CategoryDetails)
+	}
+	htmlComponents.PostRecordSingle(json.HttpStatus, jsonFT).Render(r.Context(), w)
+}
+func PostLenderBorrowerStateChange(w http.ResponseWriter, r *http.Request) {
+	// json := api.PostLenderBorrowerStateChange(w, r, true)
+	// htmlComponents.PostLenderBorrowerStateChange(json.HttpStatus).Render(r.Context(), w)
+
+	api.PostLenderBorrowerStateChange(w, r, true)
+	//reload the get page
+	GetLenderBorrowerStats(w, r)
+}
+func PostUnlinkLendOrBorrowRecords(w http.ResponseWriter, r *http.Request) {
+	api.PostUnlinkLendOrBorrowRecords(w, r, true)
+	//reload the get page
+	GetLenderBorrowerStats(w, r)
+}
+
 func GetRecordTransfer(w http.ResponseWriter, r *http.Request) {
 	jsonFT := api.GetRecords(w, r, true)
 	jsonFTlist := jsonFT.AnyStruct.([]appdata.FinanceTracker)

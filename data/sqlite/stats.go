@@ -430,3 +430,137 @@ func GetBudgetStats(ctx context.Context, db *sql.DB, uc *appdata.UserCategories)
 		// fmt.Printf("Name: %v, Amount: %v\n", uc.Categories[i].Name, uc.Categories[i].BudgetAmount)
 	}
 }
+
+func GetLenderBorrowerStats(ctx context.Context, db *sql.DB, gofiID int, activeListOnly bool) ([]appdata.LenderBorrower, []appdata.LenderBorrower) {
+	// list the lenders and borrowers
+	var lbListActive, lbListInactive []appdata.LenderBorrower
+	q1 := ` 
+		SELECT id, name, isActive
+		FROM lenderBorrower
+		WHERE gofiID = ?;
+	`
+	q2 := ` 
+		SELECT SUM(ft.priceIntx100)
+		FROM lenderBorrower AS lb
+			INNER JOIN specificRecordsByMode AS srm ON lb.id = srm.idLenderBorrower
+			INNER JOIN financeTracker AS ft ON srm.idFinanceTracker = ft.id
+		WHERE lb.id = ?
+			AND lb.gofiID = ?
+			AND srm.mode IN (?,?)
+		GROUP BY lb.id;
+	`
+	rows, err := db.QueryContext(ctx, q1, gofiID)
+	if err != nil {
+		fmt.Printf("error on GetLenderBorrowerStats query1: %v\n", err)
+	}
+	for rows.Next() {
+		var lb appdata.LenderBorrower
+		var isActive int
+		if err := rows.Scan(&lb.ID, &lb.Name, &isActive); err != nil {
+			fmt.Println("error in loop on GetLenderBorrowerStats query2")
+			log.Fatal(err)
+		}
+		if activeListOnly {
+			if isActive == 1 {
+				lbListActive = append(lbListActive, lb)
+			}
+		} else {
+			err = db.QueryRowContext(ctx, q2, lb.ID, gofiID, 1, 2).Scan(&lb.AmountLentBorrowedIntx100)
+			switch {
+			case err == sql.ErrNoRows:
+				fmt.Println("GetLenderBorrowerStats err3")
+				continue
+			case err != nil:
+				fmt.Printf("GetLenderBorrowerStats err4: %v\n", err)
+				continue
+			}
+			err = db.QueryRowContext(ctx, q2, lb.ID, gofiID, 3, 4).Scan(&lb.AmountSentReceivedIntx100)
+			switch {
+			case err == sql.ErrNoRows:
+				fmt.Println("GetLenderBorrowerStats no row in the received part, set to 0")
+				lb.AmountSentReceivedIntx100 = 0
+			case err != nil:
+				fmt.Printf("GetLenderBorrowerStats err5: %v\n", err)
+				continue
+			}
+			lb.AmountLentBorrowedStr2Decimals = ConvertPriceIntToStr(lb.AmountLentBorrowedIntx100, false)
+			lb.AmountSentReceivedStr2Decimals = ConvertPriceIntToStr(lb.AmountSentReceivedIntx100, false)
+			if isActive == 1 {
+				lbListActive = append(lbListActive, lb)
+			} else if isActive == 0 {
+				lbListInactive = append(lbListInactive, lb)
+			}
+		}
+	}
+	rows.Close()
+	// fmt.Printf("lbList: %#v\n", lbList)
+	return lbListActive, lbListInactive
+}
+
+func GetLenderBorrowerDetailedStats(ctx context.Context, db *sql.DB, gofiID int, lbID int) ([]appdata.FinanceTracker, []appdata.FinanceTracker, string) {
+	var ftList1, ftList2 []appdata.FinanceTracker
+	var lbName string
+	q1 := ` 
+		SELECT name
+		FROM lenderBorrower
+		WHERE gofiID = ?
+			AND isActive = 1
+			AND id = ?;
+	`
+	err := db.QueryRowContext(ctx, q1, gofiID, lbID).Scan(&lbName)
+	switch {
+	case err == sql.ErrNoRows:
+		fmt.Println("GetLenderBorrowerDetailedStats err1")
+		return ftList1, ftList2, lbName
+	case err != nil:
+		fmt.Printf("GetLenderBorrowerDetailedStats err2: %v\n", err)
+		return ftList1, ftList2, lbName
+	}
+	q2 := ` 
+		SELECT ft.id, ft.dateIn, ft.account, ft.category, ft.priceIntx100, ft.product, ft.mode,
+			ft.year, ft.month, ft.day,
+			ifnull(c.iconCodePoint,'e90a') AS icp, ifnull(c.colorHEX,'#808080') AS ch
+		FROM specificRecordsByMode AS srm
+			INNER JOIN financeTracker AS ft ON srm.idFinanceTracker = ft.id
+			LEFT JOIN category AS c ON c.category = fT.category AND c.gofiID = fT.gofiID
+		WHERE srm.idLenderBorrower = ?
+			AND srm.gofiID = ?
+			AND srm.mode IN (?,?)
+		ORDER BY ft.dateIn DESC, ft.id DESC;
+	`
+	rows, err := db.QueryContext(ctx, q2, lbID, gofiID, 1, 2)
+	if err != nil {
+		fmt.Printf("error on GetLenderBorrowerDetailedStats query1: %v\n", err)
+	}
+	for rows.Next() {
+		var ft appdata.FinanceTracker
+		if err := rows.Scan(&ft.ID, &ft.Date, &ft.Account, &ft.Category, &ft.PriceIntx100, &ft.Product, &ft.Mode,
+			&ft.DateDetails.Year, &ft.DateDetails.Month, &ft.DateDetails.Day,
+			&ft.CategoryDetails.CategoryIcon, &ft.CategoryDetails.CategoryColor); err != nil {
+			fmt.Println("error in loop on GetLenderBorrowerDetailedStats query2")
+			log.Fatal(err)
+		}
+		ft.DateDetails.MonthStr = appdata.MonthIto3A(ft.DateDetails.Month)
+		ft.FormPriceStr2Decimals = ConvertPriceIntToStr(ft.PriceIntx100, true)
+		ftList1 = append(ftList1, ft)
+	}
+	rows.Close()
+	rows, err = db.QueryContext(ctx, q2, lbID, gofiID, 3, 4)
+	if err != nil {
+		fmt.Printf("error on GetLenderBorrowerDetailedStats query3: %v\n", err)
+	}
+	for rows.Next() {
+		var ft appdata.FinanceTracker
+		if err := rows.Scan(&ft.ID, &ft.Date, &ft.Account, &ft.Category, &ft.PriceIntx100, &ft.Product, &ft.Mode,
+			&ft.DateDetails.Year, &ft.DateDetails.Month, &ft.DateDetails.Day,
+			&ft.CategoryDetails.CategoryIcon, &ft.CategoryDetails.CategoryColor); err != nil {
+			fmt.Println("error in loop on GetLenderBorrowerDetailedStats query4")
+			log.Fatal(err)
+		}
+		ft.DateDetails.MonthStr = appdata.MonthIto3A(ft.DateDetails.Month)
+		ft.FormPriceStr2Decimals = ConvertPriceIntToStr(ft.PriceIntx100, true)
+		ftList2 = append(ftList2, ft)
+	}
+	rows.Close()
+	return ftList1, ftList2, lbName
+}

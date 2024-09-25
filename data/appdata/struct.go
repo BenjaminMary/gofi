@@ -52,6 +52,7 @@ type FinanceTracker struct {
 	CommentString         string
 	Checked               bool
 	DateChecked           string
+	Mode                  int `json:"-"`
 	Exported              bool
 }
 
@@ -59,18 +60,92 @@ func (a *FinanceTracker) Bind(r *http.Request) error {
 	// trigger an error if field = "" or is missing/wrong
 	// fmt.Printf("Date: %v, Account: %v, Category: %v, FormPriceStr2Decimals: %v\n", a.Date, a.Account, a.Category, a.FormPriceStr2Decimals)
 	if len(a.Date) != 10 {
+		fmt.Println("missing Date")
 		return errors.New("missing required field")
 	}
 	if len(a.Account) == 0 {
+		fmt.Println("missing Account")
 		return errors.New("missing required field")
 	}
 	if !(a.PriceDirection == "expense" || a.PriceDirection == "gain") {
+		fmt.Println("missing PriceDirection")
 		return errors.New("missing required field")
 	}
 	if len(a.FormPriceStr2Decimals) == 0 {
+		fmt.Println("missing FormPriceStr2Decimals")
 		return errors.New("missing required field")
 	}
 	if len(a.Category) == 0 {
+		fmt.Println("missing Category")
+		return errors.New("missing required field")
+	}
+	return nil
+}
+
+type LenderBorrower struct {
+	ID                             int
+	IDstr                          string `form:"lbID" json:"lbID"`
+	Name                           string
+	AmountLentBorrowedIntx100      int
+	AmountLentBorrowedStr2Decimals string
+	AmountSentReceivedIntx100      int
+	AmountSentReceivedStr2Decimals string
+	State                          string `form:"lbState" json:"lbState"`
+	IsActive                       int
+}
+
+func (a *LenderBorrower) Bind(r *http.Request) error {
+	var err error
+	a.ID, err = strconv.Atoi(a.IDstr)
+	if err != nil || a.ID < 1 {
+		fmt.Println("missing ID")
+		return errors.New("missing required field")
+	}
+	if a.State == "activate" {
+		a.IsActive = 1
+	} else if a.State == "deactivate" {
+		a.IsActive = 0
+	} else {
+		fmt.Println("missing State")
+		return errors.New("missing required field")
+	}
+	return nil
+}
+
+type LendBorrow struct {
+	ID      					int
+	ModeStr 					string `form:"modeStr" binding:"required" json:"modeStr"`
+	ModeInt 					int    `form:"-" json:"modeInt"`
+	Who     					string `form:"who" binding:"required" json:"who"`
+	CreateLenderBorrowerName 	string `form:"createLenderBorrowerName" json:"createLenderBorrowerName"`
+	FT      					FinanceTracker
+}
+
+func (a *LendBorrow) Bind(r *http.Request) error {
+	// trigger an error if field = "" or is missing/wrong
+	// fmt.Printf("Date: %v, Account: %v, Category: %v, FormPriceStr2Decimals: %v\n", a.Date, a.Account, a.Category, a.FormPriceStr2Decimals)
+	// fmt.Printf("a: %#v\n", a)
+	var err error
+	a.ModeInt, err = strconv.Atoi(a.ModeStr)
+	if err != nil || a.ModeInt < 1 || a.ModeInt > 4 {
+		fmt.Println("missing Mode")
+		return errors.New("missing required field")
+	}
+	if a.Who == "-" && len(a.CreateLenderBorrowerName) == 0 {
+		fmt.Println("missing Who & CreateLenderBorrowerName")
+		return errors.New("missing required field")
+	}
+	return nil
+}
+
+type IDlist struct {
+	IDsInOneString 	string `form:"checkedListLBid" binding:"required" json:"idsInOneString"`
+	IDlistStr 		[]string 
+	IDlistInt 		[]int 
+}
+func (a *IDlist) Bind(r *http.Request) error {
+	if len(a.IDsInOneString) < 1 {
+		fmt.Println("missing IDsInOneString")
 		return errors.New("missing required field")
 	}
 	return nil

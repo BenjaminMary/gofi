@@ -18,15 +18,20 @@ Features supported (all the data are registered in a local SQLite DB):
         - reset the budget each period
         - keep the rest of the last budget period and add it to the next
     - validate or cancel each record
+    - lend / borrow with registered tiers
     - import CSV files to insert/update data in bulk
     - export CSV files to keep/use all the data with other apps
-    - stats year by year with current balance available per account
-    - smartphone first front-end, tested on the viewport:
-        - Screen Width: 360 pixels
-        - Screen Height: 640 pixels
-        - [screen viewport on viewportsizer](https://viewportsizer.com/lite/)
+    - stats: 
+        - year by year with current balance available per account
+        - year by year or month by month per category
+    - smartphone first front-end
+        - tested on the viewport:
+            - Screen Width: 360 pixels
+            - Screen Height: 640 pixels
+            - [screen viewport on viewportsizer](https://viewportsizer.com/lite/)
+        - tested on Chrome for Android and Chrome for Windows Desktop
+            - if you have any visual trouble on a different Browser/OS combination, submit an issue
 - admin features
-    - ~~(optional) generate and manage backup~~ (with another app)
     - shutdown the application (also checkpoint SQLite, then clean the `db-shm` and `db-wal` files)
 
 
@@ -145,4 +150,6 @@ Delete    | DELETE (params) | DELETE
 ## GO struct usage
 - the HTML attribute `name` is used when a form is sent to the backend (application/x-www-form-urlencoded)
     - the used `name` in the HTML file must correspond to the struct name (case sensitive)
+    - the form use (this package)[https://github.com/ajg/form]
+    - possible to bind struct in struct by joining with `.` : `parent.child`
 - the struct `JSON name` is used for API calls with JSON body (case insensitive)
