@@ -2,58 +2,40 @@
 
 > ☑☐☒❗
 
+- ☐❗❗ passer l'affichage des boutons de l'accueil en option utilisateur
+    - possible de démarrer en commençant à mettre toutes les features non obligatoires dans une page dédiée 
+    - le + utile:
+        - saisie simple
+        - stats
+        - budgets
+        - stats prets
+        - autres options
+            - transfert
+            - enr reg
+            - pret / emprunt
+            - validation
+            - comptes
+            - catégos
+            - exp csv
+            - imp csv
+        - déco
+- ☐❗❗mini système de gestion de migration de la DB
+    - check coherence entre état de la DB actuel VS attendu via dernière migration
+    - table pour stocker l'ID de la dernière migration jouée 
 - ☐❗❗ système de gestion d'achat sur la durée
     - période prévisionnelle avant nouvel achat
-- ☐❗❗ système de gestion de prêt/emprunt
-    - faire un système de specific record générique, avec mode qui change le fonctionnement de la table 
-    - partie .csv, on peut complètement décoreller le .csv des tables
-    - tables
-        1. financeTracker: pour reconstruire les infos depuis le .csv, nécessite:
-            - int: mode
-            - int: id de liaison
-            - int: qui ? (texte dans le .csv)
-                - si texte introuvable dans la table, recréer un ID avec
-        2. lenderBorrower
-            - id
-            - actif ?
-            - nom (texte)
-            - nombre d'emprunt/pret
-            - montant total emprunté/prêté
-            - montant total remboursé
-
-    - écrit dans financeTracker OU table dédiée ?
-        1. financeTracker
-            - avantage+: 
-                - permet la modification via .csv
-                - ajoute de la valeur au mode payant 
-                    - pas de suppr en mode payant tant que remboursement pas arrivé à 0
-                    - limite d'utilisation de cette feature à X selon le niveau de paiement
-            - inconvénient-: 
-                - suppression auto impossible sur ce type de ligne pas encore à 0
-                - ajoute 
-        2. table dédiée + écriture simple dans financeTracker
-            - table dédiée avec ID correspondant à l'insert dans financeTracker
-            - avantage+: 
-                - permet de ne pas ajouter trop de champs inutiles dans financeTracker
-            - inconvénient-: 
-                - ne permet pas la modification en masse via .csv
-    - champs spécifiques:
-        - modes: 0=standard, 1=prêt, 2=remboursement prêt, 3=emprunt, 4=remboursement emprunt
-        - montant remboursé par défaut à 0
-        - à qui ou provenant de qui ? (liste dédiée)
-        - id de liaison (modes 2 et 4 réutilisent les ID des modes 1 et 3)
-    - lors d'un mode création de nouveau prêt ou emprunt:
-        - préciser pour qui via liste existante ou écriture libre
-        - obliger une désignation qui servira d'identifiant pour les remboursements
-    - lors d'un mode remboursement:
-        - préciser pour qui via liste
-        - retourner 
-    - page dédiée
-    - remboursement mensuel uniquement
-    - spécifier montant global 
-        - et remb mensuel: déterminer le temps restant avant remboursement complet
-        - et durée de remboursement: déterminer le montant mensuel
-    - récap par produit + récap par personne/entitée (avec liste des produits concernées)
+- ☐❗ système de gestion de prêt/emprunt
+    - ☐ faire une page front de recap par personne avec les montants du et remboursés
+        - ☑ ajouter un script js qui gère la sélection de ligne d'en tête pour afficher le détail associé (via bouton switch on/off ?)
+        - ☑ ajouter la gestion des noms des LB
+        - ☑ ajouter système permettant de retirer un lien entre un prêt/emprunt/remboursement avec un tier 
+        - ☐❗ partie saisie: mettre 2 modes (ou en JS désactiver la case création si mauvais mode?)
+            1. créer un prêt ou emprunt qui autorise une création de tier ou utilisation d'un tier existant
+            2. remboursement qui autorise uniquement l'utilisation d'un tier existant
+        - ☐❗ gérer le mode + lien au tier partie .csv (import + export)
+            - partie .csv, on peut complètement décoreller le .csv des tables
+            - faire en sorte de récupérer le nom du tier lorsque relié et vérifier l'id correspondant (potentielle création) lors d'un import
+    - ☑ faire un système de specific record générique, avec mode qui change le fonctionnement de la table 
 - stats, 
     - new apex chart, 
         - ☑ lines

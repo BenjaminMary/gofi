@@ -18,6 +18,7 @@ Features supported (all the data are registered in a local SQLite DB):
         - reset the budget each period
         - keep the rest of the last budget period and add it to the next
     - validate or cancel each record
+    - lend / borrow with registered tiers
     - import CSV files to insert/update data in bulk
     - export CSV files to keep/use all the data with other apps
     - stats: 
@@ -31,7 +32,6 @@ Features supported (all the data are registered in a local SQLite DB):
         - tested on Chrome for Android and Chrome for Windows Desktop
             - if you have any visual trouble on a different Browser/OS combination, submit an issue
 - admin features
-    - ~~(optional) generate and manage backup~~ (with another app)
     - shutdown the application (also checkpoint SQLite, then clean the `db-shm` and `db-wal` files)
 
 

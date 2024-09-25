@@ -19,12 +19,6 @@ CREATE TABLE IF NOT EXISTS lenderBorrower (
     gofiID INTEGER NOT NULL,
     name TEXT NOT NULL,
     isActive INTEGER DEFAULT 1
-    
-    -- dateFirstLentBorrowed TEXT DEFAULT '9999-12-31',
-    -- dateLastLentBorrowed TEXT DEFAULT '9999-12-31',
-    -- numberLentBorrowed INTEGER DEFAULT 0,
-    -- sumIntx100lentBorrowed INTEGER DEFAULT 0,
-    -- sumIntx100refunded INTEGER DEFAULT 0
 );
 
 --DROP TABLE IF EXISTS specificRecordsByMode;
