@@ -25,17 +25,9 @@
 - ☐❗❗ système de gestion d'achat sur la durée
     - période prévisionnelle avant nouvel achat
 - ☐❗ système de gestion de prêt/emprunt
-    - ☐ faire une page front de recap par personne avec les montants du et remboursés
-        - ☑ ajouter un script js qui gère la sélection de ligne d'en tête pour afficher le détail associé (via bouton switch on/off ?)
-        - ☑ ajouter la gestion des noms des LB
-        - ☑ ajouter système permettant de retirer un lien entre un prêt/emprunt/remboursement avec un tier 
-        - ☐❗ partie saisie: mettre 2 modes (ou en JS désactiver la case création si mauvais mode?)
-            1. créer un prêt ou emprunt qui autorise une création de tier ou utilisation d'un tier existant
-            2. remboursement qui autorise uniquement l'utilisation d'un tier existant
-        - ☐❗ gérer le mode + lien au tier partie .csv (import + export)
-            - partie .csv, on peut complètement décoreller le .csv des tables
-            - faire en sorte de récupérer le nom du tier lorsque relié et vérifier l'id correspondant (potentielle création) lors d'un import
-    - ☑ faire un système de specific record générique, avec mode qui change le fonctionnement de la table 
+    - ☐❗ gérer le mode + lien au tier partie .csv (import + export)
+        - partie .csv, on peut complètement décoreller le .csv des tables
+        - faire en sorte de récupérer le nom du tier lorsque relié et vérifier l'id correspondant (potentielle création) lors d'un import
 - stats, 
     - new apex chart, 
         - ☑ lines
@@ -49,7 +41,7 @@
             - ☑ ajouter 1 liste de catégo par défaut à l'ouverture de la page
             - ☑ ajouter un switch mois/année
             - ☑ ajouter un switch gains/dépense
-            - ☐ afficher les noms des catégories lors du clic/survol d'une catégo dans le graph
+            - ☐❗ afficher les noms des catégories lors du clic/survol d'une catégo dans le graph
             - ☑ retirer la fonctionnalité de grouper les catégories, inutile
 - ☐ faire des tests automatisés pour la partie front
 - ☐ ajout système de données récurrentes:
@@ -132,6 +124,15 @@
     - ☑ budget de dépense par catégorie
     - ☑ stats sur les budgets activés
     - ☒ info sur le budget en cours à la saisie ?
+- ☑ système de gestion de prêt/emprunt
+    - ☑ faire une page front de recap par personne avec les montants du et remboursés
+        - ☑ ajouter un script js qui gère la sélection de ligne d'en tête pour afficher le détail associé (via bouton switch on/off ?)
+        - ☑ ajouter la gestion des noms des LB
+        - ☑ ajouter système permettant de retirer un lien entre un prêt/emprunt/remboursement avec un tier 
+        - ☑ partie saisie: en JS, désactiver la case création si mauvais mode
+            1. créer un prêt ou emprunt qui autorise une création de tier ou utilisation d'un tier existant
+            2. remboursement qui autorise uniquement l'utilisation d'un tier existant
+    - ☑ faire un système de specific record générique, avec mode qui change le fonctionnement de la table 
 
 ## Infos
 - PWA

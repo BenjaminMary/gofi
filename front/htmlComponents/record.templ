@@ -349,11 +349,23 @@ script amountDirection() {
 }
 script createLenderBorrower() {
     // this script only let 1 type of LenderBorrowerName field to be used 
+    // also forbid the create field when in refund mode
     document.getElementById("createLenderBorrowerName").addEventListener('click', function(c){
         document.getElementById("who").value = "-";
     });
     document.getElementById("who").addEventListener('change', function(w){
         document.getElementById("createLenderBorrowerName").value = "";
+    });
+    document.getElementById("modeStr").addEventListener('change', function(w){
+        modeValue = this.value;
+        console.log("modeValue: " + modeValue)
+        if (["1","2"].includes(modeValue)){ //lbMode
+            document.getElementById('createLenderBorrowerName').disabled = false;
+        }
+        else if (["3","4"].includes(modeValue)){ //refundMode
+            document.getElementById('createLenderBorrowerName').disabled = true;
+        }
+        else {console.log("unhandled")};
     });
 }
 templ PostLenderBorrowerStateChange(httpStatus int) {
