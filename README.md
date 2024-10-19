@@ -7,23 +7,25 @@ The purpose of this web app is to record and manage your money.
 The HTML files are currently only in french.
 
 Features supported (all the data are registered in a local SQLite DB):
-- main features
-    - create users
-    - auth with 1 active session per user
-    - save general parameters preferences per user
+- basic features for users
     - record expenses per user, account and category
+    - stats: 
+        - year by year with current balance available per account
+        - year by year or month by month per category
+- advanced features for users
     - manage recurrent expenses or gains
-    - handle multiple bank accounts per user and allow transfer between them
     - handle multiple categories per user and allow budgeting for each, 2 budgeting options:
         - reset the budget each period
         - keep the rest of the last budget period and add it to the next
+    - handle multiple bank accounts per user and allow transfer between them
     - validate or cancel each record
     - lend / borrow with registered tiers
     - import CSV files to insert/update data in bulk
     - export CSV files to keep/use all the data with other apps
-    - stats: 
-        - year by year with current balance available per account
-        - year by year or month by month per category
+- generic features in app
+    - create users
+    - auth with 1 active session per user
+    - save general parameters preferences per user
     - smartphone first front-end
         - tested on the viewport:
             - Screen Width: 360 pixels
