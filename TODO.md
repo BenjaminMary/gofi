@@ -2,23 +2,6 @@
 
 > ☑☐☒❗
 
-- ☐❗❗ passer l'affichage des boutons de l'accueil en option utilisateur
-    - possible de démarrer en commençant à mettre toutes les features non obligatoires dans une page dédiée 
-    - le + utile:
-        - saisie simple
-        - stats
-        - budgets
-        - stats prets
-        - autres options
-            - transfert
-            - enr reg
-            - pret / emprunt
-            - validation
-            - comptes
-            - catégos
-            - exp csv
-            - imp csv
-        - déco
 - ☐❗❗mini système de gestion de migration de la DB
     - check coherence entre état de la DB actuel VS attendu via dernière migration
     - table pour stocker l'ID de la dernière migration jouée 
@@ -133,6 +116,22 @@
             1. créer un prêt ou emprunt qui autorise une création de tier ou utilisation d'un tier existant
             2. remboursement qui autorise uniquement l'utilisation d'un tier existant
     - ☑ faire un système de specific record générique, avec mode qui change le fonctionnement de la table 
+- ☑ passer l'affichage des boutons de l'accueil via 2 modes, simple et avancé
+    - le + utile:
+        - saisie simple
+        - stats
+        - budgets
+        - stats prets
+        - déco
+    - le reste:
+        - transfert
+        - enr reg
+        - pret / emprunt
+        - validation
+        - comptes
+        - catégos
+        - exp csv
+        - imp csv
 
 ## Infos
 - PWA

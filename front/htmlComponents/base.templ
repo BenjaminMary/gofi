@@ -201,25 +201,25 @@ templ indexLinksConnected(IsAdmin bool) {
                 <svg width="24" height="24" viewBox="0 0 24 24"><use xlink:href="/img/icons.svg#lucide-notebook-pen"></use></svg>
                 Saisie simple
             </a></li>
-            <li><a href="/record/transfer" role="button" class="contrast outline">
+            <li id="1" hidden><a href="/record/transfer" role="button" class="contrast outline">
                 <!-- arrow-right-left -->
                 <svg width="24" height="24" viewBox="0 0 24 24"><use xlink:href="/img/icons.svg#lucide-arrow-right-left"></use></svg>
                 Transfert entre comptes
             </a></li>
-            <li><a href="/record/recurrent" role="button" class="contrast outline">
+            <li id="2" hidden><a href="/record/recurrent" role="button" class="contrast outline">
                 <!-- refresh clockwise -->
                 <svg width="24" height="24" viewBox="0 0 24 24"><use xlink:href="/img/icons.svg#feather-refresh-cw"></use></svg>
                 Enregistrements réguliers
             </a></li>
-            <li><a href="/record/lend-or-borrow" role="button" class="contrast outline">
+            <li id="3" hidden><a href="/record/lend-or-borrow" role="button" class="contrast outline">
                 <!-- hand coins -->
                 <svg width="24" height="24" viewBox="0 0 24 24"><use xlink:href="/img/icons.svg#lucide-hand-coins"></use></svg>
                 Prêt / Emprunt
             </a></li>
         </ul></nav></aside>
-        <hr/>
-        <h5 class="center">Validation</h5>
-        <aside><nav class="center"><ul>
+        <hr id="4" hidden/>
+        <h5 id="5" hidden class="center">Validation</h5>
+        <aside id="6" hidden><nav class="center"><ul>
             <li><a href="/record/validate-or-cancel" role="button" class="contrast outline">
                 <!-- check-square -->
                 <svg width="24" height="24" viewBox="0 0 24 24" stroke="currentColor"><use xlink:href="/img/icons.svg#feather-check-square"></use></svg>
@@ -267,9 +267,9 @@ templ indexLinksConnected(IsAdmin bool) {
                 Liste des catégories
             </a></li>
         </ul></nav></aside>
-        <hr/>
-        <h5 class="center">Gestion des données en masse</h5>
-        <aside><nav class="center"><ul>
+        <hr id="7" hidden/>
+        <h5 id="8" hidden class="center">Gestion des données en masse</h5>
+        <aside id="9" hidden><nav class="center"><ul>
             <li><a href="/csv/export" role="button" class="contrast outline">
                 <!-- file text -->
                 <svg width="24" height="24" viewBox="0 0 24 24"><use xlink:href="/img/icons.svg#feather-file-text"></use></svg>
@@ -361,6 +361,13 @@ templ IndexHtmlContent(json *appdata.UserRequest) {
                 @navThemeSwitcher()
                 if json.IsAuthenticated {
                     @gofiImg(json.Email)
+                    <label for="switchMode" class="center">
+                        Mode <small>(permet d'afficher + ou - d'options)</small> : <br/>
+                        avancé 
+                        <input type="checkbox" id="switchMode" name="switchMode" role="switch" checked />
+                        simple
+                    </label>
+                    <hr/>
                     @indexLinksConnected(json.IsAdmin)
                 } else {
                     @gofiImg("")
@@ -369,6 +376,18 @@ templ IndexHtmlContent(json *appdata.UserRequest) {
                 @infos()
             </main>
             @BotScriptThemeSwitcher()
+            @showOrHideAdvancedOptions()
         </body>
     </html>
+}
+script showOrHideAdvancedOptions() {
+    // this script will hide advanced options by default and show them after clicking on a switch button
+    var array = ["1","2","3","4","5","6","7","8","9"];
+    document.getElementById("switchMode").addEventListener('click', function(e){
+        boolValue = this.checked;
+        // console.log(boolValue);
+        for (var i = 0; i < array.length; i++) {
+            document.getElementById(array[i]).hidden = boolValue;
+        };
+    });
 }

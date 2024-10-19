@@ -249,6 +249,8 @@ templ GetRecordInsert(jsonFT []appdata.FinanceTracker, jsonUP appdata.UserParams
 
                 @Nav("top", "/", "/img/icons.svg#feather-home", "Accueil", "contrast outline",
                     "/record/transfer", "/img/icons.svg#lucide-arrow-right-left", "Transfert", "contrast")
+                @Nav("none", "/record/recurrent", "/img/icons.svg#feather-refresh-cw", "Enr. réguliers", "contrast",
+                    "/record/lend-or-borrow", "/img/icons.svg#lucide-hand-coins", "Prêt/Emprunt", "contrast")
             </main>
             @BotScriptThemeSwitcher()
             @BotScriptHTMXhandleError()
@@ -438,6 +440,8 @@ templ GetRecordTransfer(jsonFT []appdata.FinanceTracker, jsonUP appdata.UserPara
 
                 @Nav("top", "/", "/img/icons.svg#feather-home", "Accueil", "contrast outline",
                     "/record/insert", "/img/icons.svg#lucide-notebook-pen", "Saisie", "contrast")
+                @Nav("none", "/record/recurrent", "/img/icons.svg#feather-refresh-cw", "Enr. réguliers", "contrast",
+                    "/record/lend-or-borrow", "/img/icons.svg#lucide-hand-coins", "Prêt/Emprunt", "contrast")
             </main>
             @BotScriptThemeSwitcher()
             @BotScriptHTMXhandleError()
@@ -654,7 +658,9 @@ templ GetRecordRecurrent(jsonRR []appdata.RecurrentRecord, jsonFT []appdata.Fina
                     </p>
                 </section>
                 @Nav("top", "/", "/img/icons.svg#feather-home", "Accueil", "contrast outline",
-                    "/record/transfer", "/img/icons.svg#lucide-arrow-right-left", "Transfert", "contrast")
+                    "/record/insert", "/img/icons.svg#lucide-notebook-pen", "Saisie", "contrast")
+                @Nav("none", "/record/transfer", "/img/icons.svg#lucide-arrow-right-left", "Transfert", "contrast",
+                    "/record/lend-or-borrow", "/img/icons.svg#lucide-hand-coins", "Prêt/Emprunt", "contrast")
             </main>
             @BotScriptThemeSwitcher()
             @BotScriptHTMXhandleError()
@@ -1023,6 +1029,8 @@ templ GetRecordValidateOrCancel(jsonFT []appdata.FinanceTracker, jsonUP appdata.
                     </div> <!-- via header: "HX-Retarget", "#forbidden" -->
                 </section>
                 @Nav("top", "/", "/img/icons.svg#feather-home", "Accueil", "contrast outline",
+                    "/record/insert", "/img/icons.svg#lucide-notebook-pen", "Saisie", "contrast")
+                @Nav("none", "/record/recurrent", "/img/icons.svg#feather-refresh-cw", "Enr. réguliers", "contrast",
                     "/record/transfer", "/img/icons.svg#lucide-arrow-right-left", "Transfert", "contrast")
             </main>
             @BotScriptThemeSwitcher()
