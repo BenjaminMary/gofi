@@ -259,6 +259,11 @@ templ indexLinksConnected(IsAdmin bool) {
             <li><a href="/param" role="button" class="contrast outline">
                 <!-- tool -->
                 <svg width="24" height="24" viewBox="0 0 24 24"><use xlink:href="/img/icons.svg#feather-tool"></use></svg>
+                Paramètres divers
+            </a></li>
+            <li><a href="/param/account" role="button" class="contrast outline">
+                <!-- tool -->
+                <svg width="24" height="24" viewBox="0 0 24 24"><use xlink:href="/img/icons.svg#feather-tool"></use></svg>
                 Liste des comptes
             </a></li>
             <li><a href="/param/category" role="button" class="contrast outline">
@@ -376,7 +381,9 @@ templ IndexHtmlContent(json *appdata.UserRequest) {
                 @infos()
             </main>
             @BotScriptThemeSwitcher()
-            @showOrHideAdvancedOptions()
+            if json.IsAuthenticated {
+                @showOrHideAdvancedOptions()
+            }
         </body>
     </html>
 }

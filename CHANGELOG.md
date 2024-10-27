@@ -1,6 +1,9 @@
 # Changelog
 
 ## v1 rework with go-chi
+- 2024-10-27 : 
+    - fix: quirks mode on most pages
+    - feat: split account from other params
 - 2024-10-19 : index page options rework, simple and advanced versions
 - 2024-09-25 : big new feature, lend and borrow
 - 2024-08-04 : 

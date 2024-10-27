@@ -169,6 +169,7 @@ func (s *Server) MountFrontHandlers() {
 			// PARAMS
 			r.Route("/param", func(r chi.Router) {
 				r.Get("/", front.GetParam)
+				r.Get("/account", front.GetParamAccount)
 				r.Post("/account", front.PostParamAccount)
 				r.Post("/category-rendering", front.PostParamCategoryRendering)
 				r.Get("/category", front.GetParamCategory)

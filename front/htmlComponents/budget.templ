@@ -6,7 +6,8 @@ import (
 )
 
 templ GetBudget(Year int, uc *appdata.UserCategories) {
-    <html>
+    <!DOCTYPE html>
+    <html lang="fr">
         <head>
             @Header()
             // @TopScriptHTMX()
@@ -52,7 +53,8 @@ templ GetBudget(Year int, uc *appdata.UserCategories) {
 }
 
 templ GetLenderBorrowerStats(lbListActive []appdata.LenderBorrower, lbListInactive []appdata.LenderBorrower, ftList1 []appdata.FinanceTracker, ftList2 []appdata.FinanceTracker, lbName string, lbIDint int) {
-    <html>
+    <!DOCTYPE html>
+    <html lang="fr">
         <head>
             @Header()
             // @TopScriptHTMX()

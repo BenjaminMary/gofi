@@ -192,7 +192,8 @@ templ addBotRows(totalRowsWithoutLimit string) {
 }
 
 templ GetRecordInsert(jsonFT []appdata.FinanceTracker, jsonUP appdata.UserParams, currentDate string) {
-    <html>
+    <!DOCTYPE html>
+    <html lang="fr">
         <head>
             @Header()
             @TopScriptHTMX()
@@ -261,7 +262,8 @@ templ GetRecordInsert(jsonFT []appdata.FinanceTracker, jsonUP appdata.UserParams
 
 
 templ GetLendBorrowRecord(jsonFT []appdata.FinanceTracker, jsonUP appdata.UserParams, currentDate string, lbListActive []appdata.LenderBorrower) {
-    <html>
+    <!DOCTYPE html>
+    <html lang="fr">
         <head>
             @Header()
             @TopScriptHTMX()
@@ -380,7 +382,8 @@ templ PostLenderBorrowerStateChange(httpStatus int) {
 }
 
 templ GetRecordTransfer(jsonFT []appdata.FinanceTracker, jsonUP appdata.UserParams, currentDate string) {
-    <html>
+    <!DOCTYPE html>
+    <html lang="fr">
         <head>
             @Header()
             @TopScriptHTMX()
@@ -465,7 +468,8 @@ templ GetRecordTransfer(jsonFT []appdata.FinanceTracker, jsonUP appdata.UserPara
 }
 
 templ GetRecordRecurrent(jsonRR []appdata.RecurrentRecord, jsonFT []appdata.FinanceTracker, jsonUP appdata.UserParams, currentDate string) {
-    <html>
+    <!DOCTYPE html>
+    <html lang="fr">
         <head>
             @Header()
             @TopScriptHTMX()
@@ -851,7 +855,8 @@ templ infoFilter() {
 }
 
 templ GetRecordValidateOrCancel(jsonFT []appdata.FinanceTracker, jsonUP appdata.UserParams, currentDate string, totalRowsWithoutLimit string) {
-    <html>
+    <!DOCTYPE html>
+    <html lang="fr">
         <head>
             @Header()
             @TopScriptHTMX()

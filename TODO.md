@@ -2,10 +2,10 @@
 
 > ☑☐☒❗
 
-- ☐❗❗mini système de gestion de migration de la DB
+- ☐❗mini système de gestion de migration de la DB
     - check coherence entre état de la DB actuel VS attendu via dernière migration
     - table pour stocker l'ID de la dernière migration jouée 
-- ☐❗❗ système de gestion d'achat sur la durée
+- ☐❗ système de gestion d'achat sur la durée
     - période prévisionnelle avant nouvel achat
 - ☐❗ système de gestion de prêt/emprunt
     - ☐❗ gérer le mode + lien au tier partie .csv (import + export)
@@ -30,6 +30,8 @@
 - ☐ ajout système de données récurrentes:
     - ☐ améliorer l'UI en bloquant l'espace via `visibility: hidden`, permettra de ne plus faire de trou dans la page au changement
         - vérif si bien impossible de cliquer sur l'elem invisible, sinon ajouter un `disable`
+- ☐ refonte page de gestion des comptes:
+    - ☐ refonte page de gestion des comptes
 - ☐ simplifier les catégories:
     - ☐ ajouter 2 niveaux de catégories, avec en mode simple 1 seul niveau obligatoire
 - ☐ ajout préférences utilisateur:

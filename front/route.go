@@ -55,6 +55,11 @@ func GetParam(w http.ResponseWriter, r *http.Request) {
 	jsonUserParam := json.AnyStruct.(appdata.UserParams)
 	htmlComponents.GetParam(jsonUserParam).Render(r.Context(), w)
 }
+func GetParamAccount(w http.ResponseWriter, r *http.Request) {
+	json := api.GetParam(w, r, true, "", "", false)
+	jsonUserParam := json.AnyStruct.(appdata.UserParams)
+	htmlComponents.GetParamAccount(jsonUserParam).Render(r.Context(), w)
+}
 func PostParamAccount(w http.ResponseWriter, r *http.Request) {
 	json := api.PostParamAccount(w, r, true)
 	jsonParam := &appdata.Param{}

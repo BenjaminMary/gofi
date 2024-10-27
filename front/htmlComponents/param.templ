@@ -16,7 +16,8 @@ script initRadioCheck(goCategoryRendering string) {
 }
 
 templ GetParam(json appdata.UserParams) {
-    <html>
+    <!DOCTYPE html>
+    <html lang="fr">
         <head>
             @Header()
             @TopScriptHTMX()
@@ -27,17 +28,6 @@ templ GetParam(json appdata.UserParams) {
                 <h1>Gérer les listes de données</h1>
                 <section id="form">
                     <div id="htmxInfo">
-                        <form hx-post="/param/account" 
-                            hx-target="#accountList" 
-                            hx-swap="outerHTML"
-                            hx-sync="this:drop"
-                            hx-on::after-request="if(event.detail.successful) document.getElementById('idSubmit1').remove();">
-                            <!-- Text -->
-                            <label for="ParamJSONstringData"><strong><small>Liste des comptes (séparer par des , sans espaces, ordre repris à l'identique)</small></strong></label>
-                            <input type="text" id="accountList" name="ParamJSONstringData" value={json.AccountListSingleString} required />
-                            @FormSubmit("idSubmit1", "/img/icons.svg#feather-save", "Enregistrer la liste des comptes")
-                        </form>
-                        <hr/>
                         <form hx-post="/param/category-rendering" 
                             hx-target="#refresh" 
                             hx-swap="innerHTML"
@@ -69,6 +59,40 @@ templ GetParam(json appdata.UserParams) {
             @BotScriptThemeSwitcher()
             @BotScriptHTMXhandleError()
             @initRadioCheck(json.CategoryRendering)
+        </body>
+    </html>
+}
+
+templ GetParamAccount(json appdata.UserParams) {
+    <!DOCTYPE html>
+    <html lang="fr">
+        <head>
+            @Header()
+            @TopScriptHTMX()
+            <link rel="stylesheet" href="/fonts/style.css"/>
+        </head>
+        <body class="container-fluid">
+            <main>
+                <h1>Gérer les listes de données</h1>
+                <section id="form">
+                    <div id="htmxInfo">
+                        <form hx-post="/param/account" 
+                            hx-target="#accountList" 
+                            hx-swap="outerHTML"
+                            hx-sync="this:drop"
+                            hx-on::after-request="if(event.detail.successful) document.getElementById('idSubmit1').remove();">
+                            <!-- Text -->
+                            <label for="ParamJSONstringData"><strong><small>Liste des comptes (séparer par des , sans espaces, ordre repris à l'identique)</small></strong></label>
+                            <input type="text" id="accountList" name="ParamJSONstringData" value={json.AccountListSingleString} required />
+                            @FormSubmit("idSubmit1", "/img/icons.svg#feather-save", "Enregistrer la liste des comptes")
+                        </form>
+                    </div>
+                </section>
+                @Nav("top", "/", "/img/icons.svg#feather-home", "Accueil", "contrast outline",
+                    "/param/category", "/img/icons.svg#feather-tool", "Catégories", "contrast")
+            </main>
+            @BotScriptThemeSwitcher()
+            @BotScriptHTMXhandleError()
         </body>
     </html>
 }
@@ -128,7 +152,8 @@ templ PostParamCategoryRendering(httpStatus int, ParamJSONstringData string) {
 }
 
 templ GetParamCategory(jsonUC *appdata.UserCategories, userCategoriesJson string, unhandledCategoryList []string) {
-    <html>
+    <!DOCTYPE html>
+    <html lang="fr">
         <head>
             @Header()
             @TopScriptHTMX()
