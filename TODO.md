@@ -2,6 +2,9 @@
 
 > ☑☐☒❗
 
+- ☐❗refonte de la page de gestion des comptes
+    - ajouter une possibilité de désactiver des comptes (attention à bien bloquer la création d'un compte déjà désactivé)
+
 - ☐❗mini système de gestion de migration de la DB
     - check coherence entre état de la DB actuel VS attendu via dernière migration
     - table pour stocker l'ID de la dernière migration jouée 

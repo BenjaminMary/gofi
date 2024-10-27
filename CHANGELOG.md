@@ -3,7 +3,7 @@
 ## v1 rework with go-chi
 - 2024-10-27 : 
     - fix: remove quirks mode on most pages and adjust padding
-    - feat: split account from other params
+    - feat: split account from other params and rework the page to be more user friendly
 - 2024-10-19 : index page options rework, simple and advanced versions
 - 2024-09-25 : big new feature, lend and borrow
 - 2024-08-04 : 

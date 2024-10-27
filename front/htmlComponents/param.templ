@@ -73,18 +73,68 @@ templ GetParamAccount(json appdata.UserParams) {
         </head>
         <body class="container-fluid">
             <main>
-                <h1>Gérer les listes de données</h1>
-                <section id="form">
-                    <div id="htmxInfo">
-                        <form hx-post="/param/account" 
-                            hx-target="#accountList" 
-                            hx-swap="outerHTML"
-                            hx-sync="this:drop"
-                            hx-on::after-request="if(event.detail.successful) document.getElementById('idSubmit1').remove();">
+                <h1>Gérer les comptes</h1>
+                <section id="createAccountSection">
+                    <details>
+                        <summary role="button" class="contrast">
+                            <strong>Créer un nouveau compte</strong>
+                        </summary>
+                        <h5>Créer un compte</h5>
+                        <div>
+                            <!-- info -->
+                            <svg width="24" height="24" viewBox="0 0 24 24" stroke="#FFC000"><use xlink:href="/img/icons.svg#feather-info"></use></svg>
+                            Abréger l'intitulé du compte pour gagner en lisibilité dans toute l'application.<br/>
+                            <small> 
+                                Il est conseillé de faire en 4 caractères maximum, exemples: 
+                                <ul>
+                                    <li>Crédit Agricole => "CA"</li>
+                                    <li>Société Générale => "SG"</li>
+                                    <li>Espèces => "Esp"</li>
+                                </ul>
+                            </small>
                             <!-- Text -->
-                            <label for="ParamJSONstringData"><strong><small>Liste des comptes (séparer par des , sans espaces, ordre repris à l'identique)</small></strong></label>
-                            <input type="text" id="accountList" name="ParamJSONstringData" value={json.AccountListSingleString} required />
-                            @FormSubmit("idSubmit1", "/img/icons.svg#feather-save", "Enregistrer la liste des comptes")
+                            <label for="accountToCreate">
+                                <!-- landmark = Compte -->
+                                <svg stroke="currenColor" width="18" heigth="18" viewBox="0 0 24 24"><use xlink:href="/img/icons.svg#lucide-landmark"></use></svg>
+                                Intitulé du compte
+                            </label>
+                            <input type="text" id="accountToCreate" name="ParamJSONstringData" required />
+                            <span id="infoText"></span>
+                            @FormSubmit("createAccount", "/img/icons.svg#feather-save", "Créer ce compte")
+                        </div>
+                        <hr/>
+                    </details>
+                </section>
+                <section id="listAndReorder">
+                    <small><i>
+                        Fonctionnement:
+                        <ul>
+                            <li>
+                                <!-- landmark = Compte -->
+                                <svg stroke="currenColor" width="18" heigth="18" viewBox="0 0 24 24"><use xlink:href="/img/icons.svg#lucide-landmark"></use></svg>
+                                intitulé du compte.
+                            </li>
+                        </ul>
+                        <ul>
+                            <li>
+                                <!-- arrow-up-down -->
+                                <svg width="18" height="18" viewBox="0 0 24 24"><use xlink:href="/img/icons.svg#lucide-arrow-up-down"></use></svg>
+                                réordonne les comptes. L'ordre est utilisé dans les listes de sélection d'un compte.
+                            </li>
+                        </ul>
+                    </i></small>
+                    <table id="accountTable" class="striped">
+                        @accountTable(json.AccountList)
+                    </table>
+                    <div id="htmxInfo">
+                        <form id="formAccount"
+                            hx-post="/param/account" 
+                            hx-trigger="onArrowClick" 
+                            hx-target="#accountTable" 
+                            hx-swap="innerHTML"
+                            hx-sync="this:drop">
+                            <!-- Text -->
+                            <input type="text" id="accountList" name="ParamJSONstringData" value={json.AccountListSingleString} required readonly hidden />
                         </form>
                     </div>
                 </section>
@@ -93,30 +143,104 @@ templ GetParamAccount(json appdata.UserParams) {
             </main>
             @BotScriptThemeSwitcher()
             @BotScriptHTMXhandleError()
+            @botScriptAddClickEventToTableAccButtons(json.AccountList)
         </body>
     </html>
 }
-templ PostParamAccount(httpStatus int, ParamJSONstringData string) {
+templ accountTable(accountList []string) {
+    <thead>
+        <tr>
+            <th scope="col">
+                <!-- landmark = Compte -->
+                <svg stroke="currenColor" width="28" heigth="28" viewBox="0 0 24 24"><use xlink:href="/img/icons.svg#lucide-landmark"></use></svg>
+            </th>
+            <th scope="col">
+                <!-- arrow-up-down -->
+                <svg width="24" height="24" viewBox="0 0 24 24"><use xlink:href="/img/icons.svg#lucide-arrow-up-down"></use></svg>
+            </th>
+        </tr>
+    </thead>
+    <tbody id="tableAccount">
+        for i, account := range accountList {
+            <tr id={ "tr-" + account }>
+                <td>
+                    { account }
+                </td>
+                <td>
+                    // the arrow button ID is the real name of the matching account : u = up
+                    if i > 0 {
+                        // don't show the arrow up on first account
+                        <button id={ "u-" + account + "-" + accountList[i-1] } class="round-button small-padding">
+                            <!-- lucide-arrow-up -->
+                            <svg width="18" height="18" viewBox="0 0 24 24"><use xlink:href="/img/icons.svg#lucide-arrow-up"></use></svg>
+                        </button>
+                    }
+                </td>
+            </tr>
+        }
+    </tbody>
+}
+script botScriptAddClickEventToTableAccButtons(accountList []string) {
+    var accountList = { accountList };
+    var accountArray = accountList.accountList;
+    // this part of the script adds click events to create account
+    document.getElementById("createAccount").addEventListener('click', function(c){
+        var accountToCreate = document.getElementById("accountToCreate").value.trim();
+        if (accountArray.indexOf(accountToCreate) == -1) {
+            accountArray.push(accountToCreate);
+            document.getElementById("accountList").value = accountArray.toString();
+            htmx.trigger("#formAccount", "onArrowClick");
+            document.getElementById('infoText').innerHTML = "Compte créé.";
+        } else {
+            console.log("Requête annulée car nom de compte déjà existant.")
+            document.getElementById('infoText').innerHTML = "Impossible de créer un compte déjà existant.";
+        }
+        document.getElementById("accountToCreate").value = "";
+        setTimeout(function() { document.getElementById('infoText').innerHTML = ""; }, 3000);
+    });
+    // this part of the script adds click events to reorder accounts with buttons under tables
+    var childArrowButtons = document.getElementById('tableAccount').getElementsByTagName('button');
+    const swapPositions = (array, a ,b) => {
+        [array[a], array[b]] = [array[b], array[a]];
+    };
+    for (var i = 0; i < childArrowButtons.length; i++) {
+        strButtonId = childArrowButtons[i].id;
+        // up arrow, patch the category to reorder it up 1 time
+        document.getElementById(strButtonId).addEventListener('click', function(r){
+            bID1 = this.id.split("-")[1];
+            bID2 = this.id.split("-")[2];
+            swapPositions(accountArray,accountArray.indexOf(bID1),accountArray.indexOf(bID2));
+            // console.log(accountArray);
+            document.getElementById("accountList").value = accountArray.toString();
+            htmx.trigger("#formAccount", "onArrowClick");
+        });
+    };
+}
+templ PostParamAccount(httpStatus int, ParamJSONstringData string, AccountList []string) {
     switch httpStatus {
         case http.StatusOK:
-            <input type="text" id="accountList" name="ParamJSONstringData" value={ParamJSONstringData} aria-invalid="false" disabled />
+            @accountTable(AccountList)
+            @botScriptAddClickEventToTableAccButtons(AccountList)
+            // <input type="text" id="accountList" name="ParamJSONstringData" value={ParamJSONstringData} aria-invalid="false" disabled />
         case http.StatusBadRequest:
             <p>
                 ERREUR1: Impossible de modifier la liste des comptes.<br/> 
                 Requête annulée, merci de recommencer.
             </p>
+            @PageRefreshButton()
         case http.StatusInternalServerError:
             <p>
                 ERREUR2: Impossible de modifier la liste des comptes.<br/> 
                 Requête annulée, merci de recommencer.
             </p>
+            @PageRefreshButton()
         default:
             <p>
                 ERREUR3: Impossible de modifier la liste des comptes.<br/> 
                 Requête annulée, merci de recommencer.
             </p>
+            @PageRefreshButton()
 	}
-    @PageRefreshButton()
 }
 templ PutParamCategory() {
 
@@ -162,6 +286,10 @@ templ GetParamCategory(jsonUC *appdata.UserCategories, userCategoriesJson string
         <body class="container-fluid">
             <main>
                 <h1>Gérer les catégories</h1>
+                <!-- alert-triangle -->
+                <svg width="24" height="24" viewBox="0 0 24 24" stroke="#FFC000"><use xlink:href="/img/icons.svg#feather-alert-triangle"></use></svg>
+                Lors de l'activation/désactivation d'une catégorie, elle disparait de la page, merci de rafraîchir la page pour la voir réapparaître.
+                <hr/>
 
                 <section id="openForm" name="openForm" hidden>
                     <div id="htmxInfo"> <!-- via header: "HX-Retarget", "#htmxInfo" -->
