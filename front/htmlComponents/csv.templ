@@ -135,7 +135,7 @@ templ GetCSVimport() {
                         <li><code>Checked</code>: valeurs <code>true</code> ou <code>false</code></li>
                         <li><code>DateChecked</code>: doit respecter le format spécifié, dans l'exemple <code>JJ/MM/AAAA</code>. Si vide, sera enregistré à <code>31/12/9999</code></li>
                         <li><code>Exported</code>: valeurs <code>true</code> ou <code>false</code></li>
-                        <li><code>""</code>: valeurs vides <code>""</code>, colonne supplémentaire à garder vide.</li>
+                        <li><code>.</code>: valeurs vides <code>.</code>, colonne supplémentaire à garder avec seulement des "."</li>
                     </ol>
 
                     <h5>Exemple d'un fichier .csv de 5 lignes avec en-têtes, donc 4 à importer:</h5>
@@ -145,11 +145,11 @@ templ GetCSVimport() {
                         <li>format date FR <code>JJ/MM/AAAA</code></li>
                     </ul>
                     <ol>
-                        <li><code>𫝀é ꮖꭰ;Date;Account;Product;PriceStr;Category;CommentInt;CommentString;Checked;DateChecked;Exported</code></li>        
-                        <li><code>1;12/11/2023;CB;Exemple 1 avec ID 1;2,03;Supermarché;0;;true;02/12/2023;false</code></li>
-                        <li><code>;10/12/2024;CB;Exemple 2 sans ID;9,00;Supermarché;0;;false;;false</code></li>
-                        <li><code>156979;10/12/2024;CB;Exemple 3 avec ID inconnu;87,50;Supermarché;0;;false;31/12/2200;false</code></li>
-                        <li><code>-2;10/12/2024;CB;Exemple 4 avec ID négatif -2;24,50;Supermarché;0;;false;31/12/2200;false</code></li>
+                        <li><code>𫝀é ꮖꭰ;Date;Account;Product;PriceStr;Category;CommentInt;CommentString;Checked;DateChecked;Exported;.</code></li>        
+                        <li><code>1;12/11/2023;CB;Exemple 1 avec ID 1;2,03;Supermarché;0;;true;02/12/2023;false;.</code></li>
+                        <li><code>;10/12/2024;CB;Exemple 2 sans ID;9,00;Supermarché;0;;false;;false;.</code></li>
+                        <li><code>156979;10/12/2024;CB;Exemple 3 avec ID inconnu;87,50;Supermarché;0;;false;31/12/2200;false;.</code></li>
+                        <li><code>-2;10/12/2024;CB;Exemple 4 avec ID négatif -2;24,50;Supermarché;0;;false;31/12/2200;false;.</code></li>
                     </ol>
                     <ol>
                         <li>La 1ere ligne sert pour les en-têtes et quelques contrôles de la validité du fichier</li>
