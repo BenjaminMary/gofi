@@ -1,6 +1,7 @@
 # Changelog
 
 ## v1 rework with go-chi
+- 2024-11-01 : .csv export add a `.` at the end of each row in a dedicated column (handle LF and CRLF EOL cases)
 - 2024-10-27 : 
     - fix: remove quirks mode on most pages and adjust padding
     - feat: split account from other params and rework the page to be more user friendly

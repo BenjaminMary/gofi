@@ -48,7 +48,7 @@ func ExportCSV(ctx context.Context, db *sql.DB, gofiID int, csvSeparator rune, c
 			row = []string{"𫝀é ꮖꭰ", "Date",
 				"Account", "Product", "PriceStr", "Category",
 				"CommentInt", "CommentString", "Checked", "DateChecked", "Exported",
-				""} //keeping an empty column at the end will handle the LF and CRLF cases
+				"."} //keeping a column at the end will handle the LF and CRLF cases
 			if err := w.Write(row); err != nil {
 				fmt.Printf("row error 1: %v\n", row)
 				log.Fatalln("error writing record to file", err)
@@ -72,7 +72,7 @@ func ExportCSV(ctx context.Context, db *sql.DB, gofiID int, csvSeparator rune, c
 
 		row = []string{strconv.Itoa(ft.ID), ft.Date,
 			ft.Account, ft.Product, ft.FormPriceStr2Decimals, ft.Category,
-			strconv.Itoa(ft.CommentInt), ft.CommentString, strconv.FormatBool(ft.Checked), ft.DateChecked, "true", ""}
+			strconv.Itoa(ft.CommentInt), ft.CommentString, strconv.FormatBool(ft.Checked), ft.DateChecked, "true", "."}
 		if err := w.Write(row); err != nil {
 			fmt.Printf("row error 2: %v\n", row)
 			log.Fatalln("error writing record to file", err)

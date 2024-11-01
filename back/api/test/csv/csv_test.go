@@ -284,13 +284,16 @@ func TestUser(t *testing.T) {
 	response = executeRequestNoPresetContentType(req, s)
 	require.Equal(t, http.StatusBadRequest, response.Code, "should be equal")
 
+	fmt.Println("IMPORT ended")
+	fmt.Println("EXPORT started")
+
 	// 18. CSV export
 	req, _ = http.NewRequest("POST", "/api/csv/export", nil)
 	req.Header.Set("sessionID", fstwo)
 	response = executeRequest(req, s)
 	require.Equal(t, http.StatusOK, response.Code, "should be equal")
 	require.Equal(t,
-		"𫝀é ꮖꭰ;Date;Account;Product;PriceStr;Category;CommentInt;CommentString;Checked;DateChecked;Exported;\n1;31/12/1999;-;DELETED LINE;0,00;-;0;;true;1999-12-31;true;\n2;01/01/2015;Especes;Solde Espèces CRLF;85,76;Revenu;0;;true;2023-01-01;true;\n3;02/01/2015;CA;PC Portable Modif noms colonnes;-295,11;HighTech;0;5heures autonomie;true;2015-01-05;true;\n4;04/01/2015;CA;Gazole;-38,66;Vehicule;200079;Kms au moment du plein;true;2015-01-05;true;\n5;05/01/2015;CA;Jeux Steam;-2,00;Loisirs;0;;true;2015-01-06;true;\n6;06/01/2015;CA;Série Modif;-34,99;Cadeaux;0;;true;2015-01-07;true;\n7;31/12/1999;-;DELETED LINE;0,00;-;0;;true;1999-12-31;true;\n8;07/01/2015;CA;VÊTEMENT HOMME SKI TOP;-13,95;Voyage;0;;true;2024-01-01;true;\n",
+		"𫝀é ꮖꭰ;Date;Account;Product;PriceStr;Category;CommentInt;CommentString;Checked;DateChecked;Exported;.\n1;31/12/1999;-;DELETED LINE;0,00;-;0;;true;1999-12-31;true;.\n2;01/01/2015;Especes;Solde Espèces CRLF;85,76;Revenu;0;;true;2023-01-01;true;.\n3;02/01/2015;CA;PC Portable Modif noms colonnes;-295,11;HighTech;0;5heures autonomie;true;2015-01-05;true;.\n4;04/01/2015;CA;Gazole;-38,66;Vehicule;200079;Kms au moment du plein;true;2015-01-05;true;.\n5;05/01/2015;CA;Jeux Steam;-2,00;Loisirs;0;;true;2015-01-06;true;.\n6;06/01/2015;CA;Série Modif;-34,99;Cadeaux;0;;true;2015-01-07;true;.\n7;31/12/1999;-;DELETED LINE;0,00;-;0;;true;1999-12-31;true;.\n8;07/01/2015;CA;VÊTEMENT HOMME SKI TOP;-13,95;Voyage;0;;true;2024-01-01;true;.\n",
 		response.Body.String(), "should be equal")
 	require.Equal(t, http.Header(http.Header{"Content-Disposition": []string{"inline; filename=gofi-2.csv"}, "Content-Type": []string{"application/octet-stream"}}), response.Header(), "should be equal")
 
@@ -316,7 +319,7 @@ func TestUser(t *testing.T) {
 	response = executeRequest(req, s)
 	require.Equal(t, http.StatusOK, response.Code, "should be equal")
 	require.Equal(t,
-		"𫝀é ꮖꭰ;Date;Account;Product;PriceStr;Category;CommentInt;CommentString;Checked;DateChecked;Exported;\n1;31/12/1999;-;DELETED LINE;0,00;-;0;;true;1999-12-31;true;\n2;01/01/2015;Especes;Solde Espèces CRLF;85,76;Revenu;0;;true;2023-01-01;true;\n3;02/01/2015;CA;PC Portable Modif noms colonnes;-295,11;HighTech;0;5heures autonomie;true;2015-01-05;true;\n4;04/01/2015;CA;Gazole;-38,66;Vehicule;200079;Kms au moment du plein;true;2015-01-05;true;\n5;05/01/2015;CA;Jeux Steam;-2,00;Loisirs;0;;true;2015-01-06;true;\n6;06/01/2015;CA;Série Modif;-34,99;Cadeaux;0;;true;2015-01-07;true;\n7;31/12/1999;-;DELETED LINE;0,00;-;0;;true;1999-12-31;true;\n8;07/01/2015;CA;VÊTEMENT HOMME SKI TOP;-13,95;Voyage;0;;true;2024-01-01;true;\n",
+		"𫝀é ꮖꭰ;Date;Account;Product;PriceStr;Category;CommentInt;CommentString;Checked;DateChecked;Exported;.\n1;31/12/1999;-;DELETED LINE;0,00;-;0;;true;1999-12-31;true;.\n2;01/01/2015;Especes;Solde Espèces CRLF;85,76;Revenu;0;;true;2023-01-01;true;.\n3;02/01/2015;CA;PC Portable Modif noms colonnes;-295,11;HighTech;0;5heures autonomie;true;2015-01-05;true;.\n4;04/01/2015;CA;Gazole;-38,66;Vehicule;200079;Kms au moment du plein;true;2015-01-05;true;.\n5;05/01/2015;CA;Jeux Steam;-2,00;Loisirs;0;;true;2015-01-06;true;.\n6;06/01/2015;CA;Série Modif;-34,99;Cadeaux;0;;true;2015-01-07;true;.\n7;31/12/1999;-;DELETED LINE;0,00;-;0;;true;1999-12-31;true;.\n8;07/01/2015;CA;VÊTEMENT HOMME SKI TOP;-13,95;Voyage;0;;true;2024-01-01;true;.\n",
 		response.Body.String(), "should be equal")
 	require.Equal(t, http.Header(http.Header{"Content-Disposition": []string{"inline; filename=gofi-2.csv"}, "Content-Type": []string{"application/octet-stream"}}), response.Header(), "should be equal")
 

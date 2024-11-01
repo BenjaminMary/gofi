@@ -11,7 +11,7 @@
 - ☐❗ système de gestion d'achat sur la durée
     - période prévisionnelle avant nouvel achat
 - ☐❗ système de gestion de prêt/emprunt
-    - ☐❗ gérer le mode + lien au tier partie .csv (import + export)
+    - ☐❗❗❗ gérer le mode + lien au tier partie .csv (import + export)
         - partie .csv, on peut complètement décoreller le .csv des tables
         - faire en sorte de récupérer le nom du tier lorsque relié et vérifier l'id correspondant (potentielle création) lors d'un import
 - stats, 
@@ -42,7 +42,6 @@
     - ☐ gestion des préférences de format csv séparateur colonne + separateur décimal
     - ☐ laisser l'overide possible dans les parties import/export csv, mais préselectionner la préférence
 - ☐ partie import export CSV: 
-    - ☐❗❗ ajouter un champ `-` à la fin du csv pour permettre l'édition dans Excel + sauvegarde et réimporter directement
     - ☐ mettre un champ `lastCSVexport` de type date par user à ramener dans le menu (ok si - d'1 mois, ko sinon)
         - ☐ compter le nombre de lignes à exporter et afficher/bloquer un import si différent de 0 ?
 - ☐ ajout validation des dépenses: POST ValidateRows
@@ -99,6 +98,7 @@
     - ☑ objectif: chaque export génère un fichier avec l'ensemble des dernières modifs
         - ☑ en jouant toutes les sauvegardes historisées dans l'ordre chronologique, on retrouve l'état des données souhaité
         - ☑ ajout d'une option de RAZ de la colonne `exported`
+    - ☑ ajouter un champ `.` à la fin du csv pour permettre l'édition dans Excel + sauvegarde et réimporter directement
 - ☑ Ajout de statistiques 
     - ☑ pouvoir différencier les montants déjà validés vs non validés
     - ☑ visualisation des données avec filtre et tri via table simple
