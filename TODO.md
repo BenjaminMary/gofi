@@ -11,24 +11,17 @@
 - ☐❗ système de gestion d'achat sur la durée
     - période prévisionnelle avant nouvel achat
 - ☐❗ système de gestion de prêt/emprunt
-    - ☐❗❗❗ gérer le mode + lien au tier partie .csv (import + export)
+    - ☐❗❗❗❗ gérer le mode + lien au tier partie .csv (import + export)
         - partie .csv, on peut complètement décoreller le .csv des tables
-        - faire en sorte de récupérer le nom du tier lorsque relié et vérifier l'id correspondant (potentielle création) lors d'un import
-- stats, 
-    - new apex chart, 
-        - ☑ lines
-            - ☑ suivi des montants sur chaque compte
-            - ☒ regroupement et cumul global de l'ensemble des comptes
-        - stacked bars
-            - ☑ fix categories, Voyage manquant + possibles catégo manquantes dans l'initialisation
-            - ☑ fix changement d'année
-            - ☑ fix dernière stack bar 2024 mal groupée, quelques catégories se superposent
-            - ☑ ajouter 1 bouton pour suppr toutes les catégories + 1 autre pour toutes les remettre
-            - ☑ ajouter 1 liste de catégo par défaut à l'ouverture de la page
-            - ☑ ajouter un switch mois/année
-            - ☑ ajouter un switch gains/dépense
-            - ☐❗ afficher les noms des catégories lors du clic/survol d'une catégo dans le graph
-            - ☑ retirer la fonctionnalité de grouper les catégories, inutile
+        - ☑ ajout de 2 colonnes dans le .csv `Mode` + `ThirdParty`
+        - faire en sorte de 
+            - récupérer le nom du tier lorsque relié 
+            - vérifier le nom du tier correspondant (potentielle création) lors d'un import
+            - supprimmer la partie tier sur les lignes sans aucun lien en mode update (possible annulation de prêt/emprunt)
+            - gérer également le mode d'enregistrement de la ligne 0à4
+- stats 
+    - stacked bars
+        - ☐❗ afficher les noms des catégories lors du clic/survol d'une catégo dans le graph
 - ☐ faire des tests automatisés pour la partie front
 - ☐ ajout système de données récurrentes:
     - ☐ améliorer l'UI en bloquant l'espace via `visibility: hidden`, permettra de ne plus faire de trou dans la page au changement
@@ -137,6 +130,19 @@
         - catégos
         - exp csv
         - imp csv
+- ☑ stats, 
+    - ☑ lines
+        - ☑ suivi des montants sur chaque compte
+        - ☒ regroupement et cumul global de l'ensemble des comptes
+    - ☑ stacked bars
+        - ☑ fix categories, Voyage manquant + possibles catégo manquantes dans l'initialisation
+        - ☑ fix changement d'année
+        - ☑ fix dernière stack bar 2024 mal groupée, quelques catégories se superposent
+        - ☑ ajouter 1 bouton pour suppr toutes les catégories + 1 autre pour toutes les remettre
+        - ☑ ajouter 1 liste de catégo par défaut à l'ouverture de la page
+        - ☑ ajouter un switch mois/année
+        - ☑ ajouter un switch gains/dépense
+        - ☑ retirer la fonctionnalité de grouper les catégories, inutile
 
 ## Infos
 - PWA

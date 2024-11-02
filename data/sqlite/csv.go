@@ -20,7 +20,7 @@ func ExportCSV(ctx context.Context, db *sql.DB, gofiID int, csvSeparator rune, c
 	2. write row by row in a csv (include headers)
 	*/
 	q := ` 
-		SELECT id, year, month, day,
+		SELECT id, year, month, day, mode,
 			account, product, priceIntx100, category, 
 			commentInt, commentString, checked, dateChecked
 		FROM financeTracker
@@ -45,8 +45,8 @@ func ExportCSV(ctx context.Context, db *sql.DB, gofiID int, csvSeparator rune, c
 		nbRows += 1
 		if nbRows == 1 {
 			//write csv headers
-			row = []string{"𫝀é ꮖꭰ", "Date",
-				"Account", "Product", "PriceStr", "Category",
+			row = []string{"𫝀é ꮖꭰ", "Date", "Mode",
+				"Account", "Product", "PriceStr", "Category", "ThirdParty",
 				"CommentInt", "CommentString", "Checked", "DateChecked", "Exported",
 				"."} //keeping a column at the end will handle the LF and CRLF cases
 			if err := w.Write(row); err != nil {
@@ -58,7 +58,7 @@ func ExportCSV(ctx context.Context, db *sql.DB, gofiID int, csvSeparator rune, c
 		var successfull bool
 		var unsuccessfullReason string
 		if err := rows.Scan(
-			&ft.ID, &ft.DateDetails.Year, &ft.DateDetails.Month, &ft.DateDetails.Day,
+			&ft.ID, &ft.DateDetails.Year, &ft.DateDetails.Month, &ft.DateDetails.Day, &ft.Mode,
 			&ft.Account, &ft.Product, &ft.PriceIntx100, &ft.Category,
 			&ft.CommentInt, &ft.CommentString, &ft.Checked, &ft.DateChecked,
 		); err != nil {
@@ -70,8 +70,8 @@ func ExportCSV(ctx context.Context, db *sql.DB, gofiID int, csvSeparator rune, c
 			ft.Date = "ERROR " + unsuccessfullReason
 		}
 
-		row = []string{strconv.Itoa(ft.ID), ft.Date,
-			ft.Account, ft.Product, ft.FormPriceStr2Decimals, ft.Category,
+		row = []string{strconv.Itoa(ft.ID), ft.Date, strconv.Itoa(ft.Mode),
+			ft.Account, ft.Product, ft.FormPriceStr2Decimals, ft.Category, "",
 			strconv.Itoa(ft.CommentInt), ft.CommentString, strconv.FormatBool(ft.Checked), ft.DateChecked, "true", "."}
 		if err := w.Write(row); err != nil {
 			fmt.Printf("row error 2: %v\n", row)
@@ -168,17 +168,18 @@ func ImportCSV(ctx context.Context, db *sql.DB,
 	for index, row := range rows {
 		if index == 0 { //control UTF-8 on headers
 			totalRows := len(row)
-			if totalRows != 12 {
+			if totalRows != 14 {
 				stringList =
 					"IMPORTATION ANNULEE.\n" +
 						"ERREUR sur le nombre de colonnes du fichier.\n\n" +
-						"INFO: total " + strconv.Itoa(totalRows) + " colonnes sur un attendu de 12.\n" +
+						"INFO: total " + strconv.Itoa(totalRows) + " colonnes sur un attendu de 14.\n" +
 						"Un exemple de données d'import valide est disponible plus bas sur cette page."
 				errorBool = true
+				fmt.Printf("INFO: total %v colonnes sur un attendu de 14.\n", strconv.Itoa(totalRows))
 				break //stop
 			}
 			controlEncoding = row[0]
-			controlLastValidColumn = row[10]
+			controlLastValidColumn = row[12]
 			validControlEncodingUTF8 = "𫝀é ꮖꭰ"              //UTF-8
 			validControlEncodingUTF8withBOM = "\ufeff𫝀é ꮖꭰ" //UTF-8 with BOM
 			if (controlEncoding == validControlEncodingUTF8 || controlEncoding == validControlEncodingUTF8withBOM) &&
@@ -190,7 +191,7 @@ func ImportCSV(ctx context.Context, db *sql.DB,
 				stringList =
 					"IMPORTATION ANNULEE.\n" +
 						"ERREUR sur la dernière colonne du fichier.\n\n" +
-						"INFO: 11eme colonne = 'Exported'\n" +
+						"INFO: 13eme colonne = 'Exported'\n" +
 						"Un exemple de données d'import valide est disponible plus bas sur cette page."
 				errorBool = true
 				break //stop
@@ -223,6 +224,7 @@ func ImportCSV(ctx context.Context, db *sql.DB,
 				ft.DateDetails.Year = 1999
 				ft.DateDetails.Month = 12
 				ft.DateDetails.Day = 31
+				ft.Mode = 0
 				ft.Account = "-"
 				ft.Product = "DELETED LINE"
 				ft.PriceIntx100 = 0
@@ -244,23 +246,28 @@ func ImportCSV(ctx context.Context, db *sql.DB,
 				continue //skip this row because wrong date format
 			}
 
-			ft.Account = row[2]
-			ft.Product = row[3]
-			ft.FormPriceStr2Decimals = row[4]
+			ft.Mode, err = strconv.Atoi(row[2])
+			if err != nil {
+				ft.Mode = 0
+			}
+			ft.Account = row[3]
+			ft.Product = row[4]
+			ft.FormPriceStr2Decimals = row[5]
 			ft.PriceIntx100 = ConvertPriceStrToInt(ft.FormPriceStr2Decimals, csvDecimalDelimiter)
 
-			ft.Category = row[5]
-			ft.CommentInt, err = strconv.Atoi(row[6])
+			ft.Category = row[6]
+			// ThirdParty = row[7]
+			ft.CommentInt, err = strconv.Atoi(row[8])
 			if err != nil {
 				ft.CommentInt = 0
 				lineInfo += "comment i 0;"
 			} else {
 				lineInfo += ";"
 			}
-			ft.CommentString = row[7]
+			ft.CommentString = row[9]
 
 			// Checked
-			ft.Checked, err = strconv.ParseBool(row[8])
+			ft.Checked, err = strconv.ParseBool(row[10])
 			if err != nil {
 				ft.Checked = false
 				lineInfo += "checked 0;"
@@ -270,8 +277,8 @@ func ImportCSV(ctx context.Context, db *sql.DB,
 
 			// DateChecked
 			ft.DateChecked = "9999-12-31"
-			if len(row[9]) == 10 {
-				yearInt, monthInt, dayInt, successfull, _ := ConvertDateStrToInt(row[9], dateFormat, dateSeparator)
+			if len(row[11]) == 10 {
+				yearInt, monthInt, dayInt, successfull, _ := ConvertDateStrToInt(row[11], dateFormat, dateSeparator)
 				// fmt.Println("---------------")
 				// fmt.Printf("ft.DateChecked: %v\n", ft.DateChecked)
 				// fmt.Printf("yearInt %v, monthInt %v, dayInt %v, successfull %v, unsuccessfullReason %v\n", yearInt, monthInt, dayInt, successfull, unsuccessfullReason)
@@ -292,11 +299,11 @@ func ImportCSV(ctx context.Context, db *sql.DB,
 		if ft.ID == 0 {
 			// INSERT
 			exec, err := db.ExecContext(ctx, `
-				INSERT INTO financeTracker (gofiID, dateIn, year, month, day, account, product, priceIntx100, category,
+				INSERT INTO financeTracker (gofiID, dateIn, year, month, day, mode, account, product, priceIntx100, category,
 					commentInt, commentString, checked, dateChecked, exported)
-				VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,0);
+				VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,0);
 				`,
-				ft.GofiID, ft.Date, ft.DateDetails.Year, ft.DateDetails.Month, ft.DateDetails.Day, ft.Account, ft.Product, ft.PriceIntx100, ft.Category,
+				ft.GofiID, ft.Date, ft.DateDetails.Year, ft.DateDetails.Month, ft.DateDetails.Day, ft.Mode, ft.Account, ft.Product, ft.PriceIntx100, ft.Category,
 				ft.CommentInt, ft.CommentString, ft.Checked, ft.DateChecked,
 			)
 			if err != nil {
@@ -317,12 +324,12 @@ func ImportCSV(ctx context.Context, db *sql.DB,
 			// UPDATE
 			result, err := db.ExecContext(ctx, `
 				UPDATE financeTracker 
-				SET dateIn = ?, year = ?, month = ?, day = ?, account = ?, product = ?, priceIntx100 = ?, category = ?,
+				SET dateIn = ?, year = ?, month = ?, day = ?, mode = ?, account = ?, product = ?, priceIntx100 = ?, category = ?,
 					commentInt = ?, commentString = ?, checked = ?, dateChecked = ?, exported = 0
 				WHERE ID = ?
 					AND gofiID = ?;
 				`,
-				ft.Date, ft.DateDetails.Year, ft.DateDetails.Month, ft.DateDetails.Day, ft.Account, ft.Product, ft.PriceIntx100, ft.Category,
+				ft.Date, ft.DateDetails.Year, ft.DateDetails.Month, ft.DateDetails.Day, ft.Mode, ft.Account, ft.Product, ft.PriceIntx100, ft.Category,
 				ft.CommentInt, ft.CommentString, ft.Checked, ft.DateChecked,
 				ft.ID, ft.GofiID,
 			)
