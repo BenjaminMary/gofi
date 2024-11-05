@@ -7,4 +7,6 @@
 6;06/01/2015;0;CA;Série Modif;-34,99;Cadeaux;;0;;true;07/01/2015;true;.
 -7;06/01/2015;0;Especes;Cafés;-1,6;Courses;;0;;true;01/01/2022;true;.
 8;07/01/2015;0;CA;VÊTEMENT HOMME SKI TOP;-13,95;Voyage;;0;;true;01/01/2024;true;.
+10;09/01/2015;0;CA;Remboursement Prêt;150;Voyage;;10;id10;true;10/01/2015;false;.
+-13;12/01/2015;3;CA;Remboursement Emprunt;-200;Voyage;Tier2;13;id13;true;13/01/2015;false;.
 99;12/01/2015;0;CA;ID NON CREE;-10;Voyage;;0;;true;01/01/2024;true;.

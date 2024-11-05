@@ -165,6 +165,7 @@ func ImportCSV(ctx context.Context, db *sql.DB,
 
 	var lb appdata.LendBorrow
 	var ft appdata.FinanceTracker
+	var iDlistInt []int
 	var lineInfo, unsuccessfullReason, controlEncoding, controlLastValidColumn, validControlEncodingUTF8, validControlEncodingUTF8withBOM string
 	var successfull bool
 	var flagErr int = 0
@@ -362,34 +363,6 @@ func ImportCSV(ctx context.Context, db *sql.DB,
 				fmt.Printf("error0, incorrect ft.Mode: %v\n", ft.Mode)
 				flagErr += 1
 			}
-
-
-
-
-
-			// exec, err := db.ExecContext(ctx, `
-			// 	INSERT INTO financeTracker (gofiID, dateIn, year, month, day, 
-			// 		mode, account, product, priceIntx100, category,
-			// 		commentInt, commentString, checked, dateChecked, exported)
-			// 	VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,0);
-			// 	`,
-			// 	ft.GofiID, ft.Date, ft.DateDetails.Year, ft.DateDetails.Month, ft.DateDetails.Day, ft.Mode, ft.Account, ft.Product, ft.PriceIntx100, ft.Category,
-			// 	ft.CommentInt, ft.CommentString, ft.Checked, ft.DateChecked,
-			// )
-			// if err != nil {
-			// 	lineInfo += "error1;false;"
-			// 	fmt.Printf("error1: %#v\n", err)
-			// 	flagErr += 1
-			// } else {
-			// 	rowID, err := exec.LastInsertId()
-			// 	if err != nil {
-			// 		lineInfo += "error2;false;"
-			// 		fmt.Printf("error2: %#v\n", err)
-			// 		flagErr += 1
-			// 	} else {
-			// 		lineInfo += strconv.FormatInt(rowID, 10) + ";true;"
-			// 	}
-			// }
 		} else if ft.ID > 0 {
 			// UPDATE
 			result, err := db.ExecContext(ctx, `
@@ -417,6 +390,9 @@ func ImportCSV(ctx context.Context, db *sql.DB,
 					if rows != 1 {
 						lineInfo += "unknown ID;false;"
 					} else {
+						if ft.Mode == 0 {
+							iDlistInt = append(iDlistInt, ft.ID)
+						}
 						lineInfo += ";true;"
 					}
 				}
@@ -424,30 +400,20 @@ func ImportCSV(ctx context.Context, db *sql.DB,
 		}
 		stringList += lineInfo + "\n"
 	}
+	b := DeleteSpecificRecordsByMode(ctx, appdata.DB, gofiID, &iDlistInt)
+	if b {
+		fmt.Println("DeleteSpecificRecordsByMode error in csv")
+	}
+	b = UpdateRowsInFinanceTrackerToMode0(ctx, appdata.DB, gofiID, &iDlistInt)
+	if b {
+		fmt.Println("UpdateRowsInFinanceTrackerToMode0 error in csv")
+	}
 	stringList = "erreurs rencontrées: " + strconv.Itoa(flagErr) + "\n" + stringList
 	return stringList, errorBool
 }
 
 func handleFTinsertCSV(ctx context.Context, ft *appdata.FinanceTracker, 
 	csvSeparator rune, csvDecimalDelimiter string, dateFormat string, dateSeparator string) (int64, bool, int, string) {
-	// if err := render.Bind(r, ft); err != nil {
-	// 	fmt.Printf("handleFTinsert error1: %v\n", err.Error())
-	// 	return 0, true, http.StatusBadRequest, "invalid request, double check each field"
-	// }
-	// fmt.Printf("ft: %#v\n", ft)
-	// fmt.Printf("ft: %#v\n", ft)
-	// _, err := time.Parse(time.DateOnly, ft.Date)
-	// if err != nil {
-	// 	fmt.Printf("handleFTinsert error2 invalid date: %v\n", err.Error())
-	// 	return 0, true, 0, "invalid date"
-	// }
-	// var successfull bool
-	// var errStr string
-	// ft.DateDetails.Year, ft.DateDetails.Month, ft.DateDetails.Day, successfull, errStr = ConvertDateStrToInt(ft.Date, "EN", "-")
-	// if !successfull {
-	// 	fmt.Printf("handleFTinsert error3 invalid convert date str to int: %v\n", errStr)
-	// 	return 0, true, 0, "server error"
-	// }
 	if (ft.Mode == 1 || ft.Mode == 4) && ft.PriceDirection == "expense" {
 		fmt.Println("handleFTinsert error4 invalid PriceDirection and Mode combinaison")
 		return 0, true, 0, "invalid PriceDirection and Mode combinaison"
@@ -466,8 +432,6 @@ func handleFTinsertCSV(ctx context.Context, ft *appdata.FinanceTracker,
 		ft.DateChecked = "9999-12-31"
 	}
 	ft.PriceIntx100 = ConvertPriceStrToInt(ft.FormPriceStr2Decimals, csvDecimalDelimiter) 
-	// userContext := r.Context().Value(appdata.ContextUserKey).(*appdata.UserRequest)
-	// ft.GofiID = userContext.GofiID
 	idInserted, err := InsertRowInFinanceTracker(ctx, appdata.DB, ft)
 	if err != nil { // Always check errors even if they should not happen.
 		fmt.Printf("handleFTinsert error sqlite.InsertRowInFinanceTracker: %v\n", err.Error())
