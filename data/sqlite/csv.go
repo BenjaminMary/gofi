@@ -159,6 +159,7 @@ func ImportCSV(ctx context.Context, db *sql.DB,
 		return stringList, true
 	}
 
+	var lb appdata.LendBorrow
 	var ft appdata.FinanceTracker
 	var lineInfo, unsuccessfullReason, controlEncoding, controlLastValidColumn, validControlEncodingUTF8, validControlEncodingUTF8withBOM string
 	var successfull bool
@@ -221,6 +222,7 @@ func ImportCSV(ctx context.Context, db *sql.DB,
 			} else if ft.ID < 0 {
 				// DELETE is actually an UPDATE with empty data
 				lineInfo += "DELETE" + row[0] + ";1999-12-31;;checked true;exported false;"
+				ft.Date = "1999-12-31"
 				ft.DateDetails.Year = 1999
 				ft.DateDetails.Month = 12
 				ft.DateDetails.Day = 31
@@ -245,6 +247,11 @@ func ImportCSV(ctx context.Context, db *sql.DB,
 				stringList += lineInfo + "\n"
 				continue //skip this row because wrong date format
 			}
+			ft.Date, successfull, unsuccessfullReason = ConvertDateIntToStr(ft.DateDetails.Year, ft.DateDetails.Month, ft.DateDetails.Day, "EN", "-")
+			if !successfull {
+				ft.Date = "ERROR " + unsuccessfullReason
+			}
+
 
 			ft.Mode, err = strconv.Atoi(row[2])
 			if err != nil {
@@ -254,9 +261,16 @@ func ImportCSV(ctx context.Context, db *sql.DB,
 			ft.Product = row[4]
 			ft.FormPriceStr2Decimals = row[5]
 			ft.PriceIntx100 = ConvertPriceStrToInt(ft.FormPriceStr2Decimals, csvDecimalDelimiter)
+			if ft.PriceIntx100 < 0 {
+				ft.PriceDirection = "expense"
+				ft.FormPriceStr2Decimals = ft.FormPriceStr2Decimals[1:] //remove the first "-"
+			} else {
+				ft.PriceDirection = "gain"
+				// ft.FormPriceStr2Decimals = ft.FormPriceStr2Decimals
+			}
 
 			ft.Category = row[6]
-			// ThirdParty = row[7]
+			// ThirdParty = row[7] //handled bellow in lb var
 			ft.CommentInt, err = strconv.Atoi(row[8])
 			if err != nil {
 				ft.CommentInt = 0
@@ -298,28 +312,80 @@ func ImportCSV(ctx context.Context, db *sql.DB,
 		}
 		if ft.ID == 0 {
 			// INSERT
-			exec, err := db.ExecContext(ctx, `
-				INSERT INTO financeTracker (gofiID, dateIn, year, month, day, mode, account, product, priceIntx100, category,
-					commentInt, commentString, checked, dateChecked, exported)
-				VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,0);
-				`,
-				ft.GofiID, ft.Date, ft.DateDetails.Year, ft.DateDetails.Month, ft.DateDetails.Day, ft.Mode, ft.Account, ft.Product, ft.PriceIntx100, ft.Category,
-				ft.CommentInt, ft.CommentString, ft.Checked, ft.DateChecked,
-			)
-			if err != nil {
-				lineInfo += "error1;false;"
-				fmt.Printf("error1: %#v\n", err)
-				flagErr += 1
-			} else {
-				rowID, err := exec.LastInsertId()
-				if err != nil {
-					lineInfo += "error2;false;"
-					fmt.Printf("error2: %#v\n", err)
+			if ft.Mode == 0 {
+				idFT, isErr, _, info := handleFTinsertCSV(ctx, &ft, csvSeparator, csvDecimalDelimiter, dateFormat, dateSeparator)
+				if isErr {
+					lineInfo += "error1;false;"
+					fmt.Printf("error1: %v\n", info)
 					flagErr += 1
+					// return appdata.RenderAPIorUI(w, r, isFrontRequest, false, false, httpCode, info, "")
 				} else {
-					lineInfo += strconv.FormatInt(rowID, 10) + ";true;"
+					lineInfo += strconv.FormatInt(idFT, 10) + ";true;"
 				}
+			} else if ft.Mode >= 1 && ft.Mode <= 4 {
+				lb.FT = ft
+				lb.ModeInt = ft.Mode
+				lb.CreateLenderBorrowerName = row[7]
+				lb.Who = row[7]
+				isErr := InsertUpdateInLenderBorrower(ctx, appdata.DB, &lb) // 1.
+				if isErr {
+					lineInfo += "error2;false;"
+					fmt.Println("error2")
+					flagErr += 1
+					// return appdata.RenderAPIorUI(w, r, isFrontRequest, false, false, http.StatusInternalServerError, "error", "")
+				} else {
+					idFT, isErr, _, info := handleFTinsertCSV(ctx, &lb.FT, csvSeparator, csvDecimalDelimiter, dateFormat, dateSeparator) // 2.
+					if isErr {
+						lineInfo += "error3;false;"
+						fmt.Printf("error3: %v\n", info)
+						flagErr += 1
+						// return appdata.RenderAPIorUI(w, r, isFrontRequest, false, false, httpCode, info, "")
+					} else {
+						lb.FT.ID = int(idFT)
+						isErr = InsertInSpecificRecordsByMode(ctx, appdata.DB, &lb) // 3.
+						if isErr {
+							lineInfo += "error4;false;"
+							fmt.Println("error4")
+							flagErr += 1
+							// return appdata.RenderAPIorUI(w, r, isFrontRequest, false, false, http.StatusInternalServerError, "error", "")
+						} else {
+							lineInfo += strconv.FormatInt(idFT, 10) + ";true;"
+						}
+					}
+				}
+			} else {
+				lineInfo += "error0;false;"
+				fmt.Printf("error0, incorrect ft.Mode: %v\n", ft.Mode)
+				flagErr += 1
 			}
+
+
+
+
+
+			// exec, err := db.ExecContext(ctx, `
+			// 	INSERT INTO financeTracker (gofiID, dateIn, year, month, day, 
+			// 		mode, account, product, priceIntx100, category,
+			// 		commentInt, commentString, checked, dateChecked, exported)
+			// 	VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,0);
+			// 	`,
+			// 	ft.GofiID, ft.Date, ft.DateDetails.Year, ft.DateDetails.Month, ft.DateDetails.Day, ft.Mode, ft.Account, ft.Product, ft.PriceIntx100, ft.Category,
+			// 	ft.CommentInt, ft.CommentString, ft.Checked, ft.DateChecked,
+			// )
+			// if err != nil {
+			// 	lineInfo += "error1;false;"
+			// 	fmt.Printf("error1: %#v\n", err)
+			// 	flagErr += 1
+			// } else {
+			// 	rowID, err := exec.LastInsertId()
+			// 	if err != nil {
+			// 		lineInfo += "error2;false;"
+			// 		fmt.Printf("error2: %#v\n", err)
+			// 		flagErr += 1
+			// 	} else {
+			// 		lineInfo += strconv.FormatInt(rowID, 10) + ";true;"
+			// 	}
+			// }
 		} else if ft.ID > 0 {
 			// UPDATE
 			result, err := db.ExecContext(ctx, `
@@ -356,4 +422,52 @@ func ImportCSV(ctx context.Context, db *sql.DB,
 	}
 	stringList = "erreurs rencontrées: " + strconv.Itoa(flagErr) + "\n" + stringList
 	return stringList, errorBool
+}
+
+func handleFTinsertCSV(ctx context.Context, ft *appdata.FinanceTracker, 
+	csvSeparator rune, csvDecimalDelimiter string, dateFormat string, dateSeparator string) (int64, bool, int, string) {
+	// if err := render.Bind(r, ft); err != nil {
+	// 	fmt.Printf("handleFTinsert error1: %v\n", err.Error())
+	// 	return 0, true, http.StatusBadRequest, "invalid request, double check each field"
+	// }
+	// fmt.Printf("ft: %#v\n", ft)
+	// fmt.Printf("ft: %#v\n", ft)
+	// _, err := time.Parse(time.DateOnly, ft.Date)
+	// if err != nil {
+	// 	fmt.Printf("handleFTinsert error2 invalid date: %v\n", err.Error())
+	// 	return 0, true, 0, "invalid date"
+	// }
+	// var successfull bool
+	// var errStr string
+	// ft.DateDetails.Year, ft.DateDetails.Month, ft.DateDetails.Day, successfull, errStr = ConvertDateStrToInt(ft.Date, "EN", "-")
+	// if !successfull {
+	// 	fmt.Printf("handleFTinsert error3 invalid convert date str to int: %v\n", errStr)
+	// 	return 0, true, 0, "server error"
+	// }
+	if (ft.Mode == 1 || ft.Mode == 4) && ft.PriceDirection == "expense" {
+		fmt.Println("handleFTinsert error4 invalid PriceDirection and Mode combinaison")
+		return 0, true, 0, "invalid PriceDirection and Mode combinaison"
+	}
+	if (ft.Mode == 2 || ft.Mode == 3) && ft.PriceDirection == "gain" {
+		fmt.Println("handleFTinsert error5 invalid PriceDirection and Mode combinaison")
+		return 0, true, 0, "invalid PriceDirection and Mode combinaison"
+	}
+	if ft.PriceDirection == "" {
+		fmt.Println("handleFTinsert error6 invalid PriceDirection")
+		return 0, true, 0, "invalid PriceDirection"
+	} else if ft.PriceDirection == "expense" {
+		ft.FormPriceStr2Decimals = "-" + ft.FormPriceStr2Decimals
+	}
+	if ft.DateChecked == "" {
+		ft.DateChecked = "9999-12-31"
+	}
+	ft.PriceIntx100 = ConvertPriceStrToInt(ft.FormPriceStr2Decimals, csvDecimalDelimiter) 
+	// userContext := r.Context().Value(appdata.ContextUserKey).(*appdata.UserRequest)
+	// ft.GofiID = userContext.GofiID
+	idInserted, err := InsertRowInFinanceTracker(ctx, appdata.DB, ft)
+	if err != nil { // Always check errors even if they should not happen.
+		fmt.Printf("handleFTinsert error sqlite.InsertRowInFinanceTracker: %v\n", err.Error())
+		return 0, true, 0, "server error"
+	}
+	return idInserted, false, 0, ""
 }

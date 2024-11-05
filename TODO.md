@@ -11,17 +11,19 @@
 - ☐❗ système de gestion d'achat sur la durée
     - période prévisionnelle avant nouvel achat
 - ☐❗ système de gestion de prêt/emprunt
-    - ☐❗❗❗❗ gérer le mode + lien au tier partie .csv (import + export)
+    - ☐❗❗❗ gérer le mode + lien au tier partie .csv (import + export)
         - partie .csv, on peut complètement décoreller le .csv des tables
         - ☑ ajout de 2 colonnes dans le .csv `Mode` + `ThirdParty`
         - faire en sorte de 
-            - récupérer le nom du tier lorsque relié 
-            - vérifier le nom du tier correspondant (potentielle création) lors d'un import
+            - ☑ récupérer le nom du tier lorsque relié 
+            - ☑ vérifier le nom du tier correspondant (potentielle création) lors d'un import
             - supprimmer la partie tier sur les lignes sans aucun lien en mode update (possible annulation de prêt/emprunt)
-            - gérer également le mode d'enregistrement de la ligne 0à4
+            - ☑ gérer également le mode d'enregistrement de la ligne 0à4
+            - gérer les noms des tiers en mode export
 - stats 
     - stacked bars
         - ☐❗ afficher les noms des catégories lors du clic/survol d'une catégo dans le graph
+    - ☐ sur le nombre de requêtes des utilisateurs pour voir les actifs ? (tableau admin?)
 - ☐ faire des tests automatisés pour la partie front
 - ☐ ajout système de données récurrentes:
     - ☐ améliorer l'UI en bloquant l'espace via `visibility: hidden`, permettra de ne plus faire de trou dans la page au changement
@@ -48,9 +50,6 @@
     - ☐ un utilisateur admin du compte qui peut en ajouter d'autres (max 5)
     - ☐ les autres utilisateurs peuvent se connecter en simultané sur le compte sans possibilité d'ajout d'autres nouveaux
     - ☐ 1 ligne de login active par utilisateur, permettra du multi utilisateur / multi login sur différentes plateformes
-- ☐ Ajout de statistiques 
-    - ☐ sur le nombre de requêtes des utilisateurs pour voir les actifs ? (tableau admin?)
-    - ☑ ajouter un graph des dépenses mois par mois (des 12 derniers mois)
 
 
 ## Done
@@ -143,6 +142,7 @@
         - ☑ ajouter un switch mois/année
         - ☑ ajouter un switch gains/dépense
         - ☑ retirer la fonctionnalité de grouper les catégories, inutile
+        - ☑ ajouter un graph des dépenses mois par mois (des 12 derniers mois)
 
 ## Infos
 - PWA
