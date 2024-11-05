@@ -1,6 +1,7 @@
 # Changelog
 
 ## v1 rework with go-chi
+- 2024-11-05 : feat: handle the creation of thirdParty with the .csv export
 - 2024-11-03 : 
     - feat: add 2 new columns in the csv
     - feat: handle the creation of thirdParty with the .csv import

@@ -20,13 +20,16 @@ func ExportCSV(ctx context.Context, db *sql.DB, gofiID int, csvSeparator rune, c
 	2. write row by row in a csv (include headers)
 	*/
 	q := ` 
-		SELECT id, year, month, day, mode,
+		SELECT fT.id, year, month, day, fT.mode,
 			account, product, priceIntx100, category, 
-			commentInt, commentString, checked, dateChecked
-		FROM financeTracker
-		WHERE gofiID = ?
+			commentInt, commentString, checked, dateChecked, 
+			IFNULL(lB.name, '')
+		FROM financeTracker AS fT
+			LEFT JOIN specificRecordsByMode AS sR ON fT.gofiID = sR.gofiID AND sR.idFinanceTracker = fT.id
+			LEFT JOIN lenderBorrower AS lB ON lB.gofiID = sR.gofiID AND sR.idLenderBorrower = lB.id
+		WHERE fT.gofiID = ?
 			AND exported = 0
-		ORDER BY id
+		ORDER BY fT.id
 		LIMIT 10000;
 	`
 	rows, err := db.QueryContext(ctx, q, gofiID)
@@ -56,11 +59,12 @@ func ExportCSV(ctx context.Context, db *sql.DB, gofiID int, csvSeparator rune, c
 		}
 		var ft appdata.FinanceTracker
 		var successfull bool
-		var unsuccessfullReason string
+		var unsuccessfullReason, lbName string
 		if err := rows.Scan(
 			&ft.ID, &ft.DateDetails.Year, &ft.DateDetails.Month, &ft.DateDetails.Day, &ft.Mode,
 			&ft.Account, &ft.Product, &ft.PriceIntx100, &ft.Category,
 			&ft.CommentInt, &ft.CommentString, &ft.Checked, &ft.DateChecked,
+			&lbName,
 		); err != nil {
 			log.Fatal(err)
 		}
@@ -71,7 +75,7 @@ func ExportCSV(ctx context.Context, db *sql.DB, gofiID int, csvSeparator rune, c
 		}
 
 		row = []string{strconv.Itoa(ft.ID), ft.Date, strconv.Itoa(ft.Mode),
-			ft.Account, ft.Product, ft.FormPriceStr2Decimals, ft.Category, "",
+			ft.Account, ft.Product, ft.FormPriceStr2Decimals, ft.Category, lbName,
 			strconv.Itoa(ft.CommentInt), ft.CommentString, strconv.FormatBool(ft.Checked), ft.DateChecked, "true", "."}
 		if err := w.Write(row); err != nil {
 			fmt.Printf("row error 2: %v\n", row)

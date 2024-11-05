@@ -17,9 +17,9 @@
         - faire en sorte de 
             - ☑ récupérer le nom du tier lorsque relié 
             - ☑ vérifier le nom du tier correspondant (potentielle création) lors d'un import
-            - supprimmer la partie tier sur les lignes sans aucun lien en mode update (possible annulation de prêt/emprunt)
+            - supprimer la partie tier sur les lignes sans aucun lien en mode update (possible annulation de prêt/emprunt)
             - ☑ gérer également le mode d'enregistrement de la ligne 0à4
-            - gérer les noms des tiers en mode export
+            - ☑ gérer les noms des tiers en mode export
 - stats 
     - stacked bars
         - ☐❗ afficher les noms des catégories lors du clic/survol d'une catégo dans le graph
