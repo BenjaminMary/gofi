@@ -1,6 +1,7 @@
 # Changelog
 
 ## v1 rework with go-chi
+- 2024-11-06 : feat: handle the update of row with a thirdParty in .csv
 - 2024-11-05 : 
     - feat: handle the creation of thirdParty with the .csv export
     - feat: delete the thirdParty by default on .csv update row with mode 0 (or delete which is always mode 0)

@@ -166,9 +166,9 @@ func ImportCSV(ctx context.Context, db *sql.DB,
 	var lb appdata.LendBorrow
 	var ft appdata.FinanceTracker
 	var iDlistInt []int
-	var lineInfo, unsuccessfullReason, controlEncoding, controlLastValidColumn, validControlEncodingUTF8, validControlEncodingUTF8withBOM string
+	var lineInfo, lineInfoTemp, unsuccessfullReason, controlEncoding, controlLastValidColumn, validControlEncodingUTF8, validControlEncodingUTF8withBOM string
 	var successfull bool
-	var flagErr int = 0
+	var flagErr, flagErrTemp int = 0, 0
 	ft.GofiID = gofiID
 	stringList += "𫝀é ꮖꭰ;Date;CommentInt;Checked;exported;NewID;Updated;\n"
 	for index, row := range rows {
@@ -331,33 +331,10 @@ func ImportCSV(ctx context.Context, db *sql.DB,
 				lb.FT = ft
 				lb.ModeInt = ft.Mode
 				lb.CreateLenderBorrowerName = row[7]
-				lb.Who = row[7]
-				isErr := InsertUpdateInLenderBorrower(ctx, appdata.DB, &lb) // 1.
-				if isErr {
-					lineInfo += "error2;false;"
-					fmt.Println("error2")
-					flagErr += 1
-					// return appdata.RenderAPIorUI(w, r, isFrontRequest, false, false, http.StatusInternalServerError, "error", "")
-				} else {
-					idFT, isErr, _, info := handleFTinsertCSV(ctx, &lb.FT, csvSeparator, csvDecimalDelimiter, dateFormat, dateSeparator) // 2.
-					if isErr {
-						lineInfo += "error3;false;"
-						fmt.Printf("error3: %v\n", info)
-						flagErr += 1
-						// return appdata.RenderAPIorUI(w, r, isFrontRequest, false, false, httpCode, info, "")
-					} else {
-						lb.FT.ID = int(idFT)
-						isErr = InsertInSpecificRecordsByMode(ctx, appdata.DB, &lb) // 3.
-						if isErr {
-							lineInfo += "error4;false;"
-							fmt.Println("error4")
-							flagErr += 1
-							// return appdata.RenderAPIorUI(w, r, isFrontRequest, false, false, http.StatusInternalServerError, "error", "")
-						} else {
-							lineInfo += strconv.FormatInt(idFT, 10) + ";true;"
-						}
-					}
-				}
+				lb.Who = row[7]			
+				lineInfoTemp, flagErrTemp = handleLBinsertCSV(ctx, &lb, csvSeparator, csvDecimalDelimiter, dateFormat, dateSeparator)
+				lineInfo += lineInfoTemp
+				flagErr += flagErrTemp
 			} else {
 				lineInfo += "error0;false;"
 				fmt.Printf("error0, incorrect ft.Mode: %v\n", ft.Mode)
@@ -392,8 +369,22 @@ func ImportCSV(ctx context.Context, db *sql.DB,
 					} else {
 						if ft.Mode == 0 {
 							iDlistInt = append(iDlistInt, ft.ID)
+							lineInfo += ";true;"
+						} else if ft.Mode >= 1 && ft.Mode <= 4 {
+							lb.FT = ft
+							lb.ModeInt = ft.Mode
+							lb.CreateLenderBorrowerName = row[7]
+							lb.Who = row[7]			
+							lineInfoTemp, flagErrTemp = handleLBinsertCSV(ctx, &lb, csvSeparator, csvDecimalDelimiter, dateFormat, dateSeparator)
+							lineInfo += lineInfoTemp
+							flagErr += flagErrTemp
+							lineInfo += ";true;"
+						} else {
+							iDlistInt = append(iDlistInt, ft.ID)
+							lineInfo += "error5;false;"
+							fmt.Printf("error5, incorrect ft.Mode: %v\n", ft.Mode)
+							flagErr += 1
 						}
-						lineInfo += ";true;"
 					}
 				}
 			}
@@ -410,6 +401,45 @@ func ImportCSV(ctx context.Context, db *sql.DB,
 	}
 	stringList = "erreurs rencontrées: " + strconv.Itoa(flagErr) + "\n" + stringList
 	return stringList, errorBool
+}
+
+func handleLBinsertCSV(ctx context.Context, lb *appdata.LendBorrow,
+	csvSeparator rune, csvDecimalDelimiter string, dateFormat string, dateSeparator string) (string, int) {
+	// ft.Mode >= 1 && ft.Mode <= 4 {
+	var lineInfo string = ""
+	var flagErr int = 0
+	isErr := InsertUpdateInLenderBorrower(ctx, appdata.DB, lb) // 1.
+	if isErr {
+		lineInfo += "handleLBinsertCSV-error1;false;"
+		fmt.Println("handleLBinsertCSV-error1")
+		flagErr += 1
+	} else {
+		var idFT int64
+		var isErr bool
+		var info string
+		if lb.FT.ID == 0 {
+			idFT, isErr, _, info = handleFTinsertCSV(ctx, &lb.FT, csvSeparator, csvDecimalDelimiter, dateFormat, dateSeparator) // 2.
+		} else {
+			idFT = int64(lb.FT.ID)
+			isErr = false
+		}
+		if isErr {
+			lineInfo += "handleLBinsertCSV-error2;false;"
+			fmt.Printf("handleLBinsertCSV-error2: %v\n", info)
+			flagErr += 1
+		} else {
+			lb.FT.ID = int(idFT)
+			isErr = InsertInSpecificRecordsByMode(ctx, appdata.DB, lb) // 3.
+			if isErr {
+				lineInfo += "handleLBinsertCSV-error3;false;"
+				fmt.Println("handleLBinsertCSV-error3")
+				flagErr += 1
+			} else {
+				lineInfo += strconv.FormatInt(idFT, 10) + ";true;"
+			}
+		}
+	}
+	return lineInfo, flagErr
 }
 
 func handleFTinsertCSV(ctx context.Context, ft *appdata.FinanceTracker, 

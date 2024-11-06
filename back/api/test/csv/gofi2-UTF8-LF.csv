@@ -3,8 +3,8 @@
 2;01/01/2015;0;Especes;Solde Espèces;85,76;Revenu;;0;;true;01/01/2023;true;.
 3;02/01/2015;0;CA;PC Portable;-295,11;HighTech;;0;5heures autonomie;true;05/01/2015;true;.
 4;04/01/2015;0;CA;Gazole;-38,66;Vehicule;;200079;Kms au moment du plein;true;05/01/2015;true;.
-5;05/01/2015;0;CA;Jeux Steam;-2;Loisirs;;0;;true;06/01/2015;true;.
-6;06/01/2015;0;CA;Série Modif;-34,99;Cadeaux;;0;;true;07/01/2015;true;.
+5;05/01/2015;3;CA;Jeux Steam Remboursement Emprunt;-2;Loisirs;Tier2;0;;true;06/01/2015;true;.
+6;06/01/2015;2;CA;Série S1 à S5 Prêt;-34,99;Cadeaux;Tier5;0;;true;07/01/2015;true;.
 -7;06/01/2015;0;Especes;Cafés;-1,6;Courses;;0;;true;01/01/2022;true;.
 8;07/01/2015;0;CA;VÊTEMENT HOMME SKI TOP;-13,95;Voyage;;0;;true;01/01/2024;true;.
 10;09/01/2015;0;CA;Remboursement Prêt;150;Voyage;;10;id10;true;10/01/2015;false;.

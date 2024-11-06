@@ -371,7 +371,7 @@ func UpdateRowsInFinanceTrackerToMode0(ctx context.Context, db *sql.DB, gofiID i
 		return true	
 	}
 	q = strings.Replace(q, `XnumberOf?`, nbParams, 1)
-	fmt.Printf("q: %v\n", q)
+	// fmt.Printf("q: %v\n", q)
 	_, err := db.ExecContext(ctx, q, anyList...,)
 	if err != nil {
 		fmt.Printf("UpdateRowsInFinanceTrackerToMode0 err2: %#v\n", err)
@@ -549,7 +549,7 @@ func DeleteSpecificRecordsByMode(ctx context.Context, db *sql.DB, gofiID int, in
 		return true	
 	}
 	q = strings.Replace(q, `XnumberOf?`, nbParams, 1)
-	fmt.Printf("q: %v\n", q)
+	// fmt.Printf("q: %v\n", q)
 	_, err := db.ExecContext(ctx, q, anyList...,)
 	if err != nil {
 		fmt.Printf("DeleteSpecificRecordsByMode err2: %#v\n", err)
