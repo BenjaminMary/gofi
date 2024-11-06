@@ -459,6 +459,8 @@ func PostLendOrBorrowRecords(w http.ResponseWriter, r *http.Request, isFrontRequ
 		fmt.Printf("PostLendOrBorrowRecords error0: %v\n", err.Error())
 		return appdata.RenderAPIorUI(w, r, isFrontRequest, false, false, http.StatusBadRequest, "invalid request, double check each field", "")
 	}
+	userContext := r.Context().Value(appdata.ContextUserKey).(*appdata.UserRequest)
+	lb.FT.GofiID = userContext.GofiID
 	lb.FT.Mode = lb.ModeInt
 	isErr := sqlite.InsertUpdateInLenderBorrower(r.Context(), appdata.DB, &lb) // 1.
 	if isErr {
