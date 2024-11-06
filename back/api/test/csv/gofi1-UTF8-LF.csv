@@ -1,9 +1,16 @@
-﻿𫝀é ꮖꭰ;Date;Account;Product;PriceStr;Category;CommentInt;CommentString;Checked;DateChecked;Exported;
-;31/12/1999;-;DELETED LINE;0;-;0;-;true;14/01/2024;false;
-;01/01/2015;Especes;Solde Espèces;83,66;Revenu;0;;true;01/01/2000;false;
-;02/01/2015;CA;PC Portable;-295,11;HighTech;0;Intel Celeron 1037U dual core 1,8GHz 4 GoRAM SSD 120 Go 11.6 LED HD Wi-Fi N/Bluetooth Webcam 4,5heures autonomie 1366 x 768 pixels;true;05/01/2015;true;
-;04/01/2015;CA;Gazole;-38,66;Vehicule;200078;Kms au moment du plein;true;05/01/2015;false;
-;05/01/2015;CA;Jeux Steam;-1,89;Loisirs;0;;true;06/01/2015;false;
-;06/01/2015;CA;Série S1 à S5;-34,99;Cadeaux;0;;true;07/01/2015;false;
-;06/01/2015;Especes;Cafés;-1,6;Courses;0;;true;01/01/2000;false;
-;07/01/2015;CA;VÊTEMENT HOMME SKI TOP;-13,95;Voyage;0;;true;01/01/2000;false;
+﻿𫝀é ꮖꭰ;Date;Mode;Account;Product;PriceStr;Category;ThirdParty;CommentInt;CommentString;Checked;DateChecked;Exported;.
+;31/12/1999;0;-;DELETED LINE;0;-;;0;-;true;14/01/2024;false;.
+;01/01/2015;0;Especes;Solde Espèces;83,66;Revenu;;2;id2;true;01/01/2000;false;.
+;02/01/2015;0;CA;PC Portable;-295,11;HighTech;;3;Intel Celeron 1037U dual core 1,8GHz 4 GoRAM SSD 120 Go 11.6 LED HD Wi-Fi N/Bluetooth Webcam 4,5heures autonomie 1366 x 768 pixels;true;05/01/2015;true;.
+;04/01/2015;0;CA;Gazole;-38,66;Vehicule;;200078;Kms au moment du plein;true;05/01/2015;false;.
+;05/01/2015;0;CA;Jeux Steam;-1,89;Loisirs;;5;id5;true;06/01/2015;false;.
+;06/01/2015;0;CA;Série S1 à S5;-34,99;Cadeaux;;6;id6;true;07/01/2015;false;.
+;06/01/2015;0;Especes;Cafés;-1,6;Courses;;7;id7;true;01/01/2000;false;.
+;07/01/2015;0;CA;VÊTEMENT HOMME SKI TOP;-13,95;Voyage;;8;id8;true;01/01/2000;false;.
+;08/01/2015;2;CA;Prêt;-150;Voyage;Tier1;9;id9;true;09/01/2015;false;.
+;09/01/2015;4;CA;Remboursement Prêt;150;Voyage;Tier1;10;id10;true;10/01/2015;false;.
+;10/01/2015;1;CA;Emprunt;300;Voyage;Tier2;11;id11;true;11/01/2015;false;.
+;11/01/2015;3;CA;Remboursement Emprunt;-100;Voyage;Tier2;12;id12;true;12/01/2015;false;.
+;12/01/2015;3;CA;Remboursement Emprunt;-200;Voyage;Tier2;13;id13;true;13/01/2015;false;.
+;13/01/2015;4;CA;Remboursement Prêt KO;40;Voyage;Tier3;14;-;true;14/01/2015;false;.
+;14/01/2015;3;CA;Remboursement Emprunt KO;30;Voyage;Tier4;15;-;true;15/01/2015;false;.

@@ -14,6 +14,14 @@ import (
 	"github.com/go-chi/render"
 )
 
+// WARNING when the 1st reader is used, no other read can occur
+// bytedata, _ := io.ReadAll(r.Body)
+// fmt.Printf("PostRecordInsert body: %v\n", string(bytedata))
+// fmt.Printf("PostRecordInsert Header: %v\n", r.Header)
+// r.Body.Close() //  must close
+// RESET the body reader
+// r.Body = io.NopCloser(bytes.NewBuffer(bytedata))
+
 func GetRecords(w http.ResponseWriter, r *http.Request, isFrontRequest bool) *appdata.HttpStruct {
 	userContext := r.Context().Value(appdata.ContextUserKey).(*appdata.UserRequest)
 	var filter appdata.FilterRows
@@ -163,36 +171,34 @@ func PostRecordTransfer(w http.ResponseWriter, r *http.Request, isFrontRequest b
 	}
 	userContext := r.Context().Value(appdata.ContextUserKey).(*appdata.UserRequest)
 	ft.GofiID = userContext.GofiID
+	ft.Mode = 0
 	ft.Category = "Transfert"
 	ft.CategoryDetails.CategoryIcon = "e91b"
 	ft.CategoryDetails.CategoryColor = "#999999"
 	ft.DateDetails.MonthStr = appdata.MonthIto3A(ft.DateDetails.Month)
+	ft.FormPriceStr2Decimals = tr.FormPriceStr2Decimals
 
 	//first part to add to
-	ft.FormPriceStr2Decimals = tr.FormPriceStr2Decimals
-	ft.PriceIntx100 = sqlite.ConvertPriceStrToInt(ft.FormPriceStr2Decimals, ".") // always "." as decimal separator from the form
+	ft.PriceDirection = "gain"
 	ft.Account = tr.AccountTo
 	ft.Product = "Transfert+"
 	ftList = append(ftList, ft)
 
 	//second part to remove from
+	ft.PriceDirection = "expense"
 	ft.Account = tr.AccountFrom
 	ft.Product = "Transfert-"
-	ft.FormPriceStr2Decimals = "-" + ft.FormPriceStr2Decimals
-	ft.PriceIntx100 = sqlite.ConvertPriceStrToInt(ft.FormPriceStr2Decimals, ".") // always "." as decimal separator from the form
 	ftList = append(ftList, ft)
 
-	// insert the amount to remove from the first account
-	_, err = sqlite.InsertRowInFinanceTracker(r.Context(), appdata.DB, &ftList[1])
-	if err != nil { // Always check errors even if they should not happen.
-		fmt.Printf("PostRecordTransfer error3: %v\n", err.Error())
-		return appdata.RenderAPIorUI(w, r, isFrontRequest, false, false, http.StatusInternalServerError, "server error", "")
+	_, isErr, httpCode, info := handleFTinsert(r, &ftList[1])
+	if isErr {
+		fmt.Println("PostRecordTransfer error3")
+		return appdata.RenderAPIorUI(w, r, isFrontRequest, false, false, httpCode, info, "")
 	}
-	// insert the amount to add to the second account
-	_, err = sqlite.InsertRowInFinanceTracker(r.Context(), appdata.DB, &ftList[0])
-	if err != nil { // Always check errors even if they should not happen.
-		fmt.Printf("PostRecordTransfer error4: %v\n", err.Error())
-		return appdata.RenderAPIorUI(w, r, isFrontRequest, false, false, http.StatusInternalServerError, "server error", "")
+	_, isErr, httpCode, info = handleFTinsert(r, &ftList[0])
+	if isErr {
+		fmt.Println("PostRecordTransfer error4")
+		return appdata.RenderAPIorUI(w, r, isFrontRequest, false, false, httpCode, info, "")
 	}
 	return appdata.RenderAPIorUI(w, r, isFrontRequest, false, true, http.StatusCreated, "transfer done", ftList)
 }
@@ -332,19 +338,24 @@ func RecordRecurrentSave(w http.ResponseWriter, r *http.Request, isFrontRequest 
 	// ft.ID = rrList[0].ID
 	ft.GofiID = userContext.GofiID
 	ft.Date = rrList[0].Date
+	ft.Mode = 0
 	ft.DateDetails.Year = rrList[0].DateDetails.Year
 	ft.DateDetails.Month = rrList[0].DateDetails.Month
 	ft.DateDetails.Day = rrList[0].DateDetails.Day
 	ft.Account = rrList[0].Account
 	ft.Product = rrList[0].Product
-	ft.FormPriceStr2Decimals = rrList[0].FormPriceStr2Decimals
-	ft.PriceIntx100 = rrList[0].PriceIntx100
 	ft.Category = rrList[0].Category
-
-	_, err := sqlite.InsertRowInFinanceTracker(r.Context(), appdata.DB, &ft)
-	if err != nil { // Always check errors even if they should not happen.
-		fmt.Printf("RecordRecurrentSave error2: %v\n", err.Error())
-		return appdata.RenderAPIorUI(w, r, isFrontRequest, false, false, http.StatusInternalServerError, "server error", "")
+	if rrList[0].PriceIntx100 < 0 {
+		ft.PriceDirection = "expense"
+		ft.FormPriceStr2Decimals = rrList[0].FormPriceStr2Decimals[1:] //remove the first "-"
+	} else {
+		ft.PriceDirection = "gain"
+		ft.FormPriceStr2Decimals = rrList[0].FormPriceStr2Decimals
+	}
+	_, isErr, httpCode, info := handleFTinsert(r, &ft)
+	if isErr {
+		fmt.Println("RecordRecurrentSave error2")
+		return appdata.RenderAPIorUI(w, r, isFrontRequest, false, false, httpCode, info, "")
 	}
 	// 1 reinit date in EN- format, 2 compute new date, 3 extract YYYYMMDD
 	rrList[0].Date, _, _ = sqlite.ConvertDateIntToStr(rrList[0].DateDetails.Year, rrList[0].DateDetails.Month, rrList[0].DateDetails.Day, "EN", "-")
@@ -437,25 +448,30 @@ func RecordCancel(w http.ResponseWriter, r *http.Request, isFrontRequest bool) *
 }
 
 func PostLendOrBorrowRecords(w http.ResponseWriter, r *http.Request, isFrontRequest bool) *appdata.HttpStruct {
-	// WARNING when the 1st reader is used, no other read can occur
-	// bytedata, _ := io.ReadAll(r.Body)
-	// fmt.Printf("PostRecordInsert body: %v\n", string(bytedata))
-	// fmt.Printf("PostRecordInsert Header: %v\n", r.Header)
-	// r.Body.Close() //  must close
-	// RESET the body reader
-	// r.Body = io.NopCloser(bytes.NewBuffer(bytedata))
+	/*
+		1. check lenderBorrower, already exist or to create
+			- if it's to create, accept only in mode 1 (lend) or 2 (borrow), stop the process otherwise
+		2. create row in financeTracker
+		3. create row to match financeTracker ID and lenderBorrower ID
+	*/
 	lb := appdata.LendBorrow{}
 	if err := render.Bind(r, &lb); err != nil {
 		fmt.Printf("PostLendOrBorrowRecords error0: %v\n", err.Error())
 		return appdata.RenderAPIorUI(w, r, isFrontRequest, false, false, http.StatusBadRequest, "invalid request, double check each field", "")
 	}
+	userContext := r.Context().Value(appdata.ContextUserKey).(*appdata.UserRequest)
+	lb.FT.GofiID = userContext.GofiID
 	lb.FT.Mode = lb.ModeInt
-	idFT, isErr, httpCode, info := handleFTinsert(r, &lb.FT)
+	isErr := sqlite.InsertUpdateInLenderBorrower(r.Context(), appdata.DB, &lb) // 1.
+	if isErr {
+		return appdata.RenderAPIorUI(w, r, isFrontRequest, false, false, http.StatusInternalServerError, "error", "")
+	}
+	idFT, isErr, httpCode, info := handleFTinsert(r, &lb.FT) // 2.
 	if isErr {
 		return appdata.RenderAPIorUI(w, r, isFrontRequest, false, false, httpCode, info, "")
 	}
 	lb.FT.ID = int(idFT)
-	isErr = sqlite.InsertUpdateInLenderBorrower(r.Context(), appdata.DB, &lb)
+	isErr = sqlite.InsertInSpecificRecordsByMode(r.Context(), appdata.DB, &lb) // 3.
 	if isErr {
 		return appdata.RenderAPIorUI(w, r, isFrontRequest, false, false, http.StatusInternalServerError, "error", "")
 	}
@@ -493,6 +509,9 @@ func handleFTinsert(r *http.Request, ft *appdata.FinanceTracker) (int64, bool, i
 		return 0, true, http.StatusBadRequest, "invalid PriceDirection"
 	} else if ft.PriceDirection == "expense" {
 		ft.FormPriceStr2Decimals = "-" + ft.FormPriceStr2Decimals
+	}
+	if ft.DateChecked == "" {
+		ft.DateChecked = "9999-12-31"
 	}
 	ft.PriceIntx100 = sqlite.ConvertPriceStrToInt(ft.FormPriceStr2Decimals, ".") // always "." as decimal separator from the form
 	userContext := r.Context().Value(appdata.ContextUserKey).(*appdata.UserRequest)

@@ -10,25 +10,10 @@
     - table pour stocker l'ID de la dernière migration jouée 
 - ☐❗ système de gestion d'achat sur la durée
     - période prévisionnelle avant nouvel achat
-- ☐❗ système de gestion de prêt/emprunt
-    - ☐❗❗❗ gérer le mode + lien au tier partie .csv (import + export)
-        - partie .csv, on peut complètement décoreller le .csv des tables
-        - faire en sorte de récupérer le nom du tier lorsque relié et vérifier l'id correspondant (potentielle création) lors d'un import
-- stats, 
-    - new apex chart, 
-        - ☑ lines
-            - ☑ suivi des montants sur chaque compte
-            - ☒ regroupement et cumul global de l'ensemble des comptes
-        - stacked bars
-            - ☑ fix categories, Voyage manquant + possibles catégo manquantes dans l'initialisation
-            - ☑ fix changement d'année
-            - ☑ fix dernière stack bar 2024 mal groupée, quelques catégories se superposent
-            - ☑ ajouter 1 bouton pour suppr toutes les catégories + 1 autre pour toutes les remettre
-            - ☑ ajouter 1 liste de catégo par défaut à l'ouverture de la page
-            - ☑ ajouter un switch mois/année
-            - ☑ ajouter un switch gains/dépense
-            - ☐❗ afficher les noms des catégories lors du clic/survol d'une catégo dans le graph
-            - ☑ retirer la fonctionnalité de grouper les catégories, inutile
+- stats 
+    - stacked bars
+        - ☐❗ afficher les noms des catégories lors du clic/survol d'une catégo dans le graph
+    - ☐ sur le nombre de requêtes des utilisateurs pour voir les actifs ? (tableau admin?)
 - ☐ faire des tests automatisés pour la partie front
 - ☐ ajout système de données récurrentes:
     - ☐ améliorer l'UI en bloquant l'espace via `visibility: hidden`, permettra de ne plus faire de trou dans la page au changement
@@ -55,9 +40,6 @@
     - ☐ un utilisateur admin du compte qui peut en ajouter d'autres (max 5)
     - ☐ les autres utilisateurs peuvent se connecter en simultané sur le compte sans possibilité d'ajout d'autres nouveaux
     - ☐ 1 ligne de login active par utilisateur, permettra du multi utilisateur / multi login sur différentes plateformes
-- ☐ Ajout de statistiques 
-    - ☐ sur le nombre de requêtes des utilisateurs pour voir les actifs ? (tableau admin?)
-    - ☑ ajouter un graph des dépenses mois par mois (des 12 derniers mois)
 
 
 ## Done
@@ -99,6 +81,17 @@
         - ☑ en jouant toutes les sauvegardes historisées dans l'ordre chronologique, on retrouve l'état des données souhaité
         - ☑ ajout d'une option de RAZ de la colonne `exported`
     - ☑ ajouter un champ `.` à la fin du csv pour permettre l'édition dans Excel + sauvegarde et réimporter directement
+    - ☑ gérer le mode + lien au tier partie .csv (import + export)
+        - partie .csv, on peut complètement décoreller le .csv des tables
+        - ☑ ajout de 2 colonnes dans le .csv `Mode` + `ThirdParty`
+        - ☑ récupérer le nom du tier lorsque relié 
+        - ☑ vérifier le nom du tier correspondant (potentielle création) lors d'un import
+        - ☑ supprimer la partie tier sur les lignes en mode 0 (sans aucun lien) lors d'update (possible annulation de prêt/emprunt)
+        - ☑ gérer également le mode d'enregistrement de la ligne 0à4
+        - ☑ gérer les noms des tiers en mode export
+        - ☑ modification d'un tier attaché à une ligne 
+            - ☑ passage d'un mode 0 à un mode 1à4 avec tier existant
+            - ☑ passage d'un mode 0 à un mode 1à2 avec création de tier
 - ☑ Ajout de statistiques 
     - ☑ pouvoir différencier les montants déjà validés vs non validés
     - ☑ visualisation des données avec filtre et tri via table simple
@@ -121,6 +114,7 @@
             1. créer un prêt ou emprunt qui autorise une création de tier ou utilisation d'un tier existant
             2. remboursement qui autorise uniquement l'utilisation d'un tier existant
     - ☑ faire un système de specific record générique, avec mode qui change le fonctionnement de la table 
+    - ☑ gérer ce nouveau mode partie import/export csv (détails partie csv)
 - ☑ passer l'affichage des boutons de l'accueil via 2 modes, simple et avancé
     - le + utile:
         - saisie simple
@@ -137,6 +131,20 @@
         - catégos
         - exp csv
         - imp csv
+- ☑ stats, 
+    - ☑ lines
+        - ☑ suivi des montants sur chaque compte
+        - ☒ regroupement et cumul global de l'ensemble des comptes
+    - ☑ stacked bars
+        - ☑ fix categories, Voyage manquant + possibles catégo manquantes dans l'initialisation
+        - ☑ fix changement d'année
+        - ☑ fix dernière stack bar 2024 mal groupée, quelques catégories se superposent
+        - ☑ ajouter 1 bouton pour suppr toutes les catégories + 1 autre pour toutes les remettre
+        - ☑ ajouter 1 liste de catégo par défaut à l'ouverture de la page
+        - ☑ ajouter un switch mois/année
+        - ☑ ajouter un switch gains/dépense
+        - ☑ retirer la fonctionnalité de grouper les catégories, inutile
+        - ☑ ajouter un graph des dépenses mois par mois (des 12 derniers mois)
 
 ## Infos
 - PWA

@@ -335,11 +335,13 @@ func ValidateRowsInFinanceTracker(ctx context.Context, db *sql.DB, gofiID int, c
 func InsertRowInFinanceTracker(ctx context.Context, db *sql.DB, ft *appdata.FinanceTracker) (int64, error) {
 	result, err := db.ExecContext(ctx, `
 		INSERT INTO financeTracker (gofiID, dateIn, year, month, day, 
-			account, product, priceIntx100, category, mode)
-		VALUES (?,?,?,?,?,?,?,?,?,?);
+			account, product, priceIntx100, category, mode,
+			commentInt, commentString, checked, dateChecked)
+		VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?);
 		`,
 		ft.GofiID, ft.Date, ft.DateDetails.Year, ft.DateDetails.Month, ft.DateDetails.Day,
 		ft.Account, ft.Product, ft.PriceIntx100, ft.Category, ft.Mode,
+		ft.CommentInt, ft.CommentString, ft.Checked, ft.DateChecked,
 	)
 	if err != nil {
 		fmt.Printf("InsertRowInFinanceTracker err1: %#v\n", err)
@@ -369,7 +371,7 @@ func UpdateRowsInFinanceTrackerToMode0(ctx context.Context, db *sql.DB, gofiID i
 		return true	
 	}
 	q = strings.Replace(q, `XnumberOf?`, nbParams, 1)
-	fmt.Printf("q: %v\n", q)
+	// fmt.Printf("q: %v\n", q)
 	_, err := db.ExecContext(ctx, q, anyList...,)
 	if err != nil {
 		fmt.Printf("UpdateRowsInFinanceTrackerToMode0 err2: %#v\n", err)
@@ -514,8 +516,7 @@ func InsertUpdateInLenderBorrower(ctx context.Context, db *sql.DB, lb *appdata.L
 		fmt.Printf("InsertUpdateInLenderBorrower in multiple rows, nb: %v\n", nbRows)
 		return true
 	}
-	isErr := InsertInSpecificRecordsByMode(ctx, db, lb)
-	return isErr
+	return false
 }
 
 func UpdateStateInLenderBorrower(ctx context.Context, db *sql.DB, lb *appdata.LenderBorrower) bool {
@@ -527,7 +528,7 @@ func UpdateStateInLenderBorrower(ctx context.Context, db *sql.DB, lb *appdata.Le
 		lb.IsActive, lb.ID,
 	)
 	if err != nil {
-		fmt.Printf("InsertUpdateInLenderBorrower err1: %#v\n", err)
+		fmt.Printf("UpdateStateInLenderBorrower err1: %#v\n", err)
 		return true
 	}
 	return false
@@ -548,7 +549,7 @@ func DeleteSpecificRecordsByMode(ctx context.Context, db *sql.DB, gofiID int, in
 		return true	
 	}
 	q = strings.Replace(q, `XnumberOf?`, nbParams, 1)
-	fmt.Printf("q: %v\n", q)
+	// fmt.Printf("q: %v\n", q)
 	_, err := db.ExecContext(ctx, q, anyList...,)
 	if err != nil {
 		fmt.Printf("DeleteSpecificRecordsByMode err2: %#v\n", err)
