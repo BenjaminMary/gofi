@@ -4,7 +4,6 @@
 
 - ☐❗refonte de la page de gestion des comptes
     - ajouter une possibilité de désactiver des comptes (attention à bien bloquer la création d'un compte déjà désactivé)
-
 - ☐❗mini système de gestion de migration de la DB
     - check coherence entre état de la DB actuel VS attendu via dernière migration
     - table pour stocker l'ID de la dernière migration jouée 
@@ -106,6 +105,7 @@
     - ☑ stats sur les budgets activés
     - ☒ info sur le budget en cours à la saisie ?
 - ☑ système de gestion de prêt/emprunt
+    - ☑ icone + catégories spé à mettre en présélection auto selon sélection mode 1à4
     - ☑ faire une page front de recap par personne avec les montants du et remboursés
         - ☑ ajouter un script js qui gère la sélection de ligne d'en tête pour afficher le détail associé (via bouton switch on/off ?)
         - ☑ ajouter la gestion des noms des LB

@@ -147,7 +147,7 @@ func GetLenderBorrowerStats(w http.ResponseWriter, r *http.Request) {
 func GetLendBorrowRecord(w http.ResponseWriter, r *http.Request) {
 	jsonFT := api.GetRecords(w, r, true)
 	jsonFTlist := jsonFT.AnyStruct.([]appdata.FinanceTracker)
-	jsonUP := api.GetParam(w, r, true, "type", "basic", false)
+	jsonUP := api.GetParam(w, r, true, "lendborrow", "", false)
 	jsonUserParam := jsonUP.AnyStruct.(appdata.UserParams)
 	currentTime := time.Now()
 	currentDate := currentTime.Format(time.DateOnly) // YYYY-MM-DD

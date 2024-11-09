@@ -88,32 +88,6 @@ templ whoDataList(lbListActive []appdata.LenderBorrower) {
     <input type="text" id="createLenderBorrowerName" name="createLenderBorrowerName" placeholder="créer un nouveau tier" disabled />
 }
 
-templ categoryCustomRadioInput(categoryListOfList [][]string) {
-    <!-- Custom Radios Select Dropdown -->
-    <span id="categoryLabel">
-        <!-- boxes = Catégorie -->
-        <svg stroke="currenColor" width="18" heigth="18" viewBox="0 0 24 24"><use xlink:href="/img/icons.svg#lucide-tag"></use></svg>                            
-        Catégorie
-    </span>
-    <details id="categoryDropdown" class="dropdown">
-        <summary>
-            <span id="summaryIcon" class={ "icomoon", categoryListOfList[0][1] }>&#x{ categoryListOfList[0][1] };</span>
-            <span id="summaryCategory">{ categoryListOfList[0][0] }</span>
-        </summary>
-        <ul id="overflowLimitHeight">
-            for _, itemList := range categoryListOfList {
-                <li>
-                    <label>
-                        <input id={ itemList[3] } type="radio" name="categorie" value={ itemList[0] }/>
-                        <span id={ itemList[4] } class={ "icomoon", itemList[1] }>&#x{ itemList[1] };</span>
-                        { itemList[0] }
-                    </label>
-                </li>
-            }
-        </ul>
-    </details>
-}
-
 templ categoriesCustomRadioInput(uc *appdata.UserCategories, inputName string) {
     <!-- Custom Radios Select Dropdown -->
     <span id="categoryLabel">

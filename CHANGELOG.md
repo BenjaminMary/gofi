@@ -1,6 +1,7 @@
 # Changelog
 
 ## v1 rework with go-chi
+- 2024-11-09 : feat: new icon and categories selected by default for lending or borrowing
 - 2024-11-06 : 
     - feat: handle the update of row with a thirdParty in .csv
     - fix: put back the user id in lenderBorrower table

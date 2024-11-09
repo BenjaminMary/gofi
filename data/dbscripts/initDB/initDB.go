@@ -99,7 +99,7 @@ func initDB(folder string, dbName string) {
 			id INTEGER PRIMARY KEY AUTOINCREMENT, 
 			gofiID INTEGER, -- NOT NULL,
 			category TEXT NOT NULL,
-			catWhereToUse TEXT NOT NULL, /* 'all'= everywhere, 'periodic'= recurrent record, 'specific'= transfer, 'basic'= standard record */
+			catWhereToUse TEXT NOT NULL, /* 'all'= everywhere, 'periodic'= recurrent record, 'specific'= transfer/lendborrow, 'basic'= standard record */
 			catOrder INTEGER, -- NOT NULL,
 			inUse INTEGER DEFAULT 1,
 			defaultInStats INTEGER DEFAULT 1,
@@ -151,6 +151,12 @@ func initDB(folder string, dbName string) {
 			(-1, 'Erreur', 		'basic', 	22, 0, 1, 
 				'Utile lorsqu''on souhaite corriger un montant global sans savoir réellement quel était l''achat en question.',
 				'bug', 'e909', 'red', '(335,60,50)', '#CC3373'),
+			(-1, 'Pret', 	'specific', -2, 1, 0, 
+				'Utilisable uniquement par le système lors de l''utilisation de la fonction prêt.',
+				'lend-hand-coin', 'e921', 'blue grey', '(210,30,40)', '#476685'),
+			(-1, 'Emprunt', 	'specific', -1, 1, 0, 
+				'Utilisable uniquement par le système lors de l''utilisation de la fonction emprunt.',
+				'borrow-hand-coin', 'e922', 'blue grey', '(230,30,40)', '#475285'),
 			(-1, 'Transfert', 	'specific', 97, 1, 0, 
 				'Utilisé uniquement par le système lors de l''utilisation de la fonction transfert.',
 				'arrow-right-left', 'e91b', 'grey', '(0,0,40)', '#666666'),

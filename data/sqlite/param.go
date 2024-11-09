@@ -141,6 +141,12 @@ func InitCategoriesForUser(ctx context.Context, db *sql.DB, gofiID int) {
 				(?1, 'Erreur', 		'basic', 	22, 0, 1, 
 					'Utile lorsqu''on souhaite corriger un montant global sans savoir réellement quel était l''achat en question.',
 					'bug', 'e909', 'red', '(335,60,50)', '#CC3373'),
+				(?1, 'Pret', 	'specific', -2, 1, 0, 
+					'Utilisable uniquement par le système lors de l''utilisation de la fonction prêt.',
+					'lend-hand-coin', 'e921', 'blue grey', '(210,30,40)', '#476685'),
+				(?1, 'Emprunt', 	'specific', -1, 1, 0, 
+					'Utilisable uniquement par le système lors de l''utilisation de la fonction emprunt.',
+					'borrow-hand-coin', 'e922', 'blue grey', '(230,30,40)', '#475285'),
 				(?1, 'Transfert', 	'specific', 97, 1, 0, 
 					'Utilisé uniquement par le système lors de l''utilisation de la fonction transfert.',
 					'arrow-right-left', 'e91b', 'grey', '(0,0,40)', '#666666'),
@@ -180,7 +186,7 @@ func InitCategoriesForUser(ctx context.Context, db *sql.DB, gofiID int) {
 			log.Fatalf("InitCategoriesForUser query error5: %v\n", err)
 			//default:
 		}
-		if rowsAffected != 5 {
+		if rowsAffected != 7 {
 			log.Fatalf("InitCategoriesForUser query error6 rowsAffected: %v\n", rowsAffected)
 		}
 	}
@@ -215,7 +221,15 @@ func GetFullCategoryList(ctx context.Context, db *sql.DB, uc *appdata.UserCatego
 		q = strings.Replace(q, `OTHER FILTERS`,
 			` budgetPrice <> 0 
 			 AND inUse = 1 `, 1)
-		rows, err = db.QueryContext(ctx, q, uc.GofiID, filterValue)
+		rows, err = db.QueryContext(ctx, q, uc.GofiID)
+	case "lendborrow":
+		q = strings.Replace(q, `OTHER FILTERS`,
+			` catWhereToUse IN ('all', 'basic')
+			AND inUse = 1
+			OR (
+				gofiID = ? 
+				AND category IN ('Pret', 'Emprunt')) `, 1)
+		rows, err = db.QueryContext(ctx, q, uc.GofiID, uc.GofiID)
 	}
 	if err != nil {
 		fmt.Printf("error in GetFullCategoryList QueryContext: %v\n", err)

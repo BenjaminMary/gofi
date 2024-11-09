@@ -17,12 +17,12 @@ script categoryDropdown(uc *appdata.UserCategories) {
         document.getElementById(inputId).addEventListener('click', function(c){
             index = parseInt(this.id.replace("input",""));
             //console.log(categoryList[index]);
-            document.getElementById('summaryCategory').innerHTML = uc.Categories[index].Name
-            document.getElementById('summaryIcon').innerHTML = "&#x" + uc.Categories[index].IconCodePoint + ";"
+            document.getElementById('summaryCategory').innerHTML = uc.Categories[index].Name;
+            document.getElementById('summaryIcon').innerHTML = "&#x" + uc.Categories[index].IconCodePoint + ";";
             // document.getElementById('summaryIcon').style.backgroundColor = categoryList[index][2]
-            bgclass = document.getElementById('summaryIcon').classList.item(1)
-            document.getElementById('summaryIcon').classList.remove(bgclass)
-            document.getElementById('summaryIcon').classList.add(uc.Categories[index].IconCodePoint)
+            bgclass = document.getElementById('summaryIcon').classList.item(1);
+            document.getElementById('summaryIcon').classList.remove(bgclass);
+            document.getElementById('summaryIcon').classList.add(uc.Categories[index].IconCodePoint);
             document.getElementById('categoryDropdown').open = false;
         });
     };
@@ -326,12 +326,12 @@ templ GetLendBorrowRecord(jsonFT []appdata.FinanceTracker, jsonUP appdata.UserPa
             @BotScriptThemeSwitcher()
             @BotScriptHTMXhandleError()
             @categoryDropdown(jsonUP.Categories)
-            @amountDirection()
+            @amountDirection(jsonUP.Categories)
             @createLenderBorrower()
         </body>
     </html>
 }
-script amountDirection() {
+script amountDirection(uc *appdata.UserCategories) {
     // this script adapt the amount direction with the mode selected 
     // .disabled on radio buttons, because .readOnly does not work on radio
     // document.getElementById('gain').disabled = true; not disabled because default option 
@@ -349,6 +349,24 @@ script amountDirection() {
             document.getElementById('expense').checked = true;
         }
         else {console.log("unhandled")};
+        if (["1","3"].includes(this.value)){
+            document.getElementById('input1').checked = true;
+            index = 1;
+            document.getElementById('summaryCategory').innerHTML = uc.Categories[index].Name;
+            document.getElementById('summaryIcon').innerHTML = "&#x" + uc.Categories[index].IconCodePoint + ";";
+            bgclass = document.getElementById('summaryIcon').classList.item(1);
+            document.getElementById('summaryIcon').classList.remove(bgclass);
+            document.getElementById('summaryIcon').classList.add(uc.Categories[index].IconCodePoint);
+        }
+        else if (["2","4"].includes(this.value)){
+            document.getElementById('input0').checked = true;
+            index = 0;
+            document.getElementById('summaryCategory').innerHTML = uc.Categories[index].Name;
+            document.getElementById('summaryIcon').innerHTML = "&#x" + uc.Categories[index].IconCodePoint + ";";
+            bgclass = document.getElementById('summaryIcon').classList.item(1);
+            document.getElementById('summaryIcon').classList.remove(bgclass);
+            document.getElementById('summaryIcon').classList.add(uc.Categories[index].IconCodePoint);
+        }
     });
 }
 script createLenderBorrower() {
@@ -362,7 +380,7 @@ script createLenderBorrower() {
     });
     document.getElementById("modeStr").addEventListener('change', function(w){
         modeValue = this.value;
-        console.log("modeValue: " + modeValue)
+        // console.log("modeValue: " + modeValue)
         if (["1","2"].includes(modeValue)){ //lbMode
             document.getElementById('createLenderBorrowerName').disabled = false;
         }
