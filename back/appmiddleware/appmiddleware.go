@@ -10,6 +10,7 @@ import (
 	"gofi/gofi/data/appdata"
 	"gofi/gofi/data/sqlite"
 	"gofi/gofi/front"
+	"gofi/gofi/front/htmlComponents"
 )
 
 func MaintenanceMode(next http.Handler) http.Handler {
@@ -30,6 +31,7 @@ func AddContextUserAndTimeout(next http.Handler) http.Handler {
 		userContext := &appdata.UserRequest{}
 		userContext.IsAdmin = false
 		userContext.IsAuthenticated = false
+		userContext.IsFront = false
 		// r.URL.Path is used while testing where r.RequestURI isn't
 		// fmt.Printf("r.URL.Path: %v\n", r.URL.Path)
 		// if len(r.URL.Path) < 5 {
@@ -118,6 +120,7 @@ func CheckHeader(next http.Handler) http.Handler {
 func CheckCookie(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		userContext := r.Context().Value(appdata.ContextUserKey).(*appdata.UserRequest)
+		userContext.IsFront = true
 		cookieStruct, err := r.Cookie("gofiID")
 		if err == nil {
 			err = cookieStruct.Valid()
@@ -145,7 +148,11 @@ func AuthenticatedUserOnly(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		userContext := r.Context().Value(appdata.ContextUserKey).(*appdata.UserRequest)
 		if !userContext.IsAuthenticated {
-			appdata.RenderAPIorUI(w, r, false, false, false, http.StatusUnauthorized, "please login", "")
+			appdata.RenderAPIorUI(w, r, userContext.IsFront, false, false, http.StatusUnauthorized, "please login", "")
+			if userContext.IsFront {
+				// TODO: return a 401
+				htmlComponents.Lost().Render(r.Context(), w)
+			}
 			return
 		}
 		next.ServeHTTP(w, r)

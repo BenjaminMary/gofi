@@ -20,6 +20,10 @@ func TemplIndex(w http.ResponseWriter, r *http.Request) {
 	userContext := r.Context().Value(appdata.ContextUserKey).(*appdata.UserRequest)
 	htmlComponents.IndexHtmlContent(userContext).Render(r.Context(), w)
 }
+func Lost(w http.ResponseWriter, r *http.Request) {
+	// TODO: return a 404
+	htmlComponents.Lost().Render(r.Context(), w)
+}
 
 // USER
 func GetCreateUser(w http.ResponseWriter, r *http.Request) {

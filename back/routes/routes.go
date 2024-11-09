@@ -152,6 +152,7 @@ func (s *Server) MountFrontHandlers() {
 	// Mount all front handlers here
 	s.Router.Route("/", func(r chi.Router) {
 		r.Use(appmiddleware.CheckCookie)
+		r.NotFound(front.Lost)
 		r.Get("/", front.TemplIndex)
 
 		// USERS

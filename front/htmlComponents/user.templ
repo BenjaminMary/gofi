@@ -74,6 +74,22 @@ templ PostCreateUser(httpStatus int) {
             </div>
 	}
 }
+templ Lost() {
+    <!DOCTYPE html>
+    <html lang="fr">
+        <head>
+            @Header()
+        </head>
+        <body class="container-fluid">
+            <main>
+                <h1>Perdu</h1>
+                @Nav("top", "/", "/img/icons.svg#feather-home", "Accueil", "contrast outline",
+                    "/user/login", "/img/icons.svg#feather-user-check", "Se connecter", "contrast")
+            </main>
+            @BotScriptThemeSwitcher()
+        </body>
+    </html>
+}
 templ GetLogin(json *appdata.UserRequest) {
     <!DOCTYPE html>
     <html lang="fr">

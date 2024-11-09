@@ -269,6 +269,7 @@ type UserRequest struct {
 	PwHash          string `json:"-"` // "-" = not returned
 	IsAdmin         bool   `json:"-"`
 	IsAuthenticated bool   `json:"-"`
+	IsFront 		bool   `json:"-"`
 }
 
 func (a *UserRequest) Bind(r *http.Request) error {
