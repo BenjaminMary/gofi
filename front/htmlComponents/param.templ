@@ -74,22 +74,41 @@ templ GetParamAccount(json appdata.UserParams) {
         <body class="container-fluid">
             <main>
                 <h1>Gérer les comptes</h1>
-                <section id="createAccountSection">
+                <section id="createAccSection">
                     <details>
                         <summary role="button" class="contrast">
                             <strong>Créer un nouveau compte</strong>
                         </summary>
                         <h5>Créer un compte</h5>
                         <div>
-                            <!-- info -->
-                            <svg width="24" height="24" viewBox="0 0 24 24" stroke="#FFC000"><use xlink:href="/img/icons.svg#feather-info"></use></svg>
-                            Abréger l'intitulé du compte pour gagner en lisibilité dans toute l'application.<br/>
-                            <small> 
-                                Il est conseillé de faire en 4 caractères maximum, exemples: 
+                            Minimum 2 caractères et maximum 5, caractères <code>espace</code> et <code>-</code> interdits, exemples: 
+                            <small>
                                 <ul>
-                                    <li>Crédit Agricole => "CA"</li>
-                                    <li>Société Générale => "SG"</li>
-                                    <li>Espèces => "Esp"</li>
+                                    <li>
+                                        <!-- green check square -->
+                                        <svg width="18" height="18" viewBox="0 0 24 24"><use xlink:href="/img/icons.svg#feather-green-check-square"></use></svg>
+                                        Crédit Agricole => "CA"
+                                    </li>
+                                    <li>
+                                        <!-- green check square -->
+                                        <svg width="18" height="18" viewBox="0 0 24 24"><use xlink:href="/img/icons.svg#feather-green-check-square"></use></svg>
+                                        Société Générale => "SG"
+                                    </li>
+                                    <li>
+                                        <!-- green check square -->
+                                        <svg width="18" height="18" viewBox="0 0 24 24"><use xlink:href="/img/icons.svg#feather-green-check-square"></use></svg>
+                                        Espèces => "Esp"
+                                    </li>
+                                    <li>
+                                        <!-- red x square -->
+                                        <svg width="18" height="18" viewBox="0 0 24 24" stroke="firebrick"><use xlink:href="/img/icons.svg#feather-x-square"></use></svg>
+                                        Crédit Agricole => "C A"
+                                    </li>
+                                    <li>
+                                        <!-- red x square -->
+                                        <svg width="18" height="18" viewBox="0 0 24 24" stroke="firebrick"><use xlink:href="/img/icons.svg#feather-x-square"></use></svg>
+                                        Crédit Agricole => "C-A"
+                                    </li>
                                 </ul>
                             </small>
                             <!-- Text -->
@@ -114,8 +133,14 @@ templ GetParamAccount(json appdata.UserParams) {
                                 <svg stroke="currenColor" width="18" heigth="18" viewBox="0 0 24 24"><use xlink:href="/img/icons.svg#lucide-landmark"></use></svg>
                                 intitulé du compte.
                             </li>
-                        </ul>
-                        <ul>
+                            <li>
+                                <!-- toggle-right -->
+                                <svg stroke="currenColor" width="20" heigth="20" viewBox="0 0 24 24"><use xlink:href="/img/icons.svg#lucide-toggle-right"></use></svg>
+                                bascule le compte en 
+                                <!-- red x square -->
+                                <svg width="18" height="18" viewBox="0 0 24 24" stroke="firebrick"><use xlink:href="/img/icons.svg#feather-x-square"></use></svg>
+                                inactif.
+                            </li>
                             <li>
                                 <!-- arrow-up-down -->
                                 <svg width="18" height="18" viewBox="0 0 24 24"><use xlink:href="/img/icons.svg#lucide-arrow-up-down"></use></svg>
@@ -126,15 +151,65 @@ templ GetParamAccount(json appdata.UserParams) {
                     <table id="accountTable" class="striped">
                         @accountTable(json.AccountList)
                     </table>
+                    <hr/>
+                    if len(json.AccountListUnhandled) > 0 {
+                        <h5>Comptes utilisés mais désactivés</h5>
+                        <p>Au moins 1 enregistrement utilise un compte qui ne fait pas partie de la liste ci-dessus.</p>
+                        <small><i>
+                            2 possibilités:
+                            <ol>
+                                <li>soit on rajoute ces comptes dans la liste actuelle en le créant</li>
+                                <li>soit on modifie ces comptes inconnus en comptes existants via <code>.csv</code></li>
+                            </ol>
+                            Pour modifier ces comptes, dans le cas 2: 
+                            <ul>
+                                <li>exporter les données sous format <code>.csv</code></li>
+                                <li>rechercher les comptes de la liste ci-dessous</li>
+                                <li>garder uniquement les lignes concernées par cette recherche dans le fichier <code>.csv</code></li>
+                                <li>modifier les cas trouvés avec des comptes utilisées de la liste ci-dessus</li>
+                                <li>importer le <code>.csv</code> corrigé</li>
+                            </ul>
+                        </i></small>
+                        <div class="overflow-auto">
+                            <figure>
+                                <table class="striped">
+                                    <thead>
+                                        <tr>
+                                            <th scope="col">
+                                                <!-- landmark = Compte -->
+                                                <svg stroke="currenColor" width="28" heigth="28" viewBox="0 0 24 24"><use xlink:href="/img/icons.svg#lucide-landmark"></use></svg>
+                                            </th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        for _, account := range json.AccountListUnhandled {
+                                            <tr><td>{ account }</td></tr>
+                                        }
+                                    </tbody>
+                                </table>
+                            </figure>
+                        </div>
+                        <hr/>
+                    }
                     <div id="htmxInfo">
                         <form id="formAccount"
                             hx-post="/param/account" 
-                            hx-trigger="onArrowClick" 
+                            hx-trigger="onEventJs" 
                             hx-target="#accountTable" 
                             hx-swap="innerHTML"
                             hx-sync="this:drop">
                             <!-- Text -->
-                            <input type="text" id="accountList" name="ParamJSONstringData" value={json.AccountListSingleString} required readonly hidden />
+                            <input type="text" id="accountList" name="ParamJSONstringData" required readonly hidden />
+                        </form>
+                        <form id="formAccountDisable"
+                            hx-post="/param/account" 
+                            hx-trigger="onEventDisableJs" 
+                            hx-target="#accountTable" 
+                            hx-swap="innerHTML"
+                            hx-sync="this:drop"
+                            hx-on::after-request="if(event.detail.successful) location.reload();">
+                            <!-- Text -->
+                            <input type="text" id="accountListDisable" name="ParamJSONstringData" required readonly hidden />
                         </form>
                     </div>
                 </section>
@@ -155,6 +230,10 @@ templ accountTable(accountList []string) {
                 <svg stroke="currenColor" width="28" heigth="28" viewBox="0 0 24 24"><use xlink:href="/img/icons.svg#lucide-landmark"></use></svg>
             </th>
             <th scope="col">
+                <!-- inUse = ON/OFF -->
+                <svg stroke="currenColor" width="32" heigth="32" viewBox="0 0 24 24"><use xlink:href="/img/icons.svg#lucide-toggle-right"></use></svg>
+            </th>
+            <th scope="col">
                 <!-- arrow-up-down -->
                 <svg width="24" height="24" viewBox="0 0 24 24"><use xlink:href="/img/icons.svg#lucide-arrow-up-down"></use></svg>
             </th>
@@ -165,6 +244,9 @@ templ accountTable(accountList []string) {
             <tr id={ "tr-" + account }>
                 <td>
                     { account }
+                </td>
+                <td>
+                    <input type="checkbox" id={ "desactivate-" + account } role="switch" checked />
                 </td>
                 <td>
                     // the arrow button ID is the real name of the matching account : u = up
@@ -186,17 +268,39 @@ script botScriptAddClickEventToTableAccButtons(accountList []string) {
     // this part of the script adds click events to create account
     document.getElementById("createAccount").addEventListener('click', function(c){
         var accountToCreate = document.getElementById("accountToCreate").value.trim();
-        if (accountArray.indexOf(accountToCreate) == -1) {
-            accountArray.push(accountToCreate);
-            document.getElementById("accountList").value = accountArray.toString();
-            htmx.trigger("#formAccount", "onArrowClick");
-            document.getElementById('infoText').innerHTML = "Compte créé.";
-        } else {
-            console.log("Requête annulée car nom de compte déjà existant.")
-            document.getElementById('infoText').innerHTML = "Impossible de créer un compte déjà existant.";
-        }
-        document.getElementById("accountToCreate").value = "";
-        setTimeout(function() { document.getElementById('infoText').innerHTML = ""; }, 3000);
+        // console.log("accountArray: " + accountArray);
+        // console.log("accountToCreate: " + accountToCreate);
+        if (accountToCreate.length > 0) {
+            switch(true) {
+                case (accountToCreate.length < 2):
+                    console.log("Requête annulée car nombre de caractères inférieur à 2.");
+                    document.getElementById('infoText').innerHTML = "Impossible de créer un compte avec moins de 2 caractères.";
+                    break;
+                case (accountToCreate.length > 5):
+                    console.log("Requête annulée car nombre de caractères supérieur à 5.");
+                    document.getElementById('infoText').innerHTML = "Impossible de créer un compte avec plus de 5 caractères.";
+                    break;
+                case (accountToCreate.includes("-")):
+                    console.log("Requête annulée car caractères - interdit.");
+                    document.getElementById('infoText').innerHTML = "Impossible de créer un compte le caractères -";
+                    break;
+                case (accountToCreate.includes(" ")):
+                    console.log("Requête annulée car caractères espace interdit.");
+                    document.getElementById('infoText').innerHTML = "Impossible de créer un compte avec le caractères espace";
+                    break;
+                case (accountArray.includes(accountToCreate)):
+                    console.log("Requête annulée car nom de compte déjà existant.");
+                    document.getElementById('infoText').innerHTML = "Impossible de créer un compte déjà existant.";
+                    break;
+                default:
+                    accountArray.push(accountToCreate);
+                    document.getElementById("accountList").value = accountArray.toString();
+                    htmx.trigger("#formAccount", "onEventJs");
+                    document.getElementById('infoText').innerHTML = "Compte créé.";
+            };
+            document.getElementById("accountToCreate").value = "";
+            setTimeout(function() { document.getElementById('infoText').innerHTML = ""; }, 3000);
+        };
     });
     // this part of the script adds click events to reorder accounts with buttons under tables
     var childArrowButtons = document.getElementById('tableAccount').getElementsByTagName('button');
@@ -212,7 +316,25 @@ script botScriptAddClickEventToTableAccButtons(accountList []string) {
             swapPositions(accountArray,accountArray.indexOf(bID1),accountArray.indexOf(bID2));
             // console.log(accountArray);
             document.getElementById("accountList").value = accountArray.toString();
-            htmx.trigger("#formAccount", "onArrowClick");
+            htmx.trigger("#formAccount", "onEventJs");
+        });
+    };
+    // this part of the script adds click events to disable accounts with switches under tables
+    var childSwitches = document.getElementById('tableAccount').getElementsByTagName('input');
+    for (var i = 0; i < childSwitches.length; i++) {
+        var inputIdA = childSwitches[i].id;
+        // switch on => off, disable the account
+        document.getElementById(inputIdA).addEventListener('click', function(d){
+            strIdA = this.id;
+            idActiveAccountInput = strIdA.split("-")[1];
+            const index = accountArray.indexOf(idActiveAccountInput);
+            if (index > -1) { // only splice array when item is found
+                accountArray.splice(index, 1); // 2nd parameter means remove one item only
+            }
+            document.getElementById("accountListDisable").value = accountArray.toString();
+            htmx.trigger("#formAccountDisable", "onEventDisableJs");
+            // document.getElementById('tr-'+idActiveAccountInput).remove();
+            // page reload 
         });
     };
 }

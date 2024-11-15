@@ -284,6 +284,7 @@ type UserParams struct {
 	GofiID                  int // UNIQUE
 	AccountListSingleString string
 	AccountList             []string
+	AccountListUnhandled    []string
 	CategoryRendering       string
 	Categories              *UserCategories
 }

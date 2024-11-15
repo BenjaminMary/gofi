@@ -2,8 +2,6 @@
 
 > ☑☐☒❗
 
-- ☐❗refonte de la page de gestion des comptes
-    - ajouter une possibilité de désactiver des comptes (attention à bien bloquer la création d'un compte déjà désactivé)
 - ☐❗mini système de gestion de migration de la DB
     - check coherence entre état de la DB actuel VS attendu via dernière migration
     - table pour stocker l'ID de la dernière migration jouée 
@@ -13,12 +11,11 @@
     - stacked bars
         - ☐❗ afficher les noms des catégories lors du clic/survol d'une catégo dans le graph
     - ☐ sur le nombre de requêtes des utilisateurs pour voir les actifs ? (tableau admin?)
+    - ☐ ajout partie budget en mode annuel une barre avec visu si montant mensualisé / mois en cours 
 - ☐ faire des tests automatisés pour la partie front
 - ☐ ajout système de données récurrentes:
     - ☐ améliorer l'UI en bloquant l'espace via `visibility: hidden`, permettra de ne plus faire de trou dans la page au changement
         - vérif si bien impossible de cliquer sur l'elem invisible, sinon ajouter un `disable`
-- ☐ refonte page de gestion des comptes:
-    - ☐ refonte page de gestion des comptes
 - ☐ simplifier les catégories:
     - ☐ ajouter 2 niveaux de catégories, avec en mode simple 1 seul niveau obligatoire
 - ☐ ajout préférences utilisateur:
@@ -51,6 +48,9 @@
     - ☑ création, édition, suppression
     - ☑ enregistrement avec ajout de jour/mois/année auto à chaque enregistrement
     - ☑ fix remettre le submit en mode création après avoir utilisé le mode édition/suppression
+- ☑ refonte de la page de gestion des comptes
+    - ☑ créer, ordonner, désactiver les comptes
+    - ☑ ajouter une possibilité de visualiser les comptes utilisés sur au moins 1 enregistrement et pourtant inactif
 - ☑ simplifier les catégories:
     - ☑ ajouter des logos + couleurs par catégorie
     - ☑ nouvelle page de modif des catégories à faire, améliorer l'UI actuelle

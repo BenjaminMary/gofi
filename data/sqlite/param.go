@@ -7,6 +7,7 @@ import (
 	"gofi/gofi/data/appdata"
 	"log"
 	"strings"
+	"slices"
 )
 
 func InsertRowInParam(ctx context.Context, db *sql.DB, p *appdata.Param) (int64, error) {
@@ -44,8 +45,7 @@ func CheckIfIdExists(ctx context.Context, db *sql.DB, gofiID int) {
 	case err == sql.ErrNoRows:
 		nbRows = 0
 	case err != nil:
-		log.Fatalf("query error: %v\n", err)
-		//default:
+		log.Fatalf("query error param accountList: %v\n", err)
 	}
 	if nbRows != 1 {
 		db.ExecContext(ctx, "DELETE FROM param WHERE gofiID = ? AND paramName = 'accountList';", gofiID)
@@ -457,4 +457,33 @@ func PatchCategoryOrder(ctx context.Context, db *sql.DB, categoriesSwitch *appda
 	}
 
 	return true
+}
+
+func GetUnhandledAccountList(ctx context.Context, db *sql.DB, gofiID int, accountList []string) []string {
+	var accountListUnhandled []string
+	q := ` 
+		SELECT DISTINCT fT.account
+		FROM financeTracker AS fT
+		WHERE fT.gofiID = ?
+			AND fT.account NOT IN ('-')
+		ORDER BY fT.account
+	`
+	rows, err := db.QueryContext(ctx, q, gofiID)
+	if err != nil {
+		fmt.Printf("error1 in GetUnhandledAccountList QueryContext: %v\n", err)
+		return accountListUnhandled
+	}
+	for rows.Next() {
+		var account string
+		err := rows.Scan(&account)
+		if err != nil {
+			fmt.Printf("error2 in GetUnhandledAccountList account: %v\n", err)
+			return accountListUnhandled
+		}
+		if !slices.Contains(accountList, account) {
+			accountListUnhandled = append(accountListUnhandled, account)
+		}
+	}
+	rows.Close()
+	return accountListUnhandled
 }

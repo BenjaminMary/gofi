@@ -19,6 +19,7 @@ func GetParam(w http.ResponseWriter, r *http.Request, isFrontRequest bool,
 	userCategories := appdata.NewUserCategories()
 	userCategories.GofiID = userContext.GofiID
 	sqlite.GetList(r.Context(), appdata.DB, &userParams, userCategories, categoryTypeFilter, categoryTypeFilterValue, firstEmptyCategory)
+	userParams.AccountListUnhandled = sqlite.GetUnhandledAccountList(r.Context(), appdata.DB, userContext.GofiID, userParams.AccountList)
 	userParams.Categories = userCategories
 	return appdata.RenderAPIorUI(w, r, isFrontRequest, true, true, http.StatusOK, "user params retrieved", userParams)
 }
@@ -29,8 +30,9 @@ func cleanStringList(stringList string) string {
 	var cleanedStringResult string = ""
 	list = strings.Split(stringList, ",")
 	for _, element := range list {
+		// remove all " " and "," from beginning and end
 		cleanedString = strings.Trim(element, " ,")
-		if len(cleanedString) > 0 {
+		if len(cleanedString) > 1 {
 			if cleanedStringResult != "" {
 				cleanedStringResult += ","
 			}
