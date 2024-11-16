@@ -4,6 +4,7 @@
 - 2024-11-16 : 
     - feat: desactivate accounts and still show them if used in some records 
     - stats: stacked bars now show the name of the category on click
+    - refactor: remove unused year input param in budget
 - 2024-11-09 : 
     - feat: new icon and categories selected by default for lending or borrowing
     - fix: when logged out, 401 or 404, JSON text was returned even when navigating in a browser

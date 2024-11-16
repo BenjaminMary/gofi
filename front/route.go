@@ -409,7 +409,8 @@ func GetBudget(w http.ResponseWriter, r *http.Request) {
 	jsonUP := api.GetParam(w, r, true, "budget", "", false)
 	jsonUserParam := jsonUP.AnyStruct.(appdata.UserParams)
 	sqlite.GetBudgetStats(r.Context(), appdata.DB, jsonUserParam.Categories)
-	htmlComponents.GetBudget(2024, jsonUserParam.Categories).Render(r.Context(), w)
+	// fmt.Printf("jsonUserParam.Categories: %#v\n", jsonUserParam.Categories)
+	htmlComponents.GetBudget(jsonUserParam.Categories).Render(r.Context(), w)
 }
 
 // fmt.Printf("json1: %#v\n", json)
