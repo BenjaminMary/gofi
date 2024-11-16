@@ -371,6 +371,7 @@ script barChart() {
         temp["name"] = apexChartStats.Series[i].Icon;
         temp["color"]= apexChartStats.Series[i].Color;
         temp["data"] = apexChartStats.Series[i].Values;
+        temp["nameLetters"] = apexChartStats.Series[i].Name;
         seriesList.push(temp);
         // temp2 = structuredClone(temp);
     };
@@ -471,6 +472,11 @@ script barChart() {
         },
         tooltip: {
             theme: "dark",
+            custom: function({series, seriesIndex, dataPointIndex, w}) {
+                var apexInfo = w.globals.initialSeries[seriesIndex]
+                return '<span>' + apexInfo.nameLetters + ' : ' +
+                    apexInfo.data[dataPointIndex] + '</span>'
+            }
         },
         fill: {
             opacity: 1

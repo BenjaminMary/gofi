@@ -8,10 +8,8 @@
 - ☐❗ système de gestion d'achat sur la durée
     - période prévisionnelle avant nouvel achat
 - stats 
-    - stacked bars
-        - ☐❗ afficher les noms des catégories lors du clic/survol d'une catégo dans le graph
     - ☐ sur le nombre de requêtes des utilisateurs pour voir les actifs ? (tableau admin?)
-    - ☐ ajout partie budget en mode annuel une barre avec visu si montant mensualisé / mois en cours 
+    - ☐❗ ajout partie budget en mode annuel une barre avec visu si montant mensualisé / mois en cours 
 - ☐ faire des tests automatisés pour la partie front
 - ☐ ajout système de données récurrentes:
     - ☐ améliorer l'UI en bloquant l'espace via `visibility: hidden`, permettra de ne plus faire de trou dans la page au changement
@@ -145,6 +143,7 @@
         - ☑ ajouter un switch gains/dépense
         - ☑ retirer la fonctionnalité de grouper les catégories, inutile
         - ☑ ajouter un graph des dépenses mois par mois (des 12 derniers mois)
+        - ☑ afficher les noms des catégories lors du clic/survol d'une catégo dans le graph
 
 ## Infos
 - PWA
