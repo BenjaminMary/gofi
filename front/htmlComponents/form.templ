@@ -57,14 +57,17 @@ templ accountInput(idName string, accountList []string, forceSelect bool) {
     </select>
 }
 
-templ modeInput() {
+templ modeInput(activateStandardMode bool) {
     <!-- Select -->
     <label for="modeStr">
         <!-- lucide-hand-coins -->
         <svg stroke="currenColor" width="18" heigth="18" viewBox="0 0 24 24"><use xlink:href="/img/icons.svg#lucide-hand-coins"></use></svg>
-        Mode
+        Mode (<code>simple</code> ou <code>prêt/emprunt</code>)
     </label>
     <select id="modeStr" name="modeStr" required>
+        if activateStandardMode {
+            <option value="0">Saisie simple</option>
+        }
         <option value="4">On me rembourse un prêt</option>
         <option value="3">Je rembourse un emprunt</option>
         <option value="2">Je prête</option>

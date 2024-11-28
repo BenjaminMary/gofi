@@ -265,7 +265,64 @@ func PostRecordRecurrentDelete(w http.ResponseWriter, r *http.Request) {
 	htmlComponents.DeleteRecordRecurrent(json.HttpStatus).Render(r.Context(), w)
 }
 
-func GetRecordValidateOrCancel(w http.ResponseWriter, r *http.Request) {
+// func GetRecordEditRows(w http.ResponseWriter, r *http.Request) {
+// 	filterR := appdata.FilterRows{WhereAccount: "", WhereCategory: "", WhereYearStr: "", WhereMonthStr: "",
+// 		WhereCheckedStr: "2",
+// 		OrderBy:         "date",
+// 		OrderSort:       "ASC",
+// 		LimitStr:        "8",
+// 	}
+// 	jsonFT := api.GetRecordsViaPost(w, r, true, &filterR)
+// 	jsonFTlist := []appdata.FinanceTracker{}
+// 	if jsonFT.IsValidResponse {
+// 		jsonFTlist = jsonFT.AnyStruct.([]appdata.FinanceTracker)
+// 		for i, item := range jsonFTlist {
+// 			jsonFTlist[i].IDstr = "v" + strconv.Itoa(item.ID)
+// 		}
+// 	}
+// 	jsonUP := api.GetParam(w, r, true, "", "", true)
+// 	jsonUserParam := jsonUP.AnyStruct.(appdata.UserParams)
+// 	currentTime := time.Now()
+// 	currentDate := currentTime.Format(time.DateOnly) // YYYY-MM-DD
+// 	htmlComponents.GetRecordEditRows(jsonFTlist, jsonUserParam, currentDate, r.Header.Get("totalRowsWithoutLimit")).Render(r.Context(), w)
+// }
+
+func GetRecordEdit(w http.ResponseWriter, r *http.Request) {
+	idStr := chi.URLParam(r, "id")
+	var idInt int
+	if idStr == "" || idStr == "0" {
+		idInt = 0
+	} else {
+		idInt, _ = strconv.Atoi(idStr)
+	}
+	filterR := appdata.FilterRows{ID: idInt}
+	jsonFT := api.GetRecordsViaPost(w, r, true, &filterR)
+	jsonFTlist := []appdata.FinanceTracker{}
+	if jsonFT.IsValidResponse {
+		jsonFTlist = jsonFT.AnyStruct.([]appdata.FinanceTracker)
+		for i, item := range jsonFTlist {
+			jsonFTlist[i].IDstr = "v" + strconv.Itoa(item.ID)
+		}
+	}
+	lenJsonFTlist := len(jsonFTlist)
+	lb := appdata.LendBorrow{ModeStr: strconv.Itoa(jsonFTlist[0].Mode), FT: jsonFTlist[0]}
+
+	fmt.Printf("lb: %#v\n", lb)
+
+	jsonUP := api.GetParam(w, r, true, "allinuse", "", false)
+	jsonUserParam := jsonUP.AnyStruct.(appdata.UserParams)
+	// TODO get the ID info in a LB+FT struct to send to the front part
+	// handle LB : http://localhost:8083/record/edit/6555
+	lbListActive, _ := sqlite.GetLenderBorrowerStats(r.Context(), appdata.DB, jsonUserParam.GofiID, true)
+
+	htmlComponents.GetRecordEdit(lenJsonFTlist, lb, jsonUserParam, lbListActive).Render(r.Context(), w)
+}
+
+func GetRecordAlter(w http.ResponseWriter, r *http.Request) {
+	alterMode := chi.URLParam(r, "alterMode")
+	if alterMode != "validate" && alterMode != "cancel" {
+		alterMode = "edit"
+	}
 	filterR := appdata.FilterRows{WhereAccount: "", WhereCategory: "", WhereYearStr: "", WhereMonthStr: "",
 		WhereCheckedStr: "2",
 		OrderBy:         "date",
@@ -284,7 +341,7 @@ func GetRecordValidateOrCancel(w http.ResponseWriter, r *http.Request) {
 	jsonUserParam := jsonUP.AnyStruct.(appdata.UserParams)
 	currentTime := time.Now()
 	currentDate := currentTime.Format(time.DateOnly) // YYYY-MM-DD
-	htmlComponents.GetRecordValidateOrCancel(jsonFTlist, jsonUserParam, currentDate, r.Header.Get("totalRowsWithoutLimit")).Render(r.Context(), w)
+	htmlComponents.GetRecordAlter(jsonFTlist, jsonUserParam, currentDate, r.Header.Get("totalRowsWithoutLimit"), alterMode).Render(r.Context(), w)
 }
 func PostRecordValidate(w http.ResponseWriter, r *http.Request) {
 	json := api.RecordValidate(w, r, true)
@@ -304,7 +361,9 @@ func PostFullRecordRefresh(w http.ResponseWriter, r *http.Request) {
 			jsonFTlist[i].IDstr = "v" + strconv.Itoa(item.ID)
 		}
 	}
-	htmlComponents.PostFullRecordRefresh(jsonFTlist, r.Header.Get("totalRowsWithoutLimit")).Render(r.Context(), w)
+	botScriptAutoReloadOnAccountChange := r.Header.Get("botScriptAutoReloadOnAccountChange")
+	fmt.Printf("botScriptAutoReloadOnAccountChange: %v\n", botScriptAutoReloadOnAccountChange)
+	htmlComponents.PostFullRecordRefresh(jsonFTlist, r.Header.Get("totalRowsWithoutLimit"), botScriptAutoReloadOnAccountChange).Render(r.Context(), w)
 }
 
 func GetStats(w http.ResponseWriter, r *http.Request) {

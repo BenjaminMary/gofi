@@ -441,7 +441,8 @@ func (a *CategoryPatchOrder) Bind(r *http.Request) error {
 }
 
 type FilterRows struct {
-	GofiID          int    // UNIQUE
+	GofiID          int
+	ID				int	   // FT ID UNIQUE
 	WhereAccount    string `json:"compteHidden"`
 	WhereCategory   string `json:"category"`
 	WhereYearStr    string `json:"annee"`

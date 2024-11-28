@@ -46,94 +46,100 @@ func GetRowsInFinanceTracker(ctx context.Context, db *sql.DB, filter *appdata.Fi
 		WHERE fT.gofiID = ?
 	`
 	// others where on 3 fields max = 7 possibilities
-	if filter.WhereAccount != "" { //1
-		queryValues += 1
-		fmt.Println("filter.WhereAccount is used")
-		q += ` AND account = ? `
-	}
-	if filter.WhereCategory != "" && filter.WhereCategory != "Toutes" { //2
-		queryValues += 2
-		fmt.Println("filter.WhereCategory is used")
-		q += ` AND fT.category = ? `
-	}
-	if filter.WhereYear != 0 { //4
-		queryValues += 4
-		fmt.Println("filter.WhereYear is used")
-		q += ` AND year = ? `
-	}
-	if filter.WhereMonth != 0 { // month used alone
-		switch filter.WhereMonth {
-		case 1:
-			q += ` AND month =  1 `
-		case 2:
-			q += ` AND month =  2 `
-		case 3:
-			q += ` AND month =  3 `
-		case 4:
-			q += ` AND month =  4 `
-		case 5:
-			q += ` AND month =  5 `
-		case 6:
-			q += ` AND month =  6 `
-		case 7:
-			q += ` AND month =  7 `
-		case 8:
-			q += ` AND month =  8 `
-		case 9:
-			q += ` AND month =  9 `
-		case 10:
-			q += ` AND month = 10 `
-		case 11:
-			q += ` AND month = 11 `
-		case 12:
-			q += ` AND month = 12 `
-		default:
-			q += ` `
-		}
-		fmt.Println("filter.WhereMonth is used")
-	}
-	if filter.WhereChecked != 0 { // checked used alone
-		if filter.WhereChecked == 2 {
-			q += ` AND checked = 0 `
-		} else {
-			q += ` AND checked = 1 `
-		}
-		fmt.Println("filter.WhereChecked is used", filter.WhereChecked)
-	}
-
-	// order by column and type
-	q += ` ORDER BY `
-	switch filter.OrderBy {
-	case "id":
-		q += ` fT.id `
-	case "date":
-		fmt.Println("case date is used")
-		q += ` (year*10000 + month*100 + day) `
-		if filter.OrderSort == "DESC" {
-			q += ` DESC `
-		} else {
-			q += ` ASC `
-		}
-		q += ` , fT.id `
-	case "price":
-		q += ` priceIntx100 `
-		if filter.OrderSort == "DESC" {
-			q += ` DESC `
-		} else {
-			q += ` ASC `
-		}
-		q += ` , fT.id `
-	default:
-		q += ` fT.id `
-	}
-	if filter.OrderSort == "DESC" {
-		q += ` DESC `
+	if filter.ID > 0 {
+		queryValues = 999
+		fmt.Println("filter.ID is used")
+		q += ` AND ft.ID = ? `
 	} else {
-		q += ` ASC `
-	}
+		if filter.WhereAccount != "" { //1
+			queryValues += 1
+			fmt.Println("filter.WhereAccount is used")
+			q += ` AND account = ? `
+		}
+		if filter.WhereCategory != "" && filter.WhereCategory != "Toutes" { //2
+			queryValues += 2
+			fmt.Println("filter.WhereCategory is used")
+			q += ` AND fT.category = ? `
+		}
+		if filter.WhereYear != 0 { //4
+			queryValues += 4
+			fmt.Println("filter.WhereYear is used")
+			q += ` AND year = ? `
+		}
+		if filter.WhereMonth != 0 { // month used alone
+			switch filter.WhereMonth {
+			case 1:
+				q += ` AND month =  1 `
+			case 2:
+				q += ` AND month =  2 `
+			case 3:
+				q += ` AND month =  3 `
+			case 4:
+				q += ` AND month =  4 `
+			case 5:
+				q += ` AND month =  5 `
+			case 6:
+				q += ` AND month =  6 `
+			case 7:
+				q += ` AND month =  7 `
+			case 8:
+				q += ` AND month =  8 `
+			case 9:
+				q += ` AND month =  9 `
+			case 10:
+				q += ` AND month = 10 `
+			case 11:
+				q += ` AND month = 11 `
+			case 12:
+				q += ` AND month = 12 `
+			default:
+				q += ` `
+			}
+			fmt.Println("filter.WhereMonth is used")
+		}
+		if filter.WhereChecked != 0 { // checked used alone
+			if filter.WhereChecked == 2 {
+				q += ` AND checked = 0 `
+			} else {
+				q += ` AND checked = 1 `
+			}
+			fmt.Println("filter.WhereChecked is used", filter.WhereChecked)
+		}
 
-	// finally, add limit
-	q += ` LIMIT ?;`
+		// order by column and type
+		q += ` ORDER BY `
+		switch filter.OrderBy {
+		case "id":
+			q += ` fT.id `
+		case "date":
+			fmt.Println("case date is used")
+			q += ` (year*10000 + month*100 + day) `
+			if filter.OrderSort == "DESC" {
+				q += ` DESC `
+			} else {
+				q += ` ASC `
+			}
+			q += ` , fT.id `
+		case "price":
+			q += ` priceIntx100 `
+			if filter.OrderSort == "DESC" {
+				q += ` DESC `
+			} else {
+				q += ` ASC `
+			}
+			q += ` , fT.id `
+		default:
+			q += ` fT.id `
+		}
+		if filter.OrderSort == "DESC" {
+			q += ` DESC `
+		} else {
+			q += ` ASC `
+		}
+
+		// finally, add limit
+		q += ` LIMIT ?;`
+	}
 	//fmt.Printf("q: %v\n", q)
 	// end building query
 	q2 := strings.Replace(q, `COUNT(1)`,
@@ -218,6 +224,8 @@ func execSingleRow(queryValues int, db *sql.DB, ctx context.Context, q string, f
 		return db.QueryRowContext(ctx, q, filter.GofiID, filter.WhereCategory, filter.WhereYear, 1)
 	case 7:
 		return db.QueryRowContext(ctx, q, filter.GofiID, filter.WhereAccount, filter.WhereCategory, filter.WhereYear, 1)
+	case 999:
+		return db.QueryRowContext(ctx, q, filter.GofiID, filter.ID)
 	default:
 		return db.QueryRowContext(ctx, q, filter.GofiID, 1)
 	}

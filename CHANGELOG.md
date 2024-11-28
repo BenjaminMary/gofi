@@ -1,6 +1,9 @@
 # Changelog
 
 ## v1 rework with go-chi
+- DOING
+    - 2024-11-28 : feat: edit records within the app UI (the only way before that was by loading .csv)
+
 - 2024-11-16 : 
     - feat: desactivate accounts and still show them if used in some records 
     - stats: stacked bars now show the name of the category on click

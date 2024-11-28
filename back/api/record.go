@@ -65,65 +65,69 @@ func GetRecordsViaPost(w http.ResponseWriter, r *http.Request, isFrontRequest bo
 		}
 	}
 	var tInt int
-	if filterR.LimitStr == "8" {
-		filterR.Limit = 8
+	if filterR.ID > 0 {
+		//
 	} else {
-		tInt = 0
-		tInt, err = strconv.Atoi(filterR.LimitStr)
-		if err != nil || tInt == 0 {
-			if err != nil {
-				fmt.Printf("GetRecordsViaPost err2: %v\n", err)
-			} else {
-				fmt.Println("GetRecordsViaPost limit 0")
+		if filterR.LimitStr == "8" {
+			filterR.Limit = 8
+		} else {
+			tInt = 0
+			tInt, err = strconv.Atoi(filterR.LimitStr)
+			if err != nil || tInt == 0 {
+				if err != nil {
+					fmt.Printf("GetRecordsViaPost err2: %v\n", err)
+				} else {
+					fmt.Println("GetRecordsViaPost limit 0")
+				}
+				return appdata.RenderAPIorUI(w, r, isFrontRequest, true, false, http.StatusBadRequest, "invalid request, wrong limit", "")
 			}
-			return appdata.RenderAPIorUI(w, r, isFrontRequest, true, false, http.StatusBadRequest, "invalid request, wrong limit", "")
+			filterR.Limit = tInt
 		}
-		filterR.Limit = tInt
-	}
-	if filterR.WhereYearStr == "" {
-		filterR.WhereYear = 0
-	} else {
-		tInt = 0
-		tInt, err := strconv.Atoi(filterR.WhereYearStr)
-		if err != nil || tInt == 0 {
-			if err != nil {
-				fmt.Printf("GetRecordsViaPost err3: %v\n", err)
-			} else {
-				fmt.Println("GetRecordsViaPost year 0")
+		if filterR.WhereYearStr == "" {
+			filterR.WhereYear = 0
+		} else {
+			tInt = 0
+			tInt, err := strconv.Atoi(filterR.WhereYearStr)
+			if err != nil || tInt == 0 {
+				if err != nil {
+					fmt.Printf("GetRecordsViaPost err3: %v\n", err)
+				} else {
+					fmt.Println("GetRecordsViaPost year 0")
+				}
+				return appdata.RenderAPIorUI(w, r, isFrontRequest, true, false, http.StatusBadRequest, "invalid request, wrong year", "")
 			}
-			return appdata.RenderAPIorUI(w, r, isFrontRequest, true, false, http.StatusBadRequest, "invalid request, wrong year", "")
+			filterR.WhereYear = tInt
 		}
-		filterR.WhereYear = tInt
-	}
-	if filterR.WhereMonthStr == "" {
-		filterR.WhereMonth = 0
-	} else {
-		tInt = 0
-		tInt, err := strconv.Atoi(filterR.WhereMonthStr)
-		if err != nil || tInt == 0 {
-			if err != nil {
-				fmt.Printf("GetRecordsViaPost err4: %v\n", err)
-			} else {
-				fmt.Println("GetRecordsViaPost month 0")
+		if filterR.WhereMonthStr == "" {
+			filterR.WhereMonth = 0
+		} else {
+			tInt = 0
+			tInt, err := strconv.Atoi(filterR.WhereMonthStr)
+			if err != nil || tInt == 0 {
+				if err != nil {
+					fmt.Printf("GetRecordsViaPost err4: %v\n", err)
+				} else {
+					fmt.Println("GetRecordsViaPost month 0")
+				}
+				return appdata.RenderAPIorUI(w, r, isFrontRequest, true, false, http.StatusBadRequest, "invalid request, wrong month", "")
 			}
-			return appdata.RenderAPIorUI(w, r, isFrontRequest, true, false, http.StatusBadRequest, "invalid request, wrong month", "")
+			filterR.WhereMonth = tInt
 		}
-		filterR.WhereMonth = tInt
-	}
-	if filterR.WhereCheckedStr == "2" {
-		filterR.WhereChecked = 2
-	} else {
-		tInt = -1
-		tInt, err := strconv.Atoi(filterR.WhereCheckedStr)
-		if err != nil || tInt == -1 {
-			if err != nil {
-				fmt.Printf("GetRecordsViaPost err5: %v\n", err)
-			} else {
-				fmt.Println("GetRecordsViaPost row checker -1")
+		if filterR.WhereCheckedStr == "2" {
+			filterR.WhereChecked = 2
+		} else {
+			tInt = -1
+			tInt, err := strconv.Atoi(filterR.WhereCheckedStr)
+			if err != nil || tInt == -1 {
+				if err != nil {
+					fmt.Printf("GetRecordsViaPost err5: %v\n", err)
+				} else {
+					fmt.Println("GetRecordsViaPost row checker -1")
+				}
+				return appdata.RenderAPIorUI(w, r, isFrontRequest, true, false, http.StatusBadRequest, "invalid request, wrong row checker", "")
 			}
-			return appdata.RenderAPIorUI(w, r, isFrontRequest, true, false, http.StatusBadRequest, "invalid request, wrong row checker", "")
+			filterR.WhereChecked = tInt
 		}
-		filterR.WhereChecked = tInt
 	}
 	userContext := r.Context().Value(appdata.ContextUserKey).(*appdata.UserRequest)
 	filterR.GofiID = userContext.GofiID
