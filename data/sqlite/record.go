@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"log"
 	"strings"
+	"errors"
 
 	"gofi/gofi/data/appdata"
 )
@@ -361,6 +362,50 @@ func InsertRowInFinanceTracker(ctx context.Context, db *sql.DB, ft *appdata.Fina
 		return 0, err
 	}
 	return id, nil
+}
+
+func UpdateRowInFinanceTrackerFull(ctx context.Context, db *sql.DB, ft *appdata.FinanceTracker) (bool, error) {
+	if ft.ID < 1 || ft.GofiID < 1 {
+		fmt.Printf("UpdateRowInFinanceTrackerFull err1, id: %v, gofiID: %v\n", ft.ID, ft.GofiID)
+		return true, errors.New("wrong ids")
+	}
+	_, err := db.ExecContext(ctx, `
+		UPDATE financeTracker 
+		SET dateIn = ?, year = ?, month = ?, day = ?, mode = ?, account = ?, product = ?, priceIntx100 = ?, category = ?,
+			commentInt = ?, commentString = ?, checked = ?, dateChecked = ?, exported = 0
+		WHERE ID = ?
+			AND gofiID = ?;
+		`,
+		ft.Date, ft.DateDetails.Year, ft.DateDetails.Month, ft.DateDetails.Day, ft.Mode, ft.Account, ft.Product, ft.PriceIntx100, ft.Category,
+		ft.CommentInt, ft.CommentString, ft.Checked, ft.DateChecked,
+		ft.ID, ft.GofiID,
+	)
+	if err != nil {
+		fmt.Printf("UpdateRowInFinanceTrackerFull err2: %#v\n", err)
+		return true, err
+	}
+	return false, nil
+}
+func UpdateRowInFinanceTrackerLite(ctx context.Context, db *sql.DB, ft *appdata.FinanceTracker) (bool, error) {
+	if ft.ID < 1 || ft.GofiID < 1 {
+		fmt.Printf("UpdateRowInFinanceTrackerLite err1, id: %v, gofiID: %v\n", ft.ID, ft.GofiID)
+		return true, errors.New("wrong ids")
+	}
+	_, err := db.ExecContext(ctx, `
+		UPDATE financeTracker 
+		SET dateIn = ?, year = ?, month = ?, day = ?, mode = ?, account = ?, product = ?, priceIntx100 = ?, category = ?,
+			exported = 0
+		WHERE ID = ?
+			AND gofiID = ?;
+		`,
+		ft.Date, ft.DateDetails.Year, ft.DateDetails.Month, ft.DateDetails.Day, ft.Mode, ft.Account, ft.Product, ft.PriceIntx100, ft.Category,
+		ft.ID, ft.GofiID,
+	)
+	if err != nil {
+		fmt.Printf("UpdateRowInFinanceTrackerLite err2: %#v\n", err)
+		return true, err
+	}
+	return false, nil
 }
 
 func UpdateRowsInFinanceTrackerToMode0(ctx context.Context, db *sql.DB, gofiID int, intList *[]int) bool {
