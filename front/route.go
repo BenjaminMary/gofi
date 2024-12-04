@@ -264,28 +264,11 @@ func PostRecordRecurrentDelete(w http.ResponseWriter, r *http.Request) {
 	json := api.RecordRecurrentDelete(w, r, true, rr.IDstr)
 	htmlComponents.DeleteRecordRecurrent(json.HttpStatus).Render(r.Context(), w)
 }
-
-// func GetRecordEditRows(w http.ResponseWriter, r *http.Request) {
-// 	filterR := appdata.FilterRows{WhereAccount: "", WhereCategory: "", WhereYearStr: "", WhereMonthStr: "",
-// 		WhereCheckedStr: "2",
-// 		OrderBy:         "date",
-// 		OrderSort:       "ASC",
-// 		LimitStr:        "8",
-// 	}
-// 	jsonFT := api.GetRecordsViaPost(w, r, true, &filterR)
-// 	jsonFTlist := []appdata.FinanceTracker{}
-// 	if jsonFT.IsValidResponse {
-// 		jsonFTlist = jsonFT.AnyStruct.([]appdata.FinanceTracker)
-// 		for i, item := range jsonFTlist {
-// 			jsonFTlist[i].IDstr = "v" + strconv.Itoa(item.ID)
-// 		}
-// 	}
-// 	jsonUP := api.GetParam(w, r, true, "", "", true)
-// 	jsonUserParam := jsonUP.AnyStruct.(appdata.UserParams)
-// 	currentTime := time.Now()
-// 	currentDate := currentTime.Format(time.DateOnly) // YYYY-MM-DD
-// 	htmlComponents.GetRecordEditRows(jsonFTlist, jsonUserParam, currentDate, r.Header.Get("totalRowsWithoutLimit")).Render(r.Context(), w)
-// }
+func PostRecordEdit(w http.ResponseWriter, r *http.Request) {
+	idStr := chi.URLParam(r, "idft")
+	json := api.PostRecordEdit(w, r, true, idStr)
+	htmlComponents.PostRecordEdit(json.HttpStatus).Render(r.Context(), w)
+}
 
 func GetRecordEdit(w http.ResponseWriter, r *http.Request) {
 	idStr := chi.URLParam(r, "id")
@@ -305,16 +288,23 @@ func GetRecordEdit(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 	lenJsonFTlist := len(jsonFTlist)
-	lb := appdata.LendBorrow{ModeStr: strconv.Itoa(jsonFTlist[0].Mode), FT: jsonFTlist[0]}
-
-	fmt.Printf("lb: %#v\n", lb)
-
+	lb := appdata.LendBorrow{ModeStr: strconv.Itoa(jsonFTlist[0].Mode), ModeInt: jsonFTlist[0].Mode, Who: "-", FT: jsonFTlist[0]}
+	if lb.ModeInt > 0 && lb.ModeInt < 5 {
+		isErr := sqlite.FindLenderBorrowerFromFTid(r.Context(), appdata.DB, &lb)
+		if isErr {
+			fmt.Println("GetRecordEdit err in FindLenderBorrowerFromFTid")
+		}
+	}
+	if string(lb.FT.FormPriceStr2Decimals[0]) == "-" {
+		lb.FT.FormPriceStr2Decimals = lb.FT.FormPriceStr2Decimals[1:]
+		lb.FT.PriceDirection = "expense"
+	} else {
+		lb.FT.PriceDirection = "gain"
+	}
+	// fmt.Printf("lb GetRecordEdit: %#v\n", lb)
 	jsonUP := api.GetParam(w, r, true, "allinuse", "", false)
 	jsonUserParam := jsonUP.AnyStruct.(appdata.UserParams)
-	// TODO get the ID info in a LB+FT struct to send to the front part
-	// handle LB : http://localhost:8083/record/edit/6555
 	lbListActive, _ := sqlite.GetLenderBorrowerStats(r.Context(), appdata.DB, jsonUserParam.GofiID, true)
-
 	htmlComponents.GetRecordEdit(lenJsonFTlist, lb, jsonUserParam, lbListActive).Render(r.Context(), w)
 }
 
@@ -362,7 +352,7 @@ func PostFullRecordRefresh(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 	botScriptAutoReloadOnAccountChange := r.Header.Get("botScriptAutoReloadOnAccountChange")
-	fmt.Printf("botScriptAutoReloadOnAccountChange: %v\n", botScriptAutoReloadOnAccountChange)
+	// fmt.Printf("botScriptAutoReloadOnAccountChange: %v\n", botScriptAutoReloadOnAccountChange)
 	htmlComponents.PostFullRecordRefresh(jsonFTlist, r.Header.Get("totalRowsWithoutLimit"), botScriptAutoReloadOnAccountChange).Render(r.Context(), w)
 }
 

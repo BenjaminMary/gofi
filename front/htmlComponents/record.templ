@@ -341,12 +341,12 @@ templ GetLendBorrowRecord(jsonFT []appdata.FinanceTracker, jsonUP appdata.UserPa
             @BotScriptThemeSwitcher()
             @BotScriptHTMXhandleError()
             @categoryDropdown(jsonUP.Categories)
-            @amountDirection(jsonUP.Categories)
+            @amountDirection(jsonUP.Categories, true)
             @createLenderBorrower()
         </body>
     </html>
 }
-script amountDirection(uc *appdata.UserCategories) {
+script amountDirection(uc *appdata.UserCategories, forceCategory bool) {
     // this script adapt the amount direction with the mode selected 
     // .disabled on radio buttons, because .readOnly does not work on radio
     // document.getElementById('gain').disabled = true; not disabled because default option 
@@ -357,30 +357,40 @@ script amountDirection(uc *appdata.UserCategories) {
             document.getElementById('gain').disabled = false;
             document.getElementById('expense').disabled = true;
             document.getElementById('gain').checked = true;
+            document.getElementById('whoDiv').hidden = false;
         }
         else if (["2","3"].includes(this.value)){
             document.getElementById('expense').disabled = false;
             document.getElementById('gain').disabled = true;
             document.getElementById('expense').checked = true;
+            document.getElementById('whoDiv').hidden = false;
+        }
+        else if (["0"].includes(this.value)){
+            document.getElementById('expense').disabled = false;
+            document.getElementById('gain').disabled = false;
+            document.getElementById('who').value = "-";
+            document.getElementById('whoDiv').hidden = true;
         }
         else {console.log("unhandled")};
-        if (["1","3"].includes(this.value)){
-            document.getElementById('input1').checked = true;
-            index = 1;
-            document.getElementById('summaryCategory').innerHTML = uc.Categories[index].Name;
-            document.getElementById('summaryIcon').innerHTML = "&#x" + uc.Categories[index].IconCodePoint + ";";
-            bgclass = document.getElementById('summaryIcon').classList.item(1);
-            document.getElementById('summaryIcon').classList.remove(bgclass);
-            document.getElementById('summaryIcon').classList.add(uc.Categories[index].IconCodePoint);
-        }
-        else if (["2","4"].includes(this.value)){
-            document.getElementById('input0').checked = true;
-            index = 0;
-            document.getElementById('summaryCategory').innerHTML = uc.Categories[index].Name;
-            document.getElementById('summaryIcon').innerHTML = "&#x" + uc.Categories[index].IconCodePoint + ";";
-            bgclass = document.getElementById('summaryIcon').classList.item(1);
-            document.getElementById('summaryIcon').classList.remove(bgclass);
-            document.getElementById('summaryIcon').classList.add(uc.Categories[index].IconCodePoint);
+        if (forceCategory){
+            if (["1","3"].includes(this.value)){
+                document.getElementById('input1').checked = true;
+                index = 1;
+                document.getElementById('summaryCategory').innerHTML = uc.Categories[index].Name;
+                document.getElementById('summaryIcon').innerHTML = "&#x" + uc.Categories[index].IconCodePoint + ";";
+                bgclass = document.getElementById('summaryIcon').classList.item(1);
+                document.getElementById('summaryIcon').classList.remove(bgclass);
+                document.getElementById('summaryIcon').classList.add(uc.Categories[index].IconCodePoint);
+            }
+            else if (["2","4"].includes(this.value)){
+                document.getElementById('input0').checked = true;
+                index = 0;
+                document.getElementById('summaryCategory').innerHTML = uc.Categories[index].Name;
+                document.getElementById('summaryIcon').innerHTML = "&#x" + uc.Categories[index].IconCodePoint + ";";
+                bgclass = document.getElementById('summaryIcon').classList.item(1);
+                document.getElementById('summaryIcon').classList.remove(bgclass);
+                document.getElementById('summaryIcon').classList.add(uc.Categories[index].IconCodePoint);
+            };
         }
     });
 }
@@ -866,6 +876,15 @@ templ DeleteRecordRecurrent(httpStatus int) {
 	}
 }
 
+templ PostRecordEdit(httpStatus int) {
+    switch httpStatus {
+        case http.StatusOK:
+            Enregistrement editée.
+        default:
+            Impossible d'éditer cet enregistrement.
+	}
+}
+
 templ PostRecordRecurrentSave(httpStatus int, ft appdata.FinanceTracker) {
     switch httpStatus {
         case http.StatusCreated:
@@ -887,145 +906,6 @@ templ infoFilter() {
     <hr/>
 }
 
-// templ GetRecordEditRows(jsonFT []appdata.FinanceTracker, jsonUP appdata.UserParams, currentDate string, totalRowsWithoutLimit string) {
-//     <!DOCTYPE html>
-//     <html lang="fr">
-//         <head>
-//             @Header()
-//             @TopScriptHTMX()
-//             <link rel="stylesheet" href="/fonts/style.css"/>
-//         </head>
-//         <body class="container-fluid">
-//             <main>
-//                 <h1>Modifier des données</h1>
-//                 <p>
-//                     <!-- info -->
-//                     <svg width="24" height="24" viewBox="0 0 24 24" stroke="currentColor"><use xlink:href="/img/icons.svg#feather-info"></use></svg>
-//                     Par défaut, le tableau contient les 8 lignes avec les dates les plus anciennes encore non validées.
-//                 </p>
-
-//                 <section id="advancedMode">
-//                     <details>
-//                         <summary role="button" class="contrast">
-//                             <strong>Mode avancé</strong><br/>
-//                             <small><i>Permet de modifier les lignes par défaut du tableau.</i></small>
-//                         </summary>
-
-//                         <h5>Filtrer</h5>
-//                         @infoFilter()
-//                         <fieldset role="group">
-//                             <div>
-//                                 <!-- Number -->
-//                                 <label for="annee">Année (1900-2200)</label>
-//                                 <input type="number" id="annee" name="annee" min="1900" max="2200" step="1" value="" />
-//                             </div>
-//                             <div><!-- separator --></div>
-//                             <div>
-//                                 <!-- Select -->
-//                                 <label for="mois">Mois</label>
-//                                 <select id="mois" name="mois">
-//                                     <option value="" selected>Tous</option>
-//                                     <option value="1">Janvier</option>
-//                                     <option value="2">Février</option>
-//                                     <option value="3">Mars</option>
-//                                     <option value="4">Avril</option>
-//                                     <option value="5">Mai</option>
-//                                     <option value="6">Juin</option>
-//                                     <option value="7">Juillet</option>
-//                                     <option value="8">Août</option>
-//                                     <option value="9">Septembre</option>
-//                                     <option value="10">Octobre</option>
-//                                     <option value="11">Novembre</option>
-//                                     <option value="12">Décembre</option>
-//                                 </select>
-//                             </div>
-//                         </fieldset>
-//                         <!-- Select -->
-//                         <label for="checked">
-//                             <!-- alert-triangle -->
-//                             <svg width="24" height="24" viewBox="0 0 24 24" stroke="#FFC000"><use xlink:href="/img/icons.svg#feather-alert-triangle"></use></svg>
-//                             Lignes validées
-//                         </label>
-//                         <select id="checked" name="checked">
-//                             <option value="0">Toutes</option>
-//                             <option value="1">Oui</option>
-//                             <option value="2" selected>Non (défaut)</option>
-//                         </select>
-//                         <small>
-//                             <!-- alert-triangle -->
-//                             <svg width="24" height="24" viewBox="0 0 24 24" stroke="#FFC000"><use xlink:href="/img/icons.svg#feather-alert-triangle"></use></svg>
-//                             si <code>Lignes Validées</code> est différent de <code>Non</code>, il est possible d'annuler 
-//                             <!-- red x square -->
-//                             <svg width="24" height="24" viewBox="0 0 24 24" stroke="firebrick"><use xlink:href="/img/icons.svg#feather-x-square"></use></svg>
-//                             des lignes précédemment validées
-//                             <!-- green check square -->
-//                             <svg width="24" height="24" viewBox="0 0 24 24"><use xlink:href="/img/icons.svg#feather-green-check-square"></use></svg>
-//                             <br/>
-//                             (revalider une ligne précédemment validée changera sa date de validation)
-//                         </small>
-//                         @categoriesCustomRadioInput(jsonUP.Categories, "categorie")
-//                         <hr/>
-
-//                         <h5>Trier</h5>
-//                         <fieldset role="group">
-//                             <div>
-//                                 <!-- Select -->
-//                                 <label for="orderBy">Trier par</label>
-//                                 <select id="orderBy" name="orderBy" required>
-//                                     <option value="id">Identifiant</option>
-//                                     <option value="date" selected>Date</option>
-//                                     <option value="price">Prix</option>
-//                                 </select>
-//                             </div>
-//                             <div><!-- separator --></div>
-//                             <div>
-//                                 <!-- Select -->
-//                                 <label for="orderByType">Ordre</label>
-//                                 <select id="orderByType" name="orderByType" required>
-//                                     <option value="DESC">Décroissant</option>
-//                                     <option value="ASC" selected>Croissant</option>
-//                                 </select>
-//                             </div>
-//                         </fieldset>
-//                         <hr/>
-
-//                         <!-- Number -->
-//                         <label for="limitStr">Nombre max d'enregistrements (1-500)</label>
-//                         <input type="number" id="limitStr" name="limitStr" min="1" max="500" step="1" value="8" required />
-//                         <hr/>
-
-//                         @infoFilter()
-//                     </details>
-//                 </section>
-
-//                 <section id="listR">
-//                     <div id="forbidden"> <!-- via header: "HX-Retarget", "#forbidden" -->
-//                         <h5>Paramètres de traitement des lignes</h5>
-//                         <div>
-//                             @accountInput("compte", jsonUP.AccountList, true)
-//                         </div>
-//                         <div class="overflow-auto">
-//                             <section id="recap">
-//                                 @lastInsertedRowsTable("lastInsert", jsonFT, true, false, false, totalRowsWithoutLimit)
-//                             </section>
-//                         </div>
-//                     </div> <!-- via header: "HX-Retarget", "#forbidden" -->
-//                 </section>
-//                 @Nav("top", "/", "/img/icons.svg#feather-home", "Accueil", "contrast outline",
-//                     "/record/insert", "/img/icons.svg#lucide-notebook-pen", "Saisie", "contrast")
-//                 @Nav("none", "/record/recurrent", "/img/icons.svg#feather-refresh-cw", "Enr. réguliers", "contrast",
-//                     "/record/transfer", "/img/icons.svg#lucide-arrow-right-left", "Transfert", "contrast")
-//             </main>
-//             @BotScriptThemeSwitcher()
-//             @BotScriptHTMXhandleError()
-//             @categoryDropdown(jsonUP.Categories)
-//             // @botScriptSwitchMode()
-//             // @botScriptTableRowSelectAndLastRowCalc()
-//             @botScriptAutoReloadOnAccountChange("GetRecordEditRows")
-//         </body>
-//     </html>
-// }
-
 templ GetRecordEdit(lenJsonFTlist int, jsonLB appdata.LendBorrow, jsonUP appdata.UserParams, lbListActive []appdata.LenderBorrower) {
     <!DOCTYPE html>
     <html lang="fr">
@@ -1041,55 +921,36 @@ templ GetRecordEdit(lenJsonFTlist int, jsonLB appdata.LendBorrow, jsonUP appdata
                     <section id="form">
                         <div id="forbidden"> <!-- via header: "HX-Retarget", "#forbidden" -->
                             // <form>
-                            <form hx-post="/record/insert" 
-                                hx-target="#lastInsert" 
+                            <form hx-post={ "/record/edit/" + strconv.Itoa(jsonLB.FT.ID) }
+                                hx-target="#htmxInfo" 
                                 hx-swap="afterbegin" 
                                 hx-sync="this:drop"
-                                hx-indicator="#spinner"
-                                hx-on::after-request="if(event.detail.successful) document.getElementById('prix').value='';document.getElementById('designation').value='';">
+                                hx-indicator="#spinner">
 
                                 @modeInput(true)
                                 @whoDataList(lbListActive)
+                                // TODO enable create LB from this edit page
                                 <fieldset role="group">
                                     <div>
-                                        @dateInput(jsonLB.FT.Date, "date")
+                                        @dateInput(jsonLB.FT.Date, "FT.date")
                                     </div>
                                     <div><!-- separator --></div>
                                     <div>
-                                        @accountInput("compte", jsonUP.AccountList, false)
+                                        @accountInput("FT.compte", jsonUP.AccountList, false)
                                     </div>
                                 </fieldset>
-                                @categoriesCustomRadioInput(jsonUP.Categories, "categorieEdit")
+                                @categoriesCustomRadioInput(jsonUP.Categories, "FT.categorie")
                                 <fieldset role="group">
                                     <div>
-                                        @amountInput("prix")
+                                        @amountInput("FT.prix")
                                     </div>
                                     <div><!-- separator --></div>
                                     <div>
-                                        @amountDirectionRadio("expense", "gain-expense")
+                                        @amountDirectionRadio("expense", "FT.gain-expense")
                                     </div>
                                 </fieldset>
-                                @textInput("designation")
+                                @textInput("FT.designation")
                                 @FormSubmit("idSubmit1", "/img/icons.svg#feather-edit", "Modifier")
-                            // </form>
-
-
-                                // <!-- Text -->
-                                // <input type="text" id="checkedList" name="checkedList" hidden readonly required />
-                                // <!-- Text -->
-                                // <input type="text" id="dateCopy" name="dateCopy" hidden readonly required />
-
-                                // <!-- Buttons -->
-                                // <button id="submitValid"
-                                //     type="submit" value="Submit"
-                                //     hx-post="/record/validate" 
-                                //     hx-target="#htmxInfo" 
-                                //     hx-indicator="#spinnerA">
-                                //     <span id="spinnerA" class="htmx-indicator" aria-busy="true"></span>
-                                //     <!-- check square -->
-                                //     <svg width="24" height="24" viewBox="0 0 24 24"><use xlink:href="/img/icons.svg#feather-check-square"></use></svg>
-                                //     Valider
-                                // </button>
 
                                 <span id="htmxInfo"></span>
                             </form>
@@ -1106,13 +967,14 @@ templ GetRecordEdit(lenJsonFTlist int, jsonLB appdata.LendBorrow, jsonUP appdata
             if lenJsonFTlist>0 {
                 @categoryDropdown(jsonUP.Categories)
                 @editRow(jsonLB, jsonUP.Categories)
+                @amountDirection(jsonUP.Categories, false)
             }
         </body>
     </html> 
 }
 
 script editRow(jsonLB appdata.LendBorrow, uc *appdata.UserCategories) {
-    document.getElementById('compte').value = jsonLB.FT.Account;
+    document.getElementById('FT.compte').value = jsonLB.FT.Account;
 
     index = uc.FindCategory[jsonLB.FT.Category];
     document.getElementById('input' + index.toString()).checked = true;
@@ -1122,22 +984,17 @@ script editRow(jsonLB appdata.LendBorrow, uc *appdata.UserCategories) {
     document.getElementById('summaryIcon').classList.remove(bgclass);
     document.getElementById('summaryIcon').classList.add(uc.Categories[index].IconCodePoint);
 
-    document.getElementById('prix').value = jsonLB.FT.FormPriceStr2Decimals;
-    if (jsonLB.FT.FormPriceStr2Decimals.substring(0, 1) == "-") {
-        document.getElementById('expense').checked = true;
-    } else {
-        document.getElementById('gain').checked = true;
-    };
-    document.getElementById('designation').value = jsonLB.FT.Product;
+    document.getElementById('FT.prix').value = jsonLB.FT.FormPriceStr2Decimals;
+    document.getElementById(jsonLB.FT.PriceDirection).checked = true;
+    document.getElementById('FT.designation').value = jsonLB.FT.Product;
 
-    
-    console.log("-------jsonFT---------");
-    console.log(jsonLB.FT);
-    console.log("-------jsonLB---------");
-    console.log(jsonLB);
-    // TODO reprendre la partie LB who
+    // console.log("-------jsonFT---------");
+    // console.log(jsonLB.FT);
+    // console.log("-------jsonLB---------");
+    // console.log(jsonLB);
+
     document.getElementById('modeStr').value = String(jsonLB.modeStr);
-    document.getElementById('who').value = "-";   
+    document.getElementById('who').value = jsonLB.who;
 }
 
 templ GetRecordAlter(jsonFT []appdata.FinanceTracker, jsonUP appdata.UserParams, currentDate string, totalRowsWithoutLimit string, alterMode string) {

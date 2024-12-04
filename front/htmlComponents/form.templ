@@ -76,19 +76,21 @@ templ modeInput(activateStandardMode bool) {
 }
 
 templ whoDataList(lbListActive []appdata.LenderBorrower) {
-    <!-- Select -->
-    <label for="who">
-        <!-- lucide-user-search -->
-        <svg stroke="currenColor" width="18" heigth="18" viewBox="0 0 24 24"><use xlink:href="/img/icons.svg#lucide-user-search"></use></svg>
-        De/à qui?
-    </label>
-    <select id="who" name="who" required>
-        for _, lb := range lbListActive {
-            <option value={ lb.Name }>{ lb.Name }</option>
-        }
-        <option value="-">-</option>
-    </select>
-    <input type="text" id="createLenderBorrowerName" name="createLenderBorrowerName" placeholder="créer un nouveau tier" disabled />
+    <div id="whoDiv">
+        <!-- Select -->
+        <label for="who">
+            <!-- lucide-user-search -->
+            <svg stroke="currenColor" width="18" heigth="18" viewBox="0 0 24 24"><use xlink:href="/img/icons.svg#lucide-user-search"></use></svg>
+            De/à qui?
+        </label>
+        <select id="who" name="who" required>
+            for _, lb := range lbListActive {
+                <option value={ lb.Name }>{ lb.Name }</option>
+            }
+            <option value="-">-</option>
+        </select>
+        <input type="text" id="createLenderBorrowerName" name="createLenderBorrowerName" placeholder="créer un nouveau tier" disabled />
+    </div>
 }
 
 templ categoriesCustomRadioInput(uc *appdata.UserCategories, inputName string) {

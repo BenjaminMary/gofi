@@ -146,7 +146,7 @@ func GetRowsInFinanceTracker(ctx context.Context, db *sql.DB, filter *appdata.Fi
 	q2 := strings.Replace(q, `COUNT(1)`,
 		`fT.id, fT.gofiID, year, month, day, account, product, priceIntx100, 
 			fT.category, ifnull(c.iconCodePoint,'e90a') AS icp, ifnull(c.colorHEX,'#808080') AS ch, 
-			checked, dateChecked`, 1)
+			checked, dateChecked, mode`, 1)
 
 	row := execSingleRow(queryValues, db, ctx, q, filter)
 	if err := row.Scan(&totalRowsWithoutLimit); err != nil {
@@ -163,7 +163,7 @@ func GetRowsInFinanceTracker(ctx context.Context, db *sql.DB, filter *appdata.Fi
 		row = execSingleRow(queryValues, db, ctx, q2, filter)
 		var ft appdata.FinanceTracker
 		if err := row.Scan(&ft.ID, &ft.GofiID, &ft.DateDetails.Year, &ft.DateDetails.Month, &ft.DateDetails.Day, &ft.Account, &ft.Product, &ft.PriceIntx100,
-			&ft.Category, &ft.CategoryDetails.CategoryIcon, &ft.CategoryDetails.CategoryColor, &ft.Checked, &ft.DateChecked); err != nil {
+			&ft.Category, &ft.CategoryDetails.CategoryIcon, &ft.CategoryDetails.CategoryColor, &ft.Checked, &ft.DateChecked, &ft.Mode); err != nil {
 			fmt.Printf("GetRowsInFinanceTracker err2: %v\n", err)
 			log.Fatal(err)
 		}
@@ -187,7 +187,7 @@ func GetRowsInFinanceTracker(ctx context.Context, db *sql.DB, filter *appdata.Fi
 		for rows.Next() {
 			var ft appdata.FinanceTracker
 			if err := rows.Scan(&ft.ID, &ft.GofiID, &ft.DateDetails.Year, &ft.DateDetails.Month, &ft.DateDetails.Day, &ft.Account, &ft.Product, &ft.PriceIntx100,
-				&ft.Category, &ft.CategoryDetails.CategoryIcon, &ft.CategoryDetails.CategoryColor, &ft.Checked, &ft.DateChecked); err != nil {
+				&ft.Category, &ft.CategoryDetails.CategoryIcon, &ft.CategoryDetails.CategoryColor, &ft.Checked, &ft.DateChecked, &ft.Mode); err != nil {
 				fmt.Printf("GetRowsInFinanceTracker err4: %v\n", err)
 				log.Fatal(err)
 			}
@@ -567,6 +567,51 @@ func InsertUpdateInLenderBorrower(ctx context.Context, db *sql.DB, lb *appdata.L
 		}
 	} else {
 		fmt.Printf("InsertUpdateInLenderBorrower in multiple rows, nb: %v\n", nbRows)
+		return true
+	}
+	return false
+}
+
+func FindLenderBorrowerFromFTid(ctx context.Context, db *sql.DB, lb *appdata.LendBorrow) bool {
+	q := ` 
+		SELECT COALESCE(MIN(id), 0), 
+			COUNT(1), 
+			COALESCE(MIN(srm.idLenderBorrower), 0)
+		FROM specificRecordsByMode AS srm
+		WHERE srm.gofiID = ?
+			AND srm.idFinanceTracker = ?;
+	`
+	var srmID, nbRows, lbID int = 0, 0, 0
+	row := db.QueryRowContext(ctx, q, lb.FT.GofiID, lb.FT.ID)
+	if err := row.Scan(&srmID, &nbRows, &lbID); err != nil {
+		fmt.Printf("FindLenderBorrowerFromFTid err1: %v\n", err)
+		return true
+	}
+	if nbRows == 1 {
+		fmt.Println("FindLenderBorrowerFromFTid found row")
+		lb.ID = lbID
+		q := ` 
+			SELECT COALESCE(MIN(id), 0), 
+				COUNT(1), 
+				COALESCE(MIN(lb.name), 0)
+			FROM lenderBorrower AS lb
+			WHERE lb.gofiID = ?
+				AND id = ?;
+		`
+		var lbName string
+		row = db.QueryRowContext(ctx, q, lb.FT.GofiID, lbID)
+		if err := row.Scan(&lbID, &nbRows, &lbName); err != nil {
+			fmt.Printf("FindLenderBorrowerFromFTid err2: %v\n", err)
+			return true
+		}
+		if nbRows == 1 {
+			lb.Who = lbName
+		} else {
+			fmt.Printf("FindLenderBorrowerFromFTid err3 in rows, nb: %v\n", nbRows)
+			return true
+		}
+	} else {
+		fmt.Printf("FindLenderBorrowerFromFTid err4 in rows, nb: %v\n", nbRows)
 		return true
 	}
 	return false
