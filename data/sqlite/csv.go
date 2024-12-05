@@ -342,50 +342,29 @@ func ImportCSV(ctx context.Context, db *sql.DB,
 			}
 		} else if ft.ID > 0 {
 			// UPDATE
-			result, err := db.ExecContext(ctx, `
-				UPDATE financeTracker 
-				SET dateIn = ?, year = ?, month = ?, day = ?, mode = ?, account = ?, product = ?, priceIntx100 = ?, category = ?,
-					commentInt = ?, commentString = ?, checked = ?, dateChecked = ?, exported = 0
-				WHERE ID = ?
-					AND gofiID = ?;
-				`,
-				ft.Date, ft.DateDetails.Year, ft.DateDetails.Month, ft.DateDetails.Day, ft.Mode, ft.Account, ft.Product, ft.PriceIntx100, ft.Category,
-				ft.CommentInt, ft.CommentString, ft.Checked, ft.DateChecked,
-				ft.ID, ft.GofiID,
-			)
+			_, err = UpdateRowInFinanceTrackerFull(ctx, appdata.DB, &ft)
 			if err != nil {
 				lineInfo += "error3;false;"
 				fmt.Printf("error3: %#v\n", err)
 				flagErr += 1
 			} else {
-				rows, err := result.RowsAffected()
-				if err != nil {
-					lineInfo += "error4;false;"
-					fmt.Printf("error4: %#v\n", err)
-					flagErr += 1
+				if ft.Mode == 0 {
+					iDlistInt = append(iDlistInt, ft.ID)
+					lineInfo += ";true;"
+				} else if ft.Mode >= 1 && ft.Mode <= 4 {
+					lb.FT = ft
+					lb.ModeInt = ft.Mode
+					lb.CreateLenderBorrowerName = row[7]
+					lb.Who = row[7]			
+					lineInfoTemp, flagErrTemp = handleLBinsertCSV(ctx, &lb, csvSeparator, csvDecimalDelimiter, dateFormat, dateSeparator)
+					lineInfo += lineInfoTemp
+					flagErr += flagErrTemp
+					lineInfo += ";true;"
 				} else {
-					if rows != 1 {
-						lineInfo += "unknown ID;false;"
-					} else {
-						if ft.Mode == 0 {
-							iDlistInt = append(iDlistInt, ft.ID)
-							lineInfo += ";true;"
-						} else if ft.Mode >= 1 && ft.Mode <= 4 {
-							lb.FT = ft
-							lb.ModeInt = ft.Mode
-							lb.CreateLenderBorrowerName = row[7]
-							lb.Who = row[7]			
-							lineInfoTemp, flagErrTemp = handleLBinsertCSV(ctx, &lb, csvSeparator, csvDecimalDelimiter, dateFormat, dateSeparator)
-							lineInfo += lineInfoTemp
-							flagErr += flagErrTemp
-							lineInfo += ";true;"
-						} else {
-							iDlistInt = append(iDlistInt, ft.ID)
-							lineInfo += "error5;false;"
-							fmt.Printf("error5, incorrect ft.Mode: %v\n", ft.Mode)
-							flagErr += 1
-						}
-					}
+					iDlistInt = append(iDlistInt, ft.ID)
+					lineInfo += "error4;false;"
+					fmt.Printf("error4, incorrect ft.Mode: %v\n", ft.Mode)
+					flagErr += 1
 				}
 			}
 		}
@@ -408,7 +387,7 @@ func handleLBinsertCSV(ctx context.Context, lb *appdata.LendBorrow,
 	// ft.Mode >= 1 && ft.Mode <= 4 {
 	var lineInfo string = ""
 	var flagErr int = 0
-	isErr := InsertUpdateInLenderBorrower(ctx, appdata.DB, lb) // 1.
+	isErr, _ := InsertUpdateInLenderBorrower(ctx, appdata.DB, lb) // 1.
 	if isErr {
 		lineInfo += "handleLBinsertCSV-error1;false;"
 		fmt.Println("handleLBinsertCSV-error1")

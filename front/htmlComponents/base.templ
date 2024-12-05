@@ -214,22 +214,24 @@ templ indexLinksConnected(IsAdmin bool) {
                 Prêt / Emprunt
             </a></li>
         </ul></nav></aside>
-        <hr id="4" hidden/>
-        <h5 id="5" hidden class="center">Validation</h5>
-        <aside id="6" hidden><nav class="center"><ul>
-            <li><a href="/record/validate-or-cancel" role="button" class="contrast outline">
+        <hr/>
+        <h5 class="center">Altérer des données</h5>
+        <aside><nav class="center"><ul>
+            <li><a href="/record/alter/edit" role="button" class="contrast outline">
+                <!-- edit -->
+                <svg width="24" height="24" viewBox="0 0 24 24"><use xlink:href="/img/icons.svg#feather-edit"></use></svg>
+                Modifier des données
+            </a></li>
+            <li id="4" hidden><a href="/record/alter/validate" role="button" class="contrast outline">
                 <!-- check-square -->
                 <svg width="24" height="24" viewBox="0 0 24 24" stroke="currentColor"><use xlink:href="/img/icons.svg#feather-check-square"></use></svg>
-                Valider / 
+                Valider des données
+            </a></li>
+            <li id="5" hidden><a href="/record/alter/cancel" role="button" class="contrast outline">
                 <!-- x square -->
                 <svg width="24" height="24" viewBox="0 0 24 24" stroke="currentcolor"><use xlink:href="/img/icons.svg#feather-x-square"></use></svg>
-                Annuler
+                Annuler des données
             </a></li>
-            // <li><a href="/editrows" role="button" class="contrast outline">
-            //     <!-- search -->
-            //     <svg width="24" height="24" viewBox="0 0 24 24" stroke="currentColor"><use xlink:href="/img/icons.svg#feather-search"></use></svg>
-            //     Rechercher des données
-            // </a></li>
         </ul></nav></aside>
         <hr/>
         <h5 class="center">Statistiques</h5>
@@ -269,9 +271,9 @@ templ indexLinksConnected(IsAdmin bool) {
                 Paramètres divers
             </a></li>
         </ul></nav></aside>
-        <hr id="7" hidden/>
-        <h5 id="8" hidden class="center">Gestion des données en masse</h5>
-        <aside id="9" hidden><nav class="center"><ul>
+        <hr id="6" hidden/>
+        <h5 id="7" hidden class="center">Gestion des données en masse</h5>
+        <aside id="8" hidden><nav class="center"><ul>
             <li><a href="/csv/export" role="button" class="contrast outline">
                 <!-- file text -->
                 <svg width="24" height="24" viewBox="0 0 24 24"><use xlink:href="/img/icons.svg#feather-file-text"></use></svg>
@@ -386,7 +388,7 @@ templ IndexHtmlContent(json *appdata.UserRequest) {
 }
 script showOrHideAdvancedOptions() {
     // this script will hide advanced options by default and show them after clicking on a switch button
-    var array = ["1","2","3","4","5","6","7","8","9"];
+    var array = ["1","2","3","4","5","6","7","8"];
     document.getElementById("switchMode").addEventListener('click', function(e){
         boolValue = this.checked;
         // console.log(boolValue);

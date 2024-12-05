@@ -65,65 +65,69 @@ func GetRecordsViaPost(w http.ResponseWriter, r *http.Request, isFrontRequest bo
 		}
 	}
 	var tInt int
-	if filterR.LimitStr == "8" {
-		filterR.Limit = 8
+	if filterR.ID > 0 {
+		//
 	} else {
-		tInt = 0
-		tInt, err = strconv.Atoi(filterR.LimitStr)
-		if err != nil || tInt == 0 {
-			if err != nil {
-				fmt.Printf("GetRecordsViaPost err2: %v\n", err)
-			} else {
-				fmt.Println("GetRecordsViaPost limit 0")
+		if filterR.LimitStr == "8" {
+			filterR.Limit = 8
+		} else {
+			tInt = 0
+			tInt, err = strconv.Atoi(filterR.LimitStr)
+			if err != nil || tInt == 0 {
+				if err != nil {
+					fmt.Printf("GetRecordsViaPost err2: %v\n", err)
+				} else {
+					fmt.Println("GetRecordsViaPost limit 0")
+				}
+				return appdata.RenderAPIorUI(w, r, isFrontRequest, true, false, http.StatusBadRequest, "invalid request, wrong limit", "")
 			}
-			return appdata.RenderAPIorUI(w, r, isFrontRequest, true, false, http.StatusBadRequest, "invalid request, wrong limit", "")
+			filterR.Limit = tInt
 		}
-		filterR.Limit = tInt
-	}
-	if filterR.WhereYearStr == "" {
-		filterR.WhereYear = 0
-	} else {
-		tInt = 0
-		tInt, err := strconv.Atoi(filterR.WhereYearStr)
-		if err != nil || tInt == 0 {
-			if err != nil {
-				fmt.Printf("GetRecordsViaPost err3: %v\n", err)
-			} else {
-				fmt.Println("GetRecordsViaPost year 0")
+		if filterR.WhereYearStr == "" {
+			filterR.WhereYear = 0
+		} else {
+			tInt = 0
+			tInt, err := strconv.Atoi(filterR.WhereYearStr)
+			if err != nil || tInt == 0 {
+				if err != nil {
+					fmt.Printf("GetRecordsViaPost err3: %v\n", err)
+				} else {
+					fmt.Println("GetRecordsViaPost year 0")
+				}
+				return appdata.RenderAPIorUI(w, r, isFrontRequest, true, false, http.StatusBadRequest, "invalid request, wrong year", "")
 			}
-			return appdata.RenderAPIorUI(w, r, isFrontRequest, true, false, http.StatusBadRequest, "invalid request, wrong year", "")
+			filterR.WhereYear = tInt
 		}
-		filterR.WhereYear = tInt
-	}
-	if filterR.WhereMonthStr == "" {
-		filterR.WhereMonth = 0
-	} else {
-		tInt = 0
-		tInt, err := strconv.Atoi(filterR.WhereMonthStr)
-		if err != nil || tInt == 0 {
-			if err != nil {
-				fmt.Printf("GetRecordsViaPost err4: %v\n", err)
-			} else {
-				fmt.Println("GetRecordsViaPost month 0")
+		if filterR.WhereMonthStr == "" {
+			filterR.WhereMonth = 0
+		} else {
+			tInt = 0
+			tInt, err := strconv.Atoi(filterR.WhereMonthStr)
+			if err != nil || tInt == 0 {
+				if err != nil {
+					fmt.Printf("GetRecordsViaPost err4: %v\n", err)
+				} else {
+					fmt.Println("GetRecordsViaPost month 0")
+				}
+				return appdata.RenderAPIorUI(w, r, isFrontRequest, true, false, http.StatusBadRequest, "invalid request, wrong month", "")
 			}
-			return appdata.RenderAPIorUI(w, r, isFrontRequest, true, false, http.StatusBadRequest, "invalid request, wrong month", "")
+			filterR.WhereMonth = tInt
 		}
-		filterR.WhereMonth = tInt
-	}
-	if filterR.WhereCheckedStr == "2" {
-		filterR.WhereChecked = 2
-	} else {
-		tInt = -1
-		tInt, err := strconv.Atoi(filterR.WhereCheckedStr)
-		if err != nil || tInt == -1 {
-			if err != nil {
-				fmt.Printf("GetRecordsViaPost err5: %v\n", err)
-			} else {
-				fmt.Println("GetRecordsViaPost row checker -1")
+		if filterR.WhereCheckedStr == "2" {
+			filterR.WhereChecked = 2
+		} else {
+			tInt = -1
+			tInt, err := strconv.Atoi(filterR.WhereCheckedStr)
+			if err != nil || tInt == -1 {
+				if err != nil {
+					fmt.Printf("GetRecordsViaPost err5: %v\n", err)
+				} else {
+					fmt.Println("GetRecordsViaPost row checker -1")
+				}
+				return appdata.RenderAPIorUI(w, r, isFrontRequest, true, false, http.StatusBadRequest, "invalid request, wrong row checker", "")
 			}
-			return appdata.RenderAPIorUI(w, r, isFrontRequest, true, false, http.StatusBadRequest, "invalid request, wrong row checker", "")
+			filterR.WhereChecked = tInt
 		}
-		filterR.WhereChecked = tInt
 	}
 	userContext := r.Context().Value(appdata.ContextUserKey).(*appdata.UserRequest)
 	filterR.GofiID = userContext.GofiID
@@ -447,6 +451,65 @@ func RecordCancel(w http.ResponseWriter, r *http.Request, isFrontRequest bool) *
 	return appdata.RenderAPIorUI(w, r, isFrontRequest, false, true, http.StatusOK, "id list canceled", rvc.IDcheckedListStr)
 }
 
+func PostRecordEdit(w http.ResponseWriter, r *http.Request, isFrontRequest bool, idftFuncParam string) *appdata.HttpStruct {
+	/*
+		1. delete links from lenderBorrower
+		2. check lenderBorrower, already exist or to create
+			- if it's to create, accept only in mode 1 (lend) or 2 (borrow), stop the process otherwise
+		3. edit row in financeTracker
+		4. create row to match financeTracker ID and lenderBorrower ID
+	*/
+	idft := getURLorFUNCparam(r, idftFuncParam, "idft")
+	lb := appdata.LendBorrow{}
+	if err := render.Bind(r, &lb); err != nil {
+		fmt.Printf("PostEditRecord error1: %v\n", err.Error())
+		return appdata.RenderAPIorUI(w, r, isFrontRequest, false, false, http.StatusBadRequest, "invalid request, double check each field", "")
+	}
+	userContext := r.Context().Value(appdata.ContextUserKey).(*appdata.UserRequest)
+	lb.FT.GofiID = userContext.GofiID
+	lb.ModeStr = strconv.Itoa(lb.ModeInt)
+	lb.FT.Mode = lb.ModeInt
+	var err error
+	lb.FT.ID, err = strconv.Atoi(idft)
+	if err != nil { // Always check errors even if they should not happen.
+		fmt.Printf("PostRecordEdit error2: %v\n", err.Error())
+		return appdata.RenderAPIorUI(w, r, isFrontRequest, false, false, http.StatusBadRequest, "invalid request, double check each field", "")
+	}
+	if lb.FT.ID < 1 { // Always check errors even if they should not happen.
+		fmt.Printf("PostRecordEdit error3 lb.FT.ID: %v\n", lb.FT.ID)
+		return appdata.RenderAPIorUI(w, r, isFrontRequest, false, false, http.StatusBadRequest, "invalid request, double check each field", "")
+	}
+	isErr, httpCode, info := completeFTdata(r, &lb.FT)
+	if isErr {
+		fmt.Println("PostRecordEdit error4")
+		return appdata.RenderAPIorUI(w, r, isFrontRequest, false, false, httpCode, info, "")
+	}
+	// fmt.Printf("lb1: %#v\n", lb)
+	idL := appdata.IDlist{}
+	idL.IDsInOneString = idft
+	idL.IDlistStr = strings.Split(idL.IDsInOneString, ",")
+	isErr, httpCode, info = handleLBunlink(r, &idL) // 1.
+	if isErr {
+		return appdata.RenderAPIorUI(w, r, isFrontRequest, false, false, httpCode, info, "")
+	}
+	if lb.FT.Mode > 0 {
+		isErr, httpCode = sqlite.InsertUpdateInLenderBorrower(r.Context(), appdata.DB, &lb) // 2.
+		if isErr {
+			return appdata.RenderAPIorUI(w, r, isFrontRequest, false, false, httpCode, "error", "")
+		}
+	}
+	// fmt.Printf("lb2: %#v\n", lb)
+	isErr, _ = sqlite.UpdateRowInFinanceTrackerLite(r.Context(), appdata.DB, &lb.FT) // 3. EDIT
+	if isErr {
+		return appdata.RenderAPIorUI(w, r, isFrontRequest, false, false, http.StatusBadRequest, "can't update row", "")
+	}
+	isErr = sqlite.InsertInSpecificRecordsByMode(r.Context(), appdata.DB, &lb) // 4.
+	if isErr {
+		return appdata.RenderAPIorUI(w, r, isFrontRequest, false, false, http.StatusInternalServerError, "error", "")
+	}
+	return appdata.RenderAPIorUI(w, r, isFrontRequest, false, true, http.StatusOK, "record edited", lb.FT)
+}
+
 func PostLendOrBorrowRecords(w http.ResponseWriter, r *http.Request, isFrontRequest bool) *appdata.HttpStruct {
 	/*
 		1. check lenderBorrower, already exist or to create
@@ -462,9 +525,9 @@ func PostLendOrBorrowRecords(w http.ResponseWriter, r *http.Request, isFrontRequ
 	userContext := r.Context().Value(appdata.ContextUserKey).(*appdata.UserRequest)
 	lb.FT.GofiID = userContext.GofiID
 	lb.FT.Mode = lb.ModeInt
-	isErr := sqlite.InsertUpdateInLenderBorrower(r.Context(), appdata.DB, &lb) // 1.
+	isErr, httpCode := sqlite.InsertUpdateInLenderBorrower(r.Context(), appdata.DB, &lb) // 2.
 	if isErr {
-		return appdata.RenderAPIorUI(w, r, isFrontRequest, false, false, http.StatusInternalServerError, "error", "")
+		return appdata.RenderAPIorUI(w, r, isFrontRequest, false, false, httpCode, "error", "")
 	}
 	idFT, isErr, httpCode, info := handleFTinsert(r, &lb.FT) // 2.
 	if isErr {
@@ -478,35 +541,30 @@ func PostLendOrBorrowRecords(w http.ResponseWriter, r *http.Request, isFrontRequ
 	return appdata.RenderAPIorUI(w, r, isFrontRequest, false, true, http.StatusCreated, "record saved", lb.FT)
 }
 
-func handleFTinsert(r *http.Request, ft *appdata.FinanceTracker) (int64, bool, int, string) {
-	// if err := render.Bind(r, ft); err != nil {
-	// 	fmt.Printf("handleFTinsert error1: %v\n", err.Error())
-	// 	return 0, true, http.StatusBadRequest, "invalid request, double check each field"
-	// }
-	// fmt.Printf("ft: %#v\n", ft)
+func completeFTdata(r *http.Request, ft *appdata.FinanceTracker) (bool, int, string) {
 	_, err := time.Parse(time.DateOnly, ft.Date)
 	if err != nil {
-		fmt.Printf("handleFTinsert error2 invalid date: %v\n", err.Error())
-		return 0, true, http.StatusBadRequest, "invalid date"
+		fmt.Printf("completeFTdata error1 invalid date: %v\n", err.Error())
+		return true, http.StatusBadRequest, "invalid date"
 	}
 	var successfull bool
 	var errStr string
 	ft.DateDetails.Year, ft.DateDetails.Month, ft.DateDetails.Day, successfull, errStr = sqlite.ConvertDateStrToInt(ft.Date, "EN", "-")
 	if !successfull {
-		fmt.Printf("handleFTinsert error3 invalid convert date str to int: %v\n", errStr)
-		return 0, true, http.StatusInternalServerError, "server error"
+		fmt.Printf("completeFTdata error2 invalid convert date str to int: %v\n", errStr)
+		return true, http.StatusInternalServerError, "server error"
 	}
 	if (ft.Mode == 1 || ft.Mode == 4) && ft.PriceDirection == "expense" {
-		fmt.Println("handleFTinsert error4 invalid PriceDirection and Mode combinaison")
-		return 0, true, http.StatusBadRequest, "invalid PriceDirection and Mode combinaison"
+		fmt.Println("completeFTdata error3 invalid PriceDirection and Mode combinaison")
+		return true, http.StatusBadRequest, "invalid PriceDirection and Mode combinaison"
 	}
 	if (ft.Mode == 2 || ft.Mode == 3) && ft.PriceDirection == "gain" {
-		fmt.Println("handleFTinsert error5 invalid PriceDirection and Mode combinaison")
-		return 0, true, http.StatusBadRequest, "invalid PriceDirection and Mode combinaison"
+		fmt.Println("completeFTdata error4 invalid PriceDirection and Mode combinaison")
+		return true, http.StatusBadRequest, "invalid PriceDirection and Mode combinaison"
 	}
 	if ft.PriceDirection == "" {
-		fmt.Println("handleFTinsert error6 invalid PriceDirection")
-		return 0, true, http.StatusBadRequest, "invalid PriceDirection"
+		fmt.Println("completeFTdata error5 invalid PriceDirection")
+		return true, http.StatusBadRequest, "invalid PriceDirection"
 	} else if ft.PriceDirection == "expense" {
 		ft.FormPriceStr2Decimals = "-" + ft.FormPriceStr2Decimals
 	}
@@ -516,6 +574,19 @@ func handleFTinsert(r *http.Request, ft *appdata.FinanceTracker) (int64, bool, i
 	ft.PriceIntx100 = sqlite.ConvertPriceStrToInt(ft.FormPriceStr2Decimals, ".") // always "." as decimal separator from the form
 	userContext := r.Context().Value(appdata.ContextUserKey).(*appdata.UserRequest)
 	ft.GofiID = userContext.GofiID
+	return false, 0, ""
+}
+func handleFTinsert(r *http.Request, ft *appdata.FinanceTracker) (int64, bool, int, string) {
+	// if err := render.Bind(r, ft); err != nil {
+	// 	fmt.Printf("handleFTinsert error1: %v\n", err.Error())
+	// 	return 0, true, http.StatusBadRequest, "invalid request, double check each field"
+	// }
+	// fmt.Printf("ft: %#v\n", ft)
+	isErr, httpCode, info := completeFTdata(r, ft)
+	if isErr {
+		fmt.Println("handleFTinsert error1")
+		return 0, true, httpCode, info
+	}
 	idInserted, err := sqlite.InsertRowInFinanceTracker(r.Context(), appdata.DB, ft)
 	if err != nil { // Always check errors even if they should not happen.
 		fmt.Printf("handleFTinsert error sqlite.InsertRowInFinanceTracker: %v\n", err.Error())
@@ -537,7 +608,37 @@ func PostLenderBorrowerStateChange(w http.ResponseWriter, r *http.Request, isFro
 	return appdata.RenderAPIorUI(w, r, isFrontRequest, false, true, http.StatusOK, "record state changed", "")
 }
 
-// TODO voir pour retirer le lien d'une ligne DELETE partie prêt et emprunt lorsqu'une annulation de ligne est faite 
+func handleLBunlink(r *http.Request, idL *appdata.IDlist) (bool, int, string) {
+	var err error
+	for _, element := range idL.IDlistStr {
+		var idInt int
+		idInt, err = strconv.Atoi(element)
+		if err != nil { // Always check errors even if they should not happen.
+			fmt.Printf("handleLBunlink error1: %v\n", err.Error())
+			return true, http.StatusBadRequest, "invalid request, double check each field"
+		}
+		if idInt < 1 { // Always check errors even if they should not happen.
+			fmt.Printf("handleLBunlink error2: %v\n", element)
+			return true, http.StatusBadRequest, "invalid request, double check each field"
+		}
+		idL.IDlistInt = append(idL.IDlistInt, idInt)
+	}
+	// fmt.Printf("idL: %#v\n", idL)
+	userContext := r.Context().Value(appdata.ContextUserKey).(*appdata.UserRequest)
+	b := sqlite.DeleteSpecificRecordsByMode(r.Context(), appdata.DB, userContext.GofiID, &idL.IDlistInt)
+	if b {
+		fmt.Println("handleLBunlink error3")
+		return true, http.StatusInternalServerError, "can't update the state"
+	}
+	b = sqlite.UpdateRowsInFinanceTrackerToMode0(r.Context(), appdata.DB, userContext.GofiID, &idL.IDlistInt)
+	if b {
+		fmt.Println("handleLBunlink error4")
+		return true, http.StatusInternalServerError, "can't update the state"
+	}
+	return false, 0, ""
+}
+
+//  TODO voir pour retirer le lien d'une ligne DELETE partie prêt et emprunt lorsqu'une annulation de ligne est faite 
 func PostUnlinkLendOrBorrowRecords(w http.ResponseWriter, r *http.Request, isFrontRequest bool) *appdata.HttpStruct {
 	/*
 		input: list of fT ID
@@ -550,29 +651,9 @@ func PostUnlinkLendOrBorrowRecords(w http.ResponseWriter, r *http.Request, isFro
 		return appdata.RenderAPIorUI(w, r, isFrontRequest, false, false, http.StatusBadRequest, "invalid request, double check each field", "")
 	}
 	idL.IDlistStr = strings.Split(idL.IDsInOneString, ",")
-	var err error
-	for _, element := range idL.IDlistStr {
-		var idInt int
-		idInt, err = strconv.Atoi(element)
-		if err != nil { // Always check errors even if they should not happen.
-			fmt.Printf("PostUnlinkLendOrBorrowRecords error2: %v\n", err.Error())
-			return appdata.RenderAPIorUI(w, r, isFrontRequest, false, false, http.StatusBadRequest, "invalid request, double check each field", "")
-		}
-		if idInt < 1 { // Always check errors even if they should not happen.
-			fmt.Printf("PostUnlinkLendOrBorrowRecords error3: %v\n", element)
-			return appdata.RenderAPIorUI(w, r, isFrontRequest, false, false, http.StatusBadRequest, "invalid request, double check each field", "")
-		}
-		idL.IDlistInt = append(idL.IDlistInt, idInt)
-	}
-	// fmt.Printf("idL: %#v\n", idL)
-	userContext := r.Context().Value(appdata.ContextUserKey).(*appdata.UserRequest)
-	b := sqlite.DeleteSpecificRecordsByMode(r.Context(), appdata.DB, userContext.GofiID, &idL.IDlistInt)
-	if b {
-		return appdata.RenderAPIorUI(w, r, isFrontRequest, false, false, http.StatusInternalServerError, "can't update the state", "")
-	}
-	b = sqlite.UpdateRowsInFinanceTrackerToMode0(r.Context(), appdata.DB, userContext.GofiID, &idL.IDlistInt)
-	if b {
-		return appdata.RenderAPIorUI(w, r, isFrontRequest, false, false, http.StatusInternalServerError, "can't update the state", "")
+	isErr, httpCode, info := handleLBunlink(r, &idL) 
+	if isErr {
+		return appdata.RenderAPIorUI(w, r, isFrontRequest, false, false, httpCode, info, "")
 	}
 	return appdata.RenderAPIorUI(w, r, isFrontRequest, false, true, http.StatusOK, "records unlinked", "")
 }

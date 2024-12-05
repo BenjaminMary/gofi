@@ -208,6 +208,10 @@ func GetFullCategoryList(ctx context.Context, db *sql.DB, uc *appdata.UserCatego
 		q = strings.Replace(q, `AND OTHER FILTERS`,
 			` `, 1)
 		rows, err = db.QueryContext(ctx, q, uc.GofiID)
+	case "allinuse":
+		q = strings.Replace(q, `OTHER FILTERS`,
+			` inUse = 1 `, 1)
+		 rows, err = db.QueryContext(ctx, q, uc.GofiID, filterValue)
 	case "type":
 		q = strings.Replace(q, `OTHER FILTERS`,
 			` catWhereToUse IN ('all', ?) 

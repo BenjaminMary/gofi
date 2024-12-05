@@ -264,8 +264,55 @@ func PostRecordRecurrentDelete(w http.ResponseWriter, r *http.Request) {
 	json := api.RecordRecurrentDelete(w, r, true, rr.IDstr)
 	htmlComponents.DeleteRecordRecurrent(json.HttpStatus).Render(r.Context(), w)
 }
+func PostRecordEdit(w http.ResponseWriter, r *http.Request) {
+	idStr := chi.URLParam(r, "idft")
+	json := api.PostRecordEdit(w, r, true, idStr)
+	htmlComponents.PostRecordEdit(json.HttpStatus).Render(r.Context(), w)
+}
 
-func GetRecordValidateOrCancel(w http.ResponseWriter, r *http.Request) {
+func GetRecordEdit(w http.ResponseWriter, r *http.Request) {
+	idStr := chi.URLParam(r, "id")
+	var idInt int
+	if idStr == "" || idStr == "0" {
+		idInt = 0
+	} else {
+		idInt, _ = strconv.Atoi(idStr)
+	}
+	filterR := appdata.FilterRows{ID: idInt}
+	jsonFT := api.GetRecordsViaPost(w, r, true, &filterR)
+	jsonFTlist := []appdata.FinanceTracker{}
+	if jsonFT.IsValidResponse {
+		jsonFTlist = jsonFT.AnyStruct.([]appdata.FinanceTracker)
+		for i, item := range jsonFTlist {
+			jsonFTlist[i].IDstr = "v" + strconv.Itoa(item.ID)
+		}
+	}
+	lenJsonFTlist := len(jsonFTlist)
+	lb := appdata.LendBorrow{ModeStr: strconv.Itoa(jsonFTlist[0].Mode), ModeInt: jsonFTlist[0].Mode, Who: "-", FT: jsonFTlist[0]}
+	if lb.ModeInt > 0 && lb.ModeInt < 5 {
+		isErr := sqlite.FindLenderBorrowerFromFTid(r.Context(), appdata.DB, &lb)
+		if isErr {
+			fmt.Println("GetRecordEdit err in FindLenderBorrowerFromFTid")
+		}
+	}
+	if string(lb.FT.FormPriceStr2Decimals[0]) == "-" {
+		lb.FT.FormPriceStr2Decimals = lb.FT.FormPriceStr2Decimals[1:]
+		lb.FT.PriceDirection = "expense"
+	} else {
+		lb.FT.PriceDirection = "gain"
+	}
+	// fmt.Printf("lb GetRecordEdit: %#v\n", lb)
+	jsonUP := api.GetParam(w, r, true, "allinuse", "", false)
+	jsonUserParam := jsonUP.AnyStruct.(appdata.UserParams)
+	lbListActive, _ := sqlite.GetLenderBorrowerStats(r.Context(), appdata.DB, jsonUserParam.GofiID, true)
+	htmlComponents.GetRecordEdit(lenJsonFTlist, lb, jsonUserParam, lbListActive).Render(r.Context(), w)
+}
+
+func GetRecordAlter(w http.ResponseWriter, r *http.Request) {
+	alterMode := chi.URLParam(r, "alterMode")
+	if alterMode != "validate" && alterMode != "cancel" {
+		alterMode = "edit"
+	}
 	filterR := appdata.FilterRows{WhereAccount: "", WhereCategory: "", WhereYearStr: "", WhereMonthStr: "",
 		WhereCheckedStr: "2",
 		OrderBy:         "date",
@@ -284,7 +331,7 @@ func GetRecordValidateOrCancel(w http.ResponseWriter, r *http.Request) {
 	jsonUserParam := jsonUP.AnyStruct.(appdata.UserParams)
 	currentTime := time.Now()
 	currentDate := currentTime.Format(time.DateOnly) // YYYY-MM-DD
-	htmlComponents.GetRecordValidateOrCancel(jsonFTlist, jsonUserParam, currentDate, r.Header.Get("totalRowsWithoutLimit")).Render(r.Context(), w)
+	htmlComponents.GetRecordAlter(jsonFTlist, jsonUserParam, currentDate, r.Header.Get("totalRowsWithoutLimit"), alterMode).Render(r.Context(), w)
 }
 func PostRecordValidate(w http.ResponseWriter, r *http.Request) {
 	json := api.RecordValidate(w, r, true)
@@ -304,7 +351,9 @@ func PostFullRecordRefresh(w http.ResponseWriter, r *http.Request) {
 			jsonFTlist[i].IDstr = "v" + strconv.Itoa(item.ID)
 		}
 	}
-	htmlComponents.PostFullRecordRefresh(jsonFTlist, r.Header.Get("totalRowsWithoutLimit")).Render(r.Context(), w)
+	botScriptAutoReloadOnAccountChange := r.Header.Get("botScriptAutoReloadOnAccountChange")
+	// fmt.Printf("botScriptAutoReloadOnAccountChange: %v\n", botScriptAutoReloadOnAccountChange)
+	htmlComponents.PostFullRecordRefresh(jsonFTlist, r.Header.Get("totalRowsWithoutLimit"), botScriptAutoReloadOnAccountChange).Render(r.Context(), w)
 }
 
 func GetStats(w http.ResponseWriter, r *http.Request) {

@@ -35,7 +35,8 @@ templ dateSVG(year int, monthStr string, day int) {
     </small>
 }
 
-templ lastInsertedRowsTable(tbodyId string, jsonFT []appdata.FinanceTracker, checkboxMode bool, botRowsMode bool, totalRowsWithoutLimit string) {
+templ lastInsertedRowsTable(tbodyId string, jsonFT []appdata.FinanceTracker, 
+    editMode bool, checkboxMode bool, botRowsMode bool, totalRowsWithoutLimit string) {
     <div class="overflow-auto">
         <figure>
             <table class="striped">
@@ -44,6 +45,12 @@ templ lastInsertedRowsTable(tbodyId string, jsonFT []appdata.FinanceTracker, che
                         if checkboxMode {
                             <th scope="col">
                                 <input type="checkbox" id="toggle" name="toggle" value="0"/>
+                            </th>
+                        }
+                        if editMode {
+                            <th scope="col" class="centerText">
+                                <!-- edit -->
+                                <svg width="24" height="24" viewBox="0 0 24 24"><use xlink:href="/img/icons.svg#feather-edit"></use></svg>
                             </th>
                         }
                         <th scope="col">
@@ -70,7 +77,7 @@ templ lastInsertedRowsTable(tbodyId string, jsonFT []appdata.FinanceTracker, che
                 </thead>
                 <tbody id={ tbodyId }>
                     for _, ft := range jsonFT {
-                        @oneRowInLastInsertedRowsTable(ft, checkboxMode)
+                        @oneRowInLastInsertedRowsTable(ft, editMode, checkboxMode)
                     }
                     if botRowsMode {
                         @addBotRows(totalRowsWithoutLimit)
@@ -80,11 +87,19 @@ templ lastInsertedRowsTable(tbodyId string, jsonFT []appdata.FinanceTracker, che
         </figure>
     </div>
 }
-templ oneRowInLastInsertedRowsTable(ft appdata.FinanceTracker, checkboxMode bool) {
+templ oneRowInLastInsertedRowsTable(ft appdata.FinanceTracker, editMode bool, checkboxMode bool) {
     <tr>
         if checkboxMode {
             <td>
                 <input type="checkbox" id={ strconv.Itoa(ft.ID) } name="idCheckbox" value={ strconv.Itoa(ft.ID) }/>
+            </td>
+        }
+        if editMode {
+            <td>
+                <a href={ templ.URL("/record/edit/" + strconv.Itoa(ft.ID)) } role="button" class="small-padding">
+                    <!-- edit -->
+                    <svg width="20" height="20" viewBox="0 0 24 24"><use xlink:href="/img/icons.svg#feather-edit"></use></svg>
+                </a>
             </td>
         }
         <td>
@@ -238,7 +253,7 @@ templ GetRecordInsert(jsonFT []appdata.FinanceTracker, jsonUP appdata.UserParams
                 </section>
 
                 <section id="recap">
-                    @lastInsertedRowsTable("lastInsert", jsonFT, false, false, "")
+                    @lastInsertedRowsTable("lastInsert", jsonFT, false, false, false, "")
                 </section>
 
                 <section id="infos">
@@ -282,7 +297,7 @@ templ GetLendBorrowRecord(jsonFT []appdata.FinanceTracker, jsonUP appdata.UserPa
                             hx-indicator="#spinner"
                             hx-on::after-request="if(event.detail.successful) document.getElementById('FT.prix').value='';document.getElementById('FT.designation').value='';">
 
-                            @modeInput()
+                            @modeInput(false)
                             @whoDataList(lbListActive)
                             <fieldset role="group">
                                 <div>
@@ -310,7 +325,7 @@ templ GetLendBorrowRecord(jsonFT []appdata.FinanceTracker, jsonUP appdata.UserPa
                 </section>
 
                 <section id="recap">
-                    @lastInsertedRowsTable("lastInsert", jsonFT, false, false, "")
+                    @lastInsertedRowsTable("lastInsert", jsonFT, false, false, false, "")
                 </section>
 
                 <section id="infos">
@@ -326,12 +341,12 @@ templ GetLendBorrowRecord(jsonFT []appdata.FinanceTracker, jsonUP appdata.UserPa
             @BotScriptThemeSwitcher()
             @BotScriptHTMXhandleError()
             @categoryDropdown(jsonUP.Categories)
-            @amountDirection(jsonUP.Categories)
+            @amountDirection(jsonUP.Categories, true)
             @createLenderBorrower()
         </body>
     </html>
 }
-script amountDirection(uc *appdata.UserCategories) {
+script amountDirection(uc *appdata.UserCategories, forceCategory bool) {
     // this script adapt the amount direction with the mode selected 
     // .disabled on radio buttons, because .readOnly does not work on radio
     // document.getElementById('gain').disabled = true; not disabled because default option 
@@ -342,30 +357,40 @@ script amountDirection(uc *appdata.UserCategories) {
             document.getElementById('gain').disabled = false;
             document.getElementById('expense').disabled = true;
             document.getElementById('gain').checked = true;
+            document.getElementById('whoDiv').hidden = false;
         }
         else if (["2","3"].includes(this.value)){
             document.getElementById('expense').disabled = false;
             document.getElementById('gain').disabled = true;
             document.getElementById('expense').checked = true;
+            document.getElementById('whoDiv').hidden = false;
+        }
+        else if (["0"].includes(this.value)){
+            document.getElementById('expense').disabled = false;
+            document.getElementById('gain').disabled = false;
+            document.getElementById('who').value = "-";
+            document.getElementById('whoDiv').hidden = true;
         }
         else {console.log("unhandled")};
-        if (["1","3"].includes(this.value)){
-            document.getElementById('input1').checked = true;
-            index = 1;
-            document.getElementById('summaryCategory').innerHTML = uc.Categories[index].Name;
-            document.getElementById('summaryIcon').innerHTML = "&#x" + uc.Categories[index].IconCodePoint + ";";
-            bgclass = document.getElementById('summaryIcon').classList.item(1);
-            document.getElementById('summaryIcon').classList.remove(bgclass);
-            document.getElementById('summaryIcon').classList.add(uc.Categories[index].IconCodePoint);
-        }
-        else if (["2","4"].includes(this.value)){
-            document.getElementById('input0').checked = true;
-            index = 0;
-            document.getElementById('summaryCategory').innerHTML = uc.Categories[index].Name;
-            document.getElementById('summaryIcon').innerHTML = "&#x" + uc.Categories[index].IconCodePoint + ";";
-            bgclass = document.getElementById('summaryIcon').classList.item(1);
-            document.getElementById('summaryIcon').classList.remove(bgclass);
-            document.getElementById('summaryIcon').classList.add(uc.Categories[index].IconCodePoint);
+        if (forceCategory){
+            if (["1","3"].includes(this.value)){
+                document.getElementById('input1').checked = true;
+                index = 1;
+                document.getElementById('summaryCategory').innerHTML = uc.Categories[index].Name;
+                document.getElementById('summaryIcon').innerHTML = "&#x" + uc.Categories[index].IconCodePoint + ";";
+                bgclass = document.getElementById('summaryIcon').classList.item(1);
+                document.getElementById('summaryIcon').classList.remove(bgclass);
+                document.getElementById('summaryIcon').classList.add(uc.Categories[index].IconCodePoint);
+            }
+            else if (["2","4"].includes(this.value)){
+                document.getElementById('input0').checked = true;
+                index = 0;
+                document.getElementById('summaryCategory').innerHTML = uc.Categories[index].Name;
+                document.getElementById('summaryIcon').innerHTML = "&#x" + uc.Categories[index].IconCodePoint + ";";
+                bgclass = document.getElementById('summaryIcon').classList.item(1);
+                document.getElementById('summaryIcon').classList.remove(bgclass);
+                document.getElementById('summaryIcon').classList.add(uc.Categories[index].IconCodePoint);
+            };
         }
     });
 }
@@ -449,7 +474,7 @@ templ GetRecordTransfer(jsonFT []appdata.FinanceTracker, jsonUP appdata.UserPara
                 </section>
 
                 <section id="recap">
-                    @lastInsertedRowsTable("lastInsert", jsonFT, false, false, "")
+                    @lastInsertedRowsTable("lastInsert", jsonFT, false, false, false, "")
                 </section>
 
                 <section id="infos">
@@ -671,7 +696,7 @@ templ GetRecordRecurrent(jsonRR []appdata.RecurrentRecord, jsonFT []appdata.Fina
                     <hr/>
                 </section>
                 <section id="recap">
-                    @lastInsertedRowsTable("lastInsert", jsonFT, false, false, "")
+                    @lastInsertedRowsTable("lastInsert", jsonFT, false, false, false, "")
                 </section>
                 <section id="infos">
                     <p>
@@ -818,7 +843,7 @@ script botScriptAddClickEventToTableButtons() {
 templ PostRecordSingle(httpStatus int, json appdata.FinanceTracker) {
     switch httpStatus {
         case http.StatusCreated:
-            @oneRowInLastInsertedRowsTable(json, false)       
+            @oneRowInLastInsertedRowsTable(json, false, false)       
         default:
             @errorPostRecord()
 	}
@@ -826,8 +851,8 @@ templ PostRecordSingle(httpStatus int, json appdata.FinanceTracker) {
 templ PostRecordDouble(httpStatus int, json []appdata.FinanceTracker) {
     switch httpStatus {
         case http.StatusCreated:
-            @oneRowInLastInsertedRowsTable(json[0], false)
-            @oneRowInLastInsertedRowsTable(json[1], false)      
+            @oneRowInLastInsertedRowsTable(json[0], false, false)
+            @oneRowInLastInsertedRowsTable(json[1], false, false)      
         default:
             @errorPostRecord()
 	}
@@ -851,10 +876,19 @@ templ DeleteRecordRecurrent(httpStatus int) {
 	}
 }
 
+templ PostRecordEdit(httpStatus int) {
+    switch httpStatus {
+        case http.StatusOK:
+            Enregistrement editée.
+        default:
+            Impossible d'éditer cet enregistrement.
+	}
+}
+
 templ PostRecordRecurrentSave(httpStatus int, ft appdata.FinanceTracker) {
     switch httpStatus {
         case http.StatusCreated:
-            @oneRowInLastInsertedRowsTable(ft, false)       
+            @oneRowInLastInsertedRowsTable(ft, false, false)       
         default:
             @errorPostRecord()
 	}
@@ -872,7 +906,7 @@ templ infoFilter() {
     <hr/>
 }
 
-templ GetRecordValidateOrCancel(jsonFT []appdata.FinanceTracker, jsonUP appdata.UserParams, currentDate string, totalRowsWithoutLimit string) {
+templ GetRecordEdit(lenJsonFTlist int, jsonLB appdata.LendBorrow, jsonUP appdata.UserParams, lbListActive []appdata.LenderBorrower) {
     <!DOCTYPE html>
     <html lang="fr">
         <head>
@@ -882,7 +916,104 @@ templ GetRecordValidateOrCancel(jsonFT []appdata.FinanceTracker, jsonUP appdata.
         </head>
         <body class="container-fluid">
             <main>
-                <h1>Valider/annuler des gains ou dépenses</h1>
+                <h1>Modifier des données</h1>
+                if lenJsonFTlist>0 {
+                    <section id="form">
+                        <div id="forbidden"> <!-- via header: "HX-Retarget", "#forbidden" -->
+                            // <form>
+                            <form hx-post={ "/record/edit/" + strconv.Itoa(jsonLB.FT.ID) }
+                                hx-target="#htmxInfo" 
+                                hx-swap="afterbegin" 
+                                hx-sync="this:drop"
+                                hx-indicator="#spinner">
+
+                                @modeInput(true)
+                                @whoDataList(lbListActive)
+                                // TODO enable create LB from this edit page
+                                <fieldset role="group">
+                                    <div>
+                                        @dateInput(jsonLB.FT.Date, "FT.date")
+                                    </div>
+                                    <div><!-- separator --></div>
+                                    <div>
+                                        @accountInput("FT.compte", jsonUP.AccountList, false)
+                                    </div>
+                                </fieldset>
+                                @categoriesCustomRadioInput(jsonUP.Categories, "FT.categorie")
+                                <fieldset role="group">
+                                    <div>
+                                        @amountInput("FT.prix")
+                                    </div>
+                                    <div><!-- separator --></div>
+                                    <div>
+                                        @amountDirectionRadio("expense", "FT.gain-expense")
+                                    </div>
+                                </fieldset>
+                                @textInput("FT.designation")
+                                @FormSubmit("idSubmit1", "/img/icons.svg#feather-edit", "Modifier")
+
+                                <span id="htmxInfo"></span>
+                            </form>
+                        </div> <!-- via header: "HX-Retarget", "#forbidden" -->
+                    </section>
+                } else {
+                    <p>Identifiant inconnu.</p>
+                }
+                @Nav("top", "/", "/img/icons.svg#feather-home", "Accueil", "contrast outline",
+                    "/record/alter/edit", "/img/icons.svg#feather-edit", "Modifier", "contrast")
+            </main>
+            @BotScriptThemeSwitcher()
+            @BotScriptHTMXhandleError()
+            if lenJsonFTlist>0 {
+                @categoryDropdown(jsonUP.Categories)
+                @editRow(jsonLB, jsonUP.Categories)
+                @amountDirection(jsonUP.Categories, false)
+            }
+        </body>
+    </html> 
+}
+
+script editRow(jsonLB appdata.LendBorrow, uc *appdata.UserCategories) {
+    document.getElementById('FT.compte').value = jsonLB.FT.Account;
+
+    index = uc.FindCategory[jsonLB.FT.Category];
+    document.getElementById('input' + index.toString()).checked = true;
+    document.getElementById('summaryCategory').innerHTML = jsonLB.FT.Category;
+    document.getElementById('summaryIcon').innerHTML = "&#x" + uc.Categories[index].IconCodePoint + ";";
+    bgclass = document.getElementById('summaryIcon').classList.item(1);
+    document.getElementById('summaryIcon').classList.remove(bgclass);
+    document.getElementById('summaryIcon').classList.add(uc.Categories[index].IconCodePoint);
+
+    document.getElementById('FT.prix').value = jsonLB.FT.FormPriceStr2Decimals;
+    document.getElementById(jsonLB.FT.PriceDirection).checked = true;
+    document.getElementById('FT.designation').value = jsonLB.FT.Product;
+
+    // console.log("-------jsonFT---------");
+    // console.log(jsonLB.FT);
+    // console.log("-------jsonLB---------");
+    // console.log(jsonLB);
+
+    document.getElementById('modeStr').value = String(jsonLB.modeStr);
+    document.getElementById('who').value = jsonLB.who;
+}
+
+templ GetRecordAlter(jsonFT []appdata.FinanceTracker, jsonUP appdata.UserParams, currentDate string, totalRowsWithoutLimit string, alterMode string) {
+    <!DOCTYPE html>
+    <html lang="fr">
+        <head>
+            @Header()
+            @TopScriptHTMX()
+            <link rel="stylesheet" href="/fonts/style.css"/>
+        </head>
+        <body class="container-fluid">
+            <main>
+                if alterMode == "validate" {
+                    <h1>Valider des gains ou dépenses</h1>
+                } else if alterMode == "cancel" {
+                    <h1>Annuler des gains ou dépenses</h1>
+                } else if alterMode == "edit" {
+                    <h1>Editer des gains ou dépenses</h1>
+                }
                 <p>
                     <!-- info -->
                     <svg width="24" height="24" viewBox="0 0 24 24" stroke="currentColor"><use xlink:href="/img/icons.svg#feather-info"></use></svg>
@@ -988,21 +1119,27 @@ templ GetRecordValidateOrCancel(jsonFT []appdata.FinanceTracker, jsonUP appdata.
                         <h5>Paramètres de traitement des lignes</h5>
                         <div class="grid">
                             <div>
-                                Mode<br/>
-                                <span id="mode">Le mode <code>Validation</code> est activé.</span>
-                                <label for="switchMode">
-                                    <!-- red x square -->
-                                    Annulation
-                                    <svg width="24" height="24" viewBox="0 0 24 24" stroke="firebrick"><use xlink:href="/img/icons.svg#feather-x-square"></use></svg>
-                                    <input type="checkbox" id="switchMode" name="switchMode" role="switch" checked />
+                                if alterMode == "validate" {
                                     <!-- green check square -->
                                     <svg width="24" height="24" viewBox="0 0 24 24"><use xlink:href="/img/icons.svg#feather-green-check-square"></use></svg>
-                                    Validation
-                                </label>
+                                    <span>Le mode <code>Validation</code> est activé.</span>
+                                } else if alterMode == "cancel" {
+                                    <!-- red x square -->
+                                    <svg width="24" height="24" viewBox="0 0 24 24" stroke="firebrick"><use xlink:href="/img/icons.svg#feather-x-square"></use></svg>
+                                    <span>Le mode <code>Annulation</code> est activé.</span>
+                                } else if alterMode == "edit" {
+                                    <!-- edit -->
+                                    <svg width="24" height="24" viewBox="0 0 24 24"><use xlink:href="/img/icons.svg#feather-edit"></use></svg>
+                                    <span>Le mode <code>Edition</code> est activé.</span>
+                                }
                             </div>
                             <fieldset role="group">
                                 <div>
-                                    @dateInput(currentDate, "date")
+                                    if alterMode == "edit" {
+                                        .
+                                    } else {
+                                        @dateInput(currentDate, "date")
+                                    }
                                 </div>
                                 <div><!-- separator --></div>
                                 <div>
@@ -1013,7 +1150,11 @@ templ GetRecordValidateOrCancel(jsonFT []appdata.FinanceTracker, jsonUP appdata.
 
                         <div class="overflow-auto">
                             <section id="recap">
-                                @lastInsertedRowsTable("lastInsert", jsonFT, true, true, totalRowsWithoutLimit)
+                                if alterMode == "edit" {
+                                    @lastInsertedRowsTable("lastInsert", jsonFT, true, false, false, totalRowsWithoutLimit)
+                                } else {
+                                    @lastInsertedRowsTable("lastInsert", jsonFT, false, true, true, totalRowsWithoutLimit)
+                                }
                             </section>
                         </div>
                         <form>
@@ -1022,31 +1163,33 @@ templ GetRecordValidateOrCancel(jsonFT []appdata.FinanceTracker, jsonUP appdata.
                             <!-- Text -->
                             <input type="text" id="dateCopy" name="dateCopy" hidden readonly required />
 
-                            <!-- Buttons -->
-                            <button id="submitValid"
-                                type="submit" value="Submit"
-                                hx-post="/record/validate" 
-                                hx-target="#htmxInfo" 
-                                hx-indicator="#spinnerA">
-                                <span id="spinnerA" class="htmx-indicator" aria-busy="true"></span>
-                                <!-- check square -->
-                                <svg width="24" height="24" viewBox="0 0 24 24"><use xlink:href="/img/icons.svg#feather-check-square"></use></svg>
-                                Valider
-                            </button>
-                            <!-- Buttons -->
-                            <button id="submitCancel" hidden
-                                class="contrast outline"
-                                type="submit" value="Submit"
-                                hx-post="/record/cancel" 
-                                hx-target="#htmxInfo" 
-                                hx-swap="innerHTML" 
-                                hx-indicator="#spinnerB">
-                                <span id="spinnerB" class="htmx-indicator" aria-busy="true"></span>
-                                <!-- red x square -->
-                                <svg width="24" height="24" viewBox="0 0 24 24" stroke="currentcolor"><use xlink:href="/img/icons.svg#feather-red-x-square"></use></svg>
-                                Annuler
-                            </button>
-
+                            if alterMode == "validate" {
+                                <!-- Buttons -->
+                                <button id="submitValid"
+                                    type="submit" value="Submit"
+                                    hx-post="/record/validate" 
+                                    hx-target="#htmxInfo" 
+                                    hx-indicator="#spinnerA">
+                                    <span id="spinnerA" class="htmx-indicator" aria-busy="true"></span>
+                                    <!-- check square -->
+                                    <svg width="24" height="24" viewBox="0 0 24 24"><use xlink:href="/img/icons.svg#feather-check-square"></use></svg>
+                                    Valider
+                                </button>
+                            } else if alterMode == "cancel" {
+                                <!-- Buttons -->
+                                <button id="submitCancel" hidden
+                                    class="contrast outline"
+                                    type="submit" value="Submit"
+                                    hx-post="/record/cancel" 
+                                    hx-target="#htmxInfo" 
+                                    hx-swap="innerHTML" 
+                                    hx-indicator="#spinnerB">
+                                    <span id="spinnerB" class="htmx-indicator" aria-busy="true"></span>
+                                    <!-- red x square -->
+                                    <svg width="24" height="24" viewBox="0 0 24 24" stroke="currentcolor"><use xlink:href="/img/icons.svg#feather-red-x-square"></use></svg>
+                                    Annuler
+                                </button>
+                            }
                             <span id="htmxInfo"></span>
                         </form>
                     </div> <!-- via header: "HX-Retarget", "#forbidden" -->
@@ -1055,31 +1198,30 @@ templ GetRecordValidateOrCancel(jsonFT []appdata.FinanceTracker, jsonUP appdata.
                     "/record/insert", "/img/icons.svg#lucide-notebook-pen", "Saisie", "contrast")
                 @Nav("none", "/record/recurrent", "/img/icons.svg#feather-refresh-cw", "Enr. réguliers", "contrast",
                     "/record/transfer", "/img/icons.svg#lucide-arrow-right-left", "Transfert", "contrast")
+                if alterMode == "validate" {
+                    @Nav("none", "/record/alter/cancel", "/img/icons.svg#feather-x-square", "Annuler", "contrast outline",
+                        "/record/alter/edit", "/img/icons.svg#feather-edit", "Modifier", "contrast outline")
+                } else if alterMode == "cancel" {
+                    @Nav("none", "/record/alter/validate", "/img/icons.svg#feather-check-square", "Valider", "contrast outline",
+                        "/record/alter/edit", "/img/icons.svg#feather-edit", "Modifier", "contrast outline")
+                } else if alterMode == "edit" {
+                    @Nav("none", "/record/alter/validate", "/img/icons.svg#feather-check-square", "Valider", "contrast outline",
+                        "/record/alter/cancel", "/img/icons.svg#feather-x-square", "Annuler", "contrast outline")
+                }
             </main>
             @BotScriptThemeSwitcher()
             @BotScriptHTMXhandleError()
             @categoryDropdown(jsonUP.Categories)
-            @botScriptSwitchMode()
-            @botScriptTableRowSelectAndLastRowCalc()
-            @botScriptAutoReloadOnAccountChange()
+            if alterMode == "validate" {
+                @botScriptTableRowSelectAndLastRowCalc()
+            } else if alterMode == "cancel" {
+                @botScriptTableRowSelectAndLastRowCalc()
+            }
+            @botScriptAutoReloadOnAccountChange(alterMode)
         </body>
     </html>
 }
 
-script botScriptSwitchMode() {
-    //switch between validate or cancel mode
-    document.getElementById('switchMode').addEventListener('click', function(toggleSwitchMode){
-        if (this.checked) {
-            document.getElementById('mode').innerHTML = `Le mode <code>Validation</code> est activé.`;
-            document.getElementById('submitValid').hidden = false;
-            document.getElementById('submitCancel').hidden = true;
-        } else {
-            document.getElementById('mode').innerHTML = `Le mode <code>Annulation</code> est activé.`;
-            document.getElementById('submitValid').hidden = true;
-            document.getElementById('submitCancel').hidden = false;
-        };
-    });
-}
 script botScriptTableRowSelectAndLastRowCalc() {
     // add sum of the selection in the final row of the table
     function sumOfCheckboxesSelection(allCheckboxes) {
@@ -1120,7 +1262,7 @@ script botScriptTableRowSelectAndLastRowCalc() {
         document.getElementById('selectedSum').innerHTML = newTotal.toFixed(2);
     });
 }
-script botScriptAutoReloadOnAccountChange() {
+script botScriptAutoReloadOnAccountChange(headerStr string) {
     function reload(){
         htmx.ajax('POST', '/record/getviapost', {
             target:'#recap', 
@@ -1140,11 +1282,17 @@ script botScriptAutoReloadOnAccountChange() {
     //auto reload record list on account change
     document.getElementById('compte').addEventListener('change', reload);
 
+    // add a new header before submitting the HTMX request
+    document.body.addEventListener('htmx:configRequest', function(evtConfig) {
+        evtConfig.detail.headers['botScriptAutoReloadOnAccountChange'] = headerStr;
+    });
+
     // check JS before submitting the HTMX request, add the list of selected rows in the post request
     document.body.addEventListener("htmx:confirm", function(evtConfirm){
+        // https://htmx.org/events/#htmx:confirm
         if (evtConfirm.detail.path == "/record/getviapost" && evtConfirm.detail.verb == "post") {
             // console.log("nothing");
-        } else {
+        } else if (evtConfirm.detail.path == "/record/validate" || evtConfirm.detail.path == "/record/cancel")  {
             evtConfirm.preventDefault();
             var array = [];
             var checkboxes = document.querySelectorAll('input[type=checkbox][name=idCheckbox]:checked');
@@ -1160,11 +1308,24 @@ script botScriptAutoReloadOnAccountChange() {
             document.getElementById('checkedList').value = "";
             document.getElementById('checked').value = "2";
             setTimeout(function() { reload(); }, 300); // wait 300ms before sending this 2nd request
+        } else {
+            console.log("unhandled");
         };
     }, false);
 }
-templ PostFullRecordRefresh(jsonFT []appdata.FinanceTracker, totalRowsWithoutLimit string) {
-    @lastInsertedRowsTable("lastInsert", jsonFT, true, true, totalRowsWithoutLimit)
+templ PostFullRecordRefresh(jsonFT []appdata.FinanceTracker, totalRowsWithoutLimit string, botScriptAutoReloadOnAccountChange string) {
+    // POST "/record/getviapost" trigger: PostFullRecordRefresh
+    if botScriptAutoReloadOnAccountChange == "validate" {
+        @lastInsertedRowsTable("lastInsert", jsonFT, false, true, true, totalRowsWithoutLimit)
+    } else if botScriptAutoReloadOnAccountChange == "cancel" {
+        @lastInsertedRowsTable("lastInsert", jsonFT, false, true, true, totalRowsWithoutLimit)
+    } else if botScriptAutoReloadOnAccountChange == "edit" {
+        @lastInsertedRowsTable("lastInsert", jsonFT, true, false, false, totalRowsWithoutLimit)
+    } else {
+        <!-- red x square -->
+        <svg width="24" height="24" viewBox="0 0 24 24"><use xlink:href="/img/icons.svg#feather-red-x-square"></use></svg>
+        ERREUR
+    }
 }
 templ PostRecordValidate(httpStatus int) {
     switch httpStatus {

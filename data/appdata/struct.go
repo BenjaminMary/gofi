@@ -52,7 +52,7 @@ type FinanceTracker struct {
 	CommentString         string
 	Checked               bool
 	DateChecked           string
-	Mode                  int `json:"-"`
+	Mode                  int
 	Exported              bool
 }
 
@@ -127,13 +127,15 @@ func (a *LendBorrow) Bind(r *http.Request) error {
 	// fmt.Printf("a: %#v\n", a)
 	var err error
 	a.ModeInt, err = strconv.Atoi(a.ModeStr)
-	if err != nil || a.ModeInt < 1 || a.ModeInt > 4 {
+	if err != nil || a.ModeInt < 0 || a.ModeInt > 4 {
 		fmt.Println("missing Mode")
 		return errors.New("missing required field")
 	}
-	if a.Who == "-" && len(a.CreateLenderBorrowerName) == 0 {
-		fmt.Println("missing Who & CreateLenderBorrowerName")
-		return errors.New("missing required field")
+	if a.ModeInt > 0 {
+		if a.Who == "-" && len(a.CreateLenderBorrowerName) == 0 {
+			fmt.Println("missing Who & CreateLenderBorrowerName")
+			return errors.New("missing required field")
+		}
 	}
 	return nil
 }
@@ -441,7 +443,8 @@ func (a *CategoryPatchOrder) Bind(r *http.Request) error {
 }
 
 type FilterRows struct {
-	GofiID          int    // UNIQUE
+	GofiID          int
+	ID				int	   // FT ID UNIQUE
 	WhereAccount    string `json:"compteHidden"`
 	WhereCategory   string `json:"category"`
 	WhereYearStr    string `json:"annee"`

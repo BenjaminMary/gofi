@@ -9,7 +9,8 @@
     - période prévisionnelle avant nouvel achat
 - stats 
     - ☐ sur le nombre de requêtes des utilisateurs pour voir les actifs ? (tableau admin?)
-    - ☐❗ ajout partie budget en mode annuel une barre avec visu si montant mensualisé / mois en cours 
+    - partie budget
+        - ☐❗ refonte complète avec ApexCharts ? 
 - ☐ faire des tests automatisés pour la partie front
 - ☐ ajout système de données récurrentes:
     - ☐ améliorer l'UI en bloquant l'espace via `visibility: hidden`, permettra de ne plus faire de trou dans la page au changement
@@ -23,13 +24,12 @@
 - ☐ partie import export CSV: 
     - ☐ mettre un champ `lastCSVexport` de type date par user à ramener dans le menu (ok si - d'1 mois, ko sinon)
         - ☐ compter le nombre de lignes à exporter et afficher/bloquer un import si différent de 0 ?
-- ☐ ajout validation des dépenses: POST ValidateRows
-    - ☑ système qui ramène l'ensemble des lignes encore non validées
-    - ☑ voir pour permettre de la validation de groupe en saisissant une date unique et en sélectionnant X lignes
-    - ☐❗ à chaque validation, voir pour garder les paramètres spé si utilisés
-    - ☐❗❗ refonte des 2 méthodes POST pour les séparer
-        la recherche de données est à séparer des validations/annulation pour ne pas recharger les données de base à chaque POST
-    - ☐ permettre l'édition d'une ligne, page dédiée, ou mettre 3 radio: validation/édition/annulation ?
+- ☐ ❗ éditer les données depuis une page web de l'app
+    - ☑ permettre d'éditer unitairement les lignes affichées via une page dédiée à l'édition 
+    - ☑ valider / annuler / modifier des données = front quasi similaire
+    - ☑ permettre la gestion des pret / emprunt via l'édition 
+    - ☐ ❗ ajouter la possibilité de créer un LB dans ce mode édition, actuellement utilisation des existants uniquement 
+    - ☑ ajouter cas de test d'édition 
 - ☐ ajout multi utilisateur sur un compte
     - ☐ un utilisateur admin du compte qui peut en ajouter d'autres (max 5)
     - ☐ les autres utilisateurs peuvent se connecter en simultané sur le compte sans possibilité d'ajout d'autres nouveaux
@@ -89,14 +89,6 @@
         - ☑ modification d'un tier attaché à une ligne 
             - ☑ passage d'un mode 0 à un mode 1à4 avec tier existant
             - ☑ passage d'un mode 0 à un mode 1à2 avec création de tier
-- ☑ Ajout de statistiques 
-    - ☑ pouvoir différencier les montants déjà validés vs non validés
-    - ☑ visualisation des données avec filtre et tri via table simple
-        - ☒ voir pour mettre un tableur ? + rendre editable ou suppr de ligne
-            - https://github.com/wenzhixin/bootstrap-table
-            - https://github.com/jspreadsheet/ce
-                - https://bossanova.uk/jspreadsheet/v4/docs/quick-reference
-    - ☑ ajouter le montant total en cours de validation/annulation lors de la sélection des lignes
 - ☑ ajout système de budget:
     - ☑ ajout des champs et possibilité de modification des infos de budget
     - ☑ budget de dépense par catégorie
@@ -129,6 +121,19 @@
         - catégos
         - exp csv
         - imp csv
+- ☑ ajout validation des dépenses: POST ValidateRows
+    - ☑ système qui ramène l'ensemble des lignes encore non validées
+    - ☑ voir pour permettre de la validation de groupe en saisissant une date unique et en sélectionnant X lignes
+    - ☑ à chaque validation, voir pour garder les paramètres spé si utilisés
+    - ☑ refonte des 2 méthodes POST pour les séparer
+        - la recherche de données est à séparer des validations/annulation pour ne pas recharger les données de base à chaque POST
+        - recherche géré via du .js et les méthodes `PostFullRecordRefresh` and `GetRecordsViaPost`
+    - ☑ visualisation des données avec filtre et tri via table simple
+        - ☒ voir pour mettre un tableur ? + rendre editable ou suppr de ligne
+            - https://github.com/wenzhixin/bootstrap-table
+            - https://github.com/jspreadsheet/ce
+                - https://bossanova.uk/jspreadsheet/v4/docs/quick-reference
+    - ☑ ajouter le montant total en cours de validation/annulation lors de la sélection des lignes
 - ☑ stats, 
     - ☑ lines
         - ☑ suivi des montants sur chaque compte
@@ -144,6 +149,7 @@
         - ☑ retirer la fonctionnalité de grouper les catégories, inutile
         - ☑ ajouter un graph des dépenses mois par mois (des 12 derniers mois)
         - ☑ afficher les noms des catégories lors du clic/survol d'une catégo dans le graph
+    - ☑ pouvoir différencier les montants déjà validés vs non validés dans la page de statistiques globales
 
 ## Infos
 - PWA

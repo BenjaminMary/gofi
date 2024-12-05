@@ -57,14 +57,17 @@ templ accountInput(idName string, accountList []string, forceSelect bool) {
     </select>
 }
 
-templ modeInput() {
+templ modeInput(activateStandardMode bool) {
     <!-- Select -->
     <label for="modeStr">
         <!-- lucide-hand-coins -->
         <svg stroke="currenColor" width="18" heigth="18" viewBox="0 0 24 24"><use xlink:href="/img/icons.svg#lucide-hand-coins"></use></svg>
-        Mode
+        Mode (<code>simple</code> ou <code>prêt/emprunt</code>)
     </label>
     <select id="modeStr" name="modeStr" required>
+        if activateStandardMode {
+            <option value="0">Saisie simple</option>
+        }
         <option value="4">On me rembourse un prêt</option>
         <option value="3">Je rembourse un emprunt</option>
         <option value="2">Je prête</option>
@@ -73,19 +76,21 @@ templ modeInput() {
 }
 
 templ whoDataList(lbListActive []appdata.LenderBorrower) {
-    <!-- Select -->
-    <label for="who">
-        <!-- lucide-user-search -->
-        <svg stroke="currenColor" width="18" heigth="18" viewBox="0 0 24 24"><use xlink:href="/img/icons.svg#lucide-user-search"></use></svg>
-        De/à qui?
-    </label>
-    <select id="who" name="who" required>
-        for _, lb := range lbListActive {
-            <option value={ lb.Name }>{ lb.Name }</option>
-        }
-        <option value="-">-</option>
-    </select>
-    <input type="text" id="createLenderBorrowerName" name="createLenderBorrowerName" placeholder="créer un nouveau tier" disabled />
+    <div id="whoDiv">
+        <!-- Select -->
+        <label for="who">
+            <!-- lucide-user-search -->
+            <svg stroke="currenColor" width="18" heigth="18" viewBox="0 0 24 24"><use xlink:href="/img/icons.svg#lucide-user-search"></use></svg>
+            De/à qui?
+        </label>
+        <select id="who" name="who" required>
+            for _, lb := range lbListActive {
+                <option value={ lb.Name }>{ lb.Name }</option>
+            }
+            <option value="-">-</option>
+        </select>
+        <input type="text" id="createLenderBorrowerName" name="createLenderBorrowerName" placeholder="créer un nouveau tier" disabled />
+    </div>
 }
 
 templ categoriesCustomRadioInput(uc *appdata.UserCategories, inputName string) {

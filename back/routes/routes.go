@@ -123,6 +123,7 @@ func (s *Server) MountBackHandlers() {
 				r.Post("/getviapost", func(w http.ResponseWriter, r *http.Request) {
 					api.GetRecordsViaPost(w, r, false, &appdata.FilterRows{})
 				})
+				r.Post("/edit/{idft}", func(w http.ResponseWriter, r *http.Request) { api.PostRecordEdit(w, r, false, "") })
 				r.Post("/insert", func(w http.ResponseWriter, r *http.Request) { api.PostRecordInsert(w, r, false) })
 				r.Post("/lend-or-borrow", func(w http.ResponseWriter, r *http.Request) { api.PostLendOrBorrowRecords(w, r, false) })
 				r.Post("/lender-borrower-state-change", func(w http.ResponseWriter, r *http.Request) { api.PostLenderBorrowerStateChange(w, r, false) })
@@ -191,7 +192,9 @@ func (s *Server) MountFrontHandlers() {
 				r.Post("/recurrent/save", front.PostRecordRecurrentSave)
 				r.Post("/recurrent/update", front.PostRecordRecurrentUpdate)
 				r.Post("/recurrent/delete", front.PostRecordRecurrentDelete)
-				r.Get("/validate-or-cancel", front.GetRecordValidateOrCancel)
+				r.Get("/alter/{alterMode}", front.GetRecordAlter)
+				r.Get("/edit/{id}", front.GetRecordEdit)
+				r.Post("/edit/{idft}", front.PostRecordEdit)
 				r.Post("/validate", front.PostRecordValidate)
 				r.Post("/cancel", front.PostRecordCancel)
 				r.Post("/getviapost", front.PostFullRecordRefresh)
