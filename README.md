@@ -3,12 +3,18 @@
 
 
 ## General informations
-The purpose of this web app is to record and manage your money.  
-The HTML files are currently only in french.
+- The purpose of this web app is to record and manage your money.  
+- The HTML files (templ files here) are currently only in french.
+- The deployment consist of 3 things : 
+    1. the binary built which contains the front-end and back-end code
+    2. an asset folder with all the images, icons and fonts
+    3. a SQLite database file
 
-Features supported (all the data are registered in a local SQLite DB):
+
+## Features supported:
 - basic features for users
     - record expenses per user, account and category
+    - edit / update your records
     - stats: 
         - year by year with current balance available per account
         - year by year or month by month per category
@@ -20,8 +26,9 @@ Features supported (all the data are registered in a local SQLite DB):
     - handle multiple bank accounts per user and allow transfer between them
     - validate or cancel each record
     - lend / borrow with registered tiers
-    - import CSV files to insert/update data in bulk
-    - export CSV files to keep/use all the data with other apps
+- bulk data operation for users
+    - import CSV files to insert / update / delete records
+    - export CSV files to keep / use all the data with other apps or update your data in bulk
 - generic features in app
     - create users
     - auth with 1 active session per user
@@ -34,7 +41,7 @@ Features supported (all the data are registered in a local SQLite DB):
         - tested on Chrome for Android and Chrome for Windows Desktop
             - if you have any visual trouble on a different Browser/OS combination, submit an issue
 - admin features
-    - shutdown the application (also checkpoint SQLite, then clean the `db-shm` and `db-wal` files)
+    - shutdown the application with SQLite checkpoint, which clean the `db-shm` and `db-wal` files
 
 
 ## API and UI monolith
@@ -42,7 +49,7 @@ This application is a monolith with some endpoints for the API and others for th
 Both uses the same functions, but return JSON for the API and HTML for the UI.
 
 
-## Run the app
+## Test then Run the app
 - prerequisites : 
     1. [golang](https://go.dev/doc/install)
     2. [templ](https://templ.guide/quick-start/installation)
