@@ -493,9 +493,9 @@ func PostRecordEdit(w http.ResponseWriter, r *http.Request, isFrontRequest bool,
 		return appdata.RenderAPIorUI(w, r, isFrontRequest, false, false, httpCode, info, "")
 	}
 	if lb.FT.Mode > 0 {
-		isErr = sqlite.InsertUpdateInLenderBorrower(r.Context(), appdata.DB, &lb) // 2.
+		isErr, httpCode = sqlite.InsertUpdateInLenderBorrower(r.Context(), appdata.DB, &lb) // 2.
 		if isErr {
-			return appdata.RenderAPIorUI(w, r, isFrontRequest, false, false, http.StatusInternalServerError, "error", "")
+			return appdata.RenderAPIorUI(w, r, isFrontRequest, false, false, httpCode, "error", "")
 		}
 	}
 	// fmt.Printf("lb2: %#v\n", lb)
@@ -525,9 +525,9 @@ func PostLendOrBorrowRecords(w http.ResponseWriter, r *http.Request, isFrontRequ
 	userContext := r.Context().Value(appdata.ContextUserKey).(*appdata.UserRequest)
 	lb.FT.GofiID = userContext.GofiID
 	lb.FT.Mode = lb.ModeInt
-	isErr := sqlite.InsertUpdateInLenderBorrower(r.Context(), appdata.DB, &lb) // 1.
+	isErr, httpCode := sqlite.InsertUpdateInLenderBorrower(r.Context(), appdata.DB, &lb) // 2.
 	if isErr {
-		return appdata.RenderAPIorUI(w, r, isFrontRequest, false, false, http.StatusInternalServerError, "error", "")
+		return appdata.RenderAPIorUI(w, r, isFrontRequest, false, false, httpCode, "error", "")
 	}
 	idFT, isErr, httpCode, info := handleFTinsert(r, &lb.FT) // 2.
 	if isErr {

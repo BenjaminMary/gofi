@@ -24,12 +24,12 @@
 - ☐ partie import export CSV: 
     - ☐ mettre un champ `lastCSVexport` de type date par user à ramener dans le menu (ok si - d'1 mois, ko sinon)
         - ☐ compter le nombre de lignes à exporter et afficher/bloquer un import si différent de 0 ?
-- ☐ ❗❗❗ éditer les données depuis une page web de l'app
+- ☐ ❗ éditer les données depuis une page web de l'app
     - ☑ permettre d'éditer unitairement les lignes affichées via une page dédiée à l'édition 
     - ☑ valider / annuler / modifier des données = front quasi similaire
     - ☑ permettre la gestion des pret / emprunt via l'édition 
     - ☐ ❗ ajouter la possibilité de créer un LB dans ce mode édition, actuellement utilisation des existants uniquement 
-    - ☐ ❗ ajouter différent cas de test d'édition 
+    - ☑ ajouter cas de test d'édition 
 - ☐ ajout multi utilisateur sur un compte
     - ☐ un utilisateur admin du compte qui peut en ajouter d'autres (max 5)
     - ☐ les autres utilisateurs peuvent se connecter en simultané sur le compte sans possibilité d'ajout d'autres nouveaux

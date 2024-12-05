@@ -710,6 +710,106 @@ func TestRecord(t *testing.T) {
 		"{\"isValidResponse\":true,\"httpStatus\":200,\"info\":\"record list retrieved\",\"jsonContent\":[{\"ID\":15,\"GofiID\":2,\"Date\":\"2010-11-11\",\"Account\":\"CB\",\"Product\":\"+ remb. pret b2 puis dissocié\",\"PriceDirection\":\"\",\"FormPriceStr2Decimals\":\"1100.00\",\"PriceIntx100\":110000,\"Category\":\"Cadeaux\",\"CommentInt\":0,\"CommentString\":\"\",\"Checked\":false,\"DateChecked\":\"9999-12-31\",\"Mode\":0,\"Exported\":false},{\"ID\":14,\"GofiID\":2,\"Date\":\"2010-11-11\",\"Account\":\"CB\",\"Product\":\"- pret b1 puis dissocié\",\"PriceDirection\":\"\",\"FormPriceStr2Decimals\":\"-1600.00\",\"PriceIntx100\":-160000,\"Category\":\"Cadeaux\",\"CommentInt\":0,\"CommentString\":\"\",\"Checked\":false,\"DateChecked\":\"9999-12-31\",\"Mode\":0,\"Exported\":false},{\"ID\":13,\"GofiID\":2,\"Date\":\"2010-11-11\",\"Account\":\"CB\",\"Product\":\"- remboursement emprunt a3\",\"PriceDirection\":\"\",\"FormPriceStr2Decimals\":\"-2200.00\",\"PriceIntx100\":-220000,\"Category\":\"Cadeaux\",\"CommentInt\":0,\"CommentString\":\"\",\"Checked\":false,\"DateChecked\":\"9999-12-31\",\"Mode\":3,\"Exported\":false},{\"ID\":12,\"GofiID\":2,\"Date\":\"2010-11-11\",\"Account\":\"CB\",\"Product\":\"+ emprunt a2\",\"PriceDirection\":\"\",\"FormPriceStr2Decimals\":\"1200.00\",\"PriceIntx100\":120000,\"Category\":\"Cadeaux\",\"CommentInt\":0,\"CommentString\":\"\",\"Checked\":false,\"DateChecked\":\"9999-12-31\",\"Mode\":1,\"Exported\":false},{\"ID\":11,\"GofiID\":2,\"Date\":\"2011-11-11\",\"Account\":\"CB\",\"Product\":\"+ emprunt a1\",\"PriceDirection\":\"\",\"FormPriceStr2Decimals\":\"1000.00\",\"PriceIntx100\":100000,\"Category\":\"Cadeaux\",\"CommentInt\":0,\"CommentString\":\"\",\"Checked\":false,\"DateChecked\":\"9999-12-31\",\"Mode\":1,\"Exported\":false}]}\n",
 		response.Body.String(), "should be equal")
 
+	// 54. POST RECORD INSERT id:16
+	req, _ = http.NewRequest("POST", "/api/record/insert", strings.NewReader(`{
+		"Date": "2020-12-31",
+		"Account": "CB",
+		"Product": "testc",
+		"PriceDirection": "expense",
+		"FormPriceStr2Decimals": "58.21",
+		"Category": "Courses"
+	}`))
+	req.Header.Set("sessionID", fstwo)
+	response = executeRequest(req, s)
+	require.Equal(t, http.StatusCreated, response.Code, "should be equal")
+
+	// 55. POST RECORD id:16
+	req, _ = http.NewRequest("POST", "/api/record/getviapost", strings.NewReader(`{
+		"compteHidden": "CB",
+		"category": "Courses",
+		"annee": "2020",
+		"mois": "",
+		"checked": "0",
+		"OrderBy": "id",
+		"OrderSort": "ASC",
+		"LimitStr": "10"
+	}`))
+	req.Header.Set("sessionID", fstwo)
+	response = executeRequest(req, s)
+	require.Equal(t, http.StatusOK, response.Code, "should be equal")
+	require.Equal(t,
+		"{\"isValidResponse\":true,\"httpStatus\":200,\"info\":\"record list retrieved\",\"jsonContent\":[{\"ID\":16,\"GofiID\":2,\"Date\":\"2020-12-31\",\"Account\":\"CB\",\"Product\":\"testc\",\"PriceDirection\":\"\",\"FormPriceStr2Decimals\":\"-58.21\",\"PriceIntx100\":-5821,\"Category\":\"Courses\",\"CommentInt\":0,\"CommentString\":\"\",\"Checked\":false,\"DateChecked\":\"9999-12-31\",\"Mode\":0,\"Exported\":false}]}\n",
+		response.Body.String(), "should be equal")
+
+	// 56. EDIT RECORD 16
+	req, _ = http.NewRequest("POST", "/api/record/edit/16", strings.NewReader(`{
+		"ModeStr": "3",
+		"Who": "Mr Y",
+		"FT":{
+			"Date": "2021-01-02",
+			"Account": "CB",
+			"Product": "testc",
+			"PriceDirection": "expense",
+			"FormPriceStr2Decimals": "58.21",
+			"Category": "Courses"
+		}
+	}`))
+	req.Header.Set("sessionID", fstwo)
+	response = executeRequest(req, s)
+	require.Equal(t, http.StatusOK, response.Code, "should be equal")
+
+	// 57. POST RECORD id:16
+	req, _ = http.NewRequest("POST", "/api/record/getviapost", strings.NewReader(`{
+		"compteHidden": "CB",
+		"category": "Courses",
+		"annee": "2021",
+		"mois": "",
+		"checked": "0",
+		"OrderBy": "id",
+		"OrderSort": "ASC",
+		"LimitStr": "10"
+	}`))
+	req.Header.Set("sessionID", fstwo)
+	response = executeRequest(req, s)
+	require.Equal(t, http.StatusOK, response.Code, "should be equal")
+	require.Equal(t,
+		"{\"isValidResponse\":true,\"httpStatus\":200,\"info\":\"record list retrieved\",\"jsonContent\":[{\"ID\":16,\"GofiID\":2,\"Date\":\"2021-01-02\",\"Account\":\"CB\",\"Product\":\"testc\",\"PriceDirection\":\"\",\"FormPriceStr2Decimals\":\"-58.21\",\"PriceIntx100\":-5821,\"Category\":\"Courses\",\"CommentInt\":0,\"CommentString\":\"\",\"Checked\":false,\"DateChecked\":\"9999-12-31\",\"Mode\":3,\"Exported\":false}]}\n",
+		response.Body.String(), "should be equal")
+
+	// 58. EDIT RECORD 16 unknown LB Who
+	req, _ = http.NewRequest("POST", "/api/record/edit/16", strings.NewReader(`{
+		"ModeStr": "3",
+		"Who": "Mr Z",
+		"FT":{
+			"Date": "2021-01-02",
+			"Account": "CB",
+			"Product": "testc",
+			"PriceDirection": "expense",
+			"FormPriceStr2Decimals": "58.21",
+			"Category": "Courses"
+		}
+	}`))
+	req.Header.Set("sessionID", fstwo)
+	response = executeRequest(req, s)
+	require.Equal(t, http.StatusBadRequest, response.Code, "should be equal")
+
+	// 59. EDIT RECORD 16 wrong mode + priceDirection 
+	req, _ = http.NewRequest("POST", "/api/record/edit/16", strings.NewReader(`{
+		"ModeStr": "3",
+		"Who": "Mr Y",
+		"FT":{
+			"Date": "2021-01-02",
+			"Account": "CB",
+			"Product": "testc",
+			"PriceDirection": "gain",
+			"FormPriceStr2Decimals": "58.21",
+			"Category": "Courses"
+		}
+	}`))
+	req.Header.Set("sessionID", fstwo)
+	response = executeRequest(req, s)
+	require.Equal(t, http.StatusBadRequest, response.Code, "should be equal")
+
 	// fmt.Printf("response: %#v\n", response.Body.String())
 	// require.Equal(t, 1, 0, "force fail")
 	require.WithinDuration(t, time.Now(), testStartTime, 5*time.Second)

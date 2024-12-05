@@ -387,7 +387,7 @@ func handleLBinsertCSV(ctx context.Context, lb *appdata.LendBorrow,
 	// ft.Mode >= 1 && ft.Mode <= 4 {
 	var lineInfo string = ""
 	var flagErr int = 0
-	isErr := InsertUpdateInLenderBorrower(ctx, appdata.DB, lb) // 1.
+	isErr, _ := InsertUpdateInLenderBorrower(ctx, appdata.DB, lb) // 1.
 	if isErr {
 		lineInfo += "handleLBinsertCSV-error1;false;"
 		fmt.Println("handleLBinsertCSV-error1")

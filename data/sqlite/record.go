@@ -8,6 +8,7 @@ import (
 	"log"
 	"strings"
 	"errors"
+	"net/http"
 
 	"gofi/gofi/data/appdata"
 )
@@ -496,7 +497,7 @@ func UpdateDateInRecurrentRecord(ctx context.Context, db *sql.DB, rr *appdata.Re
 	}
 }
 
-func InsertUpdateInLenderBorrower(ctx context.Context, db *sql.DB, lb *appdata.LendBorrow) bool {
+func InsertUpdateInLenderBorrower(ctx context.Context, db *sql.DB, lb *appdata.LendBorrow) (bool, int) {
 	q := ` 
 		SELECT COALESCE(MIN(id), 0), 
 			COUNT(1), 
@@ -518,7 +519,7 @@ func InsertUpdateInLenderBorrower(ctx context.Context, db *sql.DB, lb *appdata.L
 	row := db.QueryRowContext(ctx, q, lb.FT.GofiID, lbName)
 	if err := row.Scan(&lbID, &nbRows, &sumActive); err != nil {
 		fmt.Printf("InsertUpdateInLenderBorrower err1: %v\n", err)
-		return true
+		return true, http.StatusInternalServerError
 	}
 	lb.ID = lbID
 	if nbRows == 0 {
@@ -534,21 +535,21 @@ func InsertUpdateInLenderBorrower(ctx context.Context, db *sql.DB, lb *appdata.L
 				)
 				if err != nil {
 					fmt.Printf("InsertUpdateInLenderBorrower err2: %v\n", err)
-					return true
+					return true, http.StatusInternalServerError
 				}
 				id, err = result.LastInsertId()
 				if err != nil {
 					fmt.Printf("InsertUpdateInLenderBorrower err3: %v\n", err)
-					return true
+					return true, http.StatusInternalServerError
 				}
 				lb.ID = int(id)
 			} else {
 				fmt.Println("InsertUpdateInLenderBorrower in 0 row, error wrong mode")
-				return true
+				return true, http.StatusBadRequest
 			}
 		} else {
 			fmt.Println("InsertUpdateInLenderBorrower in 0 row, error no name")
-			return true
+			return true, http.StatusBadRequest
 		}
 	} else if nbRows == 1 && sumActive == 1 {
 		fmt.Println("InsertUpdateInLenderBorrower in single row active")
@@ -563,13 +564,13 @@ func InsertUpdateInLenderBorrower(ctx context.Context, db *sql.DB, lb *appdata.L
 		)
 		if err != nil {
 			fmt.Printf("InsertUpdateInLenderBorrower err4: %#v\n", err)
-			return true
+			return true, http.StatusInternalServerError
 		}
 	} else {
 		fmt.Printf("InsertUpdateInLenderBorrower in multiple rows, nb: %v\n", nbRows)
-		return true
+		return true, http.StatusInternalServerError
 	}
-	return false
+	return false, http.StatusOK
 }
 
 func FindLenderBorrowerFromFTid(ctx context.Context, db *sql.DB, lb *appdata.LendBorrow) bool {
