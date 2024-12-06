@@ -16,8 +16,28 @@ templ GetBudget(uc *appdata.UserCategories) {
         <body class="container-fluid">
             <main>
                 <h1>Budgets</h1>
-                
+                <section id="fonctionnement">
+                    <details>
+                        <summary role="button" class="secondary">Exemple du code couleur</summary>
+                        <small class="mono">
+                            Vert jusqu'à 80% . : <meter min="0" optimum="65" low={ strconv.Itoa(100*4/5) } high="100" max="100" value="80" /><br/> //green
+                            Jaune entre 81% .. : <meter min="0" optimum="65" low={ strconv.Itoa(100*4/5) } high="100" max="100" value="81" /><br/> //orange
+                            Et 100% .......... : <meter min="0" optimum="65" low="75" high="100" max="100" value="100" /><br/> //orange
+                            On ajoute ensuite des nouvelles barres rouge pour chaque nouveau dépassement du budget.<br/> 
+                            Exemple pour 105% :<br/>
+                            <meter min="0" optimum="65" low="75" high="100" max="100" value="100" /><br/>//orange
+                            <meter min="0" optimum="0" low="1" high="1" max="100" value="5" /><br/> //red
+                            Exemple pour 375% :<br/>
+                            <meter min="0" optimum="65" low="75" high="100" max="100" value="100" /><br/>//orange
+                            <meter min="0" optimum="0" low="1" high="1" max="100" value="100" /><br/> //red
+                            <meter min="0" optimum="0" low="1" high="1" max="100" value="100" /><br/> //red
+                            <meter min="0" optimum="0" low="1" high="1" max="100" value="75" /> //red
+                        </small>
+                    </details>
+                    <hr/>
+                </section>
                 <section id="budgets">
+                    <h3>Catégories</h3>
                     for _, category := range uc.Categories {
                         <p>
                             <span class={ "icomoon", category.IconCodePoint }>&#x{ category.IconCodePoint };</span>
@@ -27,23 +47,31 @@ templ GetBudget(uc *appdata.UserCategories) {
                             Période: du { category.BudgetPreviousPeriodStartDate } au { category.BudgetPreviousPeriodEndDate }<br/>
                             Montant dépensé/budgété: { category.BudgetPreviousAmount } / { strconv.Itoa(category.BudgetPrice) }
                             <meter value={ category.BudgetPreviousAmount } optimum={ strconv.Itoa(category.BudgetPrice/2) } 
-                                low={ strconv.Itoa(category.BudgetPrice*3/4) } high={ strconv.Itoa(category.BudgetPrice-1) } max={ strconv.Itoa(category.BudgetPrice) } />
+                                low={ strconv.Itoa(category.BudgetPrice*4/5) } high={ strconv.Itoa(category.BudgetPrice) } max={ strconv.Itoa(category.BudgetPrice) } />
+                            // IntBudgetPreviousAmount = BudgetPreviousAmount x 100
+                            if category.IntBudgetPreviousAmount/category.BudgetPrice > 100 {
+                                for i := range category.IntBudgetPreviousAmount/category.BudgetPrice/100 {
+                                    <meter value={ strconv.Itoa(category.IntBudgetPreviousAmount/100-category.BudgetPrice*(i+1)) } optimum="0" 
+                                        low="1" high="1" max={ strconv.Itoa(category.BudgetPrice) } />
+                                }
+                            }
                             -<br/>
                         }
                         Période: du { category.BudgetCurrentPeriodStartDate } au { category.BudgetCurrentPeriodEndDate }<br/>
                         Montant dépensé/budgété: { category.BudgetAmount } / { strconv.Itoa(category.BudgetPrice) }
                         <meter value={ category.BudgetAmount } optimum={ strconv.Itoa(category.BudgetPrice/2) } 
-                            low={ strconv.Itoa(category.BudgetPrice*3/4) } high={ strconv.Itoa(category.BudgetPrice-1) } max={ strconv.Itoa(category.BudgetPrice) } />
-                        // -<br/>
-                        // test
-                        // <meter min="0" optimum="65" low="70" high="99" max="100" value="60" /> //green
-                        // <meter min="0" optimum="65" low="70" high="99" max="100" value="75" /> //orange
-                        // <meter min="0" optimum="65" low="70" high="99" max="100" value="100" /> //red
+                            low={ strconv.Itoa(category.BudgetPrice*4/5) } high={ strconv.Itoa(category.BudgetPrice) } max={ strconv.Itoa(category.BudgetPrice) } />
+                        // IntBudgetAmount = BudgetAmount x 100
+                        if category.IntBudgetAmount/category.BudgetPrice > 100 {
+                            for i := range category.IntBudgetAmount/category.BudgetPrice/100 {
+                                <meter value={ strconv.Itoa(category.IntBudgetAmount/100-category.BudgetPrice*(i+1)) } optimum="0" 
+                                    low="1" high="1" max={ strconv.Itoa(category.BudgetPrice) } />
+                            }
+                        }
                         <hr/>
                     }
-                    // TODO: Voir pour calculer un revenu moyen en hebdo/mensuel/annuel et afficher les dépenses en cours hebdo/mensuel/annuel
                 </section>
-                @Nav("top", "/", "/img/icons.svg#feather-home", "Accueil", "contrast outline",
+                @Nav("none", "/", "/img/icons.svg#feather-home", "Accueil", "contrast outline",
                     "/param/category", "/img/icons.svg#feather-tool", "Catégories", "contrast")
             </main>
             @BotScriptThemeSwitcher()

@@ -2,9 +2,10 @@
 
 ## v1 rework with go-chi
 ### Doing
-- rework budget stats 
+
 
 ### Done
+- 2024-12-07 : feat: add doc and improve stats in budget page 
 - 2024-12-06 : 
     - fix: cancel record button was hidden by default
     - fix: edit record: expense was disabled by default and LB part not removed in simple mode on load

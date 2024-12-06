@@ -425,7 +425,9 @@ func GetBudgetStats(ctx context.Context, db *sql.DB, uc *appdata.UserCategories)
 		default:
 			continue
 		}
+		uc.Categories[i].IntBudgetAmount = sumCurrent
 		uc.Categories[i].BudgetAmount = ConvertPriceIntToStr(sumCurrent, false)
+		uc.Categories[i].IntBudgetPreviousAmount = sumPrevious
 		uc.Categories[i].BudgetPreviousAmount = ConvertPriceIntToStr(sumPrevious, false)
 		// fmt.Printf("Name: %v, Amount: %v\n", uc.Categories[i].Name, uc.Categories[i].BudgetAmount)
 	}

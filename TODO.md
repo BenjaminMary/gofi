@@ -9,8 +9,9 @@
     - période prévisionnelle avant nouvel achat
 - stats 
     - ☐ sur le nombre de requêtes des utilisateurs pour voir les actifs ? (tableau admin?)
-    - partie budget
-        - ☐❗ refonte complète avec ApexCharts ? 
+- budget
+    - ☐ Voir pour calculer un revenu moyen en hebdo/mensuel/annuel et afficher les dépenses en cours hebdo/mensuel/annuel
+        - moyen de vérifier si le budget est cohérent avec les dépenses réelles sur X dernières itérations
 - ☐ faire des tests automatisés pour la partie front
 - ☐ ajout système de données récurrentes:
     - ☐ améliorer l'UI en bloquant l'espace via `visibility: hidden`, permettra de ne plus faire de trou dans la page au changement
@@ -24,12 +25,8 @@
 - ☐ partie import export CSV: 
     - ☐ mettre un champ `lastCSVexport` de type date par user à ramener dans le menu (ok si - d'1 mois, ko sinon)
         - ☐ compter le nombre de lignes à exporter et afficher/bloquer un import si différent de 0 ?
-- ☐ ❗ éditer les données depuis une page web de l'app
-    - ☑ permettre d'éditer unitairement les lignes affichées via une page dédiée à l'édition 
-    - ☑ valider / annuler / modifier des données = front quasi similaire
-    - ☑ permettre la gestion des pret / emprunt via l'édition 
+- éditer les données depuis une page web de l'app
     - ☐ ❗ ajouter la possibilité de créer un LB dans ce mode édition, actuellement utilisation des existants uniquement 
-    - ☑ ajouter cas de test d'édition 
 - ☐ ajout multi utilisateur sur un compte
     - ☐ un utilisateur admin du compte qui peut en ajouter d'autres (max 5)
     - ☐ les autres utilisateurs peuvent se connecter en simultané sur le compte sans possibilité d'ajout d'autres nouveaux
@@ -89,11 +86,19 @@
         - ☑ modification d'un tier attaché à une ligne 
             - ☑ passage d'un mode 0 à un mode 1à4 avec tier existant
             - ☑ passage d'un mode 0 à un mode 1à2 avec création de tier
+- ☑ édition de ligne unitaire depuis une page web de l'app
+    - ☑ permettre d'éditer unitairement les lignes affichées via une page dédiée à l'édition 
+    - ☑ valider / annuler / modifier des données = front quasi similaire
+    - ☑ permettre la gestion des pret / emprunt via l'édition 
+    - ☑ ajouter cas de test d'édition 
 - ☑ ajout système de budget:
     - ☑ ajout des champs et possibilité de modification des infos de budget
     - ☑ budget de dépense par catégorie
-    - ☑ stats sur les budgets activés
     - ☒ info sur le budget en cours à la saisie ?
+    - stats
+        - ☑ stats sur les budgets activés
+        - ☑ amélioration des stats avec exemple et ajout d'une barre pour chaque dépassement 
+        - ☒ refonte complète avec ApexCharts ?
 - ☑ système de gestion de prêt/emprunt
     - ☑ icone + catégories spé à mettre en présélection auto selon sélection mode 1à4
     - ☑ faire une page front de recap par personne avec les montants du et remboursés
