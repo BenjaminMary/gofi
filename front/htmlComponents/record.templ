@@ -341,16 +341,18 @@ templ GetLendBorrowRecord(jsonFT []appdata.FinanceTracker, jsonUP appdata.UserPa
             @BotScriptThemeSwitcher()
             @BotScriptHTMXhandleError()
             @categoryDropdown(jsonUP.Categories)
-            @amountDirection(jsonUP.Categories, true)
+            @amountDirection(jsonUP.Categories, true, true)
             @createLenderBorrower()
         </body>
     </html>
 }
-script amountDirection(uc *appdata.UserCategories, forceCategory bool) {
+script amountDirection(uc *appdata.UserCategories, forceCategory bool, disableExpense bool) {
     // this script adapt the amount direction with the mode selected 
     // .disabled on radio buttons, because .readOnly does not work on radio
     // document.getElementById('gain').disabled = true; not disabled because default option 
-    document.getElementById('expense').disabled = true;
+    if (disableExpense){
+        document.getElementById('expense').disabled = true;
+    };
     document.getElementById("modeStr").addEventListener('change', function(m){
         // console.log(this.value);
         if (["1","4"].includes(this.value)){
@@ -870,18 +872,26 @@ templ PostRecordRecurrent(httpStatus int, json appdata.RecurrentRecord) {
 templ DeleteRecordRecurrent(httpStatus int) {
     switch httpStatus {
         case http.StatusOK:
-            Ligne supprimée.
+            <!-- green check square -->
+            <svg width="24" height="24" viewBox="0 0 24 24"><use xlink:href="/img/icons.svg#feather-green-check-square"></use></svg>
+            OK, ligne supprimée.
         default:
-            Impossible de supprimer cette ligne.
+            <!-- red x square -->
+            <svg width="24" height="24" viewBox="0 0 24 24"><use xlink:href="/img/icons.svg#feather-red-x-square"></use></svg>
+            ERREUR
 	}
 }
 
 templ PostRecordEdit(httpStatus int) {
     switch httpStatus {
         case http.StatusOK:
-            Enregistrement editée.
+            <!-- green check square -->
+            <svg width="24" height="24" viewBox="0 0 24 24"><use xlink:href="/img/icons.svg#feather-green-check-square"></use></svg>
+            OK
         default:
-            Impossible d'éditer cet enregistrement.
+            <!-- red x square -->
+            <svg width="24" height="24" viewBox="0 0 24 24"><use xlink:href="/img/icons.svg#feather-red-x-square"></use></svg>
+            ERREUR
 	}
 }
 
@@ -925,7 +935,8 @@ templ GetRecordEdit(lenJsonFTlist int, jsonLB appdata.LendBorrow, jsonUP appdata
                                 hx-target="#htmxInfo" 
                                 hx-swap="afterbegin" 
                                 hx-sync="this:drop"
-                                hx-indicator="#spinner">
+                                hx-indicator="#spinner"
+                                hx-on::before-request="document.getElementById('htmxInfo').innerHTML='';">
 
                                 @modeInput(true)
                                 @whoDataList(lbListActive)
@@ -967,7 +978,7 @@ templ GetRecordEdit(lenJsonFTlist int, jsonLB appdata.LendBorrow, jsonUP appdata
             if lenJsonFTlist>0 {
                 @categoryDropdown(jsonUP.Categories)
                 @editRow(jsonLB, jsonUP.Categories)
-                @amountDirection(jsonUP.Categories, false)
+                @amountDirection(jsonUP.Categories, false, false)
             }
         </body>
     </html> 
@@ -992,8 +1003,10 @@ script editRow(jsonLB appdata.LendBorrow, uc *appdata.UserCategories) {
     // console.log(jsonLB.FT);
     // console.log("-------jsonLB---------");
     // console.log(jsonLB);
-
-    document.getElementById('modeStr').value = String(jsonLB.modeStr);
+    if (jsonLB.modeInt == 0) {
+        document.getElementById('whoDiv').hidden = true;
+    }
+    document.getElementById('modeStr').value = jsonLB.modeStr;
     document.getElementById('who').value = jsonLB.who;
 }
 

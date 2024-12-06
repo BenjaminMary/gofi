@@ -5,6 +5,9 @@
 - rework budget stats 
 
 ### Done
+- 2024-12-06 : 
+    - fix: cancel record button was hidden by default
+    - fix: edit record: expense was disabled by default and LB part not removed in simple mode on load
 - 2024-12-05 : feat: edit records full feature launch
 - 2024-11-28 : feat: edit records within the app UI (the only way before that was by loading .csv)
 - 2024-11-16 : 
