@@ -62,7 +62,7 @@ templ Header() {
             font-family: "Consolas","monospace";
         }
         small meter {
-            width: 50%;
+            width: 40%;
         }
         meter {
             width: 100%;
@@ -147,16 +147,6 @@ templ navThemeSwitcher() {
         </ul>
     </nav>
     <br/>
-}
-
-templ Footer() {
-    <footer>
-        <a href="/" role="button" class="contrast outline">
-            <!-- home -->
-            <svg width="24" height="24" viewBox="0 0 24 24"><use xlink:href="/img/icons.svg#feather-home"></use></svg>
-            Accueil
-        </a>
-    </footer>
 }
 
 templ TopScriptHTMX() {
@@ -384,6 +374,7 @@ templ IndexHtmlContent(json *appdata.UserRequest) {
                     @indexLinksDisconnected()
                 }
                 @infos()
+                <small><p>©2024 Benjamin MARY</p></small>
             </main>
             @BotScriptThemeSwitcher()
             if json.IsAuthenticated {

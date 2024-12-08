@@ -2,7 +2,7 @@
 
 > ☑☐☒❗
 
-- ☐❗mini système de gestion de migration de la DB
+- ☐❗❗mini système de gestion de migration de la DB
     - check coherence entre état de la DB actuel VS attendu via dernière migration
     - table pour stocker l'ID de la dernière migration jouée 
 - ☐❗ système de gestion d'achat sur la durée
@@ -12,7 +12,7 @@
 - budget
     - ☐ Voir pour calculer un revenu moyen en hebdo/mensuel/annuel et afficher les dépenses en cours hebdo/mensuel/annuel
         - moyen de vérifier si le budget est cohérent avec les dépenses réelles sur X dernières itérations
-- ☐ faire des tests automatisés pour la partie front
+- ☐❗❗ faire des tests automatisés pour la partie front
 - ☐ ajout système de données récurrentes:
     - ☐ améliorer l'UI en bloquant l'espace via `visibility: hidden`, permettra de ne plus faire de trou dans la page au changement
         - vérif si bien impossible de cliquer sur l'elem invisible, sinon ajouter un `disable`
