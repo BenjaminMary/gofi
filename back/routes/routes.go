@@ -181,7 +181,8 @@ func (s *Server) MountFrontHandlers() {
 			})
 			// RECORDS
 			r.Route("/record", func(r chi.Router) {
-				r.Get("/insert", front.GetRecordInsert)
+				// r.Get("/insert/{isDefault}-{account}-{category}-{product}-{priceDirection}-{price}", front.GetRecordInsert)
+				r.Get("/insert/*", front.GetRecordInsert)
 				r.Post("/insert", front.PostRecordInsert)
 				r.Get("/lend-or-borrow", front.GetLendBorrowRecord)
 				r.Post("/lend-or-borrow", front.PostLendOrBorrowRecord)

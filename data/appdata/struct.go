@@ -501,6 +501,17 @@ type ApexChartSerie struct {
 	Values  []string
 }
 
+type FrontURLdefaultValues struct {
+	UseNewDefaultValues		bool
+	Account         		string `json:"account"`
+	AccountB        		string `json:"accountB"`
+	Category       			string `json:"category"`
+	CategoryNumber       	int    `json:"categoryNumber"`
+	Product         		string `json:"product"`
+	PriceDirection        	string `json:"priceDirection"`
+	FormPriceStr2Decimals 	string `json:"formPriceStr2Decimals"`
+}
+
 type HttpStruct struct {
 	IsValidResponse bool   `json:"isValidResponse"`
 	HttpStatus      int    `json:"httpStatus"`

@@ -2,13 +2,21 @@
 
 > ☑☐☒❗
 
+- améliorer le onboarding
+    - expliquer les 1eres étapes 
+    - utiliser des cas de saisies préremplies
+- ❗❗❗❗saisie simple
+    - permettre de prendre des url-param pour pouvoir préselectionner des dépenses 
+    - exemple intermarché ... 
+- optimisation à prévoir 
+    - gérer la liste des 5 derniers enregistrements en param utilisateur pour simplifier les requêtes ? 
 - ☐❗❗mini système de gestion de migration de la DB
     - check coherence entre état de la DB actuel VS attendu via dernière migration
     - table pour stocker l'ID de la dernière migration jouée 
 - ☐❗ système de gestion d'achat sur la durée
     - période prévisionnelle avant nouvel achat
 - stats 
-    - ☐ sur le nombre de requêtes des utilisateurs pour voir les actifs ? (tableau admin?)
+    - ☐❗❗❗❗ sur le nombre de requêtes des utilisateurs pour voir les actifs ? (tableau admin?)
 - budget
     - ☐ Voir pour calculer un revenu moyen en hebdo/mensuel/annuel et afficher les dépenses en cours hebdo/mensuel/annuel
         - moyen de vérifier si le budget est cohérent avec les dépenses réelles sur X dernières itérations

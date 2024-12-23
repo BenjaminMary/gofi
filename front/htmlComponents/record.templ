@@ -8,7 +8,6 @@ import (
 
 script categoryDropdown(uc *appdata.UserCategories) {
     // this script add click event on inputs inside the categoryDropdown
-    document.getElementById('input0').checked = true;
     // var categoryList = {{.UserParams.CategoryList}};
     var childInputs = document.getElementById('categoryDropdown').getElementsByTagName('input');
     for (var i = 0; i < childInputs.length; i++) {
@@ -206,7 +205,8 @@ templ addBotRows(totalRowsWithoutLimit string) {
     </tr>
 }
 
-templ GetRecordInsert(jsonFT []appdata.FinanceTracker, jsonUP appdata.UserParams, currentDate string) {
+templ GetRecordInsert(jsonFT []appdata.FinanceTracker, jsonUP appdata.UserParams, 
+    currentDate string, jsonFUDV appdata.FrontURLdefaultValues) {
     <!DOCTYPE html>
     <html lang="fr">
         <head>
@@ -233,20 +233,20 @@ templ GetRecordInsert(jsonFT []appdata.FinanceTracker, jsonUP appdata.UserParams
                                 </div>
                                 <div><!-- separator --></div>
                                 <div>
-                                    @accountInput("compte", jsonUP.AccountList, false)
+                                    @accountInput("compte", jsonUP.AccountList, false, jsonFUDV.Account)
                                 </div>
                             </fieldset>
-                            @categoriesCustomRadioInput(jsonUP.Categories, "categorie")
+                            @categoriesCustomRadioInput(jsonUP.Categories, "categorie", jsonFUDV.CategoryNumber)
                             <fieldset role="group">
                                 <div>
-                                    @amountInput("prix")
+                                    @amountInput("prix", jsonFUDV.FormPriceStr2Decimals)
                                 </div>
                                 <div><!-- separator --></div>
                                 <div>
-                                    @amountDirectionRadio("expense", "gain-expense")
+                                    @amountDirectionRadio(jsonFUDV.PriceDirection, "gain-expense")
                                 </div>
                             </fieldset>
-                            @textInput("designation")
+                            @textInput("designation", jsonFUDV.Product)
                             @FormSubmit("idSubmit1", "/img/icons.svg#feather-save", "Enregistrer")
                         </form>
                     </div> <!-- via header: "HX-Retarget", "#htmxInfo" -->
@@ -305,20 +305,20 @@ templ GetLendBorrowRecord(jsonFT []appdata.FinanceTracker, jsonUP appdata.UserPa
                                 </div>
                                 <div><!-- separator --></div>
                                 <div>
-                                    @accountInput("FT.compte", jsonUP.AccountList, false)
+                                    @accountInput("FT.compte", jsonUP.AccountList, false, "defaultValue")
                                 </div>
                             </fieldset>
-                            @categoriesCustomRadioInput(jsonUP.Categories, "FT.categorie")
+                            @categoriesCustomRadioInput(jsonUP.Categories, "FT.categorie", 0)
                             <fieldset role="group">
                                 <div>
-                                    @amountInput("FT.prix")
+                                    @amountInput("FT.prix", "")
                                 </div>
                                 <div><!-- separator --></div>
                                 <div>
                                     @amountDirectionRadio("gain", "FT.gain-expense")
                                 </div>
                             </fieldset>
-                            @textInput("FT.designation")
+                            @textInput("FT.designation", "")
                             @FormSubmit("idSubmit1", "/img/icons.svg#feather-save", "Enregistrer")
                         </form>
                     </div> <!-- via header: "HX-Retarget", "#htmxInfo" -->
@@ -454,12 +454,12 @@ templ GetRecordTransfer(jsonFT []appdata.FinanceTracker, jsonUP appdata.UserPara
                                 </div>
                                 <div><!-- separator --></div>
                                 <div>
-                                    @amountInput("prix")
+                                    @amountInput("prix", "")
                                 </div>
                             </fieldset>
                             <fieldset role="group">
                                 <div>
-                                    @accountInput("compteDepuis", jsonUP.AccountList, true)
+                                    @accountInput("compteDepuis", jsonUP.AccountList, true, "defaultValue")
                                 </div>
                                 <div class="center">
                                     <br/>
@@ -467,7 +467,7 @@ templ GetRecordTransfer(jsonFT []appdata.FinanceTracker, jsonUP appdata.UserPara
                                     <svg stroke="currenColor" width="32" heigth="32" viewBox="0 0 24 24"><use xlink:href="/img/icons.svg#lucide-arrow-big-right"></use></svg>
                                 </div>
                                 <div>
-                                    @accountInput("compteVers", jsonUP.AccountList, true)
+                                    @accountInput("compteVers", jsonUP.AccountList, true, "defaultValue")
                                 </div>
                             </fieldset>
                             @FormSubmit("idSubmit1", "/img/icons.svg#feather-save", "Transférer")
@@ -487,7 +487,7 @@ templ GetRecordTransfer(jsonFT []appdata.FinanceTracker, jsonUP appdata.UserPara
                 </section>
 
                 @Nav("top", "/", "/img/icons.svg#feather-home", "Accueil", "contrast outline",
-                    "/record/insert", "/img/icons.svg#lucide-notebook-pen", "Saisie", "contrast")
+                    "/record/insert/", "/img/icons.svg#lucide-notebook-pen", "Saisie", "contrast")
                 @Nav("none", "/record/recurrent", "/img/icons.svg#feather-refresh-cw", "Enr. réguliers", "contrast",
                     "/record/lend-or-borrow", "/img/icons.svg#lucide-hand-coins", "Prêt/Emprunt", "contrast")
             </main>
@@ -549,20 +549,20 @@ templ GetRecordRecurrent(jsonRR []appdata.RecurrentRecord, jsonFT []appdata.Fina
                                     </div>
                                     <div><!-- separator --></div>
                                     <div>
-                                        @accountInput("compte", jsonUP.AccountList, false)
+                                        @accountInput("compte", jsonUP.AccountList, false, "defaultValue")
                                     </div>
                                 </fieldset>
-                                @categoriesCustomRadioInput(jsonUP.Categories, "categorie")
+                                @categoriesCustomRadioInput(jsonUP.Categories, "categorie", 0)
                                 <fieldset role="group">
                                     <div>
-                                        @amountInput("prix")
+                                        @amountInput("prix", "")
                                     </div>
                                     <div><!-- separator --></div>
                                     <div>
                                         @amountDirectionRadio("expense", "gain-expense")
                                     </div>
                                 </fieldset>
-                                @textInput("designation")
+                                @textInput("designation", "")
                                 <!-- Text -->
                                 <input type="text" id="idRRmain" name="idRRmain" value="0" hidden readonly required />
                                 <!-- Buttons -->
@@ -707,7 +707,7 @@ templ GetRecordRecurrent(jsonRR []appdata.RecurrentRecord, jsonFT []appdata.Fina
                     </p>
                 </section>
                 @Nav("top", "/", "/img/icons.svg#feather-home", "Accueil", "contrast outline",
-                    "/record/insert", "/img/icons.svg#lucide-notebook-pen", "Saisie", "contrast")
+                    "/record/insert/", "/img/icons.svg#lucide-notebook-pen", "Saisie", "contrast")
                 @Nav("none", "/record/transfer", "/img/icons.svg#lucide-arrow-right-left", "Transfert", "contrast",
                     "/record/lend-or-borrow", "/img/icons.svg#lucide-hand-coins", "Prêt/Emprunt", "contrast")
             </main>
@@ -947,20 +947,20 @@ templ GetRecordEdit(lenJsonFTlist int, jsonLB appdata.LendBorrow, jsonUP appdata
                                     </div>
                                     <div><!-- separator --></div>
                                     <div>
-                                        @accountInput("FT.compte", jsonUP.AccountList, false)
+                                        @accountInput("FT.compte", jsonUP.AccountList, false, "defaultValue")
                                     </div>
                                 </fieldset>
-                                @categoriesCustomRadioInput(jsonUP.Categories, "FT.categorie")
+                                @categoriesCustomRadioInput(jsonUP.Categories, "FT.categorie", 0)
                                 <fieldset role="group">
                                     <div>
-                                        @amountInput("FT.prix")
+                                        @amountInput("FT.prix", "")
                                     </div>
                                     <div><!-- separator --></div>
                                     <div>
                                         @amountDirectionRadio("expense", "FT.gain-expense")
                                     </div>
                                 </fieldset>
-                                @textInput("FT.designation")
+                                @textInput("FT.designation", "")
                                 @FormSubmit("idSubmit1", "/img/icons.svg#feather-edit", "Modifier")
 
                                 <span id="htmxInfo"></span>
@@ -1092,7 +1092,7 @@ templ GetRecordAlter(jsonFT []appdata.FinanceTracker, jsonUP appdata.UserParams,
                             <br/>
                             (revalider une ligne précédemment validée changera sa date de validation)
                         </small>
-                        @categoriesCustomRadioInput(jsonUP.Categories, "categorie")
+                        @categoriesCustomRadioInput(jsonUP.Categories, "categorie", 0)
                         <hr/>
 
                         <h5>Trier</h5>
@@ -1156,7 +1156,7 @@ templ GetRecordAlter(jsonFT []appdata.FinanceTracker, jsonUP appdata.UserParams,
                                 </div>
                                 <div><!-- separator --></div>
                                 <div>
-                                    @accountInput("compte", jsonUP.AccountList, true)
+                                    @accountInput("compte", jsonUP.AccountList, true, "defaultValue")
                                 </div>
                             </fieldset>
                         </div>
@@ -1208,7 +1208,7 @@ templ GetRecordAlter(jsonFT []appdata.FinanceTracker, jsonUP appdata.UserParams,
                     </div> <!-- via header: "HX-Retarget", "#forbidden" -->
                 </section>
                 @Nav("top", "/", "/img/icons.svg#feather-home", "Accueil", "contrast outline",
-                    "/record/insert", "/img/icons.svg#lucide-notebook-pen", "Saisie", "contrast")
+                    "/record/insert/", "/img/icons.svg#lucide-notebook-pen", "Saisie", "contrast")
                 @Nav("none", "/record/recurrent", "/img/icons.svg#feather-refresh-cw", "Enr. réguliers", "contrast",
                     "/record/transfer", "/img/icons.svg#lucide-arrow-right-left", "Transfert", "contrast")
                 if alterMode == "validate" {

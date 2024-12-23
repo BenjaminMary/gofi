@@ -88,7 +88,9 @@
         - year by year with current balance available per account
         - year by year or month by month per category
 - advanced features for users
-    - manage recurrent expenses or gains
+    - ways to handle recurrent records
+        - use URL shortcuts with default values in forms to speed up data entries (like groceries)
+        - manage recurrent expenses or gains in a specific tab with a schedule
     - handle multiple categories per user and allow budgeting for each, 2 budgeting options:
         - reset the budget each period
         - keep the rest of the last budget period and add it to the next

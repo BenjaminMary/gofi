@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"net/http"
 	"strconv"
+	"strings"
 	"time"
 
 	"gofi/gofi/back/api"
@@ -120,7 +121,30 @@ func GetRecordInsert(w http.ResponseWriter, r *http.Request) {
 	jsonUserParam := jsonUP.AnyStruct.(appdata.UserParams)
 	currentTime := time.Now()
 	currentDate := currentTime.Format(time.DateOnly) // YYYY-MM-DD
-	htmlComponents.GetRecordInsert(jsonFTlist, jsonUserParam, currentDate).Render(r.Context(), w)
+	jsonFrontURLdefaultValues := appdata.FrontURLdefaultValues{UseNewDefaultValues: false, CategoryNumber: 0, PriceDirection: "expense"}
+	urlParams := chi.URLParam(r, "*")
+	if urlParams != "" {
+		listURLparams := strings.Split(urlParams, "/")
+		if len(listURLparams) != 5 {
+			fmt.Println("error len!=5 in url params")
+		} else {
+			jsonFrontURLdefaultValues.UseNewDefaultValues = true
+			jsonFrontURLdefaultValues.Account = listURLparams[0]
+			jsonFrontURLdefaultValues.Category = listURLparams[1]
+			jsonFrontURLdefaultValues.CategoryNumber = jsonUserParam.Categories.FindCategory[listURLparams[1]]
+			jsonFrontURLdefaultValues.Product = listURLparams[2]
+			if listURLparams[3] == "+" || listURLparams[3] == "gain" {
+				// default "expense"
+				jsonFrontURLdefaultValues.PriceDirection = "gain"
+			}
+			jsonFrontURLdefaultValues.FormPriceStr2Decimals = listURLparams[4]
+		}
+		// /{account}/{category}/{product}/{priceDirection}/{price}
+		// urlsafe special characters: $-_.+!*'(),
+		// http://localhost:8083/record/insert/LA/Epargne/desi/+/56.78
+		// fmt.Printf("jsonFrontURLdefaultValues: %#v\n", jsonFrontURLdefaultValues)
+	}
+	htmlComponents.GetRecordInsert(jsonFTlist, jsonUserParam, currentDate, jsonFrontURLdefaultValues).Render(r.Context(), w)
 }
 func PostRecordInsert(w http.ResponseWriter, r *http.Request) {
 	json := api.PostRecordInsert(w, r, true)
