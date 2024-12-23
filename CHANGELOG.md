@@ -5,6 +5,7 @@
 
 
 ### Done
+- 2024-12-23 : fix: test param and first accounts on user creation 
 - 2024-12-07 : feat: add doc and improve stats in budget page 
 - 2024-12-06 : 
     - fix: cancel record button was hidden by default

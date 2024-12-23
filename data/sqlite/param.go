@@ -51,7 +51,7 @@ func CheckIfIdExists(ctx context.Context, db *sql.DB, gofiID int) {
 		db.ExecContext(ctx, "DELETE FROM param WHERE gofiID = ? AND paramName = 'accountList';", gofiID)
 		P.GofiID = gofiID
 		P.ParamName = "accountList"
-		P.ParamJSONstringData = "CB,A"
+		P.ParamJSONstringData = "CB,LA,PEA"
 		P.ParamInfo = "Liste des comptes (séparer par des , sans espaces)"
 		InsertRowInParam(ctx, db, &P)
 	}
