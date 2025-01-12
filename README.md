@@ -90,6 +90,10 @@
 - advanced features for users
     - ways to handle recurrent records
         - use URL shortcuts with default values in forms to speed up data entries (like groceries)
+		    - `/record/insert/{account}/{category}/{product}/{priceDirection}/{price}`
+		    - `/record/insert/LA/Epargne/designation/+/56.78`
+            - space = `%20`
+		    - `/record/insert/LA/Epargne/designation%20avec%20espace/+/56.78`
         - manage recurrent expenses or gains in a specific tab with a schedule
     - handle multiple categories per user and allow budgeting for each, 2 budgeting options:
         - reset the budget each period

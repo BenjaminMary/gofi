@@ -45,13 +45,15 @@ func AddContextUserAndTimeout(next http.Handler) http.Handler {
 		// }
 		ctx := context.WithValue(r.Context(), appdata.ContextUserKey, userContext)
 		ctx, cancel := context.WithTimeout(ctx, time.Duration(20*time.Second))
+		// TODO: timeout lower than this except for csv part 
 		defer cancel()
 		next.ServeHTTP(w, r.WithContext(ctx))
 	})
 }
 
 func completeUserInfos(userContext *appdata.UserRequest, w http.ResponseWriter, r *http.Request, isCookie bool) {
-	gofiID, email, errStr, err := sqlite.GetGofiID(r.Context(), appdata.DB, userContext.SessionID)
+	gofiID, email, errStr, err := sqlite.GetGofiID(r.Context(), appdata.DB, userContext.SessionID,
+		r.Header.Get("User-Agent"), r.Header.Get("Accept-Language"))
 	if err == nil && gofiID > 0 {
 		validAuth := true
 		if errStr == "idleTimeout, change cookie" {

@@ -87,17 +87,21 @@ func Logout(ctx context.Context, db *sql.DB, gofiID int) (bool, string, error) {
 	return true, "", nil
 }
 
-func GetGofiID(ctx context.Context, db *sql.DB, sessionID string) (int, string, string, error) {
+func GetGofiID(ctx context.Context, db *sql.DB, sessionID string, 
+	newActivityUserAgent string, newActivityAcceptLanguage string) (int, string, string, error) {
 	q := ` 
-		SELECT gofiID, email, idleTimeout, absoluteTimeout, strftime('%Y-%m-%dT%H:%M:%SZ', DATETIME('now')) AS currentTimeUTC
+		SELECT gofiID, email, idleTimeout, absoluteTimeout, 
+			lastActivityUserAgent, lastActivityAcceptLanguage, 
+			strftime('%Y-%m-%dT%H:%M:%SZ', DATETIME('now')) AS currentTimeUTC
 		FROM user
 		WHERE sessionID = ?
 			AND sessionID IS NOT NULL
 			AND sessionID NOT LIKE 'logged-out-%';
 	`
 	var gofiID int = 0
-	var email, idleTimeout, absoluteTimeout, currentTimeUTC string
-	err := db.QueryRowContext(ctx, q, sessionID).Scan(&gofiID, &email, &idleTimeout, &absoluteTimeout, &currentTimeUTC)
+	var email, idleTimeout, absoluteTimeout, lastActivityUserAgent, lastActivityAcceptLanguage, currentTimeUTC string
+	err := db.QueryRowContext(ctx, q, sessionID).Scan(&gofiID, &email, &idleTimeout, &absoluteTimeout, 
+		&lastActivityUserAgent, &lastActivityAcceptLanguage, &currentTimeUTC)
 	switch {
 	case err == sql.ErrNoRows:
 		fmt.Printf("GetGofiID error no row returned, sessionID: %v\n", sessionID)
@@ -133,6 +137,13 @@ func GetGofiID(ctx context.Context, db *sql.DB, sessionID string) (int, string, 
 	// fmt.Printf("differenceIdle: %v\n", differenceIdle)
 	if differenceIdle > 0 {
 		return gofiID, email, "idleTimeout, change cookie", nil
+	}
+
+	if newActivityUserAgent != lastActivityUserAgent {
+		return gofiID, "", "userAgentChange, force new login 5", errors.New("user-agent-change")
+	}
+	if newActivityAcceptLanguage != lastActivityAcceptLanguage {
+		return gofiID, "", "acceptLanguageChange, force new login 6", errors.New("accept-language-change")
 	}
 
 	if gofiID > 0 {
