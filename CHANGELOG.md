@@ -5,8 +5,8 @@
 
 
 ### Done
-- 2025-01-12 : 
-    - feat: force new login on client change 
+- 2025-01-18 : chore: update go modules and go main version
+- 2025-01-12 : feat: force new login on client change 
 - 2024-12-23 : 
     - fix: test param and first accounts on user creation 
     - feat: front page insert simple record now handle url params to use as default values
