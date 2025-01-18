@@ -72,6 +72,22 @@ func CheckIfIdExists(ctx context.Context, db *sql.DB, gofiID int) {
 		InsertRowInParam(ctx, db, &P)
 	}
 
+	err = db.QueryRowContext(ctx, q, gofiID, "onboardingCheckList").Scan(&nbRows)
+	switch {
+	case err == sql.ErrNoRows:
+		nbRows = 0
+	case err != nil:
+		log.Fatalf("query error param onboardingCheckList: %v\n", err)
+	}
+	if nbRows != 1 {
+		db.ExecContext(ctx, "DELETE FROM param WHERE gofiID = ? AND paramName = 'onboardingCheckList';", gofiID)
+		P.GofiID = gofiID
+		P.ParamName = "onboardingCheckList"
+		P.ParamJSONstringData = ""
+		P.ParamInfo = "Liste des étapes (séparer par des , sans espaces)"
+		InsertRowInParam(ctx, db, &P)
+	}
+
 	err = db.QueryRowContext(ctx, q, gofiID, "categoryRendering").Scan(&nbRows)
 	switch {
 	case err == sql.ErrNoRows:
@@ -337,6 +353,17 @@ func GetList(ctx context.Context, db *sql.DB, up *appdata.UserParams, uc *appdat
 	rows.Close()
 	up.AccountListSingleString = accountList
 	up.AccountList = strings.Split(accountList, ",")
+
+	rows, _ = db.QueryContext(ctx, q, up.GofiID, "onboardingCheckList")
+	rows.Next()
+	var onboardingCheckList string
+	if err := rows.Scan(&onboardingCheckList); err != nil {
+		fmt.Printf("error in GetList onboardingCheckList, err: %v\n", err)
+		log.Fatal(err)
+	}
+	rows.Close()
+	up.OnboardingCheckListSingleString = onboardingCheckList
+	up.OnboardingCheckList = strings.Split(onboardingCheckList, ",")
 
 	rows, _ = db.QueryContext(ctx, q, up.GofiID, "categoryList")
 	rows.Next()

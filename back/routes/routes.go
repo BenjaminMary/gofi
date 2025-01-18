@@ -116,6 +116,7 @@ func (s *Server) MountBackHandlers() {
 				r.Patch("/category/in-use", func(w http.ResponseWriter, r *http.Request) { api.PatchParamCategoryInUse(w, r, false) })
 				r.Patch("/category/order", func(w http.ResponseWriter, r *http.Request) { api.PatchParamCategoryOrder(w, r, false) })
 				r.Post("/category-rendering", func(w http.ResponseWriter, r *http.Request) { api.PostParamCategoryRendering(w, r, false) })
+				r.Post("/onboardingchecklist", func(w http.ResponseWriter, r *http.Request) { api.PostParamOnboardingCheckList(w, r, false) })
 			})
 			// RECORDS
 			r.Route("/record", func(r chi.Router) {
@@ -174,6 +175,7 @@ func (s *Server) MountFrontHandlers() {
 				r.Get("/account", front.GetParamAccount)
 				r.Post("/account", front.PostParamAccount)
 				r.Post("/category-rendering", front.PostParamCategoryRendering)
+				r.Post("/onboardingchecklist", front.PostParamOnboardingCheckList)
 				r.Get("/category", front.GetParamCategory)
 				r.Put("/category", front.PutParamCategory)
 				r.Patch("/category/in-use", front.PatchParamCategoryInUse)

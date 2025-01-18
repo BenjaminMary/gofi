@@ -83,6 +83,14 @@ func PostParamCategoryRendering(w http.ResponseWriter, r *http.Request) {
 	}
 	htmlComponents.PostParamCategoryRendering(json.HttpStatus, jsonParam.ParamJSONstringData).Render(r.Context(), w)
 }
+func PostParamOnboardingCheckList(w http.ResponseWriter, r *http.Request) {
+	json := api.PostParamOnboardingCheckList(w, r, true)
+	jsonParam := &appdata.Param{}
+	if json.IsValidResponse {
+		jsonParam = json.AnyStruct.(*appdata.Param)
+	}
+	htmlComponents.PostParamOnboardingCheckList(json.HttpStatus, jsonParam.ParamJSONstringData).Render(r.Context(), w)
+}
 
 func GetParamCategory(w http.ResponseWriter, r *http.Request) {
 	userContext := r.Context().Value(appdata.ContextUserKey).(*appdata.UserRequest)

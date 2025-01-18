@@ -2,12 +2,26 @@
 
 > ☑☐☒❗
 
-- améliorer le onboarding
+- ❗❗❗❗❗❗améliorer le onboarding
     - expliquer les 1eres étapes 
-    - utiliser des cas de saisies préremplies
-- ❗❗❗❗saisie simple
-    - permettre de prendre des url-param pour pouvoir préselectionner des dépenses 
-    - exemple intermarché ... 
+    - ☑ ajouter un param "onboardingCheckList" sur les étapes faites dans la checklist initiation par utilisateur
+        - ☐❗ besoin d'insérer les params lors de la MEP de cette feature
+    - nouveau bouton checklist initiation
+        - ouvre une page dédiée avec la checklist complète, les étapes faites et les restantes
+        - faire remonter en prio 1 par défaut
+        - à chaque clic sur les étapes, maj l'info liée à l'utilisateur
+        - mettre un param qui permet de forcer que toutes les étapes ont été faites
+        - mettre un param qui permet de réinitialiser toute la checklist 
+        - lorsque tout est fait, redescendre le bouton dans la partie configuration en mode grisé
+    - checklist initiation
+        1. config comptes
+        2. config categories
+        3. saisie de données (utiliser des cas de saisies préremplies avec les params comptes et catégo utilisés par l'utilisateur)
+        4. config budget selon la dépense faite
+        5. voir les stats liées au budget
+        6. voir les stats générales
+        7. éditer une saisie 
+        8. annuler une saisie 
 - optimisation à prévoir 
     - gérer la liste des 5 derniers enregistrements en param utilisateur pour simplifier les requêtes ? 
 - ☐❗❗mini système de gestion de migration de la DB
@@ -47,6 +61,8 @@
 - ☑ dès que toutes les fonctionnalités essentielles sont en place, démarrer des tests fonctionnels
 
 - ☑ ajout système de données récurrentes:
+    - ☑ saisie préremplies
+        - ☑ permettre de prendre des url-param pour pouvoir préselectionner des dépenses 
     - ☑ factures + revenus mensuelles
     - ☑ création, édition, suppression
     - ☑ enregistrement avec ajout de jour/mois/année auto à chaque enregistrement
