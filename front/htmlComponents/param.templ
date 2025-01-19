@@ -14,7 +14,19 @@ script initRadioCheck(goCategoryRendering string) {
         document.getElementById("icons").checked = true
     };
 }
-
+script forceCheckListChanges() {
+    // this script will change the value of the "onboardingCheckList" input field on switch
+    document.getElementById("onboardingCheckListReset").addEventListener('click', function(ea){
+        if (this.checked) {
+            document.getElementById("onboardingCheckList").value = "0";
+        };
+    });
+    document.getElementById("onboardingCheckListCompleted").addEventListener('click', function(eb){
+        if (this.checked) {
+            document.getElementById("onboardingCheckList").value = "1,2,3,4,5,6,7,8";
+        };
+    });
+}
 templ GetParam(json appdata.UserParams) {
     <!DOCTYPE html>
     <html lang="fr">
@@ -25,9 +37,30 @@ templ GetParam(json appdata.UserParams) {
         </head>
         <body class="container-fluid">
             <main>
-                <h1>Gérer les listes de données</h1>
+                <h1>Gérer les paramètres</h1>
                 <section id="form">
                     <div id="htmxInfo">
+                        <!-- labels -->
+                        <label for="onboardingCheckList"><strong><small>Liste des étapes de la checklist terminées (séparer par des , sans espaces)</small></strong></label>
+                        <label for="onboardingCheckListReset"> 
+                            <input type="checkbox" id="onboardingCheckListReset" name="reset" role="switch" />
+                            remettre la checklist à 0
+                        </label>
+                        <label for="onboardingCheckListCompleted"> 
+                            <input type="checkbox" id="onboardingCheckListCompleted" name="completed" role="switch" />
+                            terminer la checklist
+                        </label>
+                        <br/>    
+                        <form hx-post="/param/onboardingchecklist" 
+                            hx-target="#onboardingCheckList" 
+                            hx-swap="outerHTML"
+                            hx-sync="this:drop"
+                            hx-on::after-request="if(event.detail.successful) document.getElementById('idSubmit1').remove();">
+                            <!-- Text -->
+                            <input type="text" id="onboardingCheckList" name="ParamJSONstringData" value={json.OnboardingCheckListSingleString} required />
+                            @FormSubmit("idSubmit1", "/img/icons.svg#feather-save", "Enregistrer la checklist d'initiation")
+                        </form>
+                        <hr/>
                         <form hx-post="/param/category-rendering" 
                             hx-target="#refresh" 
                             hx-swap="innerHTML"
@@ -59,6 +92,7 @@ templ GetParam(json appdata.UserParams) {
             @BotScriptThemeSwitcher()
             @BotScriptHTMXhandleError()
             @initRadioCheck(json.CategoryRendering)
+            @forceCheckListChanges()
         </body>
     </html>
 }
@@ -233,6 +267,8 @@ templ GetParamAccount(json appdata.UserParams) {
                 </section>
                 @Nav("top", "/", "/img/icons.svg#feather-home", "Accueil", "contrast outline",
                     "/param/category", "/img/icons.svg#feather-tool", "Catégories", "contrast")
+                @Nav("none", "/checklist", "/img/icons.svg#feather-check-square", "Checklist", "contrast outline",
+                    "/checklist/1", "/img/icons.svg#feather-check-square", "Etape 1/8", "contrast")
             </main>
             @BotScriptThemeSwitcher()
             @BotScriptHTMXhandleError()
@@ -414,6 +450,28 @@ templ PostParamCategoryRendering(httpStatus int, ParamJSONstringData string) {
 	}
     @PageRefreshButton()
 }
+templ PostParamOnboardingCheckList(httpStatus int, ParamJSONstringData string) {
+    switch httpStatus {
+        case http.StatusOK:
+            // nothing
+        case http.StatusBadRequest:
+            <p>
+                ERREUR1: Impossible de modifier la checklist.<br/> 
+                Requête annulée, merci de recommencer.
+            </p>
+        case http.StatusInternalServerError:
+            <p>
+                ERREUR2: Impossible de modifier la checklist.<br/> 
+                Requête annulée, merci de recommencer.
+            </p>
+        default:
+            <p>
+                ERREUR3: Impossible de modifier la checklist.<br/> 
+                Requête annulée, merci de recommencer.
+            </p>
+	}
+    @PageRefreshButton()
+}
 
 templ GetParamCategory(jsonUC *appdata.UserCategories, userCategoriesJson string, unhandledCategoryList []string) {
     <!DOCTYPE html>
@@ -499,7 +557,7 @@ templ GetParamCategory(jsonUC *appdata.UserCategories, userCategoriesJson string
                                             <li>
                                                 <!-- calendar = Date -->
                                                 <svg stroke="currenColor" width="18" heigth="18" viewBox="0 0 24 24"><use xlink:href="/img/icons.svg#lucide-calendar"></use></svg>
-                                                la date utilisée sert à calculer le nombre de période à cumuler
+                                                la date utilisée détermine quand commence le cumul
                                             </li>
                                         </ul>
                                     </li>
@@ -589,7 +647,7 @@ templ GetParamCategory(jsonUC *appdata.UserCategories, userCategoriesJson string
                                 <svg stroke="currenColor" width="20" heigth="20" viewBox="0 0 24 24"><use xlink:href="/img/icons.svg#lucide-toggle-right"></use></svg>
                                 bascule la catégorie partie 
                                 <!-- red x square -->
-                                <svg width="18" height="18" viewBox="0 0 24 24" stroke="firebrick"><use xlink:href="/img/icons.svg#feather-x-square"></use></svg>
+                                <svg width="18" height="18" viewBox="0 0 24 24"><use xlink:href="/img/icons.svg#feather-red-x-square"></use></svg>
                                 inactive
                             </li>
                             <li>
@@ -597,7 +655,7 @@ templ GetParamCategory(jsonUC *appdata.UserCategories, userCategoriesJson string
                                 <svg width="18" height="18" viewBox="0 0 24 24"><use xlink:href="/img/icons.svg#lucide-wallet"></use></svg>
                                 mode budget: montant | inactif 
                                 <!-- red x square -->
-                                <svg width="18" height="18" viewBox="0 0 24 24" stroke="firebrick"><use xlink:href="/img/icons.svg#feather-x-square"></use></svg>
+                                <svg width="18" height="18" viewBox="0 0 24 24"><use xlink:href="/img/icons.svg#feather-red-x-square"></use></svg>
                             </li>
                             <li>
                                 <!-- edit -->
@@ -710,6 +768,8 @@ templ GetParamCategory(jsonUC *appdata.UserCategories, userCategoriesJson string
                 <textarea id="struct-complet" hidden readonly>{ userCategoriesJson }</textarea>
                 @Nav("top", "/", "/img/icons.svg#feather-home", "Accueil", "contrast outline",
                     "/budget", "/img/icons.svg#lucide-wallet", "Budgets", "contrast")
+                @Nav("none", "/checklist", "/img/icons.svg#feather-check-square", "Checklist", "contrast outline",
+                    "/checklist/2", "/img/icons.svg#feather-check-square", "Etape 2/8", "contrast")
             </main>
             @BotScriptThemeSwitcher()
             @BotScriptHTMXhandleError()

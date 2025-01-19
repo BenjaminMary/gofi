@@ -283,12 +283,14 @@ func (a *UserRequest) Bind(r *http.Request) error {
 }
 
 type UserParams struct {
-	GofiID                  int // UNIQUE
-	AccountListSingleString string
-	AccountList             []string
-	AccountListUnhandled    []string
-	CategoryRendering       string
-	Categories              *UserCategories
+	GofiID                  		int // UNIQUE
+	AccountListSingleString 		string
+	AccountList             		[]string
+	AccountListUnhandled    		[]string
+	OnboardingCheckListSingleString string
+	OnboardingCheckList             []string
+	CategoryRendering       		string
+	Categories              		*UserCategories
 }
 
 func NewUserCategories() *UserCategories {

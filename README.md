@@ -82,6 +82,7 @@
 
 ### Features
 - basic features for users
+    - onboarding checklist to discover basics features
     - record expenses per user, account and category
     - edit / update your records
     - stats: 
