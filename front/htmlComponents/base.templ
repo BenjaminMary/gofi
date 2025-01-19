@@ -176,7 +176,6 @@ templ BotScriptHTMXhandleError() {
 
 templ gofiImg(email string) {
     <figure>
-        // <img class="center" src="/img/gopherize-me-1.png" alt="Gopher"/>
         <img class="center" src="/img/gofi-img-sand.png" alt="Gopher"/>
         <p class="center">
             Bienvenue <code>{email}</code>
@@ -187,6 +186,15 @@ templ gofiImg(email string) {
 
 templ indexLinksConnected(IsAdmin bool) {
     <section id="links">
+        <h5 class="center">Découverte</h5>
+        <aside><nav class="center"><ul>
+            <li><a href="/checklist" role="button" class="contrast">
+                <!-- feather-check-square -->
+                <svg width="24" height="24" viewBox="0 0 24 24"><use xlink:href="/img/icons.svg#feather-check-square"></use></svg>
+                Checklist
+            </a></li>
+        </ul></nav></aside>
+        <hr/>
         <h5 class="center">Saisie de données</h5>
         <aside><nav class="center"><ul>
             <li><a href="/record/insert/" role="button" class="contrast">
@@ -315,6 +323,7 @@ templ infos() {
         <hr/>
         <h5>Infos</h5>
         <small>
+            Présentation de GOFI • <a target="_blank" href="https://go.benjamin-mary.com/">go.benjamin-mary.com</a><br/>
             Fait avec
                 • <a target="_blank" href="https://www.sqlite.org/">sqlite</a>
                 • <a target="_blank" href="https://go.dev/">golang </a>
@@ -328,7 +337,8 @@ templ infos() {
                 • <a target="_blank" href="https://lucide.dev/">lucide</a>
                 • <a target="_blank" href="https://icomoon.io/">icomoon</a>
             <br/>
-            Code source • <a target="_blank" href="https://github.com/BenjaminMary/gofi/">github</a>
+            Code source • <a target="_blank" href="https://github.com/BenjaminMary/gofi/">github</a><br/>
+            Communauté Discord • <a target="_blank" href="http://discord.gg/6KNkK6NyDM">discord</a>
         </small>
     </section>
 }

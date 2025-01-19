@@ -7,6 +7,7 @@ import (
 	"strconv"
 	"strings"
 	"time"
+	"slices"
 
 	"gofi/gofi/back/api"
 	"gofi/gofi/data/appdata"
@@ -20,6 +21,101 @@ func TemplIndex(w http.ResponseWriter, r *http.Request) {
 	// fmt.Println("in front TemplIndex")
 	userContext := r.Context().Value(appdata.ContextUserKey).(*appdata.UserRequest)
 	htmlComponents.IndexHtmlContent(userContext).Render(r.Context(), w)
+}
+func Checklist(w http.ResponseWriter, r *http.Request) {
+	userContext := r.Context().Value(appdata.ContextUserKey).(*appdata.UserRequest)
+	json := api.GetParam(w, r, true, "", "", false)
+	jsonUserParam := json.AnyStruct.(appdata.UserParams)
+	// fmt.Printf("jsonUserParam: %#v\n", jsonUserParam)
+	htmlComponents.Checklist(userContext, &jsonUserParam).Render(r.Context(), w)
+}
+func Checklist1(w http.ResponseWriter, r *http.Request) {
+	strNumber := "1"
+	userContext := r.Context().Value(appdata.ContextUserKey).(*appdata.UserRequest)
+	json := api.GetParam(w, r, true, "", "", false)
+	jsonUserParam := json.AnyStruct.(appdata.UserParams)
+	if !slices.Contains(jsonUserParam.OnboardingCheckList, strNumber) {
+		api.UpdateParamCheckList(w, r, true, userContext.GofiID, (jsonUserParam.OnboardingCheckListSingleString + "," + strNumber))
+	}
+	// fmt.Printf("jsonUserParam: %#v\n", jsonUserParam)
+	htmlComponents.Checklist1(userContext, &jsonUserParam).Render(r.Context(), w)
+}
+func Checklist2(w http.ResponseWriter, r *http.Request) {
+	strNumber := "2"
+	userContext := r.Context().Value(appdata.ContextUserKey).(*appdata.UserRequest)
+	json := api.GetParam(w, r, true, "", "", false)
+	jsonUserParam := json.AnyStruct.(appdata.UserParams)
+	if !slices.Contains(jsonUserParam.OnboardingCheckList, strNumber) {
+		api.UpdateParamCheckList(w, r, true, userContext.GofiID, (jsonUserParam.OnboardingCheckListSingleString + "," + strNumber))
+	}
+	// fmt.Printf("jsonUserParam: %#v\n", jsonUserParam)
+	htmlComponents.Checklist2(userContext, &jsonUserParam).Render(r.Context(), w)
+}
+func Checklist3(w http.ResponseWriter, r *http.Request) {
+	strNumber := "3"
+	userContext := r.Context().Value(appdata.ContextUserKey).(*appdata.UserRequest)
+	json := api.GetParam(w, r, true, "", "", false)
+	jsonUserParam := json.AnyStruct.(appdata.UserParams)
+	if !slices.Contains(jsonUserParam.OnboardingCheckList, strNumber) {
+		api.UpdateParamCheckList(w, r, true, userContext.GofiID, (jsonUserParam.OnboardingCheckListSingleString + "," + strNumber))
+	}
+	// fmt.Printf("jsonUserParam.Categories: %#v\n", jsonUserParam.Categories)
+	htmlComponents.Checklist3(userContext, &jsonUserParam).Render(r.Context(), w)
+}
+func Checklist4(w http.ResponseWriter, r *http.Request) {
+	strNumber := "4"
+	userContext := r.Context().Value(appdata.ContextUserKey).(*appdata.UserRequest)
+	json := api.GetParam(w, r, true, "", "", false)
+	jsonUserParam := json.AnyStruct.(appdata.UserParams)
+	if !slices.Contains(jsonUserParam.OnboardingCheckList, strNumber) {
+		api.UpdateParamCheckList(w, r, true, userContext.GofiID, (jsonUserParam.OnboardingCheckListSingleString + "," + strNumber))
+	}
+	// fmt.Printf("jsonUserParam: %#v\n", jsonUserParam)
+	htmlComponents.Checklist4(userContext, &jsonUserParam).Render(r.Context(), w)
+}
+func Checklist5(w http.ResponseWriter, r *http.Request) {
+	strNumber := "5"
+	userContext := r.Context().Value(appdata.ContextUserKey).(*appdata.UserRequest)
+	json := api.GetParam(w, r, true, "", "", false)
+	jsonUserParam := json.AnyStruct.(appdata.UserParams)
+	if !slices.Contains(jsonUserParam.OnboardingCheckList, strNumber) {
+		api.UpdateParamCheckList(w, r, true, userContext.GofiID, (jsonUserParam.OnboardingCheckListSingleString + "," + strNumber))
+	}
+	// fmt.Printf("jsonUserParam: %#v\n", jsonUserParam)
+	htmlComponents.Checklist5(userContext, &jsonUserParam).Render(r.Context(), w)
+}
+func Checklist6(w http.ResponseWriter, r *http.Request) {
+	strNumber := "6"
+	userContext := r.Context().Value(appdata.ContextUserKey).(*appdata.UserRequest)
+	json := api.GetParam(w, r, true, "", "", false)
+	jsonUserParam := json.AnyStruct.(appdata.UserParams)
+	if !slices.Contains(jsonUserParam.OnboardingCheckList, strNumber) {
+		api.UpdateParamCheckList(w, r, true, userContext.GofiID, (jsonUserParam.OnboardingCheckListSingleString + "," + strNumber))
+	}
+	// fmt.Printf("jsonUserParam: %#v\n", jsonUserParam)
+	htmlComponents.Checklist6(userContext, &jsonUserParam).Render(r.Context(), w)
+}
+func Checklist7(w http.ResponseWriter, r *http.Request) {
+	strNumber := "7"
+	userContext := r.Context().Value(appdata.ContextUserKey).(*appdata.UserRequest)
+	json := api.GetParam(w, r, true, "", "", false)
+	jsonUserParam := json.AnyStruct.(appdata.UserParams)
+	if !slices.Contains(jsonUserParam.OnboardingCheckList, strNumber) {
+		api.UpdateParamCheckList(w, r, true, userContext.GofiID, (jsonUserParam.OnboardingCheckListSingleString + "," + strNumber))
+	}
+	// fmt.Printf("jsonUserParam: %#v\n", jsonUserParam)
+	htmlComponents.Checklist7(userContext, &jsonUserParam).Render(r.Context(), w)
+}
+func Checklist8(w http.ResponseWriter, r *http.Request) {
+	strNumber := "8"
+	userContext := r.Context().Value(appdata.ContextUserKey).(*appdata.UserRequest)
+	json := api.GetParam(w, r, true, "", "", false)
+	jsonUserParam := json.AnyStruct.(appdata.UserParams)
+	if !slices.Contains(jsonUserParam.OnboardingCheckList, strNumber) {
+		api.UpdateParamCheckList(w, r, true, userContext.GofiID, (jsonUserParam.OnboardingCheckListSingleString + "," + strNumber))
+	}
+	// fmt.Printf("jsonUserParam: %#v\n", jsonUserParam)
+	htmlComponents.Checklist8(userContext, &jsonUserParam).Render(r.Context(), w)
 }
 func Lost(w http.ResponseWriter, r *http.Request) {
 	// TODO: return a 404

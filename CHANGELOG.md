@@ -5,6 +5,8 @@
 - onboarding checklist
 
 ### Done
+- 2025-01-19 : Branch onboarding checklist
+    - feat: add a 8 steps checklist to discover GOFI basics
 - 2025-01-18 : 
     - chore: update go modules and go main version
     - NewBranch onboarding checklist

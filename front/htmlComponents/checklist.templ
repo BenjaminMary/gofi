@@ -1,0 +1,547 @@
+package htmlComponents
+
+import (
+    "slices"
+    "gofi/gofi/data/appdata"
+)
+
+templ checklistRow(strNumber string, text string, OnboardingCheckList []string) {
+    <li>
+        if slices.Contains(OnboardingCheckList, strNumber) {
+            <a href={ templ.URL("/checklist/" + strNumber) } role="button" class="contrast outline">
+            <!-- feather-check-square -->
+            <svg width="24" height="24" viewBox="0 0 24 24"><use xlink:href="/img/icons.svg#feather-check-square"></use></svg>
+            { text }</a>
+        } else {
+            <a href={ templ.URL("/checklist/" + strNumber) } role="button" class="contrast">
+            <!-- feather-square -->
+            <svg width="24" height="24" viewBox="0 0 24 24"><use xlink:href="/img/icons.svg#feather-square"></use></svg>
+            { text }</a>
+        }
+    </li>
+}
+templ Checklist(UR *appdata.UserRequest, UP *appdata.UserParams) {
+    <!DOCTYPE html>
+    <html lang="fr">
+        <head>
+            @Header()
+        </head>
+        <body class="container-fluid">
+            <main>
+                <h1 class="center">GOFI</h1>
+                @gofiImg(UR.Email)
+                <h2 class="center">Sommaire</h2>
+                <p>
+                    Il est possible de suivre cette checklist en faisant un enregistrement factice que
+                    l'on supprimera ensuite, à l'étape 8.<br/>
+                    <br/>
+                    Dans l'application, en bas de page, il y a toujours des liens qui permettent de poursuivre la 
+                    navigation vers les pages logiques suivantes, ou de retourner à la page d'accueil.<br/>
+                    <br/>
+                    Si besoin, de l'aide personnalisée est disponible à travers 
+                    <a target="_blank" href="http://discord.gg/6KNkK6NyDM">Discord</a>, on peut y poser toutes nos questions.<br/>
+                    <br/>
+                    Découvrons ensemble les fonctionnalités principales de l'application.
+                </p>
+                <section id="links">
+                    <aside><nav class="center"><ul>
+                        @checklistRow("1", "1. config comptes", UP.OnboardingCheckList)
+                        @checklistRow("2", "2. config categories", UP.OnboardingCheckList)
+                        @checklistRow("3", "3. saisie de données", UP.OnboardingCheckList)
+                        @checklistRow("4", "4. config budget", UP.OnboardingCheckList)
+                        @checklistRow("5", "5. stats liées au budget", UP.OnboardingCheckList)
+                        @checklistRow("6", "6. stats générales", UP.OnboardingCheckList)
+                        @checklistRow("7", "7. éditer une saisie", UP.OnboardingCheckList)
+                        @checklistRow("8", "8. annuler une saisie", UP.OnboardingCheckList)
+                    </ul></nav></aside>
+                </section>
+
+                @Nav("top", "/", "/img/icons.svg#feather-home", "Accueil", "contrast outline",
+                    "/checklist/1", "/img/icons.svg#feather-fast-forward", "Etape 1/8", "contrast")
+                <small class="center"><p>©2024 Benjamin MARY</p></small>
+            </main>
+            @BotScriptThemeSwitcher()
+        </body>
+    </html>
+}
+templ Checklist1(UR *appdata.UserRequest, UP *appdata.UserParams) {
+    <!DOCTYPE html>
+    <html lang="fr">
+        <head>
+            @Header()
+        </head>
+        <body class="container-fluid">
+            <main>
+                <h1 class="center">GOFI</h1>
+                @gofiImg(UR.Email)
+                <h2 class="center">1. configuration des comptes</h2>
+                <section id="1">
+                    <p>
+                        Par défaut, 3 comptes sont activés :
+                        <ul>
+                            <li><code>CB</code> pour Compte Bancaire ou Carte Bleue</li>
+                            <li><code>LA</code> pour Livret A</li>
+                            <li><code>PEA</code> pour Plan Epargne Action</li>
+                        </ul>
+                        Chaque compte utilisé fonctionne ensuite de manière indépendante, avec 
+                        les gains et les dépenses associés uniquement au compte utilisé, ainsi 
+                        que sa propre balance disponible dans les statistiques.
+                    </p>
+                    <hr/>
+                    <p>Modifier les comptes par défaut ici :</p>
+                    <aside><nav class="center"><ul>
+                        <li><a href="/param/account" role="button" class="contrast outline">
+                            <!-- tool -->
+                            <svg width="24" height="24" viewBox="0 0 24 24"><use xlink:href="/img/icons.svg#feather-tool"></use></svg>
+                            Liste des comptes
+                        </a></li>
+                    </ul></nav></aside>
+                </section>
+
+                @Nav("top", "/", "/img/icons.svg#feather-home", "Accueil", "contrast outline",
+                    "/checklist", "/img/icons.svg#feather-check-square", "Checklist", "contrast")
+                @Nav("none", "/", "", "", "contrast outline",
+                    "/checklist/2", "/img/icons.svg#feather-fast-forward", "Etape 2/8", "contrast")
+                <small class="center"><p>©2024 Benjamin MARY</p></small>
+            </main>
+            @BotScriptThemeSwitcher()
+        </body>
+    </html>
+}
+templ Checklist2(UR *appdata.UserRequest, UP *appdata.UserParams) {
+    <!DOCTYPE html>
+    <html lang="fr">
+        <head>
+            @Header()
+        </head>
+        <body class="container-fluid">
+            <main>
+                <h1 class="center">GOFI</h1>
+                @gofiImg(UR.Email)
+                <h2 class="center">2. configuration des catégories</h2>
+                <section id="2">
+                    <p>
+                        Par défaut, 4 catégories sont activés :
+                        <ul>
+                            <li>
+                                <code>Besoin</code> pour toutes les dépenses nécessaires
+                                <ul>
+                                    <li>le loyer</li>
+                                    <li>l'électricité, l'eau, le gaz</li>
+                                    <li>la nourriture au supermarché</li>
+                                    <li>la santé</li>
+                                </ul>
+                            </li>
+                            <li>
+                                <code>Envie</code> pour les dépenses 
+                                <ul>
+                                    <li>les restaurants</li>
+                                    <li>les loisirs, les sorties, les voyages</li>
+                                    <li>le shopping, vêtements, gadgets</li>
+                                </ul>
+                            </li>
+                            <li><code>Revenu</code> pour lister les principaux gains comme le salaire dans une catégorie dédiée</li>
+                            <li>
+                                <code>Epargne</code> pour lister les montants que l'on garde ou épargne.<br/> 
+                                Il est aussi possible de gérer ça à travers les différents comptes via 
+                                transfert d'argent d'un compte courrant vers un compte épargne.
+                            </li>
+                        </ul>
+                        Chaque catégorie utilisée fonctionne ensuite de manière indépendante, avec 
+                        la possibilitée de lui affecter un budget et de voir si on se situe en dessous de la prévision.<br/>
+                        On visualise les dépenses faites par catégorie de mois en mois ou année en année dans les statistiques.
+                    </p>
+
+                    <h5>Il est possible d'utiliser bien d'autres catégories</h5>
+                    <p>
+                        Beaucoup d'autres catégories sont disponibles si l'on souhaite suivre de manière plus détaillée.<br/> 
+                        Elles sont toutes visibles et activables dans la partie paramétrage des catégories, il sera alors possible 
+                        d'activer la catégorie "Loyer" pour suivre l'évolution de ce poste de dépense au fil des années, et ne pas 
+                        le cumuler avec d'autres.<br/>
+                        <br/>
+                        Les différentes catégories ainsi que leurs couleurs sont aujourd'hui figées, si besoin d'en faire créer 
+                        une nouvelle, ne pas hésiter à en faire la demande, le mieux est de passer par le 
+                        <a target="_blank" href="http://discord.gg/6KNkK6NyDM">Discord</a>, sinon par mail.
+                    </p>
+
+                    <hr/>
+                    <p>Modifier les catégories par défaut ici :</p>
+                    <aside><nav class="center"><ul>
+                        <li><a href="/param/category" role="button" class="contrast outline">
+                            <!-- tool -->
+                            <svg width="24" height="24" viewBox="0 0 24 24"><use xlink:href="/img/icons.svg#feather-tool"></use></svg>
+                            Liste des catégories
+                        </a></li>
+                    </ul></nav></aside>
+                </section>
+
+                @Nav("top", "/", "/img/icons.svg#feather-home", "Accueil", "contrast outline",
+                    "/checklist", "/img/icons.svg#feather-check-square", "Checklist", "contrast")
+                @Nav("none", "/checklist/1", "/img/icons.svg#feather-rewind", "Etape 1/8", "contrast outline",
+                    "/checklist/3", "/img/icons.svg#feather-fast-forward", "Etape 3/8", "contrast")
+                <small class="center"><p>©2024 Benjamin MARY</p></small>
+            </main>
+            @BotScriptThemeSwitcher()
+        </body>
+    </html>
+}
+templ Checklist3(UR *appdata.UserRequest, UP *appdata.UserParams) {
+    <!DOCTYPE html>
+    <html lang="fr">
+        <head>
+            @Header()
+        </head>
+        <body class="container-fluid">
+            <main>
+                <h1 class="center">GOFI</h1>
+                @gofiImg(UR.Email)
+                <h2 class="center">3. saisie de données</h2>
+                <section id="3">
+                    <p>
+                        La saisie des données simple nécessite :
+                        <ul>
+                            <li><code>une date</code> défaut date du jour</li>
+                            <li><code>un compte</code> défaut compte 1 = { UP.AccountList[0] }</li>
+                            // 0 , 1 = Pret , Emprunt
+                            <li><code>une catégorie</code> défaut catégorie 1 = { UP.Categories.Categories[2].Name }</li>
+                            <li><code>un montant</code></li>
+                            <li><code>une direction</code> défaut dépense -</li>
+                            <li>-</li>
+                            <li><code>une désignation</code> facultatif</li>
+                        </ul>
+                        On peut donc voir qu'il y a des valeurs par défaut pour tout sauf le montant,
+                        l'objectif est de pouvoir faire la saisie depuis son smartphone dès qu'on dépense,
+                        avec un minimum de chose à changer.
+                    </p>
+                    <hr/>
+
+                    <h5>Créer des raccourcis personnalisés pour saisir encore plus rapidement</h5>
+                    <p>
+                        Il est également possible de créer des liens spécifiques pour renseigner toutes les données 
+                        listées précédement.<br/>
+                        <br/>
+                        Exemple de lien permettant de changer les valeurs par défaut :
+                        <ul>
+                            <li><small>/record/insert/[compte]/[catégorie]/[désignation]/[direction]/[prix]</small></li>
+                            <li>
+                                <small>on peut omettre un paramètre en le laissant vide, tout en respectant l'ordre : 
+                                /record/insert/[compte]/[catégorie]///[prix]</small>
+                            </li>
+                            if len(UP.AccountList) > 1 {
+                                <li><small>https://gofi.benjamin-mary.com/record/insert/{ UP.AccountList[1] }/{ UP.Categories.Categories[2].Name }/designation/+/56.78</small></li>
+                            } else {
+                                <li><small>https://gofi.benjamin-mary.com/record/insert/{ UP.AccountList[0] }/{ UP.Categories.Categories[2].Name }/designation/+/56.78</small></li>
+                            }
+                            <li><small>espace = <code>%20</code></small></li>
+                            <li><small>https://gofi.benjamin-mary.com/record/insert/{ UP.AccountList[0] }/{ UP.Categories.Categories[2].Name }/designation%20avec%20espace/-/56.78</small></li>
+                            <li>tester ce dernier lien <a href="/record/insert///designation%20avec%20espace/-/56.78">ici</a></li>
+                        </ul>
+                        Il est ensuite possible de créer un raccourcis de ce lien sur le bureau de son smartphone,
+                        il sera donc très rapide de faire toutes les saisies nécessaires en un minimum de temps.
+                    </p>
+                    <hr/>
+                    <p>Effectuer maintenant une saisie simple, à la date du jour, que l'on supprimera plus tard à l'étape 8 :</p>
+                    <aside><nav class="center"><ul>
+                        <li><a href="/record/insert/" role="button" class="contrast outline">
+                            <!-- lucide-notebook-pen -->
+                            <svg width="24" height="24" viewBox="0 0 24 24"><use xlink:href="/img/icons.svg#lucide-notebook-pen"></use></svg>
+                            Saisie simple
+                        </a></li>
+                    </ul></nav></aside>
+                </section>
+
+                @Nav("top", "/", "/img/icons.svg#feather-home", "Accueil", "contrast outline",
+                    "/checklist", "/img/icons.svg#feather-check-square", "Checklist", "contrast")
+                @Nav("none", "/checklist/2", "/img/icons.svg#feather-rewind", "Etape 2/8", "contrast outline",
+                    "/checklist/4", "/img/icons.svg#feather-fast-forward", "Etape 4/8", "contrast")
+                <small class="center"><p>©2024 Benjamin MARY</p></small>
+            </main>
+            @BotScriptThemeSwitcher()
+        </body>
+    </html>
+}
+templ Checklist4(UR *appdata.UserRequest, UP *appdata.UserParams) {
+    <!DOCTYPE html>
+    <html lang="fr">
+        <head>
+            @Header()
+        </head>
+        <body class="container-fluid">
+            <main>
+                <h1 class="center">GOFI</h1>
+                @gofiImg(UR.Email)
+                <h2 class="center">4. configuration de budget</h2>
+                <section id="4">
+                    Dans la partie configuration des catégories, il est possible d'ajouter un budget pour chacune via le bouton d'édition :
+                    <ul><li>
+                        <!-- edit -->
+                        <svg width="18" height="18" viewBox="0 0 24 24"><use xlink:href="/img/icons.svg#feather-edit"></use></svg>
+                        permet d'éditer la catégorie.
+                    </li></ul>
+                    <p>
+                        Il existe différentes options de suivi de budget, chaque catégorie peut être configurée indépendamment des autres.
+                        <ul>
+                            <li>Options génériques :</li>
+                            <ul>
+                                <li>Où utiliser cette catégorie : permet de retirer cette catégories des options dans certains types de saisies</li>
+                                <li>Description : champ commentaire pour y ajouter comment utiliser cette catégorie et y revenir lors d'un doute</li>
+                            </ul>
+                            <li>Options liées au budget</li>
+                            <ul>
+                                <li>
+                                    <!-- wallet -->
+                                    <svg width="18" height="18" viewBox="0 0 24 24"><use xlink:href="/img/icons.svg#lucide-wallet"></use></svg>
+                                    type "Réinitialiser": 
+                                    <ul>
+                                        <li>fixe un budget sur une période et redémarre à 0 la suivante</li>
+                                        <li>
+                                            <!-- calendar = Date -->
+                                            <svg stroke="currenColor" width="18" heigth="18" viewBox="0 0 24 24"><use xlink:href="/img/icons.svg#lucide-calendar"></use></svg>
+                                            la date ne sert pas pour ce cas
+                                        </li>
+                                    </ul>
+                                </li>
+                                <li>
+                                    <!-- wallet -->
+                                    <svg width="18" height="18" viewBox="0 0 24 24"><use xlink:href="/img/icons.svg#lucide-wallet"></use></svg>
+                                    type "Cumulé":
+                                    <ul>
+                                        <li>garde le relicat en fin de période et l'ajoute à la suivante</li>
+                                        <li>
+                                            <!-- calendar = Date -->
+                                            <svg stroke="currenColor" width="18" heigth="18" viewBox="0 0 24 24"><use xlink:href="/img/icons.svg#lucide-calendar"></use></svg>
+                                            la date utilisée détermine quand commence le cumul
+                                        </li>
+                                    </ul>
+                                </li>
+                                <li>
+                                    <!-- refresh clockwise -->
+                                    <svg width="18" height="18" viewBox="0 0 24 24"><use xlink:href="/img/icons.svg#feather-refresh-cw"></use></svg>
+                                    Période : hebdomadaire, mensuelle ou annuelle
+                                </li>
+                                <li>
+                                    <!-- banknote = Montant -->
+                                    <svg stroke="currenColor" width="18" heigth="18" viewBox="0 0 24 24"><use xlink:href="/img/icons.svg#lucide-banknote"></use></svg>
+                                    Montant : le budget que l'on souhaite ne pas dépasser selon la période utilisée
+                                </li>
+                            </ul>
+                        </ul>
+                    </p>
+                    <p>
+                        Ajouter maintenant un budget (le type "Réinitialiser" est conseillé) à la catégorie utilisée lors de la saisie précédente :
+                    </p>
+                    <aside><nav class="center"><ul>
+                        <li><a href="/param/category" role="button" class="contrast outline">
+                            <!-- tool -->
+                            <svg width="24" height="24" viewBox="0 0 24 24"><use xlink:href="/img/icons.svg#feather-tool"></use></svg>
+                            Liste des catégories
+                        </a></li>
+                    </ul></nav></aside>
+                </section>
+
+                @Nav("top", "/", "/img/icons.svg#feather-home", "Accueil", "contrast outline",
+                    "/checklist", "/img/icons.svg#feather-check-square", "Checklist", "contrast")
+                @Nav("none", "/checklist/3", "/img/icons.svg#feather-rewind", "Etape 3/8", "contrast outline",
+                    "/checklist/5", "/img/icons.svg#feather-fast-forward", "Etape 5/8", "contrast")
+                <small class="center"><p>©2024 Benjamin MARY</p></small>
+            </main>
+            @BotScriptThemeSwitcher()
+        </body>
+    </html>
+}
+templ Checklist5(UR *appdata.UserRequest, UP *appdata.UserParams) {
+    <!DOCTYPE html>
+    <html lang="fr">
+        <head>
+            @Header()
+        </head>
+        <body class="container-fluid">
+            <main>
+                <h1 class="center">GOFI</h1>
+                @gofiImg(UR.Email)
+                <h2 class="center">5. stats liées au budget</h2>
+                <section id="5">
+                    <p>
+                        Maintenant que l'on a saisie une dépense et un budget sur une même catégorie,
+                        on va pouvoir visualiser si on a dépassé, ou non, notre budget.<br/>
+                        <br/>
+                        La partie "Exemple du code couleur" explique comment lire les différentes barres de couleurs
+                        associées aux dépenses pour la catégorie budgétée.
+                    </p>
+                    <p>Visualiser les budgets :</p>
+                    <aside><nav class="center"><ul>
+                        <li><a href="/budget" role="button" class="contrast outline">
+                            <!-- wallet -->
+                            <svg width="24" height="24" viewBox="0 0 24 24" stroke="currentColor"><use xlink:href="/img/icons.svg#lucide-wallet"></use></svg>
+                            Budgets
+                        </a></li>
+                    </ul></nav></aside>
+                </section>
+
+                @Nav("top", "/", "/img/icons.svg#feather-home", "Accueil", "contrast outline",
+                    "/checklist", "/img/icons.svg#feather-check-square", "Checklist", "contrast")
+                @Nav("none", "/checklist/4", "/img/icons.svg#feather-rewind", "Etape 4/8", "contrast outline",
+                    "/checklist/6", "/img/icons.svg#feather-fast-forward", "Etape 6/8", "contrast")
+                <small class="center"><p>©2024 Benjamin MARY</p></small>
+            </main>
+            @BotScriptThemeSwitcher()
+        </body>
+    </html>
+}
+templ Checklist6(UR *appdata.UserRequest, UP *appdata.UserParams) {
+    <!DOCTYPE html>
+    <html lang="fr">
+        <head>
+            @Header()
+        </head>
+        <body class="container-fluid">
+            <main>
+                <h1 class="center">GOFI</h1>
+                @gofiImg(UR.Email)
+                <h2 class="center">6. stats générales</h2>
+                <section id="6">
+                    <p>
+                        Maintenant que l'on a vu le budget, il existe également une page de statistiques
+                        plus générale, qui reprend la balance de chaque compte et liste l'ensemble des
+                        dépenses ou gains par catégorie et par mois ou année.<br/>
+                        <br/>
+                        Cette page sera plus utile lorsqu'il y aura au moins 2 mois de suivi, et de plus en
+                        plus au fil des années à venir.
+                    </p>
+                    <p>Visualiser les statistiques :</p>
+                    <aside><nav class="center"><ul>
+                        <li><a href="/stats/false-0-false-false" role="button" class="contrast outline">
+                            <!-- pie-chart -->
+                            <svg width="24" height="24" viewBox="0 0 24 24" stroke="currentColor"><use xlink:href="/img/icons.svg#feather-pie-chart"></use></svg>
+                            Statistiques
+                        </a></li>            
+                    </ul></nav></aside>
+                </section>
+
+                @Nav("top", "/", "/img/icons.svg#feather-home", "Accueil", "contrast outline",
+                    "/checklist", "/img/icons.svg#feather-check-square", "Checklist", "contrast")
+                @Nav("none", "/checklist/5", "/img/icons.svg#feather-rewind", "Etape 5/8", "contrast outline",
+                    "/checklist/7", "/img/icons.svg#feather-fast-forward", "Etape 7/8", "contrast")
+                <small class="center"><p>©2024 Benjamin MARY</p></small>
+            </main>
+            @BotScriptThemeSwitcher()
+        </body>
+    </html>
+}
+templ Checklist7(UR *appdata.UserRequest, UP *appdata.UserParams) {
+    <!DOCTYPE html>
+    <html lang="fr">
+        <head>
+            @Header()
+        </head>
+        <body class="container-fluid">
+            <main>
+                <h1 class="center">GOFI</h1>
+                @gofiImg(UR.Email)
+                <h2 class="center">7. éditer une saisie</h2>
+                <section id="7">
+                    <p>
+                        On va maintenant éditer notre saisie précédente, fonctionnalité bien utile en cas d'erreur 
+                        de saisie, ou de saisie rapide que l'on souhaitera modifier plus tard.
+                    </p>
+                    <ul><li>
+                        <!-- edit -->
+                        <svg width="18" height="18" viewBox="0 0 24 24"><use xlink:href="/img/icons.svg#feather-edit"></use></svg>
+                        bouton permettant d'éditer la saisie.
+                    </li></ul>
+                    <p>Modifier par exemple le prix de la saisie précédente :</p>
+                    <aside><nav class="center"><ul>
+                        <li><a href="/record/alter/edit" role="button" class="contrast outline">
+                            <!-- edit -->
+                            <svg width="24" height="24" viewBox="0 0 24 24"><use xlink:href="/img/icons.svg#feather-edit"></use></svg>
+                            Modifier des données
+                        </a></li>        
+                    </ul></nav></aside>
+                </section>
+
+                @Nav("top", "/", "/img/icons.svg#feather-home", "Accueil", "contrast outline",
+                    "/checklist", "/img/icons.svg#feather-check-square", "Checklist", "contrast")
+                @Nav("none", "/checklist/6", "/img/icons.svg#feather-rewind", "Etape 6/8", "contrast outline",
+                    "/checklist/8", "/img/icons.svg#feather-fast-forward", "Etape 8/8", "contrast")
+                <small class="center"><p>©2024 Benjamin MARY</p></small>
+            </main>
+            @BotScriptThemeSwitcher()
+        </body>
+    </html>
+}
+templ Checklist8(UR *appdata.UserRequest, UP *appdata.UserParams) {
+    <!DOCTYPE html>
+    <html lang="fr">
+        <head>
+            @Header()
+        </head>
+        <body class="container-fluid">
+            <main>
+                <h1 class="center">GOFI</h1>
+                @gofiImg(UR.Email)
+                <h2 class="center">8. annuler une saisie</h2>
+                <section id="8">
+                    <p>
+                        On va maintenant annuler notre saisie. Cette option n'est pas visible 
+                        par défaut dans le menu d'accueil, elle fait partie des options avancées.<br/>
+                        <br/>
+                        Il y a différentes autres options avancées comme d'autres modes de saisies :
+                        <ul>
+                            <li>
+                                Le <code>Transfert entre comptes</code> permet de débiter un compte A pour créditer
+                                un compte B du même montant, 2 opérations sont effectuées avec la saisie d'une seule.
+                            </li>
+                            <li>
+                                Les <code>Enregistrements réguliers</code>, pour saisir rapidement le loyer du même montant 
+                                et dans la même catégorie chaque mois.
+                            </li>
+                            <li>
+                                Le <code>Prêt / Emprunt</code> permet d'associer des gains ou dépenses à un tiers afin de 
+                                pouvoir suivre l'avancement du remboursement dans le temps, une partie statistique est 
+                                disponible pour faire ce suivi. 
+                            </li>
+                            <li>
+                                <code>Valider des données</code> permet de valider chaque saisie à la fin du mois à l'aide des 
+                                relevés bancaires correspondant aux comptes utilisés, de cette manière, on s'assure de ne pas avoir 
+                                fait d'erreur de saisie dans le mois. On peut ensuite vérifier la balance du compte dans la partie 
+                                <code>Statistiques</code> que l'on a vu à l'étape 6.
+                            </li>
+                            <li>
+                                <code>Annuler des données</code> permet d'annuler une saisie en remettant le montant à 0, retirant
+                                l'affectation du compte, forçant la catégorie système "-", et une date en 1999.
+                            </li>
+                            <li>
+                                Enfin, la <code>Gestion des données en masse</code> permet de faire de la saisie multiple via des fichiers
+                                au format <code>.csv</code>, on peut ainsi générer de nouvelles saisies, éditer ou supprimer des existantes.
+                                Il est aussi possible d'exporter toutes les données déjà saisies dans GOFI.
+                            </li>
+                        </ul>
+                        Pour voir toutes ces options avancées : 
+                        <li>
+                            <!-- toggle-right -->
+                            <svg stroke="currenColor" width="20" heigth="20" viewBox="0 0 24 24"><use xlink:href="/img/icons.svg#lucide-toggle-right"></use></svg>
+                            on clic sur le bouton qui change le mode de l'écran d'accueil
+                        </li>
+                    </p>
+                    <p>
+                        Ensuite dans la catégorie <code>Altérer des données</code>, on verra apparaître une nouvelle option : 
+                        <code>Annuler des données</code>.<br/>
+                        <br/>
+                        Utiliser cette option pour annuler la saisie ayant permis de suivre cette initiation.<br/>
+                        Bravo! Les 1ers pas sur GOFI sont terminés!<br/>
+                        <br/>
+                        Pour toute question, rejoindre le <a target="_blank" href="http://discord.gg/6KNkK6NyDM">Discord</a> 
+                        de la communauté, à très vite <img src="/img/gofi-logo-32x32-sand.svg" alt="Gofi-logo" width="24" height="24"/>
+                    </p>
+                </section>
+
+                @Nav("top", "/", "/img/icons.svg#feather-home", "Accueil", "contrast outline",
+                    "/checklist", "/img/icons.svg#feather-check-square", "Checklist", "contrast")
+                @Nav("none", "/checklist/7", "/img/icons.svg#feather-rewind", "Etape 7/8", "contrast outline",
+                    "/", "", "FIN!", "contrast outline")
+                <small class="center"><p>©2024 Benjamin MARY</p></small>
+            </main>
+            @BotScriptThemeSwitcher()
+        </body>
+    </html>
+}

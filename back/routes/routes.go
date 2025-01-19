@@ -169,6 +169,18 @@ func (s *Server) MountFrontHandlers() {
 			// PRIVATE
 			r.Use(appmiddleware.AuthenticatedUserOnly)
 
+			// CHECKLIST
+			r.Route("/checklist", func(r chi.Router) {
+				r.Get("/", front.Checklist)
+				r.Get("/1", front.Checklist1)
+				r.Get("/2", front.Checklist2)
+				r.Get("/3", front.Checklist3)
+				r.Get("/4", front.Checklist4)
+				r.Get("/5", front.Checklist5)
+				r.Get("/6", front.Checklist6)
+				r.Get("/7", front.Checklist7)
+				r.Get("/8", front.Checklist8)
+			})
 			// PARAMS
 			r.Route("/param", func(r chi.Router) {
 				r.Get("/", front.GetParam)

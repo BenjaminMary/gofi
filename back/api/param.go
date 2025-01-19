@@ -78,6 +78,20 @@ func PostParamOnboardingCheckList(w http.ResponseWriter, r *http.Request, isFron
 		"Liste des étapes (séparer par des , sans espaces)",
 		1) // minStringLength to handle the value
 }
+func UpdateParamCheckList(w http.ResponseWriter, r *http.Request, isFrontRequest bool, 
+	gofiID int, onboardingCheckListSingleString string) *appdata.HttpStruct {
+	param := &appdata.Param{}
+	param.GofiID = gofiID
+	param.ParamName = "onboardingCheckList"
+	param.ParamJSONstringData = onboardingCheckListSingleString
+	param.ParamInfo = "Liste des étapes (séparer par des , sans espaces)"
+	_, err := sqlite.InsertRowInParam(r.Context(), appdata.DB, param)
+	if err != nil { // Always check errors even if they should not happen.
+		fmt.Printf("error: %v\n", err.Error())
+		return appdata.RenderAPIorUI(w, r, isFrontRequest, true, false, http.StatusInternalServerError, "server error", "")
+	}
+	return appdata.RenderAPIorUI(w, r, isFrontRequest, false, false, http.StatusOK, "onboardingCheckList updated", "")
+}
 
 func GetCategoryIcon(w http.ResponseWriter, r *http.Request, isFrontRequest bool, categoryNameFuncParam string, cd *appdata.CategoryDetails) *appdata.HttpStruct {
 	categoryName := getURLorFUNCparam(r, categoryNameFuncParam, "")
