@@ -373,9 +373,9 @@ templ IndexHtmlContent(json *appdata.UserRequest) {
                     @gofiImg(json.Email)
                     <label for="switchMode" class="center">
                         Mode <small>(permet d'afficher + ou - d'options)</small> : <br/>
-                        avancé 
-                        <input type="checkbox" id="switchMode" name="switchMode" role="switch" checked />
-                        simple
+                        simple 
+                        <input type="checkbox" id="switchMode" name="switchMode" role="switch" />
+                         avancé
                     </label>
                     <hr/>
                     @indexLinksConnected(json.IsAdmin)
@@ -400,7 +400,7 @@ script showOrHideAdvancedOptions() {
         boolValue = this.checked;
         // console.log(boolValue);
         for (var i = 0; i < array.length; i++) {
-            document.getElementById(array[i]).hidden = boolValue;
+            document.getElementById(array[i]).hidden = !boolValue;
         };
     });
 }
