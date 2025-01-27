@@ -7,6 +7,7 @@ import (
 	"net/http"
 	"strconv"
 	"time"
+	"os"
 
 	"gofi/gofi/data/appdata"
 	"gofi/gofi/data/sqlite"
@@ -160,6 +161,12 @@ func UserCreate(w http.ResponseWriter, r *http.Request, isFrontRequest bool) *ap
 	}
 	sqlite.CheckIfIdExists(ctx, appdata.DB, int(gofiID))
 	sqlite.InitCategoriesForUser(ctx, appdata.DB, int(gofiID))
+	if os.Getenv("NOTIFICATION_FLAG") == "1" {
+		go notificationPost(os.Getenv("NOTIFICATION_URL") + "-newuser", 
+			"Email: " + User.UserRequest.Email,
+			"Creation",
+			"new,partying_face")
+	}
 	return appdata.RenderAPIorUI(w, r, isFrontRequest, true, true, http.StatusCreated, "user created", User)
 }
 

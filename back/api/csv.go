@@ -42,6 +42,12 @@ func PostCSVimport(w http.ResponseWriter, r *http.Request, isFrontRequest bool) 
 	if errorBool {
 		return appdata.RenderAPIorUI(w, r, isFrontRequest, true, false, http.StatusBadRequest, "Error, review file content", stringList)
 	}
+	if os.Getenv("NOTIFICATION_FLAG") == "1" {
+		go notificationPost(os.Getenv("NOTIFICATION_URL") + "-csv", 
+			"Email: " + userContext.Email,
+			"CSV import",
+			"memo,arrow_up")
+	}
 	return appdata.RenderAPIorUI(w, r, isFrontRequest, false, true, http.StatusOK, "CSV rows list", stringList)
 }
 
@@ -85,6 +91,12 @@ func PostCSVexport(w http.ResponseWriter, r *http.Request, isFrontRequest bool) 
 	defer os.Remove(filePathWithName)
 	_, fileData = sqlite.ExportCSV(r.Context(), appdata.DB, userContext.GofiID, csvSeparatorRune, DecimalDelimiter, DateFormat, DateSeparator)
 	w.Header().Set("Content-Disposition", "inline; filename="+fileName)
+	if os.Getenv("NOTIFICATION_FLAG") == "1" {
+		go notificationPost(os.Getenv("NOTIFICATION_URL") + "-csv", 
+			"Email: " + userContext.Email,
+			"CSV export",
+			"memo,arrow_down")
+	}
 	return appdata.RenderFile(w, r, isFrontRequest, false, true, http.StatusOK, "CSV file", "", fileData)
 }
 

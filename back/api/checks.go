@@ -33,14 +33,14 @@ curl -X GET -H "Content-Type: application/json" --include --location "http://loc
 func GetFullDbPath(w http.ResponseWriter, r *http.Request) {
 	userContext := r.Context().Value(appdata.ContextUserKey).(*appdata.UserRequest)
 	if userContext.IsAdmin {
-		appdata.RenderAPIorUI(w, r, false, false, true, http.StatusOK, "authenticated ok", appdata.DbPath)
+		appdata.RenderAPIorUI(w, r, false, false, true, http.StatusOK, "DB path ok", appdata.DbPath)
 		return
 	}
-	appdata.RenderAPIorUI(w, r, false, false, false, http.StatusUnauthorized, "authenticated ko", "")
+	appdata.RenderAPIorUI(w, r, false, false, false, http.StatusUnauthorized, "DB path ko", "")
 }
 
 // WINDOWS: "{\"isValidResponse\":true,...,\"jsonContent\":\"C:\\\\git\\\\gofi\\\\back\\\\data\\\\dbFiles\\\\test.db\"}"
-// LINUX: {"isValidResponse":true,...,"jsonContent":"/execs/gosheets/back/data/dbFiles/gofi.db"}
+// LINUX: {"isValidResponse":true,...,"jsonContent":"/.../back/data/dbFiles/gofi.db"}
 /*
 ```powershell
 cd C:\git\gofi\back\api\test\csv

@@ -4,6 +4,7 @@
 ### Doing
 
 ### Done
+- 2025-01-27 : feat: add notifications
 - 2025-01-26 : feat: switchMode state in main menu inverted, simple mode is now the unchecked one
 - 2025-01-19 : Branch onboarding checklist merged
     - feat: add a 8 steps checklist to discover GOFI basics
