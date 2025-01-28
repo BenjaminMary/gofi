@@ -53,7 +53,7 @@ func UserLogin(w http.ResponseWriter, r *http.Request, isFrontRequest bool) *app
 	currentTimeStr := time.Now().Format(time.RFC3339)
 	user.LastLoginTime = currentTimeStr
 	user.LastActivityTime = currentTimeStr
-	user.LastActivityIPaddress = r.RemoteAddr
+	user.LastActivityIPaddress = r.Header.Get("CF-Connecting-IP")
 	user.LastActivityUserAgent = r.Header.Get("User-Agent")
 	user.LastActivityAcceptLanguage = r.Header.Get("Accept-Language")
 	h := sha256.New()
