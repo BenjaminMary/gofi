@@ -26,8 +26,9 @@ func (a *Param) Bind(r *http.Request) error {
 }
 
 type CategoryDetails struct {
-	CategoryIcon  string
-	CategoryColor string
+	CategoryIcon  		string
+	CategoryColor 		string
+	CategoryColorName 	string
 }
 type DateDetails struct {
 	Year     int
@@ -326,6 +327,7 @@ type Category struct {
 	IntBudgetPreviousAmount       int 	 `json:"-"` // not in DB
 	IconCodePoint                 string
 	ColorHEX                      string
+	ColorName					  string
 }
 type CategoryPut struct {
 	ID                           int

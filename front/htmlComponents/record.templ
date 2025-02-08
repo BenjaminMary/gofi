@@ -21,7 +21,7 @@ script categoryDropdown(uc *appdata.UserCategories) {
             // document.getElementById('summaryIcon').style.backgroundColor = categoryList[index][2]
             bgclass = document.getElementById('summaryIcon').classList.item(1);
             document.getElementById('summaryIcon').classList.remove(bgclass);
-            document.getElementById('summaryIcon').classList.add(uc.Categories[index].IconCodePoint);
+            document.getElementById('summaryIcon').classList.add(uc.Categories[index].ColorName);
             document.getElementById('categoryDropdown').open = false;
         });
     };
@@ -106,7 +106,7 @@ templ oneRowInLastInsertedRowsTable(ft appdata.FinanceTracker, editMode bool, ch
         </td>
         <td>{ft.Account}</td>
         <td>
-            <span class={ "icomoon", ft.CategoryDetails.CategoryIcon }>&#x{ ft.CategoryDetails.CategoryIcon };</span>
+            <span class={ "icomoon", ft.CategoryDetails.CategoryColorName }>&#x{ ft.CategoryDetails.CategoryIcon };</span>
         </td>
         if checkboxMode {
             <td id={ ft.IDstr }>{ft.FormPriceStr2Decimals}</td>
@@ -121,7 +121,7 @@ templ errorPostRecord() {
         <td>ERR</td>
         <td>ERR</td>
         <td>
-            <span class="icomoon e909">&#xe909;</span>
+            <span class="icomoon system-lightgrey">&#xe909;</span>
         </td>
         <td>0.00</td>
         <td>ERROR</td>
@@ -145,7 +145,7 @@ templ oneRowInLastInsertedRecurrentRecordTable(rr appdata.RecurrentRecord, init 
         <td>{rr.Account}</td>
         <td rowCategoryNameValue={rr.Category}
             rowCategoryIconValue={rr.CategoryDetails.CategoryIcon}>
-            <span class={ "icomoon", rr.CategoryDetails.CategoryIcon }>&#x{ rr.CategoryDetails.CategoryIcon };</span>
+            <span class={ "icomoon", rr.CategoryDetails.CategoryColorName }>&#x{ rr.CategoryDetails.CategoryIcon };</span>
         </td>
         <td>{rr.FormPriceStr2Decimals}</td>
         <td>{rr.Product}</td>
@@ -184,7 +184,7 @@ templ errorPostRecurrentRecord() {
         <td>ERR</td>
         <td>ERR</td>
         <td>
-            <span class="icomoon e909">&#xe909;</span>
+            <span class="icomoon system-lightgrey">&#xe909;</span>
         </td>
         <td>ERROR</td>
         <td>0.00</td>
@@ -382,7 +382,7 @@ script amountDirection(uc *appdata.UserCategories, forceCategory bool, disableEx
                 document.getElementById('summaryIcon').innerHTML = "&#x" + uc.Categories[index].IconCodePoint + ";";
                 bgclass = document.getElementById('summaryIcon').classList.item(1);
                 document.getElementById('summaryIcon').classList.remove(bgclass);
-                document.getElementById('summaryIcon').classList.add(uc.Categories[index].IconCodePoint);
+                document.getElementById('summaryIcon').classList.add(uc.Categories[index].ColorName);
             }
             else if (["2","4"].includes(this.value)){
                 document.getElementById('input0').checked = true;
@@ -391,7 +391,7 @@ script amountDirection(uc *appdata.UserCategories, forceCategory bool, disableEx
                 document.getElementById('summaryIcon').innerHTML = "&#x" + uc.Categories[index].IconCodePoint + ";";
                 bgclass = document.getElementById('summaryIcon').classList.item(1);
                 document.getElementById('summaryIcon').classList.remove(bgclass);
-                document.getElementById('summaryIcon').classList.add(uc.Categories[index].IconCodePoint);
+                document.getElementById('summaryIcon').classList.add(uc.Categories[index].ColorName);
             };
         }
     });
@@ -993,7 +993,7 @@ script editRow(jsonLB appdata.LendBorrow, uc *appdata.UserCategories) {
     document.getElementById('summaryIcon').innerHTML = "&#x" + uc.Categories[index].IconCodePoint + ";";
     bgclass = document.getElementById('summaryIcon').classList.item(1);
     document.getElementById('summaryIcon').classList.remove(bgclass);
-    document.getElementById('summaryIcon').classList.add(uc.Categories[index].IconCodePoint);
+    document.getElementById('summaryIcon').classList.add(uc.Categories[index].ColorName);
 
     document.getElementById('FT.prix').value = jsonLB.FT.FormPriceStr2Decimals;
     document.getElementById(jsonLB.FT.PriceDirection).checked = true;

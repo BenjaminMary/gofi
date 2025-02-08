@@ -145,8 +145,10 @@ func GetRowsInFinanceTracker(ctx context.Context, db *sql.DB, filter *appdata.Fi
 	//fmt.Printf("q: %v\n", q)
 	// end building query
 	q2 := strings.Replace(q, `COUNT(1)`,
-		`fT.id, fT.gofiID, year, month, day, account, product, priceIntx100, 
-			fT.category, ifnull(c.iconCodePoint,'e90a') AS icp, ifnull(c.colorHEX,'#808080') AS ch, 
+		`fT.id, fT.gofiID, year, month, day, account, product, priceIntx100, fT.category, 
+			ifnull(c.iconCodePoint,'e90a') AS icp, 
+			ifnull(c.colorHEX,'#DDDDDD') AS ch, 
+			ifnull(c.colorName,'system-lightgrey') AS cn, 
 			checked, dateChecked, mode`, 1)
 
 	row := execSingleRow(queryValues, db, ctx, q, filter)
@@ -164,7 +166,8 @@ func GetRowsInFinanceTracker(ctx context.Context, db *sql.DB, filter *appdata.Fi
 		row = execSingleRow(queryValues, db, ctx, q2, filter)
 		var ft appdata.FinanceTracker
 		if err := row.Scan(&ft.ID, &ft.GofiID, &ft.DateDetails.Year, &ft.DateDetails.Month, &ft.DateDetails.Day, &ft.Account, &ft.Product, &ft.PriceIntx100,
-			&ft.Category, &ft.CategoryDetails.CategoryIcon, &ft.CategoryDetails.CategoryColor, &ft.Checked, &ft.DateChecked, &ft.Mode); err != nil {
+			&ft.Category, &ft.CategoryDetails.CategoryIcon, &ft.CategoryDetails.CategoryColor, &ft.CategoryDetails.CategoryColorName, 
+			&ft.Checked, &ft.DateChecked, &ft.Mode); err != nil {
 			fmt.Printf("GetRowsInFinanceTracker err2: %v\n", err)
 			log.Fatal(err)
 		}
@@ -188,7 +191,8 @@ func GetRowsInFinanceTracker(ctx context.Context, db *sql.DB, filter *appdata.Fi
 		for rows.Next() {
 			var ft appdata.FinanceTracker
 			if err := rows.Scan(&ft.ID, &ft.GofiID, &ft.DateDetails.Year, &ft.DateDetails.Month, &ft.DateDetails.Day, &ft.Account, &ft.Product, &ft.PriceIntx100,
-				&ft.Category, &ft.CategoryDetails.CategoryIcon, &ft.CategoryDetails.CategoryColor, &ft.Checked, &ft.DateChecked, &ft.Mode); err != nil {
+				&ft.Category, &ft.CategoryDetails.CategoryIcon, &ft.CategoryDetails.CategoryColor, &ft.CategoryDetails.CategoryColorName, 
+				&ft.Checked, &ft.DateChecked, &ft.Mode); err != nil {
 				fmt.Printf("GetRowsInFinanceTracker err4: %v\n", err)
 				log.Fatal(err)
 			}

@@ -155,7 +155,7 @@ templ GetStats(Year int,
                                     for _, itemList := range CategoryList {
                                         <tr>
                                             <td>
-                                                <span class={ "icomoon", itemList[3] }>&#x{ itemList[3] };</span> 
+                                                <span class={ "icomoon", itemList[5] }>&#x{ itemList[3] };</span> 
                                                 <small> { itemList[0] }</small>
                                             </td>
                                             <td class="right">{ itemList[1] }</td>
@@ -229,11 +229,13 @@ templ GetStats(Year int,
 script pieChart(IconCodePointList []string, ColorHEXList []string, CategoryLabelList []string, CategoryValueList []float64) {
         var iconCodePointList = IconCodePointList;
         var jsIconCodePointList = [];
+        var ColorHEXListBlack = [];
         for (let i = 0; i < iconCodePointList.length; i++) {
             var jsCodePoint
             jsCodePoint = parseInt(iconCodePointList[i], 16);
             jsCodePoint = String.fromCodePoint(jsCodePoint);
             jsIconCodePointList.push(jsCodePoint);
+            ColorHEXListBlack.push('#000000');
         };
         const icons = jsIconCodePointList // ['\ue887','\ue887','\ue531','\ue531','\ue531'] fonctionnel avec:: fontFamily: 'Material Icons'
         const colors = ColorHEXList // ['#F44336', '#E91E63', '#9C27B0', '#E91E63']
@@ -270,7 +272,8 @@ script pieChart(IconCodePointList []string, ColorHEXList []string, CategoryLabel
             legend: {show: false},
             dataLabels: {
                 formatter(val, opts) {return icons[opts.seriesIndex]},
-                style: {fontSize: '20px', fontFamily: 'icomoon'},
+                style: {fontSize: '20px', fontFamily: 'icomoon', colors: ColorHEXListBlack, fontWeight: 'normal'},
+                dropShadow: {enabled: true, top: 0, left: 0, blur: 0},
             },
         };
         var chart = new ApexCharts(document.querySelector("#responsive-apex-chart"), options);

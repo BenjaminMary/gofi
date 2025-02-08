@@ -4,16 +4,30 @@
 
 - optimisation à prévoir 
     - gérer la liste des 5 derniers enregistrements en param utilisateur pour simplifier les requêtes ? 
-- ☐❗❗mini système de gestion de migration de la DB
+- ☐❗❗système de gestion de migration de la DB
     - check coherence entre état de la DB actuel VS attendu via dernière migration
     - table pour stocker l'ID de la dernière migration jouée 
 - ☐❗ système de gestion d'achat sur la durée
     - période prévisionnelle avant nouvel achat
+- amélioration de la saisie
+    - ajouter un lien sur la saisie simple permettant de générer un raccourci 
 - stats 
-    - ☐❗❗❗❗ sur le nombre de requêtes des utilisateurs pour voir les actifs ? (tableau admin?)
+    - ☐❗ sur le nombre de requêtes des utilisateurs pour voir les actifs ? (tableau admin?)
+    - ☑ envoyer des notifications
+        - ☑ créer var env (bool) + url (string)
+        - ☑ envoyer une notif lors de la création de compte
+        - ☑ envoyer une notif lors de l'utilisation des fonctions .csv
+    - liste des derniers `email` + date de création
+    - liste des derniers `email` triés par `lastActivityTime DESC` 
+    - nb d `email` distincts avec `lastActivityTime` > à ajd - 30 jours 
 - budget
+    - ❗❗❗❗ proposer des budgets selon les stats actuellement dispo via l'utilisation de l'outil (période par défaut et possible de modif)
     - ☐ Voir pour calculer un revenu moyen en hebdo/mensuel/annuel et afficher les dépenses en cours hebdo/mensuel/annuel
         - moyen de vérifier si le budget est cohérent avec les dépenses réelles sur X dernières itérations
+- ☐❗❗ améliorer les tests de login
+    - check de changement de device
+    - check de changement de langue
+    - check de récup de token + changement de device
 - ☐❗❗ faire des tests automatisés pour la partie front
 - ☐ ajout système de données récurrentes:
     - ☐ améliorer l'UI en bloquant l'espace via `visibility: hidden`, permettra de ne plus faire de trou dans la page au changement
@@ -180,6 +194,18 @@
         6. voir les stats générales
         7. éditer une saisie 
         8. annuler une saisie 
+- design
+    - ☑ revue des couleurs 
+        - ☑ passsage à 6 couleurs pour toutes les icones en ajoutant un sens aux couleurs :
+            - .system-lightgrey{background-color: #DDDDDD;} /* systeme (0,0,87) lightgrey */
+            - .invest-cyan{background-color: #88CCEE;} /* investissement (200,75,73) cyan */
+            - .needfix-teal{background-color: #44AA99;} /* besoin-fixe (170,43,47) teal */
+            - .needvar-olive{background-color: #999933;} /* besoin-variable (60,50,40) olive */
+            - .wantok-purple{background-color: #AA4499;} /* envie-ok (310,43,47) purple */
+            - .wantko-wine{background-color: #882255;} /* envie-ko (330,60,33) wine */ 
+        - ☑ couleurs accessibles aux malvoyants et accessibles avec écran noir et blanc, contraste cohérent, [article source](https://personal.sron.nl/~pault/)
+            - 5 contrastes sur 6 couleurs, les besoins ont le même contraste
+        - ☑ utilisation du champ `colorName` pour l'arrière plan de chaque icône 
 
 
 ## Infos

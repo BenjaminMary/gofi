@@ -35,7 +35,7 @@ templ Header() {
             vertical-align: middle;
             border-radius: 100%;
             padding: 0 0.2em 0 0.2em; /* top | right | bottom | left */
-            color: white;
+            color: black;
         }
         #overflowLimitHeight{
             max-height: 50vh;
@@ -290,6 +290,17 @@ templ indexLinksConnected(IsAdmin bool) {
             </a></li>
         </ul></nav></aside>
         <hr/>
+        if IsAdmin {
+            <h5 class="center">Admin</h5>
+            <aside><nav class="center"><ul>
+                <li><a href="/user/logout" role="button" class="secondary outline">
+                    <!-- user x -->
+                    <svg width="24" height="24" viewBox="0 0 24 24"><use xlink:href="/img/icons.svg#feather-user-x"></use></svg>
+                    Déconnexion
+                </a></li>
+            </ul></nav></aside>
+            <hr/>
+        }
         <h5 class="center">Compte</h5>
         <aside><nav class="center"><ul>
             <li><a href="/user/logout" role="button" class="secondary outline">

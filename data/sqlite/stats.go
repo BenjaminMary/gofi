@@ -125,7 +125,7 @@ func GetStatsForLineChartInFinanceTracker(ctx context.Context, db *sql.DB,
 func GetStatsInFinanceTracker(ctx context.Context, db *sql.DB, gofiID int,
 	checkedValidData int, year int, checkedYearStats int, checkedGainsStats int) (
 	[][]string, [][]string, []string, []string, appdata.ApexChartStats) {
-	var statsAccountList, statsCategoryList [][]string // [account1, sum1, count1], [...,] | [category1, sum1, count1, icon1, color1], [...,]
+	var statsAccountList, statsCategoryList [][]string // [account1, sum1, count1], [...,] | [category1, sum1, count1, icon1, color1, colorName1], [...,]
 	var totalAccountList, totalCategoryList []string   // [total, total, sum, count]
 	q1 := ` 
 		SELECT account, SUM(priceIntx100) AS sum, COUNT(1) AS c
@@ -138,7 +138,11 @@ func GetStatsInFinanceTracker(ctx context.Context, db *sql.DB, gofiID int,
 		ORDER BY sum DESC
 	`
 	q2 := ` 
-		SELECT fT.category, ifnull(c.iconCodePoint,'e90a') AS icp, ifnull(c.colorHEX,'#808080') AS ch, SUM(priceIntx100) AS sum, COUNT(1) AS count
+		SELECT fT.category, 
+			ifnull(c.iconCodePoint,'e90a') AS icp, 
+			ifnull(c.colorHEX,'#DDDDDD') AS ch, 
+			ifnull(c.colorName,'system-lightgrey') AS cn, 
+			SUM(priceIntx100) AS sum, COUNT(1) AS count
 		FROM financeTracker AS fT
 			LEFT JOIN category AS c ON c.category = fT.category AND c.gofiID = fT.gofiID
 		WHERE fT.gofiID = ?
@@ -177,14 +181,14 @@ func GetStatsInFinanceTracker(ctx context.Context, db *sql.DB, gofiID int,
 	totalRows = 0
 	for rows.Next() {
 		var statsRow []string
-		var category, iconCodePoint, colorHEX string
+		var category, iconCodePoint, colorHEX, colorName string
 		var sum, count int
-		if err := rows.Scan(&category, &iconCodePoint, &colorHEX, &sum, &count); err != nil {
+		if err := rows.Scan(&category, &iconCodePoint, &colorHEX, &colorName, &sum, &count); err != nil {
 			log.Fatal(err)
 		}
 		totalPriceIntx100 += sum
 		totalRows += count
-		statsRow = append(statsRow, category, ConvertPriceIntToStr(sum, true), strconv.Itoa(count), iconCodePoint, colorHEX)
+		statsRow = append(statsRow, category, ConvertPriceIntToStr(sum, true), strconv.Itoa(count), iconCodePoint, colorHEX, colorName)
 		statsCategoryList = append(statsCategoryList, statsRow)
 	}
 	totalCategoryList = append(totalCategoryList, ConvertPriceIntToStr(totalPriceIntx100, true), strconv.Itoa(totalRows))
@@ -192,7 +196,11 @@ func GetStatsInFinanceTracker(ctx context.Context, db *sql.DB, gofiID int,
 
 	// initialize all categories with values to 0
 	q3 := ` 
-		SELECT DISTINCT fT.category, ifnull(c.iconCodePoint,'e90a') AS icp, ifnull(c.colorHEX,'#808080') AS ch, ifnull(c.defaultInStats,1) AS inst
+		SELECT DISTINCT fT.category, 
+			ifnull(c.iconCodePoint,'e90a') AS icp, 
+			ifnull(c.colorHEX,'#DDDDDD') AS ch, 
+			ifnull(c.colorName,'system-lightgrey') AS cn, 
+			ifnull(c.defaultInStats,1) AS inst
 		FROM financeTracker AS fT
 			LEFT JOIN category AS c ON c.category = fT.category AND c.gofiID = fT.gofiID
 		WHERE fT.gofiID = ?
@@ -223,9 +231,9 @@ func GetStatsInFinanceTracker(ctx context.Context, db *sql.DB, gofiID int,
 	for rows.Next() {
 		loop += 1
 		var apexChartSerie appdata.ApexChartSerie
-		var category, iconCodePoint, colorHEX string
+		var category, iconCodePoint, colorHEX, colorName string
 		var defaultInStats int
-		if err := rows.Scan(&category, &iconCodePoint, &colorHEX, &defaultInStats); err != nil {
+		if err := rows.Scan(&category, &iconCodePoint, &colorHEX, &colorName, &defaultInStats); err != nil {
 			log.Fatal(err)
 		}
 		apexChartSerie.Name = category

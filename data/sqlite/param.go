@@ -125,26 +125,26 @@ func InitCategoriesForUser(ctx context.Context, db *sql.DB, gofiID int) {
 			INSERT INTO category (gofiID, category, catWhereToUse, catOrder, inUse, defaultInStats,
 				iconName, iconCodePoint, colorName, colorHSL, colorHEX)
 			VALUES 
-				(?1, 'Besoin', 		'all', 		1, 1, 1, 'bed', 'e91f', 'green', '(130,60,50)', '#33CC4C'),
-				(?1, 'Envie', 		'all', 		2, 1, 1, 'film', 'e920', 'orange', '(30,60,50)', '#CC8033'),
-				(?1, 'Revenu', 		'periodic', 3, 1, 1, 'credit-card', 'e903', 'teal', '(160,60,50)', '#33CC99'),
-				(?1, 'Epargne', 	'all', 		4, 1, 0, 'line-chart', 'e904', 'light blue', '(210,60,50)', '#3380CC'),
-				(?1, 'Habitude-', 	'all', 		5, 0, 1, 'thumbs-down', 'e91e', 'red', '(1,60,50)', '#CC3633'),
-				(?1, 'Vehicule', 	'all', 		6, 0, 1, 'car-front', 'e900', 'orange', '(15,60,50)', '#CC5933'),
-				(?1, 'Transport', 	'all', 		7, 0, 1, 'train-front', 'e913', 'orange', '(30,60,50)', '#CC8033'),
-				(?1, 'Shopping', 	'basic', 	8, 0, 1, 'shopping-cart', 'e918', 'yellow', '(45,40,50)', '#B3994D'),
-				(?1, 'Cadeaux', 	'basic', 	9, 0, 1, 'gift', 'e91a', 'yellow', '(60,40,50)', '#B3B34D'),
-				(?1, 'Courses', 	'all', 		10, 0, 1, 'carrot', 'e916', 'yellow', '(70,50,50)', '#AABF40'),
-				(?1, 'Resto', 		'basic', 	11, 0, 1, 'chef-hat', 'e914', 'green', '(90,60,50)', '#80CC33'),
-				(?1, 'Loisirs', 	'all', 		12, 0, 1, 'drama', 'e901', 'green', '(110,60,50)', '#4DCC33'),
-				(?1, 'Voyage', 		'basic', 	13, 0, 1, 'earth', 'e902', 'green', '(130,60,50)', '#33CC4C'),
-				(?1, 'Enfants', 	'all', 		14, 0, 1, 'baby', 'e91d', 'teal', '(175,60,50)', '#33CCBF'),
-				(?1, 'Banque', 		'all', 		15, 0, 0, 'landmark', 'e919', 'light blue', '(190,60,50)', '#33B3CC'),
-				(?1, 'Societe', 	'all', 		16, 0, 1, 'briefcase', 'e905', 'blue', '(230,60,50)', '#334CCC'),
-				(?1, 'Loyer', 		'periodic', 17, 0, 1, 'home', 'e906', 'purple', '(260,60,50)', '#6633CC'),
-				(?1, 'Services', 	'periodic', 18, 0, 1, 'plug-zap', 'e907', 'purple', '(270,60,50)', '#8033CC'),
-				(?1, 'Sante', 		'all', 		19, 0, 1, 'heart-pulse', 'e908', 'pink', '(300,60,50)', '#CC33CC'),
-				(?1, 'Animaux', 	'all', 		20, 0, 1, 'paw-print', 'e91c', 'pink', '(320,60,50)', '#CC3399')
+				(?1, 'Besoin', 		'all', 		1, 1, 1, 'bed', 'e91f', 'needfix-teal', '(170,43,47)', '#44AA99'),
+				(?1, 'Envie', 		'all', 		2, 1, 1, 'film', 'e920', 'wantko-wine', '(330,60,33)', '#882255'),
+				(?1, 'Revenu', 		'periodic', 3, 1, 1, 'credit-card', 'e903', 'invest-cyan', '(200,75,73)', '#88CCEE'),
+				(?1, 'Epargne', 	'all', 		4, 1, 0, 'line-chart', 'e904', 'invest-cyan', '(200,75,73)', '#88CCEE'),
+				(?1, 'Habitude-', 	'all', 		5, 0, 1, 'thumbs-down', 'e91e', 'wantko-wine', '(330,60,33)', '#882255'),
+				(?1, 'Vehicule', 	'all', 		6, 0, 1, 'car-front', 'e900', 'needvar-olive', '(60,50,40)', '#999933'),
+				(?1, 'Transport', 	'all', 		7, 0, 1, 'train-front', 'e913', 'needvar-olive', '(60,50,40)', '#999933'),
+				(?1, 'Shopping', 	'basic', 	8, 0, 1, 'shopping-cart', 'e918', 'wantko-wine', '(330,60,33)', '#882255'),
+				(?1, 'Cadeaux', 	'basic', 	9, 0, 1, 'gift', 'e91a', 'wantko-wine', '(330,60,33)', '#882255'),
+				(?1, 'Courses', 	'all', 		10, 0, 1, 'carrot', 'e916', 'needvar-olive', '(60,50,40)', '#999933'),
+				(?1, 'Resto', 		'basic', 	11, 0, 1, 'chef-hat', 'e914', 'wantok-purple', '(310,43,47)', '#AA4499'),
+				(?1, 'Loisirs', 	'all', 		12, 0, 1, 'drama', 'e901', 'wantok-purple', '(310,43,47)', '#AA4499'),
+				(?1, 'Voyage', 		'basic', 	13, 0, 1, 'earth', 'e902', 'wantok-purple', '(310,43,47)', '#AA4499'),
+				(?1, 'Enfants', 	'all', 		14, 0, 1, 'baby', 'e91d', 'needvar-olive', '(60,50,40)', '#999933'),
+				(?1, 'Banque', 		'all', 		15, 0, 0, 'landmark', 'e919', 'needvar-olive', '(60,50,40)', '#999933'),
+				(?1, 'Societe', 	'all', 		16, 0, 1, 'briefcase', 'e905', 'invest-cyan', '(200,75,73)', '#88CCEE'),
+				(?1, 'Loyer', 		'periodic', 17, 0, 1, 'home', 'e906', 'needfix-teal', '(170,43,47)', '#44AA99'),
+				(?1, 'Services', 	'periodic', 18, 0, 1, 'plug-zap', 'e907', 'needfix-teal', '(170,43,47)', '#44AA99'),
+				(?1, 'Sante', 		'all', 		19, 0, 1, 'heart-pulse', 'e908', 'needvar-olive', '(60,50,40)', '#999933'),
+				(?1, 'Animaux', 	'all', 		20, 0, 1, 'paw-print', 'e91c', 'wantko-wine', '(330,60,33)', '#882255')
 			;`
 		q2 := `
 			INSERT INTO category (gofiID, category, catWhereToUse, catOrder, inUse, defaultInStats,
@@ -153,25 +153,25 @@ func InitCategoriesForUser(ctx context.Context, db *sql.DB, gofiID int) {
 			VALUES
 				(?1, 'Autre', 		'basic', 	21, 0, 1, 
 					'Permet de ranger un élément qu''on ne sait pas où placer, temporairement ou définitivement.',
-					'more-horizontal', 'e90c', 'grey', '(0,0,60)', '#999999'),
+					'more-horizontal', 'e90c', 'system-lightgrey', '(0,0,87)', '#DDDDDD'),
 				(?1, 'Erreur', 		'basic', 	22, 0, 1, 
 					'Utile lorsqu''on souhaite corriger un montant global sans savoir réellement quel était l''achat en question.',
-					'bug', 'e909', 'red', '(335,60,50)', '#CC3373'),
+					'bug', 'e909', 'system-lightgrey', '(0,0,87)', '#DDDDDD'),
 				(?1, 'Pret', 	'specific', -2, 1, 0, 
 					'Utilisable uniquement par le système lors de l''utilisation de la fonction prêt.',
-					'lend-hand-coin', 'e921', 'blue grey', '(210,30,40)', '#476685'),
+					'lend-hand-coin', 'e921', 'system-lightgrey', '(0,0,87)', '#DDDDDD'),
 				(?1, 'Emprunt', 	'specific', -1, 1, 0, 
 					'Utilisable uniquement par le système lors de l''utilisation de la fonction emprunt.',
-					'borrow-hand-coin', 'e922', 'blue grey', '(230,30,40)', '#475285'),
+					'borrow-hand-coin', 'e922', 'system-lightgrey', '(0,0,87)', '#DDDDDD'),
 				(?1, 'Transfert', 	'specific', 97, 1, 0, 
 					'Utilisé uniquement par le système lors de l''utilisation de la fonction transfert.',
-					'arrow-right-left', 'e91b', 'grey', '(0,0,40)', '#666666'),
+					'arrow-right-left', 'e91b', 'system-lightgrey', '(0,0,87)', '#DDDDDD'),
 				(?1, '?', 			'specific', 98, 1, 0, 
 					'Utilisé uniquement comme icône par le système lorsqu''aucune icône ne correspond à la catégorie demandée.',
-					'help-circle', 'e90a', 'grey', '(0,0,50)', '#808080'),
+					'help-circle', 'e90a', 'system-lightgrey', '(0,0,87)', '#DDDDDD'),
 				(?1, '-', 			'specific', 99, 1, 0, 
 					'Utilisé uniquement par le système lorsqu''on supprime une ligne.',
-					'trash-2', 'e90b', 'red', '(1,60,50)', '#CC3633')
+					'trash-2', 'e90b', 'system-lightgrey', '(0,0,87)', '#DDDDDD')
 			;`
 		result, err := db.ExecContext(ctx, q1, gofiID)
 		if err != nil {
@@ -211,7 +211,7 @@ func InitCategoriesForUser(ctx context.Context, db *sql.DB, gofiID int) {
 func GetFullCategoryList(ctx context.Context, db *sql.DB, uc *appdata.UserCategories, filterName string, filterValue any, firstEmptyCategory bool) {
 	q := ` 
 		SELECT id, gofiID, category, catWhereToUse, catOrder, inUse, defaultInStats, description, 
-			budgetPrice, budgetPeriod, budgetType, budgetCurrentPeriodStartDate, iconCodePoint, colorHEX
+			budgetPrice, budgetPeriod, budgetType, budgetCurrentPeriodStartDate, iconCodePoint, colorHEX, colorName
 		FROM category
 		WHERE gofiID = ?
 			AND OTHER FILTERS
@@ -273,7 +273,8 @@ func GetFullCategoryList(ctx context.Context, db *sql.DB, uc *appdata.UserCatego
 		loop += 1
 		var category appdata.Category
 		err := rows.Scan(&category.ID, &category.GofiID, &category.Name, &category.Type, &category.Order, &category.InUse, &category.InStats, &category.Description,
-			&category.BudgetPrice, &category.BudgetPeriod, &category.BudgetType, &category.BudgetCurrentPeriodStartDate, &category.IconCodePoint, &category.ColorHEX)
+			&category.BudgetPrice, &category.BudgetPeriod, &category.BudgetType, &category.BudgetCurrentPeriodStartDate, 
+			&category.IconCodePoint, &category.ColorHEX, &category.ColorName)
 		if err != nil {
 			fmt.Printf("error in category loop: %v, category: %v\n", loop, category.Name)
 			log.Fatal(err)
@@ -314,24 +315,24 @@ func GetUnhandledCategoryList(ctx context.Context, db *sql.DB, gofiID int) []str
 	return categoryList
 }
 
-func GetCategoryIcon(ctx context.Context, db *sql.DB, categoryName string, gofiID int) (string, string) {
+func GetCategoryIcon(ctx context.Context, db *sql.DB, categoryName string, gofiID int) (string, string, string) {
 	q := ` 
-		SELECT iconCodePoint, colorHEX
+		SELECT iconCodePoint, colorHEX, colorName
 		FROM category
 		WHERE category = ?
 			AND gofiID = ?;
 	`
-	var iconCodePoint, colorHEX string
-	err := db.QueryRowContext(ctx, q, categoryName, gofiID).Scan(&iconCodePoint, &colorHEX)
+	var iconCodePoint, colorHEX, colorName string
+	err := db.QueryRowContext(ctx, q, categoryName, gofiID).Scan(&iconCodePoint, &colorHEX, &colorName)
 	switch {
 	case err == sql.ErrNoRows:
 		fmt.Printf("GetCategoryIcon error1 no row returned, category: %v\n", categoryName)
-		return "", ""
+		return "", "", ""
 	case err != nil:
 		fmt.Printf("GetCategoryIcon error2: %v\n", err)
-		return "", ""
+		return "", "", ""
 	default:
-		return iconCodePoint, colorHEX
+		return iconCodePoint, colorHEX, colorName
 	}
 }
 

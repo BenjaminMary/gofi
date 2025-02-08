@@ -96,14 +96,16 @@ func UpdateParamCheckList(w http.ResponseWriter, r *http.Request, isFrontRequest
 func GetCategoryIcon(w http.ResponseWriter, r *http.Request, isFrontRequest bool, categoryNameFuncParam string, cd *appdata.CategoryDetails) *appdata.HttpStruct {
 	categoryName := getURLorFUNCparam(r, categoryNameFuncParam, "")
 	cd.CategoryIcon = "e909"
+	cd.CategoryColorName = "system-lightgrey"
 	userContext := r.Context().Value(appdata.ContextUserKey).(*appdata.UserRequest)
-	iconCodePoint, colorHEX := sqlite.GetCategoryIcon(r.Context(), appdata.DB, categoryName, userContext.GofiID)
+	iconCodePoint, colorHEX, colorName := sqlite.GetCategoryIcon(r.Context(), appdata.DB, categoryName, userContext.GofiID)
 	// fmt.Printf("GetCategoryIcon iconCodePoint: %v, colorHEX: %v \n", iconCodePoint, colorHEX)
-	if iconCodePoint == "" || colorHEX == "" {
+	if iconCodePoint == "" || colorHEX == "" || colorName == "" {
 		return appdata.RenderAPIorUI(w, r, isFrontRequest, false, false, http.StatusNotFound, "category not found", "")
 	}
 	cd.CategoryIcon = iconCodePoint
 	cd.CategoryColor = colorHEX
+	cd.CategoryColorName = colorName
 	return appdata.RenderAPIorUI(w, r, isFrontRequest, false, true, http.StatusOK, "category info found", cd)
 }
 

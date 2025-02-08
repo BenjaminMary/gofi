@@ -547,9 +547,10 @@ func GetStats(w http.ResponseWriter, r *http.Request) {
 	var ApexChartStats appdata.ApexChartStats
 	AccountList, CategoryList, TotalAccount, TotalCategory, ApexChartStats = sqlite.GetStatsInFinanceTracker(
 		r.Context(), appdata.DB, userContext.GofiID, checkedValidData, YearInt, checkedYearStats, checkedGainsStats)
+	// fmt.Printf("CategoryList: %#v\n", CategoryList)
 
 	var Price float64
-	var CategoryLabelList, IconCodePointList, ColorHEXList []string
+	var CategoryLabelList, IconCodePointList, ColorHEXList, ColorNameList []string
 	var CategoryValueList []float64
 	for _, element := range CategoryList {
 		Price, _ = strconv.ParseFloat(element[1], 64)
@@ -561,6 +562,7 @@ func GetStats(w http.ResponseWriter, r *http.Request) {
 			CategoryValueList = append(CategoryValueList, Price)
 			IconCodePointList = append(IconCodePointList, element[3])
 			ColorHEXList = append(ColorHEXList, element[4])
+			ColorNameList = append(ColorNameList, element[5])
 		}
 	}
 

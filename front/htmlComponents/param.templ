@@ -806,11 +806,11 @@ script botScriptAddClickEventToTableCatButtons() {
                     document.getElementById('categoryIcon1').innerHTML = "&#x" + userCategories.Categories[bIndex].IconCodePoint + ";";
                     bgclass = document.getElementById('categoryIcon1').classList.item(1);
                     document.getElementById('categoryIcon1').classList.remove(bgclass);
-                    document.getElementById('categoryIcon1').classList.add(userCategories.Categories[bIndex].IconCodePoint);
+                    document.getElementById('categoryIcon1').classList.add(userCategories.Categories[bIndex].ColorName);
                     document.getElementById('categoryIcon2').innerHTML = "&#x" + userCategories.Categories[bIndex].IconCodePoint + ";";
                     bgclass = document.getElementById('categoryIcon2').classList.item(1);
                     document.getElementById('categoryIcon2').classList.remove(bgclass);
-                    document.getElementById('categoryIcon2').classList.add(userCategories.Categories[bIndex].IconCodePoint);
+                    document.getElementById('categoryIcon2').classList.add(userCategories.Categories[bIndex].ColorName);
                     document.getElementById('categoryName').innerHTML = "&nbsp;" + userCategories.Categories[bIndex].Name;
                     if (userCategories.Categories[bIndex].InStats == 1) {
                         document.getElementById('defaultInStats').checked = true;
@@ -897,7 +897,7 @@ templ categoryTable(jsonUC *appdata.UserCategories) {
             if category.Type != "specific" && category.InUse == 1 {
                 <tr id={ "tr-" + strconv.Itoa(category.ID) }>
                     <td>
-                        <span class={ "icomoon", category.IconCodePoint }>&#x{ category.IconCodePoint };</span>
+                        <span class={ "icomoon", category.ColorName }>&#x{ category.IconCodePoint };</span>
                         <br/>
                         <small>{ category.Name }</small>
                     </td>
@@ -953,7 +953,7 @@ templ categoryTableInactive(jsonUC *appdata.UserCategories) {
             if category.InUse == 0 {
                 <tr id={ "tr-" + strconv.Itoa(category.ID) }>
                     <td>
-                        <span class={ "icomoon", category.IconCodePoint }>&#x{ category.IconCodePoint };</span>
+                        <span class={ "icomoon", category.ColorName }>&#x{ category.IconCodePoint };</span>
                         { category.Name }
                     </td>
                     <td>
@@ -982,7 +982,7 @@ templ categoryTableSystem(jsonUC *appdata.UserCategories) {
             if category.Type == "specific" {
                 <tr>
                     <td>
-                        <span class={ "icomoon", category.IconCodePoint }>&#x{ category.IconCodePoint };</span>
+                        <span class={ "icomoon", category.ColorName }>&#x{ category.IconCodePoint };</span>
                         <br/>
                         <small>{ category.Name }</small>
                     </td>

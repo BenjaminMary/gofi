@@ -107,7 +107,7 @@ templ categoriesCustomRadioInput(uc *appdata.UserCategories, inputName string, c
     </span>
     <details id="categoryDropdown" class="dropdown">
         <summary>
-            <span id="summaryIcon" class={ "icomoon", uc.Categories[categoryNumber].IconCodePoint }>&#x{ uc.Categories[categoryNumber].IconCodePoint };</span>
+            <span id="summaryIcon" class={ "icomoon", uc.Categories[categoryNumber].ColorName }>&#x{ uc.Categories[categoryNumber].IconCodePoint };</span>
             <span id="summaryCategory">{ uc.Categories[categoryNumber].Name }</span>
         </summary>
         <ul id="overflowLimitHeight">
@@ -119,7 +119,7 @@ templ categoriesCustomRadioInput(uc *appdata.UserCategories, inputName string, c
                         } else {
                             <input id={ "input"+strconv.Itoa(i) } type="radio" name={ inputName } value={ category.Name }/>
                         }
-                        <span id={ "icon"+strconv.Itoa(i) } class={ "icomoon", category.IconCodePoint }>&#x{ category.IconCodePoint };</span>
+                        <span id={ "icon"+strconv.Itoa(i) } class={ "icomoon", category.ColorName }>&#x{ category.IconCodePoint };</span>
                         { category.Name }
                     </label>
                 </li>

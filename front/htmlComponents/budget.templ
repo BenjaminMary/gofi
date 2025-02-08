@@ -40,7 +40,7 @@ templ GetBudget(uc *appdata.UserCategories) {
                     <h3>Catégories</h3>
                     for _, category := range uc.Categories {
                         <p>
-                            <span class={ "icomoon", category.IconCodePoint }>&#x{ category.IconCodePoint };</span>
+                            <span class={ "icomoon", category.ColorName }>&#x{ category.IconCodePoint };</span>
                             { category.Name } ({ category.BudgetPeriod }-{ category.BudgetType })
                         </p>
                         if category.BudgetType == "reset" {

@@ -178,7 +178,8 @@ func PostRecordTransfer(w http.ResponseWriter, r *http.Request, isFrontRequest b
 	ft.Mode = 0
 	ft.Category = "Transfert"
 	ft.CategoryDetails.CategoryIcon = "e91b"
-	ft.CategoryDetails.CategoryColor = "#999999"
+	ft.CategoryDetails.CategoryColorName = "system-lightgrey"
+	ft.CategoryDetails.CategoryColor = "#DDDDDD"
 	ft.DateDetails.MonthStr = appdata.MonthIto3A(ft.DateDetails.Month)
 	ft.FormPriceStr2Decimals = tr.FormPriceStr2Decimals
 
