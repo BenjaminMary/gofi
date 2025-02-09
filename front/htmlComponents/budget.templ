@@ -145,11 +145,11 @@ templ GetLenderBorrowerStats(lbListActive []appdata.LenderBorrower, lbListInacti
                     </i></small>
                     <hr/>
                     <h3>Détails prêt et emprunts</h3>
-                    @lastInsertedRowsTable("ftList1", ftList1, false, true, false, "")
+                    @lastInsertedRowsTable("toggle1", "ftList1", ftList1, false, true, false, "")
                     @button("submitCancel1", "/img/icons.svg#feather-red-x-square", "Annuler", "contrast outline")
                     <hr/>
                     <h3>Détails remboursements</h3>
-                    @lastInsertedRowsTable("ftList2", ftList2, false, true, false, "")
+                    @lastInsertedRowsTable("toggle2", "ftList2", ftList2, false, true, false, "")
                     @button("submitCancel2", "/img/icons.svg#feather-red-x-square", "Annuler", "contrast outline")
                     <hr/>
                 </section>

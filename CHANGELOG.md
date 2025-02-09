@@ -4,6 +4,7 @@
 ### Doing
 
 ### Done
+- 2025-02-09 : fix: front fix color and id
 - 2025-02-08 : feat: full icon colors rework
 - 2025-01-28 : feat: change IP with CloudFlare header
 - 2025-01-27 : feat: add notifications

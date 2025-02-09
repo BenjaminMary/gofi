@@ -34,7 +34,7 @@ templ dateSVG(year int, monthStr string, day int) {
     </small>
 }
 
-templ lastInsertedRowsTable(tbodyId string, jsonFT []appdata.FinanceTracker, 
+templ lastInsertedRowsTable(theadCheckboxId string, tbodyId string, jsonFT []appdata.FinanceTracker, 
     editMode bool, checkboxMode bool, botRowsMode bool, totalRowsWithoutLimit string) {
     <div class="overflow-auto">
         <figure>
@@ -43,7 +43,7 @@ templ lastInsertedRowsTable(tbodyId string, jsonFT []appdata.FinanceTracker,
                     <tr>
                         if checkboxMode {
                             <th scope="col">
-                                <input type="checkbox" id="toggle" name="toggle" value="0"/>
+                                <input type="checkbox" id={ theadCheckboxId } name="toggle" value="0"/>
                             </th>
                         }
                         if editMode {
@@ -253,7 +253,7 @@ templ GetRecordInsert(jsonFT []appdata.FinanceTracker, jsonUP appdata.UserParams
                 </section>
 
                 <section id="recap">
-                    @lastInsertedRowsTable("lastInsert", jsonFT, false, false, false, "")
+                    @lastInsertedRowsTable("toggle", "lastInsert", jsonFT, false, false, false, "")
                 </section>
 
                 <section id="infos">
@@ -325,7 +325,7 @@ templ GetLendBorrowRecord(jsonFT []appdata.FinanceTracker, jsonUP appdata.UserPa
                 </section>
 
                 <section id="recap">
-                    @lastInsertedRowsTable("lastInsert", jsonFT, false, false, false, "")
+                    @lastInsertedRowsTable("toggle", "lastInsert", jsonFT, false, false, false, "")
                 </section>
 
                 <section id="infos">
@@ -476,7 +476,7 @@ templ GetRecordTransfer(jsonFT []appdata.FinanceTracker, jsonUP appdata.UserPara
                 </section>
 
                 <section id="recap">
-                    @lastInsertedRowsTable("lastInsert", jsonFT, false, false, false, "")
+                    @lastInsertedRowsTable("toggle", "lastInsert", jsonFT, false, false, false, "")
                 </section>
 
                 <section id="infos">
@@ -698,7 +698,7 @@ templ GetRecordRecurrent(jsonRR []appdata.RecurrentRecord, jsonFT []appdata.Fina
                     <hr/>
                 </section>
                 <section id="recap">
-                    @lastInsertedRowsTable("lastInsert", jsonFT, false, false, false, "")
+                    @lastInsertedRowsTable("toggle", "lastInsert", jsonFT, false, false, false, "")
                 </section>
                 <section id="infos">
                     <p>
@@ -1164,9 +1164,9 @@ templ GetRecordAlter(jsonFT []appdata.FinanceTracker, jsonUP appdata.UserParams,
                         <div class="overflow-auto">
                             <section id="recap">
                                 if alterMode == "edit" {
-                                    @lastInsertedRowsTable("lastInsert", jsonFT, true, false, false, totalRowsWithoutLimit)
+                                    @lastInsertedRowsTable("toggle", "lastInsert", jsonFT, true, false, false, totalRowsWithoutLimit)
                                 } else {
-                                    @lastInsertedRowsTable("lastInsert", jsonFT, false, true, true, totalRowsWithoutLimit)
+                                    @lastInsertedRowsTable("toggle", "lastInsert", jsonFT, false, true, true, totalRowsWithoutLimit)
                                 }
                             </section>
                         </div>
@@ -1329,11 +1329,11 @@ script botScriptAutoReloadOnAccountChange(headerStr string) {
 templ PostFullRecordRefresh(jsonFT []appdata.FinanceTracker, totalRowsWithoutLimit string, botScriptAutoReloadOnAccountChange string) {
     // POST "/record/getviapost" trigger: PostFullRecordRefresh
     if botScriptAutoReloadOnAccountChange == "validate" {
-        @lastInsertedRowsTable("lastInsert", jsonFT, false, true, true, totalRowsWithoutLimit)
+        @lastInsertedRowsTable("toggle", "lastInsert", jsonFT, false, true, true, totalRowsWithoutLimit)
     } else if botScriptAutoReloadOnAccountChange == "cancel" {
-        @lastInsertedRowsTable("lastInsert", jsonFT, false, true, true, totalRowsWithoutLimit)
+        @lastInsertedRowsTable("toggle", "lastInsert", jsonFT, false, true, true, totalRowsWithoutLimit)
     } else if botScriptAutoReloadOnAccountChange == "edit" {
-        @lastInsertedRowsTable("lastInsert", jsonFT, true, false, false, totalRowsWithoutLimit)
+        @lastInsertedRowsTable("toggle", "lastInsert", jsonFT, true, false, false, totalRowsWithoutLimit)
     } else {
         <!-- red x square -->
         <svg width="24" height="24" viewBox="0 0 24 24"><use xlink:href="/img/icons.svg#feather-red-x-square"></use></svg>

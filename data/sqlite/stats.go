@@ -529,7 +529,9 @@ func GetLenderBorrowerDetailedStats(ctx context.Context, db *sql.DB, gofiID int,
 	q2 := ` 
 		SELECT ft.id, ft.dateIn, ft.account, ft.category, ft.priceIntx100, ft.product, ft.mode,
 			ft.year, ft.month, ft.day,
-			ifnull(c.iconCodePoint,'e90a') AS icp, ifnull(c.colorHEX,'#808080') AS ch
+			ifnull(c.iconCodePoint,'e90a') AS icp, 
+			ifnull(c.colorHEX,'#DDDDDD') AS ch, 
+			ifnull(c.colorName,'system-lightgrey') AS cn 
 		FROM specificRecordsByMode AS srm
 			INNER JOIN financeTracker AS ft ON srm.idFinanceTracker = ft.id
 			LEFT JOIN category AS c ON c.category = fT.category AND c.gofiID = fT.gofiID
@@ -546,7 +548,7 @@ func GetLenderBorrowerDetailedStats(ctx context.Context, db *sql.DB, gofiID int,
 		var ft appdata.FinanceTracker
 		if err := rows.Scan(&ft.ID, &ft.Date, &ft.Account, &ft.Category, &ft.PriceIntx100, &ft.Product, &ft.Mode,
 			&ft.DateDetails.Year, &ft.DateDetails.Month, &ft.DateDetails.Day,
-			&ft.CategoryDetails.CategoryIcon, &ft.CategoryDetails.CategoryColor); err != nil {
+			&ft.CategoryDetails.CategoryIcon, &ft.CategoryDetails.CategoryColor, &ft.CategoryDetails.CategoryColorName); err != nil {
 			fmt.Println("error in loop on GetLenderBorrowerDetailedStats query2")
 			log.Fatal(err)
 		}
@@ -563,7 +565,7 @@ func GetLenderBorrowerDetailedStats(ctx context.Context, db *sql.DB, gofiID int,
 		var ft appdata.FinanceTracker
 		if err := rows.Scan(&ft.ID, &ft.Date, &ft.Account, &ft.Category, &ft.PriceIntx100, &ft.Product, &ft.Mode,
 			&ft.DateDetails.Year, &ft.DateDetails.Month, &ft.DateDetails.Day,
-			&ft.CategoryDetails.CategoryIcon, &ft.CategoryDetails.CategoryColor); err != nil {
+			&ft.CategoryDetails.CategoryIcon, &ft.CategoryDetails.CategoryColor, &ft.CategoryDetails.CategoryColorName); err != nil {
 			fmt.Println("error in loop on GetLenderBorrowerDetailedStats query4")
 			log.Fatal(err)
 		}
