@@ -53,7 +53,7 @@ func AddContextUserAndTimeout(next http.Handler) http.Handler {
 
 func completeUserInfos(userContext *appdata.UserRequest, w http.ResponseWriter, r *http.Request, isCookie bool) {
 	gofiID, email, errStr, err := sqlite.GetGofiID(r.Context(), appdata.DB, userContext.SessionID,
-		r.Header.Get("User-Agent"), r.Header.Get("Accept-Language"))
+		r.Header.Get("User-Agent"), r.Header.Get("Accept-Language"), r.Header.Get(os.Getenv("HEADER_IP")))
 	if err == nil && gofiID > 0 {
 		validAuth := true
 		if errStr == "idleTimeout, change cookie" {

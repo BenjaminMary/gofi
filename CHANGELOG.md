@@ -4,9 +4,10 @@
 ### Doing
 
 ### Done
+- 2025-02-13 : feat: force new login on `HEADER_IP` change 
 - 2025-02-09 : fix: front fix color and id
 - 2025-02-08 : feat: full icon colors rework
-- 2025-01-28 : feat: change IP with CloudFlare header
+- 2025-01-28 : feat: change IP with custom env header
 - 2025-01-27 : feat: add notifications
 - 2025-01-26 : feat: switchMode state in main menu inverted, simple mode is now the unchecked one
 - 2025-01-19 : Branch onboarding checklist merged

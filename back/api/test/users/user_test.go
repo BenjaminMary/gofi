@@ -8,6 +8,7 @@ import (
 	"strings"
 	"testing"
 	"time"
+	"os"
 
 	"gofi/gofi/back/routes"
 	"gofi/gofi/data/appdata"
@@ -380,6 +381,118 @@ func TestUser(t *testing.T) {
 	// 45. GET DB PATH
 	req, _ = http.NewRequest("GET", "/api/dbpath", nil)
 	req.Header.Set("sessionID", fsone)
+	response = executeRequest(req, s)
+	require.Equal(t, http.StatusOK, response.Code, "should be equal")
+
+	// 46. CREATE a 3rd user
+	req, _ = http.NewRequest("POST", "/api/user/create", strings.NewReader(`{
+		"email": "testc@test.test", 
+		"password": "testc"
+	}`))
+	response = executeRequest(req, s)
+	require.Equal(t, http.StatusCreated, response.Code, "should be equal")
+
+	// 47. LOGIN Test User
+	req, _ = http.NewRequest("POST", "/api/user/login", strings.NewReader(`{
+		"email": "testc@test.test", 
+		"password": "testc"
+	}`))
+	req.Header.Set(os.Getenv("HEADER_IP"), "1.2.3.4")
+	req.Header.Set("User-Agent", "test")
+	req.Header.Set("Accept-Language", "fr-en")
+	response = executeRequest(req, s)
+	require.Equal(t, http.StatusOK, response.Code, "should be equal")
+
+	// 48. Force a specific sessionID
+	fsthree := generateFakeSessionID("3")
+	_, err = appdata.DB.Exec(`UPDATE user SET sessionID = ? WHERE gofiID = 3;`, fsthree)
+	if err != nil {
+		panic(err)
+	}
+
+	// 49. LOGOUT Test User without headers
+	req, _ = http.NewRequest("GET", "/api/user/logout", nil)
+	req.Header.Set("sessionID", fsthree)
+	response = executeRequest(req, s)
+	require.Equal(t, http.StatusUnauthorized, response.Code, "should be equal")
+
+	// 49. LOGOUT Test User with headers but session reseted previously
+	req, _ = http.NewRequest("GET", "/api/user/logout", nil)
+	req.Header.Set("sessionID", fsthree)
+	req.Header.Set(os.Getenv("HEADER_IP"), "1.2.3.4")
+	req.Header.Set("User-Agent", "test")
+	req.Header.Set("Accept-Language", "fr-en")
+	response = executeRequest(req, s)
+	require.Equal(t, http.StatusUnauthorized, response.Code, "should be equal")
+
+	// 50. LOGIN Test User
+	req, _ = http.NewRequest("POST", "/api/user/login", strings.NewReader(`{
+		"email": "testc@test.test", 
+		"password": "testc"
+	}`))
+	req.Header.Set(os.Getenv("HEADER_IP"), "1.2.3.4.b")
+	req.Header.Set("User-Agent", "testc")
+	req.Header.Set("Accept-Language", "fr-en-b")
+	response = executeRequest(req, s)
+	require.Equal(t, http.StatusOK, response.Code, "should be equal")
+
+	// 51. Force a specific sessionID
+	_, err = appdata.DB.Exec(`UPDATE user SET sessionID = ? WHERE gofiID = 3;`, fsthree)
+	if err != nil {
+		panic(err)
+	}
+
+	// 52. LOGOUT Test User err IP
+	req, _ = http.NewRequest("GET", "/api/user/logout", nil)
+	req.Header.Set("sessionID", fsthree)
+	req.Header.Set(os.Getenv("HEADER_IP"), "-")
+	req.Header.Set("User-Agent", "testc")
+	req.Header.Set("Accept-Language", "fr-en-b")
+	response = executeRequest(req, s)
+	require.Equal(t, http.StatusUnauthorized, response.Code, "should be equal")
+
+	// 53. Force a specific absoluteTimeout + sessionID
+	_, err = appdata.DB.Exec(`UPDATE user SET absoluteTimeout = '3999-12-31T00:01:01Z', sessionID = ? WHERE gofiID = 3;`, fsthree)
+	if err != nil {
+		panic(err)
+	}
+
+	// 54. LOGOUT Test User err userAgent
+	req, _ = http.NewRequest("GET", "/api/user/logout", nil)
+	req.Header.Set("sessionID", fsthree)
+	req.Header.Set(os.Getenv("HEADER_IP"), "1.2.3.4.b")
+	req.Header.Set("User-Agent", "-")
+	req.Header.Set("Accept-Language", "fr-en-b")
+	response = executeRequest(req, s)
+	require.Equal(t, http.StatusUnauthorized, response.Code, "should be equal")
+
+	// 55. Force a specific absoluteTimeout + sessionID
+	_, err = appdata.DB.Exec(`UPDATE user SET absoluteTimeout = '3999-12-31T00:01:01Z', sessionID = ? WHERE gofiID = 3;`, fsthree)
+	if err != nil {
+		panic(err)
+	}
+
+	// 56. LOGOUT Test User err acceptLanguage
+	req, _ = http.NewRequest("GET", "/api/user/logout", nil)
+	req.Header.Set("sessionID", fsthree)
+	req.Header.Set(os.Getenv("HEADER_IP"), "1.2.3.4.b")
+	req.Header.Set("User-Agent", "testc")
+	req.Header.Set("Accept-Language", "-")
+	response = executeRequest(req, s)
+	require.Equal(t, http.StatusUnauthorized, response.Code, "should be equal")
+
+	// 57. Force a specific absoluteTimeout + sessionID
+	_, err = appdata.DB.Exec(`UPDATE user SET absoluteTimeout = '3999-12-31T00:01:01Z', sessionID = ? WHERE gofiID = 3;`, fsthree)
+	if err != nil {
+		panic(err)
+	}
+
+	// 58. LOGOUT Test User ok
+	req, _ = http.NewRequest("GET", "/api/user/logout", nil)
+	req.Header.Set("sessionID", fsthree)
+	req.Header.Set(os.Getenv("HEADER_IP"), "1.2.3.4.b")
+	req.Header.Set("User-Agent", "testc")
+	req.Header.Set("Accept-Language", "fr-en-b")
 	response = executeRequest(req, s)
 	require.Equal(t, http.StatusOK, response.Code, "should be equal")
 

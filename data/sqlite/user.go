@@ -88,10 +88,10 @@ func Logout(ctx context.Context, db *sql.DB, gofiID int) (bool, string, error) {
 }
 
 func GetGofiID(ctx context.Context, db *sql.DB, sessionID string, 
-	newActivityUserAgent string, newActivityAcceptLanguage string) (int, string, string, error) {
+	newActivityUserAgent string, newActivityAcceptLanguage string, newActivityIPaddress string) (int, string, string, error) {
 	q := ` 
 		SELECT gofiID, email, idleTimeout, absoluteTimeout, 
-			lastActivityUserAgent, lastActivityAcceptLanguage, 
+			lastActivityUserAgent, lastActivityAcceptLanguage, lastActivityIPaddress,
 			strftime('%Y-%m-%dT%H:%M:%SZ', DATETIME('now')) AS currentTimeUTC
 		FROM user
 		WHERE sessionID = ?
@@ -99,9 +99,9 @@ func GetGofiID(ctx context.Context, db *sql.DB, sessionID string,
 			AND sessionID NOT LIKE 'logged-out-%';
 	`
 	var gofiID int = 0
-	var email, idleTimeout, absoluteTimeout, lastActivityUserAgent, lastActivityAcceptLanguage, currentTimeUTC string
+	var email, idleTimeout, absoluteTimeout, lastActivityUserAgent, lastActivityAcceptLanguage, lastActivityIPaddress, currentTimeUTC string
 	err := db.QueryRowContext(ctx, q, sessionID).Scan(&gofiID, &email, &idleTimeout, &absoluteTimeout, 
-		&lastActivityUserAgent, &lastActivityAcceptLanguage, &currentTimeUTC)
+		&lastActivityUserAgent, &lastActivityAcceptLanguage, &lastActivityIPaddress, &currentTimeUTC)
 	switch {
 	case err == sql.ErrNoRows:
 		fmt.Printf("GetGofiID error no row returned, sessionID: %v\n", sessionID)
@@ -133,17 +133,26 @@ func GetGofiID(ctx context.Context, db *sql.DB, sessionID string,
 	if err != nil {
 		return gofiID, "", "error parsing idleTimeout, force new login 4", err
 	}
-	differenceIdle := timeCurrentTimeUTC.Sub(timeIdleTimeout)
-	// fmt.Printf("differenceIdle: %v\n", differenceIdle)
-	if differenceIdle > 0 {
-		return gofiID, email, "idleTimeout, change cookie", nil
-	}
 
+	/*fmt.Printf("newActivityUserAgent: %v, lastActivityUserAgent: %v," + 
+		"newActivityAcceptLanguage: %v, lastActivityAcceptLanguage: %v," +
+		"newActivityIPaddress: %v, lastActivityIPaddress: %v\n", 
+		newActivityUserAgent, lastActivityUserAgent, newActivityAcceptLanguage, lastActivityAcceptLanguage, newActivityIPaddress, lastActivityIPaddress)
+	*/
 	if newActivityUserAgent != lastActivityUserAgent {
 		return gofiID, "", "userAgentChange, force new login 5", errors.New("user-agent-change")
 	}
 	if newActivityAcceptLanguage != lastActivityAcceptLanguage {
 		return gofiID, "", "acceptLanguageChange, force new login 6", errors.New("accept-language-change")
+	}
+	if newActivityIPaddress != lastActivityIPaddress {
+		return gofiID, "", "IPaddressChange, force new login 7", errors.New("IP-address-change")
+	}
+
+	differenceIdle := timeCurrentTimeUTC.Sub(timeIdleTimeout)
+	// fmt.Printf("differenceIdle: %v\n", differenceIdle)
+	if differenceIdle > 0 {
+		return gofiID, email, "idleTimeout, change cookie", nil
 	}
 
 	if gofiID > 0 {
