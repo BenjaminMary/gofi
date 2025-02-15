@@ -142,27 +142,32 @@ func InitCategoriesForUser(ctx context.Context, db *sql.DB, gofiID int) {
 				(?1, 'Banque', 		'all', 		15, 0, 0, 'landmark', 'e919', 'needvar-olive', '(60,50,40)', '#999933'),
 				(?1, 'Societe', 	'all', 		16, 0, 1, 'briefcase', 'e905', 'invest-cyan', '(200,75,73)', '#88CCEE'),
 				(?1, 'Loyer', 		'periodic', 17, 0, 1, 'home', 'e906', 'needfix-teal', '(170,43,47)', '#44AA99'),
-				(?1, 'Services', 	'periodic', 18, 0, 1, 'plug-zap', 'e907', 'needfix-teal', '(170,43,47)', '#44AA99'),
+				(?1, 'Services', 	'periodic', 18, 0, 1, 'receipt-text', 'e924', 'needfix-teal', '(170,43,47)', '#44AA99'),
 				(?1, 'Sante', 		'all', 		19, 0, 1, 'heart-pulse', 'e908', 'needvar-olive', '(60,50,40)', '#999933'),
-				(?1, 'Animaux', 	'all', 		20, 0, 1, 'paw-print', 'e91c', 'wantko-wine', '(330,60,33)', '#882255')
+				(?1, 'Animaux', 	'all', 		20, 0, 1, 'paw-print', 'e91c', 'wantko-wine', '(330,60,33)', '#882255'),
+				(?1, 'Taxes', 		'periodic', 21, 0, 1, 'calculator', 'e925', 'needvar-olive', '(60,50,40)', '#999933'),
+				(?1, 'Assurance', 	'periodic', 22, 0, 1, 'shield-check', 'e926', 'needfix-teal', '(170,43,47)', '#44AA99'),
+				(?1, 'Telecom', 	'periodic', 23, 0, 1, 'wifi', 'e927', 'needfix-teal', '(170,43,47)', '#44AA99'),
+				(?1, 'Energie', 	'periodic', 24, 0, 1, 'cable', 'e928', 'needfix-teal', '(170,43,47)', '#44AA99'),
+				(?1, 'Eau', 		'periodic', 25, 0, 1, 'droplet', 'e929', 'needfix-teal', '(170,43,47)', '#44AA99')
 			;`
 		q2 := `
 			INSERT INTO category (gofiID, category, catWhereToUse, catOrder, inUse, defaultInStats,
 				description,
 				iconName, iconCodePoint, colorName, colorHSL, colorHEX)
 			VALUES
-				(?1, 'Autre', 		'basic', 	21, 0, 1, 
+				(?1, 'Autre', 		'basic', 	26, 0, 1, 
 					'Permet de ranger un élément qu''on ne sait pas où placer, temporairement ou définitivement.',
 					'more-horizontal', 'e90c', 'system-lightgrey', '(0,0,87)', '#DDDDDD'),
-				(?1, 'Erreur', 		'basic', 	22, 0, 1, 
+				(?1, 'Erreur', 		'basic', 	27, 0, 1, 
 					'Utile lorsqu''on souhaite corriger un montant global sans savoir réellement quel était l''achat en question.',
 					'bug', 'e909', 'system-lightgrey', '(0,0,87)', '#DDDDDD'),
 				(?1, 'Pret', 	'specific', -2, 1, 0, 
 					'Utilisable uniquement par le système lors de l''utilisation de la fonction prêt.',
-					'lend-hand-coin', 'e921', 'system-lightgrey', '(0,0,87)', '#DDDDDD'),
+					'handshake', 'e922', 'system-lightgrey', '(0,0,87)', '#DDDDDD'),
 				(?1, 'Emprunt', 	'specific', -1, 1, 0, 
 					'Utilisable uniquement par le système lors de l''utilisation de la fonction emprunt.',
-					'borrow-hand-coin', 'e922', 'system-lightgrey', '(0,0,87)', '#DDDDDD'),
+					'handshake', 'e922', 'system-lightgrey', '(0,0,87)', '#DDDDDD'),
 				(?1, 'Transfert', 	'specific', 97, 1, 0, 
 					'Utilisé uniquement par le système lors de l''utilisation de la fonction transfert.',
 					'arrow-right-left', 'e91b', 'system-lightgrey', '(0,0,87)', '#DDDDDD'),
@@ -186,7 +191,7 @@ func InitCategoriesForUser(ctx context.Context, db *sql.DB, gofiID int) {
 			log.Fatalf("InitCategoriesForUser query error2: %v\n", err)
 			//default:
 		}
-		if rowsAffected != 20 {
+		if rowsAffected != 25 {
 			log.Fatalf("InitCategoriesForUser query error3: %v\n", err)
 		}
 		result, err = db.ExecContext(ctx, q2, gofiID)
