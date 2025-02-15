@@ -8,17 +8,14 @@ import (
 
 script categoryDropdown(uc *appdata.UserCategories) {
     // this script add click event on inputs inside the categoryDropdown
-    // var categoryList = {{.UserParams.CategoryList}};
     var childInputs = document.getElementById('categoryDropdown').getElementsByTagName('input');
     for (var i = 0; i < childInputs.length; i++) {
         inputId = childInputs[i].id;
         //console.log(inputId + ": " + childInputs[i].value);
         document.getElementById(inputId).addEventListener('click', function(c){
             index = parseInt(this.id.replace("input",""));
-            //console.log(categoryList[index]);
             document.getElementById('summaryCategory').innerHTML = uc.Categories[index].Name;
             document.getElementById('summaryIcon').innerHTML = "&#x" + uc.Categories[index].IconCodePoint + ";";
-            // document.getElementById('summaryIcon').style.backgroundColor = categoryList[index][2]
             bgclass = document.getElementById('summaryIcon').classList.item(1);
             document.getElementById('summaryIcon').classList.remove(bgclass);
             document.getElementById('summaryIcon').classList.add(uc.Categories[index].ColorName);

@@ -56,22 +56,6 @@ func CheckIfIdExists(ctx context.Context, db *sql.DB, gofiID int) {
 		InsertRowInParam(ctx, db, &P)
 	}
 
-	err = db.QueryRowContext(ctx, q, gofiID, "categoryList").Scan(&nbRows)
-	switch {
-	case err == sql.ErrNoRows:
-		nbRows = 0
-	case err != nil:
-		log.Fatalf("query error param categoryList: %v\n", err)
-	}
-	if nbRows != 1 {
-		db.ExecContext(ctx, "DELETE FROM param WHERE gofiID = ? AND paramName = 'categoryList';", gofiID)
-		P.GofiID = gofiID
-		P.ParamName = "categoryList"
-		P.ParamJSONstringData = "Courses,Banque,Cadeaux,Entrep,Erreur,Epargne,Loisirs,Loyer,Resto,Revenu,Sante,Services,Shopping,Transport,Voyage,Vehicule,Autre"
-		P.ParamInfo = "Liste des catégories (séparer par des , sans espaces)"
-		InsertRowInParam(ctx, db, &P)
-	}
-
 	err = db.QueryRowContext(ctx, q, gofiID, "onboardingCheckList").Scan(&nbRows)
 	switch {
 	case err == sql.ErrNoRows:
@@ -287,7 +271,7 @@ func GetFullCategoryList(ctx context.Context, db *sql.DB, uc *appdata.UserCatego
 }
 
 func GetUnhandledCategoryList(ctx context.Context, db *sql.DB, gofiID int) []string {
-	var categoryList []string
+	var unhandledCategoryList []string
 	q := ` 
 		SELECT DISTINCT fT.category
 		FROM financeTracker AS fT
@@ -300,19 +284,19 @@ func GetUnhandledCategoryList(ctx context.Context, db *sql.DB, gofiID int) []str
 	rows, err := db.QueryContext(ctx, q, gofiID)
 	if err != nil {
 		fmt.Printf("error1 in GetUnhandledCategoryList QueryContext: %v\n", err)
-		return categoryList
+		return unhandledCategoryList
 	}
 	for rows.Next() {
 		var category string
 		err := rows.Scan(&category)
 		if err != nil {
 			fmt.Printf("error2 in GetUnhandledCategoryList category: %v\n", err)
-			return categoryList
+			return unhandledCategoryList
 		}
-		categoryList = append(categoryList, category)
+		unhandledCategoryList = append(unhandledCategoryList, category)
 	}
 	rows.Close()
-	return categoryList
+	return unhandledCategoryList
 }
 
 func GetCategoryIcon(ctx context.Context, db *sql.DB, categoryName string, gofiID int) (string, string, string) {
@@ -344,48 +328,27 @@ func GetList(ctx context.Context, db *sql.DB, up *appdata.UserParams, uc *appdat
 		WHERE gofiID = ?
 			AND paramName = ?;
 	`
-	rows, _ := db.QueryContext(ctx, q, up.GofiID, "accountList")
-	rows.Next()
-	var accountList string
-	if err := rows.Scan(&accountList); err != nil {
-		fmt.Printf("error in GetList accountList, err: %v\n", err)
-		log.Fatal(err)
+	paramList := [3]string{"accountList", "onboardingCheckList", "categoryRendering"}
+	var paramListResult []string
+	for i := 0; i < len(paramList); i++ {
+		var param, result string 
+		param = paramList[i]
+		rows, _ := db.QueryContext(ctx, q, up.GofiID, param)
+		rows.Next()
+		if err := rows.Scan(&result); err != nil {
+			fmt.Printf("error in GetList %v, err: %v\n", param, err)
+			log.Fatal(err)
+		}
+		rows.Close()
+		paramListResult = append(paramListResult, result)
 	}
-	rows.Close()
-	up.AccountListSingleString = accountList
-	up.AccountList = strings.Split(accountList, ",")
-
-	rows, _ = db.QueryContext(ctx, q, up.GofiID, "onboardingCheckList")
-	rows.Next()
-	var onboardingCheckList string
-	if err := rows.Scan(&onboardingCheckList); err != nil {
-		fmt.Printf("error in GetList onboardingCheckList, err: %v\n", err)
-		log.Fatal(err)
-	}
-	rows.Close()
-	up.OnboardingCheckListSingleString = onboardingCheckList
-	up.OnboardingCheckList = strings.Split(onboardingCheckList, ",")
-
-	rows, _ = db.QueryContext(ctx, q, up.GofiID, "categoryList")
-	rows.Next()
-	var categoryListStr string
-	if err := rows.Scan(&categoryListStr); err != nil {
-		fmt.Printf("error in GetList categoryList, err: %v\n", err)
-		log.Fatal(err)
-	}
-	rows.Close()
+	up.AccountListSingleString = paramListResult[0]
+	up.AccountList = strings.Split(up.AccountListSingleString, ",")
+	up.OnboardingCheckListSingleString = paramListResult[1]
+	up.OnboardingCheckList = strings.Split(up.OnboardingCheckListSingleString, ",")
+	up.CategoryRendering = paramListResult[2]
 
 	GetFullCategoryList(ctx, db, uc, categoryTypeFilter, categoryTypeFilterValue, firstEmptyCategory)
-
-	rows, _ = db.QueryContext(ctx, q, up.GofiID, "categoryRendering")
-	rows.Next()
-	var categoryRendering string
-	if err := rows.Scan(&categoryRendering); err != nil {
-		fmt.Printf("error in GetList categoryRendering, err: %v\n", err)
-		log.Fatal(err)
-	}
-	rows.Close()
-	up.CategoryRendering = categoryRendering
 }
 
 func PutCategory(ctx context.Context, db *sql.DB, category *appdata.CategoryPut) bool {
