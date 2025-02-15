@@ -4,7 +4,9 @@
 ### Doing
 
 ### Done
-- 2025-02-15 : refactor: GetList refacto and categoryList removed
+- 2025-02-15 : 
+    - refactor: GetList refacto and categoryList removed
+    - feat: add the relogin on IP change as an option
 - 2025-02-13 : feat: force new login on `HEADER_IP` change 
 - 2025-02-09 : fix: front fix color and id
 - 2025-02-08 : feat: full icon colors rework

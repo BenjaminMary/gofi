@@ -67,8 +67,24 @@ func CheckIfIdExists(ctx context.Context, db *sql.DB, gofiID int) {
 		db.ExecContext(ctx, "DELETE FROM param WHERE gofiID = ? AND paramName = 'onboardingCheckList';", gofiID)
 		P.GofiID = gofiID
 		P.ParamName = "onboardingCheckList"
-		P.ParamJSONstringData = ""
+		P.ParamJSONstringData = "0"
 		P.ParamInfo = "Liste des étapes (séparer par des , sans espaces)"
+		InsertRowInParam(ctx, db, &P)
+	}
+
+	err = db.QueryRowContext(ctx, q, gofiID, "forceNewLoginOnIPchange").Scan(&nbRows)
+	switch {
+	case err == sql.ErrNoRows:
+		nbRows = 0
+	case err != nil:
+		log.Fatalf("query error param forceNewLoginOnIPchange: %v\n", err)
+	}
+	if nbRows != 1 {
+		db.ExecContext(ctx, "DELETE FROM param WHERE gofiID = ? AND paramName = 'forceNewLoginOnIPchange';", gofiID)
+		P.GofiID = gofiID
+		P.ParamName = "forceNewLoginOnIPchange"
+		P.ParamJSONstringData = "0"
+		P.ParamInfo = "Force un nouveau login si changement IP: 1 | 0"
 		InsertRowInParam(ctx, db, &P)
 	}
 
@@ -328,7 +344,7 @@ func GetList(ctx context.Context, db *sql.DB, up *appdata.UserParams, uc *appdat
 		WHERE gofiID = ?
 			AND paramName = ?;
 	`
-	paramList := [3]string{"accountList", "onboardingCheckList", "categoryRendering"}
+	paramList := [4]string{"accountList", "onboardingCheckList", "categoryRendering", "forceNewLoginOnIPchange"}
 	var paramListResult []string
 	for i := 0; i < len(paramList); i++ {
 		var param, result string 
@@ -347,6 +363,7 @@ func GetList(ctx context.Context, db *sql.DB, up *appdata.UserParams, uc *appdat
 	up.OnboardingCheckListSingleString = paramListResult[1]
 	up.OnboardingCheckList = strings.Split(up.OnboardingCheckListSingleString, ",")
 	up.CategoryRendering = paramListResult[2]
+	up.ForceNewLoginOnIPchange = paramListResult[3]
 
 	GetFullCategoryList(ctx, db, uc, categoryTypeFilter, categoryTypeFilterValue, firstEmptyCategory)
 }

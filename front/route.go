@@ -154,6 +154,7 @@ func GetLogout(w http.ResponseWriter, r *http.Request) {
 func GetParam(w http.ResponseWriter, r *http.Request) {
 	json := api.GetParam(w, r, true, "", "", false)
 	jsonUserParam := json.AnyStruct.(appdata.UserParams)
+	// fmt.Printf("jsonUserParam: %#v\n", jsonUserParam)
 	htmlComponents.GetParam(jsonUserParam).Render(r.Context(), w)
 }
 func GetParamAccount(w http.ResponseWriter, r *http.Request) {
@@ -170,6 +171,14 @@ func PostParamAccount(w http.ResponseWriter, r *http.Request) {
 	jsonb := api.GetParam(w, r, true, "", "", false)
 	jsonUserParam := jsonb.AnyStruct.(appdata.UserParams)
 	htmlComponents.PostParamAccount(json.HttpStatus, jsonParam.ParamJSONstringData, jsonUserParam.AccountList).Render(r.Context(), w)
+}
+func PostParamForceNewLoginOnIPchange(w http.ResponseWriter, r *http.Request) {
+	json := api.PostParamForceNewLoginOnIPchange(w, r, true)
+	jsonParam := &appdata.Param{}
+	if json.IsValidResponse {
+		jsonParam = json.AnyStruct.(*appdata.Param)
+	}
+	htmlComponents.PostParamForceNewLoginOnIPchange(json.HttpStatus, jsonParam.ParamJSONstringData).Render(r.Context(), w)
 }
 func PostParamCategoryRendering(w http.ResponseWriter, r *http.Request) {
 	json := api.PostParamCategoryRendering(w, r, true)

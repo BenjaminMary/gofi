@@ -442,10 +442,47 @@ func TestUser(t *testing.T) {
 		panic(err)
 	}
 
-	// 52. LOGOUT Test User err IP
+	// 52. LOGOUT Test User err IP StatusOK because param set to "0"
 	req, _ = http.NewRequest("GET", "/api/user/logout", nil)
 	req.Header.Set("sessionID", fsthree)
 	req.Header.Set(os.Getenv("HEADER_IP"), "-")
+	req.Header.Set("User-Agent", "testc")
+	req.Header.Set("Accept-Language", "fr-en-b")
+	response = executeRequest(req, s)
+	require.Equal(t, http.StatusOK, response.Code, "should be equal")
+
+	// 52a. LOGIN Test User
+	req, _ = http.NewRequest("POST", "/api/user/login", strings.NewReader(`{
+		"email": "testc@test.test", 
+		"password": "testc"
+	}`))
+	req.Header.Set(os.Getenv("HEADER_IP"), "1.2.3.4.b")
+	req.Header.Set("User-Agent", "testc")
+	req.Header.Set("Accept-Language", "fr-en-b")
+	response = executeRequest(req, s)
+	require.Equal(t, http.StatusOK, response.Code, "should be equal")
+
+	// 52b. Force a specific absoluteTimeout + sessionID
+	_, err = appdata.DB.Exec(`UPDATE user SET sessionID = ? WHERE gofiID = 3;`, fsthree)
+	if err != nil {
+		panic(err)
+	}
+
+	// 52c. UPDATE PARAM forceNewLoginOnIPchange to "1"
+	req, _ = http.NewRequest("POST", "/api/param/force-new-login-on-ip-change", strings.NewReader(`{
+		"ParamJSONstringData": "1"
+	}`))
+	req.Header.Set("sessionID", fsthree)
+	req.Header.Set(os.Getenv("HEADER_IP"), "-")
+	req.Header.Set("User-Agent", "testc")
+	req.Header.Set("Accept-Language", "fr-en-b")
+	response = executeRequest(req, s)
+	require.Equal(t, http.StatusOK, response.Code, "should be equal")
+
+	// 52d. LOGOUT Test User err IP StatusUnauthorized because param set to "1"
+	req, _ = http.NewRequest("GET", "/api/user/logout", nil)
+	req.Header.Set("sessionID", fsthree)
+	req.Header.Set(os.Getenv("HEADER_IP"), "xyz")
 	req.Header.Set("User-Agent", "testc")
 	req.Header.Set("Accept-Language", "fr-en-b")
 	response = executeRequest(req, s)

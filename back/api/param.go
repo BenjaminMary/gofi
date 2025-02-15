@@ -72,6 +72,12 @@ func PostParamCategoryRendering(w http.ResponseWriter, r *http.Request, isFrontR
 		"Affichage des catégories: icons | names",
 		1) // minStringLength to handle the value
 }
+func PostParamForceNewLoginOnIPchange(w http.ResponseWriter, r *http.Request, isFrontRequest bool) *appdata.HttpStruct {
+	return postParam(w, r, isFrontRequest,
+		"forceNewLoginOnIPchange",
+		"Force un nouveau login si changement IP: 1 | 0",
+		1) // minStringLength to handle the value
+}
 func PostParamOnboardingCheckList(w http.ResponseWriter, r *http.Request, isFrontRequest bool) *appdata.HttpStruct {
 	return postParam(w, r, isFrontRequest,
 		"onboardingCheckList",

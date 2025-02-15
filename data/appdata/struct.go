@@ -290,6 +290,7 @@ type UserParams struct {
 	AccountListUnhandled    		[]string
 	OnboardingCheckListSingleString string
 	OnboardingCheckList             []string
+	ForceNewLoginOnIPchange       	string
 	CategoryRendering       		string
 	Categories              		*UserCategories
 }

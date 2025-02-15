@@ -7,11 +7,16 @@ import (
     "gofi/gofi/data/appdata"
 )
 
-script initRadioCheck(goCategoryRendering string) {
+script initRadioCheck(goCategoryRendering string, forceNewLoginOnIPchange string) {
     if (goCategoryRendering == "names") {
         document.getElementById("names").checked = true
     } else {
         document.getElementById("icons").checked = true
+    };
+    if (forceNewLoginOnIPchange == "1") {
+        document.getElementById("forceNewLoginOnIPchange1").checked = true
+    } else {
+        document.getElementById("forceNewLoginOnIPchange0").checked = true
     };
 }
 script forceCheckListChanges() {
@@ -23,7 +28,7 @@ script forceCheckListChanges() {
     });
     document.getElementById("onboardingCheckListCompleted").addEventListener('click', function(eb){
         if (this.checked) {
-            document.getElementById("onboardingCheckList").value = "1,2,3,4,5,6,7,8";
+            document.getElementById("onboardingCheckList").value = "0,1,2,3,4,5,6,7,8";
         };
     });
 }
@@ -61,6 +66,30 @@ templ GetParam(json appdata.UserParams) {
                             @FormSubmit("idSubmit1", "/img/icons.svg#feather-save", "Enregistrer la checklist d'initiation")
                         </form>
                         <hr/>
+                        <form hx-post="/param/force-new-login-on-ip-change" 
+                            hx-target="#refresh" 
+                            hx-swap="innerHTML"
+                            hx-sync="this:drop"
+                            hx-on::after-request="if(event.detail.successful) document.getElementById('idSubmit2').remove()">
+                            <div>
+                                <!-- Radio buttons -->
+                                <fieldset id="forceNewLoginOnIPchange">
+                                    <legend><strong><small>Forcer la reconnection en cas de changement d'IP</small></strong></legend>
+                                    <p><small>Cette option permet de renforcer la sécurité du compte mais nécessitera des reconnexions supplémentaires.</small></p>
+                                    <label for="forceNewLoginOnIPchange1">
+                                        <input type="radio" id="forceNewLoginOnIPchange1" name="ParamJSONstringData" value="1" />
+                                        Oui
+                                    </label>
+                                    <label for="forceNewLoginOnIPchange0">
+                                        <input type="radio" id="forceNewLoginOnIPchange0" name="ParamJSONstringData" value="0" />
+                                        Non
+                                    </label>
+                                </fieldset>
+                                <div id="refresh"></div>
+                            </div>
+                            @FormSubmit("idSubmit2", "/img/icons.svg#feather-save", "Enregistrer l'option IP")
+                        </form>
+                        <hr/>
                         <form hx-post="/param/category-rendering" 
                             hx-target="#refresh" 
                             hx-swap="innerHTML"
@@ -70,6 +99,10 @@ templ GetParam(json appdata.UserParams) {
                                 <!-- Radio buttons -->
                                 <fieldset id="categoryRendering">
                                     <legend><strong><small>Affichage des catégories dans les listes</small></strong></legend>
+                                    <p><small>
+                                        Cette option n'est pas développée, merci de signaler si vous en avez besoin.<br/>
+                                        Actuellement, seul l'affichage des catégories par icône est disponible.
+                                    </small></p>
                                     <label for="names">
                                         <input type="radio" id="names" name="ParamJSONstringData" value="names" />
                                         Noms, ex: Banque
@@ -91,7 +124,7 @@ templ GetParam(json appdata.UserParams) {
             </main>
             @BotScriptThemeSwitcher()
             @BotScriptHTMXhandleError()
-            @initRadioCheck(json.CategoryRendering)
+            @initRadioCheck(json.CategoryRendering, json.ForceNewLoginOnIPchange)
             @forceCheckListChanges()
         </body>
     </html>
@@ -428,6 +461,28 @@ templ PatchParamCategoryOrder(jsonUC *appdata.UserCategories) {
     @categoryTable(jsonUC)
     @botScriptAddClickEventToTableCatButtons()
 }
+templ PostParamForceNewLoginOnIPchange(httpStatus int, ParamJSONstringData string) {
+    switch httpStatus {
+        case http.StatusOK:
+            // nothing
+        case http.StatusBadRequest:
+            <p>
+                ERREUR1: Impossible de modifier l'option d'affichage des catégories.<br/> 
+                Requête annulée, merci de recommencer.
+            </p>
+        case http.StatusInternalServerError:
+            <p>
+                ERREUR2: Impossible de modifier l'option d'affichage des catégories.<br/> 
+                Requête annulée, merci de recommencer.
+            </p>
+        default:
+            <p>
+                ERREUR3: Impossible de modifier l'option d'affichage des catégories.<br/> 
+                Requête annulée, merci de recommencer.
+            </p>
+	}
+    @PageRefreshButton()
+}
 templ PostParamCategoryRendering(httpStatus int, ParamJSONstringData string) {
     switch httpStatus {
         case http.StatusOK:
@@ -494,7 +549,7 @@ templ GetParamCategory(jsonUC *appdata.UserCategories, userCategoriesJson string
                         <form name="mainForm">
 
                             <h5>Editer la catégorie</h5>
-                            <span id="categoryIcon1" class="icomoon e900">&#xe900;</span>
+                            <span id="categoryIcon1" class="icomoon system-lightgrey">&#xe90a;</span>
                             &nbsp;<span id="categoryName">Catégorie</span>
                             <hr/>
 
@@ -502,7 +557,7 @@ templ GetParamCategory(jsonUC *appdata.UserCategories, userCategoriesJson string
                             <label for="defaultInStats">
                                 Masquer
                                 <!-- red x square -->
-                                <svg width="24" height="24" viewBox="0 0 24 24" stroke="firebrick"><use xlink:href="/img/icons.svg#feather-x-square"></use></svg>
+                                <svg width="24" height="24" viewBox="0 0 24 24" stroke="firebrick"><use xlink:href="/img/icons.svg#feather-red-x-square"></use></svg>
                                 <input type="checkbox" id="defaultInStats" name="InStatsStr" role="switch" checked />
                                 <!-- green check square -->
                                 <svg width="24" height="24" viewBox="0 0 24 24"><use xlink:href="/img/icons.svg#feather-green-check-square"></use></svg>
@@ -625,7 +680,7 @@ templ GetParamCategory(jsonUC *appdata.UserCategories, userCategoriesJson string
                                 <!-- edit -->
                                 <svg width="24" height="24" viewBox="0 0 24 24"><use xlink:href="/img/icons.svg#feather-edit"></use></svg>
                                 Editer la catégorie 
-                                <span id="categoryIcon2" class="icomoon e900">&#xe900;</span>
+                                <span id="categoryIcon2" class="icomoon system-lightgrey">&#xe90a;</span>
                             </button>
                             <hr/>
                         </form>

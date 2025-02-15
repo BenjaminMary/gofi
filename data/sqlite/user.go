@@ -90,18 +90,22 @@ func Logout(ctx context.Context, db *sql.DB, gofiID int) (bool, string, error) {
 func GetGofiID(ctx context.Context, db *sql.DB, sessionID string, 
 	newActivityUserAgent string, newActivityAcceptLanguage string, newActivityIPaddress string) (int, string, string, error) {
 	q := ` 
-		SELECT gofiID, email, idleTimeout, absoluteTimeout, 
-			lastActivityUserAgent, lastActivityAcceptLanguage, lastActivityIPaddress,
-			strftime('%Y-%m-%dT%H:%M:%SZ', DATETIME('now')) AS currentTimeUTC
-		FROM user
-		WHERE sessionID = ?
-			AND sessionID IS NOT NULL
-			AND sessionID NOT LIKE 'logged-out-%';
+		SELECT u.gofiID, u.email, u.idleTimeout, u.absoluteTimeout, 
+			u.lastActivityUserAgent, u.lastActivityAcceptLanguage, u.lastActivityIPaddress,
+			strftime('%Y-%m-%dT%H:%M:%SZ', DATETIME('now')) AS currentTimeUTC,
+			p.paramJSONstringData
+		FROM user AS u
+			LEFT JOIN param AS p ON u.gofiID = p.gofiID AND p.paramName = 'forceNewLoginOnIPchange'
+		WHERE u.sessionID = ?
+			AND u.sessionID IS NOT NULL
+			AND u.sessionID NOT LIKE 'logged-out-%';
 	`
 	var gofiID int = 0
 	var email, idleTimeout, absoluteTimeout, lastActivityUserAgent, lastActivityAcceptLanguage, lastActivityIPaddress, currentTimeUTC string
+	var forceNewLoginOnIPchange string
 	err := db.QueryRowContext(ctx, q, sessionID).Scan(&gofiID, &email, &idleTimeout, &absoluteTimeout, 
-		&lastActivityUserAgent, &lastActivityAcceptLanguage, &lastActivityIPaddress, &currentTimeUTC)
+		&lastActivityUserAgent, &lastActivityAcceptLanguage, &lastActivityIPaddress, &currentTimeUTC,
+		&forceNewLoginOnIPchange)
 	switch {
 	case err == sql.ErrNoRows:
 		fmt.Printf("GetGofiID error no row returned, sessionID: %v\n", sessionID)
@@ -145,8 +149,10 @@ func GetGofiID(ctx context.Context, db *sql.DB, sessionID string,
 	if newActivityAcceptLanguage != lastActivityAcceptLanguage {
 		return gofiID, "", "acceptLanguageChange, force new login 6", errors.New("accept-language-change")
 	}
-	if newActivityIPaddress != lastActivityIPaddress {
-		return gofiID, "", "IPaddressChange, force new login 7", errors.New("IP-address-change")
+	if forceNewLoginOnIPchange == "1" {
+		if newActivityIPaddress != lastActivityIPaddress {
+			return gofiID, "", "IPaddressChange, force new login 7", errors.New("IP-address-change")
+		}
 	}
 
 	differenceIdle := timeCurrentTimeUTC.Sub(timeIdleTimeout)
