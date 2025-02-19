@@ -30,7 +30,7 @@ func PostCSVimport(w http.ResponseWriter, r *http.Request, isFrontRequest bool) 
 	_, csvHeader, err := r.FormFile("csvFile")
 	if err != nil { // Always check errors even if they should not happen.
 		fmt.Printf("PostCSVimport error on file: %v\n", err.Error())
-		return appdata.RenderAPIorUI(w, r, isFrontRequest, true, false, http.StatusBadRequest, "invalid file", "")
+		return appdata.RenderAPIorUI(w, r, isFrontRequest, true, false, http.StatusBadRequest, "invalid file", "error on file")
 	}
 	var csvSeparatorRune rune
 	for _, runeValue := range Separator {

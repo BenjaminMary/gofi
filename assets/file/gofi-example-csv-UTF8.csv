@@ -1,0 +1,7 @@
+﻿𫝀é ꮖꭰ;Date;Mode;Account;Product;PriceStr;Category;ThirdParty;CommentInt;CommentString;Checked;DateChecked;Exported;.
+1;12/11/2023;0;CB;Exemple 1 avec ID 1 pour modification de la ligne 1;2,03;Besoin;;0;;true;02/12/2023;false;.
+;10/12/2024;0;CB;Exemple 2 sans ID pour création de nouvelle ligne;9,00;Besoin;;0;;false;;false;.
+-2;10/12/2024;0;CB;Exemple 3 avec ID négatif -2 qui va annuler la ligne 2;24,50;Besoin;;0;;false;31/12/2200;false;.
+2;31/12/1999;0;-;Exemple du résultat de la suppression de ligne 2 DELETED LINE;0;-;;0;-;true;14/01/2024;false;.
+;08/01/2015;2;CB;Exemple de Prêt avec création du Tier1;-150;Pret;Tier1;9;id9;true;09/01/2015;false;.
+;09/01/2015;4;CB;Exemple Remboursement de Prêt du Tier1;150;Pret;Tier1;10;id10;true;10/01/2015;false;.

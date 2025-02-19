@@ -166,6 +166,8 @@ templ BotScriptHTMXhandleError() {
     <!-- handle the errors triggered and still use HTMX -->
     <script>
         document.body.addEventListener('htmx:beforeOnLoad', function (evt) {
+            // console.log("htmx:beforeOnLoad event listened")
+            // console.log(evt.detail)
             if (evt.detail.xhr.status > 399) {
                 evt.detail.shouldSwap = true;
                 evt.detail.isError = false;

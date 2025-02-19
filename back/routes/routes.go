@@ -243,4 +243,6 @@ func (s *Server) MountFileServer() {
 	FileServer(s.Router, "/js", jsDir)
 	fontsDir := http.Dir(filepath.Join(workDir, "assets", "fonts"))
 	FileServer(s.Router, "/fonts", fontsDir)
+	fileDir := http.Dir(filepath.Join(workDir, "assets", "file"))
+	FileServer(s.Router, "/file", fileDir)
 }

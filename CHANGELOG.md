@@ -4,7 +4,9 @@
 ### Doing
 
 ### Done
-- 2025-02-19 : fix: front fix color
+- 2025-02-19 : 
+    - fix: front fix color
+    - feat: add file example for csv import `gofi-example-csv-UTF8.csv`
 - 2025-02-16 : feat: add new categories and update some existing ones
 - 2025-02-15 : 
     - refactor: GetList refacto and categoryList removed

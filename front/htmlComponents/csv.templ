@@ -99,8 +99,7 @@ templ GetCSVimport() {
                         hx-post="/csv/import"
                         hx-target="#textarea"
                         hx-indicator="#spinner"
-                        hx-on::after-request="if(event.detail.successful) document.getElementById('form').remove()">
-                        
+                        hx-on::after-request="document.getElementById('form').remove()">
                         <!-- File -->
                         <label for="csvFile">Charger le fichier csv</label>
                         <input type="file" id="csvFile" name="csvFile"/>
@@ -116,12 +115,18 @@ templ GetCSVimport() {
                     <hr/>
                 </section>
 
+                <span id="htmxInfo"></span>
                 <textarea id="textarea" rows="10"></textarea>
 
                 <hr/>
 
                 <section id="example">
                     <h3>Exemple</h3>
+                    <p>
+                        <a target="_blank" href="/file/gofi-example-csv-UTF8.csv">Télécharger le fichier csv exemple</a><br/>
+                        Il est possible de modifier ce fichier depuis Excel.
+                    </p>
+
                     <h5>La liste des champs à renseigner:</h5>
                     <ol>
                         <li><code>𫝀é ꮖꭰ</code>: laisser vide pour créer un enregistrement ou spécifier un ID d'enregistrement existant pour le mettre à jour.</li>
@@ -154,11 +159,11 @@ templ GetCSVimport() {
                         <li>format date FR <code>JJ/MM/AAAA</code></li>
                     </ul>
                     <ol>
-                        <li><code>𫝀é ꮖꭰ;Date;Account;Product;PriceStr;Category;CommentInt;CommentString;Checked;DateChecked;Exported;.</code></li>        
-                        <li><code>1;12/11/2023;CB;Exemple 1 avec ID 1;2,03;Supermarché;0;;true;02/12/2023;false;.</code></li>
-                        <li><code>;10/12/2024;CB;Exemple 2 sans ID;9,00;Supermarché;0;;false;;false;.</code></li>
-                        <li><code>156979;10/12/2024;CB;Exemple 3 avec ID inconnu;87,50;Supermarché;0;;false;31/12/2200;false;.</code></li>
-                        <li><code>-2;10/12/2024;CB;Exemple 4 avec ID négatif -2;24,50;Supermarché;0;;false;31/12/2200;false;.</code></li>
+                        <li><code>𫝀é ꮖꭰ;Date;Mode;Account;Product;PriceStr;Category;ThirdParty;CommentInt;CommentString;Checked;DateChecked;Exported;.</code></li>        
+                        <li><code>1;12/11/2023;0;CB;Exemple 1 avec ID 1;2,03;Besoin;;0;;true;02/12/2023;false;.</code></li>
+                        <li><code>;10/12/2024;0;CB;Exemple 2 sans ID;9,00;Besoin;;0;;false;;false;.</code></li>
+                        <li><code>156979;10/12/2024;0;CB;Exemple 3 avec ID inconnu;87,50;Besoin;;0;;false;31/12/2200;false;.</code></li>
+                        <li><code>-2;10/12/2024;0;CB;Exemple 4 avec ID négatif -2;24,50;Besoin;;0;;false;31/12/2200;false;.</code></li>
                     </ol>
                     <ol>
                         <li>La 1ere ligne sert pour les en-têtes et quelques contrôles de la validité du fichier</li>
