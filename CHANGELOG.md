@@ -4,6 +4,7 @@
 ### Doing
 
 ### Done
+- 2025-02-19 : fix: front fix color
 - 2025-02-16 : feat: add new categories and update some existing ones
 - 2025-02-15 : 
     - refactor: GetList refacto and categoryList removed

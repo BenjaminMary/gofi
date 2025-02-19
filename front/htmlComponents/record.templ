@@ -141,8 +141,9 @@ templ oneRowInLastInsertedRecurrentRecordTable(rr appdata.RecurrentRecord, init 
         </td>
         <td>{rr.Account}</td>
         <td rowCategoryNameValue={rr.Category}
-            rowCategoryIconValue={rr.CategoryDetails.CategoryIcon}>
-            <span class={ "icomoon", rr.CategoryDetails.CategoryColorName }>&#x{ rr.CategoryDetails.CategoryIcon };</span>
+            rowCategoryIconValue={rr.CategoryDetails.CategoryIcon}
+            rowCategoryColorNameValue={rr.CategoryDetails.CategoryColorName}>
+        <span class={ "icomoon", rr.CategoryDetails.CategoryColorName }>&#x{ rr.CategoryDetails.CategoryIcon };</span>
         </td>
         <td>{rr.FormPriceStr2Decimals}</td>
         <td>{rr.Product}</td>
@@ -799,11 +800,12 @@ script botScriptAddClickEventToTableButtons() {
                         case 3:
                             var categoryName = childTd[i].getAttribute("rowCategoryNameValue");
                             var categoryIcon = childTd[i].getAttribute("rowCategoryIconValue");
+                            var categoryColorName = childTd[i].getAttribute("rowCategoryColorNameValue");
                             document.getElementById('summaryCategory').innerHTML = categoryName;
                             document.getElementById('summaryIcon').innerHTML = "&#x" + categoryIcon + ";";
                             bgclass = document.getElementById('summaryIcon').classList.item(1)
                             document.getElementById('summaryIcon').classList.remove(bgclass)
-                            document.getElementById('summaryIcon').classList.add(categoryIcon)
+                            document.getElementById('summaryIcon').classList.add(categoryColorName)
                             var childInputsEdit = document.getElementById('categoryDropdown').getElementsByTagName('input');
                             for (var j = 0; j < childInputsEdit.length; j++) {
                                 if (childInputsEdit[j].value == categoryName) {
@@ -1082,7 +1084,7 @@ templ GetRecordAlter(jsonFT []appdata.FinanceTracker, jsonUP appdata.UserParams,
                             <svg width="24" height="24" viewBox="0 0 24 24" stroke="#FFC000"><use xlink:href="/img/icons.svg#feather-alert-triangle"></use></svg>
                             si <code>Lignes Validées</code> est différent de <code>Non</code>, il est possible d'annuler 
                             <!-- red x square -->
-                            <svg width="24" height="24" viewBox="0 0 24 24" stroke="firebrick"><use xlink:href="/img/icons.svg#feather-x-square"></use></svg>
+                            <svg width="24" height="24" viewBox="0 0 24 24" stroke="firebrick"><use xlink:href="/img/icons.svg#feather-red-x-square"></use></svg>
                             des lignes précédemment validées
                             <!-- green check square -->
                             <svg width="24" height="24" viewBox="0 0 24 24"><use xlink:href="/img/icons.svg#feather-green-check-square"></use></svg>
@@ -1135,7 +1137,7 @@ templ GetRecordAlter(jsonFT []appdata.FinanceTracker, jsonUP appdata.UserParams,
                                     <span>Le mode <code>Validation</code> est activé.</span>
                                 } else if alterMode == "cancel" {
                                     <!-- red x square -->
-                                    <svg width="24" height="24" viewBox="0 0 24 24" stroke="firebrick"><use xlink:href="/img/icons.svg#feather-x-square"></use></svg>
+                                    <svg width="24" height="24" viewBox="0 0 24 24" stroke="firebrick"><use xlink:href="/img/icons.svg#feather-red-x-square"></use></svg>
                                     <span>Le mode <code>Annulation</code> est activé.</span>
                                 } else if alterMode == "edit" {
                                     <!-- edit -->

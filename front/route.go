@@ -468,6 +468,7 @@ func GetRecordAlter(w http.ResponseWriter, r *http.Request) {
 	jsonUserParam := jsonUP.AnyStruct.(appdata.UserParams)
 	currentTime := time.Now()
 	currentDate := currentTime.Format(time.DateOnly) // YYYY-MM-DD
+	// fmt.Printf("jsonUserParam.Categories: %#v\n", jsonUserParam.Categories)
 	htmlComponents.GetRecordAlter(jsonFTlist, jsonUserParam, currentDate, r.Header.Get("totalRowsWithoutLimit"), alterMode).Render(r.Context(), w)
 }
 func PostRecordValidate(w http.ResponseWriter, r *http.Request) {

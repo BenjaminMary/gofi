@@ -213,7 +213,7 @@ func RecordRecurrentRead(w http.ResponseWriter, r *http.Request, isFrontRequest 
 	userContext := r.Context().Value(appdata.ContextUserKey).(*appdata.UserRequest)
 	rrList := sqlite.GetRowsInRecurrentRecord(r.Context(), appdata.DB, userContext.GofiID, 0)
 	if len(rrList) == 0 {
-		fmt.Printf("RecordRecurrentRead empty list")
+		fmt.Println("RecordRecurrentRead empty list")
 		return appdata.RenderAPIorUI(w, r, isFrontRequest, false, false, http.StatusBadRequest, "invalid request, double check each field", "")
 	}
 	return appdata.RenderAPIorUI(w, r, isFrontRequest, false, true, http.StatusOK, "recurrent record selected", rrList)

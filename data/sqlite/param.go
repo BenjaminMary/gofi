@@ -271,6 +271,8 @@ func GetFullCategoryList(ctx context.Context, db *sql.DB, uc *appdata.UserCatego
 		firstCategory.Order = 0
 		firstCategory.InUse = 1
 		firstCategory.IconCodePoint = "e90a"
+		firstCategory.ColorName = "system-lightgrey"
+		firstCategory.ColorHEX = "#DDDDDD"
 		uc.FindCategory[firstCategory.Name] = loop
 		uc.Categories = append(uc.Categories, firstCategory)
 	}
