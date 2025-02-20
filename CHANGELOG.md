@@ -4,6 +4,7 @@
 ### Doing
 
 ### Done
+- 2025-02-21 : docs: rework bottom links on the index
 - 2025-02-19 : 
     - fix: front fix color
     - feat: add file example for csv import `gofi-example-csv-UTF8.csv`
