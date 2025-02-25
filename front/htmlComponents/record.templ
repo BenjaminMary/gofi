@@ -259,6 +259,22 @@ templ GetRecordInsert(jsonFT []appdata.FinanceTracker, jsonUP appdata.UserParams
                         Un récapitulatif des derniers enregistrements est disponible ci-dessus.<br/> 
                         Le dernier effectué se trouve en haut de la liste.
                     </p>
+                    if !jsonFUDV.UseNewDefaultValues {
+                        <p>
+                            Créer un raccourci vers cette page avec la pré-saisie actuelle en cliquant ci-dessous:
+                            <aside><nav class="center"><ul>
+                                <button id="prerecordlink" class="secondary">
+                                    <!-- notebook -->
+                                    <svg width="24" height="24" viewBox="0 0 24 24"><use xlink:href="/img/icons.svg#lucide-notebook-pen"></use></svg>
+                                    Raccourci avec pré-saisie
+                                </button>
+                            </ul></nav></aside>
+                        </p>
+                    } else {
+                        <p>
+                            Ajouter cette page avec la pré-saisie initiale à l'écran d'accueil.
+                        </p>
+                    }
                 </section>
 
                 @Nav("top", "/", "/img/icons.svg#feather-home", "Accueil", "contrast outline",
@@ -269,8 +285,26 @@ templ GetRecordInsert(jsonFT []appdata.FinanceTracker, jsonUP appdata.UserParams
             @BotScriptThemeSwitcher()
             @BotScriptHTMXhandleError()
             @categoryDropdown(jsonUP.Categories)
+            if !jsonFUDV.UseNewDefaultValues {
+                @prerecordlink()
+            }
         </body>
     </html>
+}
+script prerecordlink() {
+    document.getElementById('prerecordlink').addEventListener('click', function(d){
+        var account = document.getElementById('compte').value;
+        var category = document.getElementById('summaryCategory').innerHTML;
+        var product = document.getElementById('designation').value;
+        var pricedirection = "-"
+        if (document.getElementById('gain').checked == true) {
+            pricedirection = "+"
+        }
+        var price = document.getElementById('prix').value;
+
+        // similar behavior as clicking on a link
+        window.location.href = "/record/insert/" + account +"/"+ category +"/"+ product +"/"+ pricedirection +"/"+ price;
+    });
 }
 
 
