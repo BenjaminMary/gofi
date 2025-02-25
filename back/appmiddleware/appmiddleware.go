@@ -153,7 +153,7 @@ func AuthenticatedUserOnly(next http.Handler) http.Handler {
 			appdata.RenderAPIorUI(w, r, userContext.IsFront, false, false, http.StatusUnauthorized, "please login", "")
 			if userContext.IsFront {
 				// TODO: return a 401
-				htmlComponents.Lost().Render(r.Context(), w)
+				htmlComponents.Lost(false).Render(r.Context(), w)
 			}
 			return
 		}

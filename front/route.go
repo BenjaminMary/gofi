@@ -119,7 +119,8 @@ func Checklist8(w http.ResponseWriter, r *http.Request) {
 }
 func Lost(w http.ResponseWriter, r *http.Request) {
 	// TODO: return a 404
-	htmlComponents.Lost().Render(r.Context(), w)
+	userContext := r.Context().Value(appdata.ContextUserKey).(*appdata.UserRequest)
+	htmlComponents.Lost(userContext.IsAuthenticated).Render(r.Context(), w)
 }
 
 // USER

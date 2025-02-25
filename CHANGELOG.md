@@ -4,6 +4,7 @@
 ### Doing
 
 ### Done
+- 2025-02-25 : feat: adapt 404 front page if logged or not
 - 2025-02-24 : fix: links to pages with missing query params
 - 2025-02-21 : docs: rework bottom links on the index
 - 2025-02-19 : 

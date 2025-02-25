@@ -74,7 +74,7 @@ templ PostCreateUser(httpStatus int) {
             </div>
 	}
 }
-templ Lost() {
+templ Lost(isAuthenticated bool) {
     <!DOCTYPE html>
     <html lang="fr">
         <head>
@@ -82,9 +82,17 @@ templ Lost() {
         </head>
         <body class="container-fluid">
             <main>
-                <h1>Perdu</h1>
-                @Nav("top", "/", "/img/icons.svg#feather-home", "Accueil", "contrast outline",
+                if isAuthenticated {
+                    <h1>Perdu</h1>
+                    <p>La page demandée n'existe pas.</p>
+                    @Nav("top", "/", "/img/icons.svg#feather-home", "Accueil", "contrast outline",
+                    "/record/insert/", "/img/icons.svg#lucide-notebook-pen", "Saisie", "contrast")
+                } else {
+                    <h1>Déconnecté</h1>
+                    <p>Connexion nécessaire.</p>
+                    @Nav("top", "/", "/img/icons.svg#feather-home", "Accueil", "contrast outline",
                     "/user/login", "/img/icons.svg#feather-user-check", "Se connecter", "contrast")
+                }
             </main>
             @BotScriptThemeSwitcher()
         </body>
@@ -131,9 +139,11 @@ templ GetLogin(json *appdata.UserRequest) {
                         </div>
                     }
                 </div>
-                @Nav("top", "/", "/img/icons.svg#feather-home", "Accueil", "contrast outline",
+                @Nav("top", "/", "/img/icons.svg#feather-home", "Accueil", "contrast outline",                
                     "/param/account", "/img/icons.svg#feather-tool", "Comptes", "contrast")
-            </main>
+                @Nav("none", "/stats/false-0-false-false", "/img/icons.svg#feather-pie-chart", "Statistiques", "contrast outline",
+                    "/record/insert/", "/img/icons.svg#lucide-notebook-pen", "Saisie", "contrast")
+                </main>
             @BotScriptThemeSwitcher()
             @BotScriptHTMXhandleError()
         </body>
