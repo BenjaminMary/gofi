@@ -4,6 +4,7 @@
 ### Doing
 
 ### Done
+- 2025-04-06 : chore: update go modules and go main version
 - 2025-02-25 : 
     - feat: adapt 404 front page if logged or not
     - feat: add link to simple record page for pre recorded values
