@@ -25,7 +25,7 @@ go.work
 *.env
 *.ps1
 *.sh
-/data/dbFiles
+/data/dbFiles/*.db*
 *_templ.go
 gofi
 
