@@ -1,0 +1,10 @@
+# Shell scripts must be LF on all platforms
+*.sh text eol=lf
+
+# CSV fixtures should stay as-is
+*.csv text eol=lf
+# CSV specific test case
+gofi3-UTF8-CRLF.csv text eol=crlf
+
+# Go files
+*.go text eol=lf

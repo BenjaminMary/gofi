@@ -143,12 +143,13 @@ To get a local copy up and running follow these simple example steps.
         export COOKIE_LENGTH=64
         export EXE_PATH="/gofi"
         export ADMIN_EMAIL="test@test.test"
-        export ADMIN_EMAIL_B="testb@test.test"
+        export ADMIN_EMAIL_B="other@test.test"
         export NOTIFICATION_FLAG=0
         export NOTIFICATION_URL="https://notification.server/example"
         export HEADER_IP="header-IP-test"
         # run the tests (create a new DB named test.db) :
         cd /gofi
+        templ generate
         go clean -testcache
         go test ./data/dbscripts/initDB
         go test ./back/api/test/users

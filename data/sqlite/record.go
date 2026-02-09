@@ -648,7 +648,7 @@ func DeleteSpecificRecordsByMode(ctx context.Context, db *sql.DB, gofiID int, in
 	nbParams, anyList = getOrCompleteVarsWithAnyListAndQuestionMarks(0, false, nbParams, &[]int{gofiID}, anyList)
 	nbParams, anyList = getOrCompleteVarsWithAnyListAndQuestionMarks(1, true, nbParams, intList, anyList)
 	if nbParams == "" {
-		fmt.Println("UpdateRowsInFinanceTrackerToMode0 err1: no param")
+		fmt.Println("DeleteSpecificRecordsByMode0 err1: no param")
 		return true	
 	}
 	q = strings.Replace(q, `XnumberOf?`, nbParams, 1)
