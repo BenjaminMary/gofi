@@ -238,7 +238,7 @@ Don't forget to give the project a star! Thanks again!
 - Distributed under the MPL-2.0 License. See `LICENSE` file for more information.
 - Link to the original template of the license: https://www.mozilla.org/en-US/MPL/2.0/
 
-©2024 Benjamin MARY
+©2026 Benjamin MARY
 
 
 

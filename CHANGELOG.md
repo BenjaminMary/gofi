@@ -4,6 +4,9 @@
 ### Doing
 
 ### Done
+- 2026-02-09 : 
+    - chore: update go modules and go main version
+    - fix: adapt tests to Linux
 - 2025-04-06 : chore: update go modules and go main version
 - 2025-02-25 : 
     - feat: adapt 404 front page if logged or not
