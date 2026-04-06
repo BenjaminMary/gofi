@@ -4,6 +4,8 @@
 ### Doing
 
 ### Done
+- 2026-04-06 : 
+    - chore: update go modules and go main version
 - 2026-02-09 : 
     - chore: update go modules and go main version
     - fix: adapt tests to Linux
