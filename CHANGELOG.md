@@ -8,6 +8,7 @@
     - chore: update go modules and go main version
     - feat: add PORT env var
     - fix: error handling
+    - feat: start frontend tests with Playwright
 - 2026-02-09 : 
     - chore: update go modules and go main version
     - fix: adapt tests to Linux

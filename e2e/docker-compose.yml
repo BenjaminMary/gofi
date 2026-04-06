@@ -1,0 +1,15 @@
+services:
+  playwright:
+    build: .
+    image: gofi-playwright
+    shm_size: 1gb
+    ipc: host
+    network_mode: host
+    container_name: gofi-e2e
+    environment:
+      - GOFI_BASE_URL=${GOFI_BASE_URL:-http://localhost:8083}
+      - HEADED=${HEADED:-false}
+      - PWDEBUG=${PWDEBUG:-0}
+      - DISPLAY=${DISPLAY}
+    volumes:
+      - /tmp/.X11-unix:/tmp/.X11-unix
