@@ -541,9 +541,12 @@ func RenderAPIorUI(w http.ResponseWriter, r *http.Request, isFrontRequest bool, 
 	HttpStruct.AnyStruct = jsonContent
 	// fmt.Printf("valid: %v, retargetError: %v\n", valid, retargetError)
 	if isFrontRequest {
-		if !valid && retargetError {
-			w.Header().Set("HX-Retarget", "#htmxInfo")
-			w.Header().Set("HX-Reswap", "innerHTML settle:300ms")
+		if !valid {
+			if retargetError {
+				w.Header().Set("HX-Retarget", "#htmxInfo")
+				w.Header().Set("HX-Reswap", "innerHTML settle:300ms")
+			}
+			w.WriteHeader(httpStatus)
 		}
 	} else {
 		render.Status(r, httpStatus)
@@ -561,9 +564,12 @@ func RenderFile(w http.ResponseWriter, r *http.Request, isFrontRequest bool, ret
 	HttpStruct.AnyStruct = jsonContent
 	// fmt.Printf("valid: %v, retargetError: %v\n", valid, retargetError)
 	if isFrontRequest {
-		if !valid && retargetError {
-			w.Header().Set("HX-Retarget", "#htmxInfo")
-			w.Header().Set("HX-Reswap", "innerHTML settle:300ms")
+		if !valid {
+			if retargetError {
+				w.Header().Set("HX-Retarget", "#htmxInfo")
+				w.Header().Set("HX-Reswap", "innerHTML settle:300ms")
+			}
+			w.WriteHeader(httpStatus)
 		}
 	} else {
 		render.Status(r, httpStatus)
