@@ -39,7 +39,7 @@ HEADED=true DISPLAY=$DISPLAY sudo -E docker compose run --rm playwright
 ### alternate with a browser and inspector on a specific test
 ```bash
 # target a specific test with -k param
-HEADED=true PWDEBUG=1 DISPLAY=$DISPLAY sudo -E docker compose run --rm playwright pytest tests/ -v -s -k "test_user_create_duplicate_fails"
+HEADED=true PWDEBUG=1 DISPLAY=$DISPLAY sudo -E docker compose run --rm playwright pytest tests/ -v -s -k "test_user_create_empty_fields_blocked"
 ```
 
 
