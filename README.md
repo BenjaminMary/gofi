@@ -139,6 +139,7 @@ To get a local copy up and running follow these simple example steps.
 - test the app :
     ```bash
         # generate environment variables :
+        export GOFI_PORT="8083"
         export SQLITE_DB_FILENAME="test.db"
         export COOKIE_LENGTH=64
         export EXE_PATH="/gofi"
@@ -170,6 +171,7 @@ To get a local copy up and running follow these simple example steps.
         # the DB is created in the "dbscripts" folder, move it under: "data/dbFiles"
     ```
     ```bash
+        export GOFI_PORT="8083"
         export SQLITE_DB_FILENAME="gofi.db"
         export COOKIE_LENGTH=64
         export EXE_PATH="/gofi"
