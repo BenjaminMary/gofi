@@ -13,7 +13,7 @@ type Param struct {
 	ID                  int
 	GofiID              int
 	ParamName           string
-	ParamJSONstringData string
+	ParamJSONstringData string `form:"ParamJSONstringData"`
 	ParamInfo           string
 }
 
@@ -266,9 +266,9 @@ type User struct {
 
 type UserRequest struct {
 	GofiID          int    `json:"gofiID"`    // UNIQUE
-	Email           string `json:"email"`     // UNIQUE
-	SessionID       string `json:"sessionID"` // UNIQUE
-	Password        string `json:"password"`
+	Email           string `form:"email"    json:"email"`     // UNIQUE
+	SessionID       string `json:"sessionID"`                 // UNIQUE
+	Password        string `form:"password" json:"password"`
 	PwHash          string `json:"-"` // "-" = not returned
 	IsAdmin         bool   `json:"-"`
 	IsAuthenticated bool   `json:"-"`
@@ -332,17 +332,17 @@ type Category struct {
 }
 type CategoryPut struct {
 	ID                           int
-	IDstr                        string `json:"idStrJson"`
+	IDstr                        string `form:"IDstr"                        json:"idStrJson"`
 	GofiID                       int
-	Type                         string `json:"type"`
+	Type                         string `form:"Type"                          json:"type"`
 	InStats                      int
-	InStatsStr                   string `json:"inStatsStr"`
-	Description                  string `json:"description"`
+	InStatsStr                   string `form:"InStatsStr"                   json:"inStatsStr"`
+	Description                  string `form:"Description"                  json:"description"`
 	BudgetPrice                  int
-	BudgetPriceStr               string `json:"budgetPriceStr"`
-	BudgetPeriod                 string `json:"budgetPeriod"`
-	BudgetType                   string `json:"budgetType"`
-	BudgetCurrentPeriodStartDate string `json:"budgetCurrentPeriodStartDate"`
+	BudgetPriceStr               string `form:"BudgetPriceStr"               json:"budgetPriceStr"`
+	BudgetPeriod                 string `form:"BudgetPeriod"                 json:"budgetPeriod"`
+	BudgetType                   string `form:"BudgetType"                   json:"budgetType"`
+	BudgetCurrentPeriodStartDate string `form:"BudgetCurrentPeriodStartDate" json:"budgetCurrentPeriodStartDate"`
 }
 
 func (a *CategoryPut) Bind(r *http.Request) error {
@@ -397,10 +397,10 @@ func (a *CategoryPut) Bind(r *http.Request) error {
 
 type CategoryPatchInUse struct {
 	ID       int
-	IDstr    string `json:"idStrJson"`
+	IDstr    string `form:"IDstr"    json:"idStrJson"`
 	GofiID   int
 	InUse    int
-	InUseStr string `json:"inUseStrJson"`
+	InUseStr string `form:"InUseStr" json:"inUseStrJson"`
 }
 
 func (a *CategoryPatchInUse) Bind(r *http.Request) error {
@@ -424,9 +424,9 @@ func (a *CategoryPatchInUse) Bind(r *http.Request) error {
 
 type CategoryPatchOrder struct {
 	ID1    int
-	ID1str string `json:"id1StrJson"`
+	ID1str string `form:"ID1str" json:"id1StrJson"`
 	ID2    int
-	ID2str string `json:"id2StrJson"`
+	ID2str string `form:"ID2str" json:"id2StrJson"`
 	GofiID int
 }
 
