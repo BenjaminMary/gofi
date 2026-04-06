@@ -2,6 +2,35 @@
 
 > ☑☐☒❗
 
+- ajouter le solde du compte en cours d'utilisation en visuel avant un achat
+    - solde avant et après transaction
+- gestion multi devise
+    - pas de conversion mais des regroupements de graph par devise
+    - sélection de la devise par compte
+- graph de stats à split
+    - un graph dédié aux comptes
+    - un graph dédié aux catégories
+- faire un mode docker
+    - image debian
+    - génération de la db de test 
+    - exec des tests
+    - génération de la db de prod ou attacher un fichier db en volume
+    - lancement de la prod
+- gestion users
+    - mots de passes
+    - attachement de mail
+    - 2FA
+    - connexion sans mail
+    - changement de mdp si mail OU 2FA
+    - 2FA via notif ntfy ?? 
+    - connexions multiples sur plusieurs appareils pour un même user
+- refonte UI
+    - passer par des modes pop up (via templ ux ?)
+- tester le front
+    - avec Playwright Python + Docker ?
+- maintenance mode
+    - read only DB then wait for the restart to be able to write
+
 - optimisation à prévoir 
     - gérer la liste des 5 derniers enregistrements en param utilisateur pour simplifier les requêtes ? 
 - ☐❗❗système de gestion de migration de la DB
