@@ -241,6 +241,8 @@ func (s *Server) MountFileServer() {
 	FileServer(s.Router, "/img", imgDir)
 	jsDir := http.Dir(filepath.Join(workDir, "assets", "js"))
 	FileServer(s.Router, "/js", jsDir)
+	cssDir := http.Dir(filepath.Join(workDir, "assets", "css"))
+	FileServer(s.Router, "/css", cssDir)
 	fontsDir := http.Dir(filepath.Join(workDir, "assets", "fonts"))
 	FileServer(s.Router, "/fonts", fontsDir)
 	fileDir := http.Dir(filepath.Join(workDir, "assets", "file"))

@@ -17,15 +17,16 @@ templ GetCreateUser(json *appdata.UserRequest) {
             <main>
                 <h1>Création de compte</h1>
                 if json.IsAuthenticated {
-                    <div>
-                        Déjà connecté: <code>{json.Email}</code>.<br/>
-                        Se reconnecter permet de forcer un rafraichissement de la session en cours.
-                    </div>
-                    <hr/>
+                    <article class="alert-warning">
+                        <p>
+                            Déjà connecté: <code>{json.Email}</code>.<br/>
+                            Se reconnecter permet de forcer un rafraichissement de la session en cours.
+                        </p>
+                    </article>
                 }
                 <section id="form">
                     <form hx-post="/user/create"
-                        hx-target="#form" 
+                        hx-target="#form"
                         hx-swap="outerHTML"
                         hx-sync="this:drop"
                         hx-indicator="#spinner">
@@ -44,35 +45,29 @@ templ GetCreateUser(json *appdata.UserRequest) {
 templ PostCreateUser(httpStatus int) {
     switch httpStatus {
         case http.StatusCreated:
-            <div>
-                Création du compte terminée.<br/>
-                Merci de procéder à la connexion.
-            </div>
+            <article class="alert-success">
+                <p><strong>Création du compte terminée.</strong><br/>
+                Merci de procéder à la connexion.</p>
+            </article>
         case http.StatusBadRequest:
-            <div id="htmxInfo">
-                <p>
-                    ERREUR1: Impossible de créer le compte.<br/> 
-                    Requête annulée, merci de recommencer.<br/> 
-                    Si l'erreur persiste, merci de changer d'email.
-                </p>
-            </div>
+            <article id="htmxInfo" class="alert-error">
+                <p><strong>ERREUR1: Impossible de créer le compte.</strong><br/>
+                Requête annulée, merci de recommencer.<br/>
+                Si l'erreur persiste, merci de changer d'email.</p>
+            </article>
         case http.StatusInternalServerError:
-            <div id="htmxInfo">
-                <p>
-                    ERREUR2: Impossible de créer le compte.<br/> 
-                    Requête annulée, merci de recommencer.<br/> 
-                    Si l'erreur persiste, merci de changer d'email.
-                </p>
-            </div>
+            <article id="htmxInfo" class="alert-error">
+                <p><strong>ERREUR2: Impossible de créer le compte.</strong><br/>
+                Requête annulée, merci de recommencer.<br/>
+                Si l'erreur persiste, merci de changer d'email.</p>
+            </article>
         default:
-            <div id="htmxInfo">
-                <p>
-                    ERREUR3: Impossible de créer le compte.<br/> 
-                    Requête annulée, merci de recommencer.<br/> 
-                    Si l'erreur persiste, merci de changer d'email.
-                </p>
-            </div>
-	}
+            <article id="htmxInfo" class="alert-warning">
+                <p><strong>ERREUR3: Impossible de créer le compte.</strong><br/>
+                Requête annulée, merci de recommencer.<br/>
+                Si l'erreur persiste, merci de changer d'email.</p>
+            </article>
+    }
 }
 templ Lost(isAuthenticated bool) {
     <!DOCTYPE html>

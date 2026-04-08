@@ -1,0 +1,93 @@
+/* ===== Layout ===== */
+nav.center a[role=button] {
+    width: 70vw;
+}
+@media screen and (min-width: 768px) {
+    nav.center a[role=button] {
+        width: 50vw;
+    }
+}
+nav a[role=button] {
+    width: 40vw;
+}
+
+/* ===== Alerts ===== */
+article.alert-success {
+    border-left: 4px solid #007a50;
+}
+article.alert-error {
+    border-left: 4px solid #c52f21;
+}
+article.alert-warning {
+    border-left: 4px solid #ffbf00;
+}
+
+/* ===== Icons ===== */
+span.icomoon {
+    font-family: "icomoon";
+    font-size: 24px;
+    display: inline-flex;
+    vertical-align: middle;
+    border-radius: 100%;
+    padding: 0 0.2em 0 0.2em;
+    color: black;
+}
+
+/* ===== Utilities ===== */
+.center {
+    display: block;
+    margin-left: auto;
+    margin-right: auto;
+    text-align: center;
+}
+.centerText {
+    text-align: center;
+}
+.right {
+    text-align: right;
+}
+.light {
+    color: #CCCCCC;
+    border-color: #CCCCCC;
+}
+.dark {
+    color: #333333;
+    border-color: #333333;
+}
+small.mono {
+    font-family: "Consolas","monospace";
+}
+small meter {
+    width: 40%;
+}
+meter {
+    width: 100%;
+}
+img {
+    max-height: 30vh;
+}
+#overflowLimitHeight {
+    max-height: 50vh;
+    overflow-y: auto;
+}
+#htmxInfo.htmx-added {
+    opacity: 0;
+}
+#htmxInfo {
+    opacity: 1;
+    transition: opacity 1s ease-out;
+}
+div.container-apex-chart {
+    text-align: center;
+    aspect-ratio: 1 / 1;
+    max-width: 550px;
+}
+.apexcharts-canvas {
+    margin: 0 auto;
+}
+.round-button {
+    border-radius: 100%;
+}
+.small-padding {
+    padding: 0 0.2em 0.2em 0.2em;
+}
