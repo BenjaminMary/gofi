@@ -27,6 +27,12 @@ From the `e2e/` folder `cd ~/gofi/e2e`:
 ```bash
 # headless (default)
 sudo docker compose run --rm playwright
+
+# run a single file
+sudo docker compose run --rm playwright pytest tests/test_home.py
+
+# run a single test
+sudo docker compose run --rm playwright pytest tests/test_home.py::test_home_online_advanced_mode
 ```
 
 ### alternate with a browser
@@ -47,13 +53,17 @@ HEADED=true PWDEBUG=1 DISPLAY=$DISPLAY sudo -E docker compose run --rm playwrigh
 
 ```
 e2e/
-  conftest.py       ← shared fixtures (browser, page, base_url)
-  requirements.txt  ← Python dependencies
+  conftest.py            ← shared fixtures (browser, page, base_url, created_user, auth_state, logged_in_page)
+  requirements.txt       ← Python dependencies
   tests/
-    test_user.py    ← user creation tests
+    test_home.py         ← home page tests (/ route)
+    test_user_create.py  ← user creation tests (/user/create)
+    test_user_login.py   ← login tests (/user/login)
 ```
 
 ## Adding tests
 
 Each test file goes in `tests/` and follows the `test_*.py` naming convention.
-Fixtures `page` and `base_url` are available in all test files via `conftest.py`.
+- Use `page` fixture for unauthenticated tests
+- Use `logged_in_page` fixture for authenticated tests (depends on `created_user`)
+- Fixtures are available in all test files via `conftest.py`

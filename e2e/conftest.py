@@ -19,6 +19,12 @@ def test_email():
 
 
 @pytest.fixture(scope="session")
+def test_password():
+    # unique password per test session
+    return uuid.uuid4().hex
+
+
+@pytest.fixture(scope="session")
 def playwright_instance():
     with sync_playwright() as p:
         yield p
@@ -44,16 +50,41 @@ def page(browser):
 
 
 @pytest.fixture(scope="session")
-def created_user(browser, base_url, test_email):
+def created_user(browser, base_url, test_email, test_password):
     # scope="session": creates the user once in DB, required by login tests
     # test_email uses a fresh UUID each session so no conflict on reruns
     context = browser.new_context()
     page = context.new_page()
     page.goto(f"{base_url}/user/create")
     page.locator("input[name='email']").fill(test_email)
-    page.locator("input[name='password']").fill("testpassword")
+    page.locator("input[name='password']").fill(test_password)
     page.locator("button[type='submit']").click()
     page.wait_for_timeout(500)
     assert page.locator("text=Création du compte terminée").is_visible()
     context.close()
     return test_email
+
+
+@pytest.fixture(scope="session")
+def auth_state(browser, base_url, created_user, test_password):
+    # log in once, save session cookies — reused by all logged-in tests
+    context = browser.new_context()
+    page = context.new_page()
+    page.goto(f"{base_url}/user/login")
+    page.locator("input[name='email']").fill(created_user)
+    page.locator("input[name='password']").fill(test_password)
+    page.locator("button[type='submit']").click()
+    page.wait_for_timeout(500)
+    assert page.locator("text=Login réussi").is_visible()
+    state = context.storage_state()
+    context.close()
+    return state
+
+
+@pytest.fixture(scope="function")
+def logged_in_page(browser, auth_state):
+    # fresh page per test, pre-authenticated via saved session cookies
+    context = browser.new_context(storage_state=auth_state)
+    page = context.new_page()
+    yield page
+    context.close()
