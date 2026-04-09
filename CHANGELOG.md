@@ -4,6 +4,8 @@
 ### Doing
 
 ### Done
+- 2025-04-09 : tests: improving frontend tests with Playwright
+- 2025-04-08 : chore: local css in dedicated files
 - 2026-04-06 : 
     - chore: update go modules and go main version
     - feat: add PORT env var
