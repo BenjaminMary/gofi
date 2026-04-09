@@ -100,7 +100,10 @@ templ gofiImg(email string) {
     <figure>
         <img class="center" src="/img/gofi-img-sand.png" alt="Gopher"/>
         <p class="center">
-            Bienvenue <code>{email}</code>
+            Bienvenue 
+            if email != "" {
+                <code>{email}</code>
+            }
             <img src="/img/gofi-logo-32x32-sand.svg" alt="Gofi-logo" width="24" height="24"/>
         </p>
     </figure>
@@ -235,7 +238,6 @@ templ indexLinksConnected(IsAdmin bool) {
 }
 templ indexLinksDisconnected() {
     <section id="links">
-        <h2 class="center">Fonctionnalités</h2>
         <aside><nav class="center"><ul>
             <li><a href="/user/create" role="button" class="contrast outline">
                 <!-- user plus -->

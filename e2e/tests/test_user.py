@@ -2,6 +2,9 @@ def test_user_create_page_loads(page, base_url):
     page.goto(f"{base_url}/user/create")
     assert page.locator("input[name='email']").is_visible()
     assert page.locator("input[name='password']").is_visible()
+    assert page.locator("button[id='idSubmit']").is_visible()
+    assert page.locator("a[href='/']").is_visible()
+    assert page.locator("a[href='/user/login']").is_visible()
 
 
 def test_user_create_success(page, base_url, test_email):
