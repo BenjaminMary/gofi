@@ -41,3 +41,19 @@ def page(browser):
     page = context.new_page()
     yield page
     context.close()
+
+
+@pytest.fixture(scope="session")
+def created_user(browser, base_url, test_email):
+    # scope="session": creates the user once in DB, required by login tests
+    # test_email uses a fresh UUID each session so no conflict on reruns
+    context = browser.new_context()
+    page = context.new_page()
+    page.goto(f"{base_url}/user/create")
+    page.locator("input[name='email']").fill(test_email)
+    page.locator("input[name='password']").fill("testpassword")
+    page.locator("button[type='submit']").click()
+    page.wait_for_timeout(500)
+    assert page.locator("text=Création du compte terminée").is_visible()
+    context.close()
+    return test_email

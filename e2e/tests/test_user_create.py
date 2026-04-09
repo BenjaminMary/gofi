@@ -7,14 +7,6 @@ def test_user_create_page_loads(page, base_url):
     assert page.locator("a[href='/user/login']").is_visible()
 
 
-def test_user_create_success(page, base_url, test_email):
-    page.goto(f"{base_url}/user/create")
-    page.locator("input[name='email']").fill(test_email)
-    page.locator("input[name='password']").fill("testpassword")
-    page.locator("button[type='submit']").click()
-    page.wait_for_timeout(500)
-    assert page.locator("text=Création du compte terminée").is_visible()
-
 
 def test_user_create_erreur1_bad_request(page, base_url):
     # bypass HTML5 'required' validation to send empty fields → 400 Bad Request
@@ -26,10 +18,10 @@ def test_user_create_erreur1_bad_request(page, base_url):
     assert page.locator("text=ERREUR1: Impossible de créer le compte").is_visible()
 
 
-def test_user_create_erreur2_duplicate(page, base_url, test_email):
+def test_user_create_erreur2_duplicate(page, base_url, created_user):
     # submit the same email twice → 500 Internal Server Error (DB unique constraint)
     page.goto(f"{base_url}/user/create")
-    page.locator("input[name='email']").fill(test_email)
+    page.locator("input[name='email']").fill(created_user)
     page.locator("input[name='password']").fill("testpassword")
     page.locator("button[type='submit']").click()
     page.wait_for_timeout(500)
