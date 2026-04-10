@@ -2,6 +2,36 @@
 
 > ☑☐☒❗
 
+- tester le front
+    - avec Playwright Python + Docker ?
+
+Normal features (authenticated, core flow):
+
+/ home — offline + online
+/user/create — offline + online
+/user/login — offline + online
+/user/logout — just a confirmation page
+/record/insert/ — main data entry, most important page
+/record/alter/edit — edit/validate/cancel records
+/stats/... — statistics page
+/budget — budget page
+/param/account — account config
+/param/category — category config
+/param/ — misc settings
+
+Advanced features (hidden by default):
+
+/record/transfer — transfer between accounts
+/record/recurrent — recurring records
+/record/lend-or-borrow — lend/borrow
+/stats/lender-borrower/0 — lend/borrow stats
+/csv/export — CSV export
+/csv/import — CSV import
+
+Onboarding (checklist):
+
+/checklist and /checklist/1 through /checklist/8
+
 - ajouter le solde du compte en cours d'utilisation en visuel avant un achat
     - solde avant et après transaction
 - gestion multi devise
@@ -25,9 +55,7 @@
     - 2FA via notif ntfy ?? 
     - connexions multiples sur plusieurs appareils pour un même user
 - refonte UI
-    - passer par des modes pop up (via templ ux ?)
-- tester le front
-    - avec Playwright Python + Docker ?
+    - passer par des modes pop up : Dialog
 - maintenance mode
     - read only DB then wait for the restart to be able to write
 
