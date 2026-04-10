@@ -452,20 +452,19 @@ func (a *CategoryPatchOrder) Bind(r *http.Request) error {
 type FilterRows struct {
 	GofiID          int
 	ID				int	   // FT ID UNIQUE
-	WhereAccount    string `json:"compteHidden"`
-	WhereCategory   string `json:"category"`
-	WhereYearStr    string `json:"annee"`
+	WhereAccount    string `form:"WhereAccount" json:"compteHidden"`
+	WhereCategory   string `form:"WhereCategory" json:"category"`
+	WhereYearStr    string `form:"WhereYearStr" json:"annee"`
 	WhereYear       int
-	WhereMonthStr   string `json:"mois"`
+	WhereMonthStr   string `form:"WhereMonthStr" json:"mois"`
 	WhereMonth      int
-	WhereCheckedStr string `json:"checked"`
+	WhereCheckedStr string `form:"WhereCheckedStr" json:"checked"`
 	WhereChecked    int    // 0 default don't use, 1 = True, 2 = False
-	OrderBy         string `json:"orderBy"`
-	OrderSort       string `json:"orderSort"`
-	LimitStr        string `json:"limitStr"`
+	OrderBy         string `form:"OrderBy" json:"orderBy"`
+	OrderSort       string `form:"OrderSort" json:"orderSort"`
+	LimitStr        string `form:"LimitStr" json:"limitStr"`
 	Limit           int
 }
-
 func (a *FilterRows) Bind(r *http.Request) error {
 	return nil
 }

@@ -40,6 +40,8 @@ sudo docker compose run --rm playwright pytest tests/test_home.py::test_home_onl
 # headed (GUI) — run xhost +local:docker first
 xhost +local:docker
 HEADED=true DISPLAY=$DISPLAY sudo -E docker compose run --rm playwright
+
+HEADED=true DISPLAY=$DISPLAY sudo -E docker compose run --rm playwright pytest tests/test_record_alter.py -v -s
 ```
 
 ### alternate with a browser and inspector on a specific test
