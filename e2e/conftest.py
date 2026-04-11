@@ -138,18 +138,20 @@ def open_advanced_mode_and_reload(page, account, checked="0"):
     page.wait_for_load_state("networkidle")
 
 
-def insert_record(page, base_url, account, designation="test playwright", amount="10.00"):
+def insert_record(page, base_url, account, designation="test playwright", amount="10.00", direction="expense"):
     """Insert one record via the /record/insert/ form.
 
     Use this helper inside a test when you need a fresh record at a specific
     point (e.g. before validating then cancelling). The page is left on
     /record/insert/ after the call.
+
+    direction: "expense" (default) or "gain"
     """
     page.goto(f"{base_url}/record/insert/")
     page.locator("select[name='compte']").select_option(account)
     page.locator("input[type='radio'][name='categorie']").first.check()
     page.locator("input[name='prix']").fill(amount)
-    page.locator("input[value='expense']").check()
+    page.locator(f"input[value='{direction}']").check()
     page.locator("input[name='designation']").fill(designation)
     page.locator("button#idSubmit1").click()
     page.wait_for_selector(f"text={designation}")  # wait for HTMX response before returning
