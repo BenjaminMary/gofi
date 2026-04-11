@@ -122,18 +122,44 @@ def la_account(browser, base_url, auth_state):
     return "LA"
 
 
+def open_advanced_mode_and_reload(page, account, checked="0"):
+    """Open the advanced mode filter panel and trigger the HTMX table reload.
+
+    Mimics what a user does: click the advanced mode section to expand filters,
+    set the validation filter, then switch account to fire the JS change event
+    which POSTs to /record/getviapost and replaces #recap with fresh rows.
+
+    checked: "0"=Toutes, "1"=Oui (validated), "2"=Non (default)
+    """
+    page.locator("#advancedMode").click()
+    page.locator("#checked").select_option(checked)
+    # account select starts on "-" (value="") — switching to any account fires the change event
+    page.locator("#compte").select_option(account)
+    page.wait_for_load_state("networkidle")
+
+
+def insert_record(page, base_url, account, designation="test playwright", amount="10.00"):
+    """Insert one record via the /record/insert/ form.
+
+    Use this helper inside a test when you need a fresh record at a specific
+    point (e.g. before validating then cancelling). The page is left on
+    /record/insert/ after the call.
+    """
+    page.goto(f"{base_url}/record/insert/")
+    page.locator("select[name='compte']").select_option(account)
+    page.locator("input[type='radio'][name='categorie']").first.check()
+    page.locator("input[name='prix']").fill(amount)
+    page.locator("input[value='expense']").check()
+    page.locator("input[name='designation']").fill(designation)
+    page.locator("button#idSubmit1").click()
+    page.wait_for_selector(f"text={designation}")  # wait for HTMX response before returning
+
+
 @pytest.fixture(scope="session")
 def created_record(browser, base_url, auth_state, created_account):
     # scope="session": inserts one record once, required by alter/validate tests
     context = browser.new_context(storage_state=auth_state)
     page = context.new_page()
-    page.goto(f"{base_url}/record/insert/")
-    page.locator("select[name='compte']").select_option(created_account)
-    page.locator("input[type='radio'][name='categorie']").first.check()
-    page.locator("input[name='prix']").fill("10.00")
-    page.locator("input[value='expense']").check()
-    page.locator("input[name='designation']").fill("test playwright")
-    page.locator("button#idSubmit1").click()
-    page.wait_for_timeout(500)
+    insert_record(page, base_url, created_account)
     context.close()
 

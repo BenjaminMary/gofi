@@ -1,3 +1,6 @@
+from conftest import insert_record, open_advanced_mode_and_reload
+
+
 def test_record_alter_page_loads(logged_in_page, base_url):
     logged_in_page.goto(f"{base_url}/record/alter/edit")
     assert logged_in_page.locator("h1", has_text="Editer des gains ou dépenses").is_visible()
@@ -24,18 +27,18 @@ def test_record_validate_success(logged_in_page, base_url, created_record):
     logged_in_page.wait_for_selector("#htmxInfo:has-text('OK')")
 
 
-def test_record_cancel_success_on_previously_validated_row(logged_in_page, base_url, created_record):
-    # test_record_validate_success (same file, runs before this) validated "test playwright"
-    # the alter page uses WhereCheckedStr="2" by default which needs to be switched to shows all records
+def test_record_cancel_success_on_previously_validated_row(logged_in_page, base_url, created_account):
+    # insert a fresh record, validate it, then cancel it — self-contained, no dependency on prior tests
+    insert_record(logged_in_page, base_url, created_account, designation="test cancel")
+    # validate it so it can be cancelled
+    logged_in_page.goto(f"{base_url}/record/alter/validate")
+    logged_in_page.locator("tr", has_text="test cancel").first.locator("input[type='checkbox'][name='idCheckbox']").check()
+    logged_in_page.locator("button#submitValid").click()
+    logged_in_page.wait_for_selector("#htmxInfo:has-text('OK')")
+    # cancel page defaults to non-validated rows — open advanced mode and switch to validated (1=Oui)
     logged_in_page.goto(f"{base_url}/record/alter/cancel")
     assert logged_in_page.locator("h1", has_text="Annuler des gains ou dépenses").is_visible()
-    # change mode to see previously validated rows
-    logged_in_page.locator("#advancedMode").click()
-    logged_in_page.locator("#checked").select_option(value="1")
-    # select the account to refresh rows
-    logged_in_page.locator("#compte").select_option(value="CB")
-    logged_in_page.wait_for_timeout(500)
-    assert logged_in_page.locator("text=test playwright").first.is_visible()
-    logged_in_page.locator("tr", has_text="test playwright").first.locator("input[type='checkbox']").check()
+    open_advanced_mode_and_reload(logged_in_page, created_account, checked="1")
+    logged_in_page.locator("tr", has_text="test cancel").first.locator("input[type='checkbox'][name='idCheckbox']").check()
     logged_in_page.locator("button#submitCancel").click()
     logged_in_page.wait_for_selector("#htmxInfo:has-text('OK')")

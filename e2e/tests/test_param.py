@@ -62,3 +62,15 @@ def test_param_category_rendering_icons(logged_in_page, base_url):
     logged_in_page.locator("button#idSubmit3").click()
     logged_in_page.wait_for_timeout(500)
     assert logged_in_page.locator("button#idSubmit3").count() == 0
+
+
+def test_param_category_edit(logged_in_page, base_url):
+    # click edit on first active category (button id^='e-') — JS opens section#openForm
+    # and populates the form fields; submit without changes triggers location.reload()
+    logged_in_page.goto(f"{base_url}/param/category")
+    logged_in_page.locator("button[id^='e-']").first.click()  # [id^='e-'] = CSS "starts with": matches e-0-1, e-1-3, …
+    # JS sets section#openForm.hidden = false — button#editRR becomes visible
+    logged_in_page.wait_for_selector("button#editRR", state="visible")
+    with logged_in_page.expect_navigation():
+        logged_in_page.locator("button#editRR").click()
+    assert logged_in_page.locator("h1", has_text="Gérer les catégories").is_visible()
