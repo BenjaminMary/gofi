@@ -155,11 +155,3 @@ def insert_record(page, base_url, account, designation="test playwright", amount
     page.wait_for_selector(f"text={designation}")  # wait for HTMX response before returning
 
 
-@pytest.fixture(scope="session")
-def created_record(browser, base_url, auth_state, created_account):
-    # scope="session": inserts one record once, required by alter/validate tests
-    context = browser.new_context(storage_state=auth_state)
-    page = context.new_page()
-    insert_record(page, base_url, created_account)
-    context.close()
-

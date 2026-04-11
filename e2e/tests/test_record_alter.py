@@ -11,24 +11,24 @@ def test_record_alter_requires_auth(page, base_url):
     assert page.locator("text=Déconnecté").is_visible()
 
 
-def test_record_alter_shows_inserted_record(logged_in_page, base_url, created_record):
-    # the record created by fixture should appear in the alter/edit list
+def test_record_alter_shows_inserted_record(logged_in_page, base_url, created_account):
+    insert_record(logged_in_page, base_url, created_account, designation="test alter show")
     logged_in_page.goto(f"{base_url}/record/alter/edit")
-    assert logged_in_page.locator("text=test playwright").first.is_visible()
+    assert logged_in_page.locator("text=test alter show").first.is_visible()
 
 
-def test_record_validate_success(logged_in_page, base_url, created_record):
+def test_record_validate_success(logged_in_page, base_url, created_account):
+    insert_record(logged_in_page, base_url, created_account, designation="test validate")
     logged_in_page.goto(f"{base_url}/record/alter/validate")
     assert logged_in_page.locator("h1", has_text="Valider des gains ou dépenses").is_visible()
-    assert logged_in_page.locator("text=test playwright").first.is_visible()
+    assert logged_in_page.locator("text=test validate").first.is_visible()
     # must check a checkbox before submitting — HTMX confirm JS collects :checked inputs
-    logged_in_page.locator("input[type='checkbox'][name='idCheckbox']").first.check()
+    logged_in_page.locator("tr", has_text="test validate").first.locator("input[type='checkbox'][name='idCheckbox']").check()
     logged_in_page.locator("button#submitValid").first.click()
     logged_in_page.wait_for_selector("#htmxInfo:has-text('OK')")
 
 
 def test_record_cancel_success_on_previously_validated_row(logged_in_page, base_url, created_account):
-    # insert a fresh record, validate it, then cancel it — self-contained, no dependency on prior tests
     insert_record(logged_in_page, base_url, created_account, designation="test cancel")
     # validate it so it can be cancelled
     logged_in_page.goto(f"{base_url}/record/alter/validate")
