@@ -28,6 +28,18 @@ def test_record_validate_success(logged_in_page, base_url, created_account):
     logged_in_page.wait_for_selector("#htmxInfo:has-text('OK')")
 
 
+def test_record_alter_toggle_all_checkboxes(logged_in_page, base_url, created_account):
+    # insert a fresh unchecked record so the validate page has at least one row
+    insert_record(logged_in_page, base_url, created_account, designation="test toggle all")
+    logged_in_page.goto(f"{base_url}/record/alter/validate")
+    logged_in_page.wait_for_selector("input[type='checkbox'][name='idCheckbox']")
+    # click the thead toggle — all row checkboxes should become checked
+    logged_in_page.locator("input[name='toggle']").check()
+    checkboxes = logged_in_page.locator("input[type='checkbox'][name='idCheckbox']")
+    for i in range(checkboxes.count()):
+        assert checkboxes.nth(i).is_checked()
+
+
 def test_record_cancel_success_on_previously_validated_row(logged_in_page, base_url, created_account):
     insert_record(logged_in_page, base_url, created_account, designation="test cancel")
     # validate it so it can be cancelled

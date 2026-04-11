@@ -46,3 +46,20 @@ def test_record_lend_or_borrow_lend_success(logged_in_page, base_url, created_ac
     logged_in_page.locator("input[name='FT.designation']").fill("test pret")
     logged_in_page.locator("button#idSubmit1").click()
     logged_in_page.wait_for_selector("text=test pret")
+
+
+def test_record_lend_or_borrow_reimburse_borrow(logged_in_page, base_url, created_account):
+    # mode 3 = Rembourse emprunt: uses an existing tier from select#who (option value = tier name)
+    # "Tiers LB" was created in test_record_lend_or_borrow_borrow_success which runs first (b < r)
+    # in mode 3, createLenderBorrowerName is disabled — must pick from select#who
+    logged_in_page.goto(f"{base_url}/record/lend-or-borrow")
+    logged_in_page.locator("select#modeStr").select_option("3")
+    # JS shows #whoDiv when mode is 3 — wait for select#who to become visible
+    logged_in_page.wait_for_selector("select#who", state="visible")
+    logged_in_page.locator("select#who").select_option("Tiers LB")
+    logged_in_page.locator("select[name='FT.compte']").select_option(created_account)
+    # category radio is pre-checked by the JS mode handler — do not call .check()
+    logged_in_page.locator("input[name='FT.prix']").fill("25.00")
+    logged_in_page.locator("input[name='FT.designation']").fill("test remboursement emprunt")
+    logged_in_page.locator("button#idSubmit1").click()
+    logged_in_page.wait_for_selector("text=test remboursement emprunt")

@@ -35,14 +35,48 @@ def test_param_account_create(logged_in_page, base_url, created_account):
 
 
 def test_param_account_create_too_short(logged_in_page, base_url):
-    # account name under 2 chars should be blocked by HTML5 validation
+    # JS blocks creation — error text appears in #infoText
     logged_in_page.goto(f"{base_url}/param/account")
     logged_in_page.locator("section#createAccSection summary").click()
     logged_in_page.locator("input#accountToCreate").fill("X")
     logged_in_page.locator("button#createAccount").click()
-    logged_in_page.wait_for_timeout(500)
-    # form stays on page, no new account created
-    assert logged_in_page.locator("h1", has_text="Gérer les comptes").is_visible()
+    logged_in_page.wait_for_selector("text=moins de 2 caractères")
+
+
+def test_param_account_create_too_long(logged_in_page, base_url):
+    # JS blocks creation when name exceeds 5 chars — error text appears in #infoText
+    logged_in_page.goto(f"{base_url}/param/account")
+    logged_in_page.locator("section#createAccSection summary").click()
+    logged_in_page.locator("input#accountToCreate").fill("TOOLONG")
+    logged_in_page.locator("button#createAccount").click()
+    logged_in_page.wait_for_selector("text=plus de 5 caractères")
+
+
+def test_param_account_create_forbidden_dash(logged_in_page, base_url):
+    # JS blocks creation when name contains a dash — error text appears in #infoText
+    logged_in_page.goto(f"{base_url}/param/account")
+    logged_in_page.locator("section#createAccSection summary").click()
+    logged_in_page.locator("input#accountToCreate").fill("A-B")
+    logged_in_page.locator("button#createAccount").click()
+    logged_in_page.wait_for_selector("text=caractères -")
+
+
+def test_param_account_create_forbidden_space(logged_in_page, base_url):
+    # JS blocks creation when name contains a space — error text appears in #infoText
+    logged_in_page.goto(f"{base_url}/param/account")
+    logged_in_page.locator("section#createAccSection summary").click()
+    logged_in_page.locator("input#accountToCreate").fill("A B")
+    logged_in_page.locator("button#createAccount").click()
+    logged_in_page.wait_for_selector("text=caractères espace")
+
+
+def test_param_account_create_duplicate(logged_in_page, base_url, created_account):
+    # JS blocks creation when name already exists — error text appears in #infoText
+    logged_in_page.goto(f"{base_url}/param/account")
+    logged_in_page.locator("section#createAccSection summary").click()
+    logged_in_page.locator("input#accountToCreate").fill(created_account)
+    logged_in_page.locator("button#createAccount").click()
+    logged_in_page.wait_for_selector("text=déjà existant")
 
 
 def test_param_category_rendering_names(logged_in_page, base_url):

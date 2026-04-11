@@ -42,6 +42,31 @@ def test_record_recurrent_save_row(logged_in_page, base_url):
     logged_in_page.wait_for_selector("#lastInsert tr")
 
 
+def test_record_recurrent_edit(logged_in_page, base_url, created_account):
+    # create a fresh recurrent, reload to enable row buttons (HTMX-inserted rows have disabled buttons),
+    # click the row edit button, update the designation, submit via button#editRR
+    logged_in_page.goto(f"{base_url}/record/recurrent")
+    logged_in_page.locator("details#openForm > summary").click()
+    logged_in_page.locator("select[name='recurrence']").select_option("mensuelle")
+    logged_in_page.locator("select[name='compte']").select_option(created_account)
+    logged_in_page.locator("input[type='radio'][name='categorie']").first.check()
+    logged_in_page.locator("input[name='prix']").fill("30.00")
+    logged_in_page.locator("input[value='expense']").check()
+    logged_in_page.locator("input[name='designation']").fill("test recurrent to edit")
+    logged_in_page.locator("button#createRR").click()
+    logged_in_page.wait_for_selector("text=test recurrent to edit")
+    # reload to server-render the row — makes save/edit buttons active
+    logged_in_page.reload()
+    logged_in_page.wait_for_selector("text=test recurrent to edit")
+    # click the row edit button — JS populates the create form and reveals button#editRR
+    logged_in_page.locator("tr", has_text="test recurrent to edit").first.locator("button[id^='e']").click()  # [id^='e'] = CSS "starts with"
+    logged_in_page.wait_for_selector("button#editRR", state="visible")
+    # overwrite the designation and submit — editRR POSTs to /record/recurrent/update, target #newRR afterbegin
+    logged_in_page.locator("input[name='designation']").fill("test recurrent edited")
+    logged_in_page.locator("button#editRR").click()
+    logged_in_page.wait_for_selector("text=test recurrent edited")
+
+
 def test_record_recurrent_delete(logged_in_page, base_url):
     # click the edit button (id^='e') to load row data into the create form
     # the JS opens details#openForm and reveals editRR/deleteRR buttons
