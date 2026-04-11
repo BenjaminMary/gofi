@@ -17,8 +17,14 @@ def test_record_insert_account_in_select(logged_in_page, base_url, created_accou
     assert logged_in_page.locator(f"select[name='compte'] option[value='{created_account}']").count() >= 1
 
 
-def test_record_insert_success(logged_in_page, base_url, created_record):
-    # created_record fixture inserts a record — verify it appears in the recap table
-    # use .first because "test playwright cancel" also contains the substring
+def test_record_insert_success(logged_in_page, base_url, created_account):
+    # fill and submit the form — verify the record appears in the HTMX recap response
+    # (navigating fresh to the page shows an empty recap table, so we insert here directly)
     logged_in_page.goto(f"{base_url}/record/insert/")
-    assert logged_in_page.locator("text=test playwright").first.is_visible()
+    logged_in_page.locator("select[name='compte']").select_option(created_account)
+    logged_in_page.locator("input[type='radio'][name='categorie']").first.check()
+    logged_in_page.locator("input[name='prix']").fill("5.00")
+    logged_in_page.locator("input[value='expense']").check()
+    logged_in_page.locator("input[name='designation']").fill("test insert success")
+    logged_in_page.locator("button#idSubmit1").click()
+    logged_in_page.wait_for_selector("text=test insert success")
