@@ -29,20 +29,30 @@ func GetStatsForLineChartInFinanceTracker(ctx context.Context, db *sql.DB,
 		log.Fatal("GetStatsForLineChartInFinanceTracker error on DB query1: ", err)
 	}
 	apexChartStats := appdata.NewApexChartStats()
-	loop := -1
-	var yearMin int // yearMin used as an index
+	var yearMin int
 	for rows.Next() {
-		loop += 1
 		var yearQ int
 		if err := rows.Scan(&yearQ); err != nil {
 			log.Fatal(err)
 		}
-		if loop == 0 {
+		if len(apexChartStats.Labels) == 0 {
 			yearMin = yearQ
 		}
 		apexChartStats.Labels = append(apexChartStats.Labels, strconv.Itoa(yearQ))
 	}
 	rows.Close()
+	// fill in intermediate years so the range is consecutive:
+	// yearQ-yearMin is then always a valid slice index (e.g. 2015…2026 → 12 entries)
+	if len(apexChartStats.Labels) >= 2 {
+		yearMax, _ := strconv.Atoi(apexChartStats.Labels[len(apexChartStats.Labels)-1])
+		if yearMax-yearMin+1 > len(apexChartStats.Labels) {
+			allLabels := make([]string, yearMax-yearMin+1)
+			for i := range allLabels {
+				allLabels[i] = strconv.Itoa(yearMin + i)
+			}
+			apexChartStats.Labels = allLabels
+		}
+	}
 
 	// initialize all accounts with values to 0
 	q = ` 
@@ -58,7 +68,7 @@ func GetStatsForLineChartInFinanceTracker(ctx context.Context, db *sql.DB,
 	if err != nil {
 		log.Fatal("GetStatsForLineChartInFinanceTracker error on DB query2: ", err)
 	}
-	loop = -1
+	loop := -1
 	for rows.Next() {
 		loop += 1
 		var apexChartSerie appdata.ApexChartSerie
