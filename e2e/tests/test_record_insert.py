@@ -1,3 +1,13 @@
+# Tested:
+# 1. page loads: h1 "Insérer des données", form section, submit button visible
+# 2. page requires auth
+# 3. created account appears in the compte select options
+# 4. insert expense: row appears in HTMX recap after submit
+# 5. insert gain: row appears with correct amount in recap
+# 6. missing amount: HTML5 required blocks form — recap row count unchanged
+
+
+# 1.
 def test_record_insert_page_loads(logged_in_page, base_url):
     logged_in_page.goto(f"{base_url}/record/insert/")
     assert logged_in_page.locator("h1", has_text="Insérer des données").is_visible()
@@ -5,11 +15,13 @@ def test_record_insert_page_loads(logged_in_page, base_url):
     assert logged_in_page.locator("button#idSubmit1").is_visible()
 
 
+# 2.
 def test_record_insert_requires_auth(page, base_url):
     page.goto(f"{base_url}/record/insert/")
     assert page.locator("text=Déconnecté").is_visible()
 
 
+# 3.
 def test_record_insert_account_in_select(logged_in_page, base_url, created_account):
     # account created via fixture should appear in the compte select
     # option elements are never "visible" in Playwright — use count() instead
@@ -17,6 +29,7 @@ def test_record_insert_account_in_select(logged_in_page, base_url, created_accou
     assert logged_in_page.locator(f"select[name='compte'] option[value='{created_account}']").count() >= 1
 
 
+# 4.
 def test_record_insert_success(logged_in_page, base_url, created_account):
     # fill and submit the form — verify the record appears in the HTMX recap response
     # (navigating fresh to the page shows an empty recap table, so we insert here directly)
@@ -30,6 +43,7 @@ def test_record_insert_success(logged_in_page, base_url, created_account):
     logged_in_page.wait_for_selector("text=test insert success")
 
 
+# 5.
 def test_record_insert_gain_direction(logged_in_page, base_url, created_account):
     # insert a gain — the HTMX recap should show the row with a positive amount
     logged_in_page.goto(f"{base_url}/record/insert/")
@@ -44,6 +58,7 @@ def test_record_insert_gain_direction(logged_in_page, base_url, created_account)
     assert logged_in_page.locator("text=42.00").first.is_visible()
 
 
+# 6.
 def test_record_insert_missing_amount_blocked(logged_in_page, base_url, created_account):
     # prix field is required (HTML5) — submitting without it blocks the request client-side
     # no HTMX request fires, so #lastInsert is unchanged

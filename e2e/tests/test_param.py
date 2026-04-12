@@ -1,39 +1,65 @@
+# Tested:
+# 1.  /param page loads: h1 "Gérer les paramètres"
+# 2.  /param requires auth
+# 3.  /param/account page loads: h1 "Gérer les comptes"
+# 4.  /param/account requires auth
+# 5.  /param/category page loads: h1 "Gérer les catégories"
+# 6.  /param/category requires auth
+# 7.  account creation: created account appears in the list
+# 8.  name too short (< 2 chars): JS error in #infoText
+# 9.  name too long (> 5 chars): JS error in #infoText
+# 10. name with dash: JS error in #infoText
+# 11. name with space: JS error in #infoText
+# 12. duplicate name: JS error in #infoText
+# 13. category rendering set to "names": button#idSubmit3 disappears on success
+# 14. category rendering set to "icons": button#idSubmit3 disappears on success
+# 15. category edit: opens form, submit redirects back to category page
+
+
+# 1.
 def test_param_page_loads(logged_in_page, base_url):
     logged_in_page.goto(f"{base_url}/param")
     assert logged_in_page.locator("h1", has_text="Gérer les paramètres").is_visible()
 
 
+# 2.
 def test_param_requires_auth(page, base_url):
     page.goto(f"{base_url}/param")
     assert page.locator("text=Déconnecté").is_visible()
 
 
+# 3.
 def test_param_account_page_loads(logged_in_page, base_url):
     logged_in_page.goto(f"{base_url}/param/account")
     assert logged_in_page.locator("h1", has_text="Gérer les comptes").is_visible()
 
 
+# 4.
 def test_param_account_requires_auth(page, base_url):
     page.goto(f"{base_url}/param/account")
     assert page.locator("text=Déconnecté").is_visible()
 
 
+# 5.
 def test_param_category_page_loads(logged_in_page, base_url):
     logged_in_page.goto(f"{base_url}/param/category")
     assert logged_in_page.locator("h1", has_text="Gérer les catégories").is_visible()
 
 
+# 6.
 def test_param_category_requires_auth(page, base_url):
     page.goto(f"{base_url}/param/category")
     assert page.locator("text=Déconnecté").is_visible()
 
 
+# 7.
 def test_param_account_create(logged_in_page, base_url, created_account):
     # created_account fixture handles creation — verify account appears in list
     logged_in_page.goto(f"{base_url}/param/account")
     assert logged_in_page.locator(f"text={created_account}").count() >= 1
 
 
+# 8.
 def test_param_account_create_too_short(logged_in_page, base_url):
     # JS blocks creation — error text appears in #infoText
     logged_in_page.goto(f"{base_url}/param/account")
@@ -43,6 +69,7 @@ def test_param_account_create_too_short(logged_in_page, base_url):
     logged_in_page.wait_for_selector("text=moins de 2 caractères")
 
 
+# 9.
 def test_param_account_create_too_long(logged_in_page, base_url):
     # JS blocks creation when name exceeds 5 chars — error text appears in #infoText
     logged_in_page.goto(f"{base_url}/param/account")
@@ -52,6 +79,7 @@ def test_param_account_create_too_long(logged_in_page, base_url):
     logged_in_page.wait_for_selector("text=plus de 5 caractères")
 
 
+# 10.
 def test_param_account_create_forbidden_dash(logged_in_page, base_url):
     # JS blocks creation when name contains a dash — error text appears in #infoText
     logged_in_page.goto(f"{base_url}/param/account")
@@ -61,6 +89,7 @@ def test_param_account_create_forbidden_dash(logged_in_page, base_url):
     logged_in_page.wait_for_selector("text=caractères -")
 
 
+# 11.
 def test_param_account_create_forbidden_space(logged_in_page, base_url):
     # JS blocks creation when name contains a space — error text appears in #infoText
     logged_in_page.goto(f"{base_url}/param/account")
@@ -70,6 +99,7 @@ def test_param_account_create_forbidden_space(logged_in_page, base_url):
     logged_in_page.wait_for_selector("text=caractères espace")
 
 
+# 12.
 def test_param_account_create_duplicate(logged_in_page, base_url, created_account):
     # JS blocks creation when name already exists — error text appears in #infoText
     logged_in_page.goto(f"{base_url}/param/account")
@@ -79,6 +109,7 @@ def test_param_account_create_duplicate(logged_in_page, base_url, created_accoun
     logged_in_page.wait_for_selector("text=déjà existant")
 
 
+# 13.
 def test_param_category_rendering_names(logged_in_page, base_url):
     # switch category rendering to "names" and save — no error should appear
     logged_in_page.goto(f"{base_url}/param")
@@ -89,6 +120,7 @@ def test_param_category_rendering_names(logged_in_page, base_url):
     assert logged_in_page.locator("button#idSubmit3").count() == 0
 
 
+# 14.
 def test_param_category_rendering_icons(logged_in_page, base_url):
     # switch category rendering back to "icons" and save
     logged_in_page.goto(f"{base_url}/param")
@@ -98,6 +130,7 @@ def test_param_category_rendering_icons(logged_in_page, base_url):
     assert logged_in_page.locator("button#idSubmit3").count() == 0
 
 
+# 15.
 def test_param_category_edit(logged_in_page, base_url):
     # click edit on first active category (button id^='e-') — JS opens section#openForm
     # and populates the form fields; submit without changes triggers location.reload()

@@ -1,3 +1,12 @@
+# Tested:
+# 1. page loads: h1 "Transfert", form section, submit button visible
+# 2. page requires auth
+# 3. both accounts (CB and LA) appear in from and to selects
+# 4. same-account guard: JS alert fires and no new row is added
+# 5. transfer success: creates Transfert+ and Transfert- rows in recap
+
+
+# 1.
 def test_record_transfer_page_loads(logged_in_page, base_url):
     logged_in_page.goto(f"{base_url}/record/transfer")
     assert logged_in_page.locator("h1", has_text="Transfert").is_visible()
@@ -5,11 +14,13 @@ def test_record_transfer_page_loads(logged_in_page, base_url):
     assert logged_in_page.locator("button#idSubmit1").is_visible()
 
 
+# 2.
 def test_record_transfer_requires_auth(page, base_url):
     page.goto(f"{base_url}/record/transfer")
     assert page.locator("text=Déconnecté").is_visible()
 
 
+# 3.
 def test_record_transfer_both_accounts_in_selects(logged_in_page, base_url, created_account, la_account):
     # CB and LA accounts should both appear in the from/to selects
     # option elements are never "visible" in Playwright — use count() instead
@@ -20,6 +31,7 @@ def test_record_transfer_both_accounts_in_selects(logged_in_page, base_url, crea
     assert logged_in_page.locator(f"select[name='compteVers'] option[value='{la_account}']").count() >= 1
 
 
+# 4.
 def test_record_transfer_same_account_blocked(logged_in_page, base_url, created_account):
     # JS guard: htmx:confirm fires a browser alert and blocks the request when from == to
     # all required fields must be filled first — HTML5 validation blocks submit before htmx:confirm fires
@@ -37,6 +49,7 @@ def test_record_transfer_same_account_blocked(logged_in_page, base_url, created_
     assert logged_in_page.locator("#lastInsert tr").count() == rows_before
 
 
+# 5.
 def test_record_transfer_success(logged_in_page, base_url, created_account, la_account):
     # transfer from LA to CB — backend creates two records: Transfert- and Transfert+
     logged_in_page.goto(f"{base_url}/record/transfer")

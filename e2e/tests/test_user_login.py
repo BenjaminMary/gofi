@@ -1,3 +1,12 @@
+# Tested:
+# 1. page loads: email/password fields, submit button, and navigation links visible
+# 2. bad request: empty fields submitted bypassing HTML5 required → ERREUR1
+# 3. wrong password: valid email but wrong password → error message
+# 4. empty fields: HTML5 required blocks submission, form stays on page
+# 5. already logged in: warning banner with current user email shown
+
+
+# 1.
 def test_user_login_page_loads(page, base_url):
     page.goto(f"{base_url}/user/login")
     assert page.locator("input[name='email']").is_visible()
@@ -8,7 +17,7 @@ def test_user_login_page_loads(page, base_url):
     assert page.locator("text=Nouveau").is_visible()
 
 
-
+# 2.
 def test_user_login_erreur1_bad_request(page, base_url):
     # bypass HTML5 'required' validation to send empty fields → 400 Bad Request
     page.goto(f"{base_url}/user/login")
@@ -19,6 +28,7 @@ def test_user_login_erreur1_bad_request(page, base_url):
     assert page.locator("text=ERREUR1: Impossible de se connecter").is_visible()
 
 
+# 3.
 def test_user_login_wrong_password(page, base_url, created_user):
     # valid email but wrong password → error response
     page.goto(f"{base_url}/user/login")
@@ -29,6 +39,7 @@ def test_user_login_wrong_password(page, base_url, created_user):
     assert page.locator("text=Impossible de se connecter").is_visible()
 
 
+# 4.
 def test_user_login_empty_fields_blocked(page, base_url):
     # HTML5 required validation prevents submission — form stays on page
     page.goto(f"{base_url}/user/login")
@@ -36,6 +47,7 @@ def test_user_login_empty_fields_blocked(page, base_url):
     assert page.locator("input[name='email']").is_visible()
 
 
+# 5.
 def test_user_login_already_logged_in_warning(logged_in_page, base_url, created_user):
     logged_in_page.goto(f"{base_url}/user/login")
     assert logged_in_page.locator("article.alert-warning").is_visible()
