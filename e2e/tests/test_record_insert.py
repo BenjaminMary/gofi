@@ -42,3 +42,21 @@ def test_record_insert_gain_direction(logged_in_page, base_url, created_account)
     logged_in_page.wait_for_selector("text=test insert gain")
     # gain amounts are stored positive — the recap row should show +42.00
     assert logged_in_page.locator("text=42.00").first.is_visible()
+
+
+def test_record_insert_missing_amount_blocked(logged_in_page, base_url, created_account):
+    # prix field is required (HTML5) — submitting without it blocks the request client-side
+    # no HTMX request fires, so #lastInsert is unchanged
+    logged_in_page.goto(f"{base_url}/record/insert/")
+    logged_in_page.locator("select[name='compte']").select_option(created_account)
+    logged_in_page.locator("input[type='radio'][name='categorie']").first.check()
+    logged_in_page.locator("input[value='expense']").check()
+    # snapshot existing rows from DB before clicking — server pre-renders them on page load
+    rows_before = logged_in_page.locator("#lastInsert tr").count()
+    first_row_text = logged_in_page.locator("#lastInsert tr").first.inner_text() if rows_before > 0 else None
+    # do NOT fill prix — leave it empty
+    logged_in_page.locator("button#idSubmit1").click()
+    logged_in_page.wait_for_timeout(300)  # wait to confirm no HTMX response fires
+    assert logged_in_page.locator("#lastInsert tr").count() == rows_before
+    if first_row_text is not None:
+        assert logged_in_page.locator("#lastInsert tr").first.inner_text() == first_row_text
