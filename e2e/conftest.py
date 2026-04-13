@@ -92,50 +92,28 @@ def logged_in_page(browser, auth_state):
     context.close()
 
 
+def create_account(browser, base_url, auth_state, account_name):
+    """Create a param account via the /param/account UI and return its name.
+
+    Call this from session-scoped fixtures (pass browser + auth_state) or
+    directly from a test function when you need an ad-hoc account.
+    """
+    context = browser.new_context(storage_state=auth_state)
+    page = context.new_page()
+    page.goto(f"{base_url}/param/account")
+    page.locator("section#createAccSection summary").click()
+    page.locator("input#accountToCreate").fill(account_name)
+    page.locator("button#createAccount").click()
+    page.wait_for_timeout(500)
+    assert page.locator(f"text={account_name}").first.is_visible()
+    context.close()
+    return account_name
+
+
 @pytest.fixture(scope="session")
 def created_account(browser, base_url, auth_state):
     # scope="session": creates account "PCB" once, required by record insert tests
-    context = browser.new_context(storage_state=auth_state)
-    page = context.new_page()
-    page.goto(f"{base_url}/param/account")
-    page.locator("section#createAccSection summary").click()
-    page.locator("input#accountToCreate").fill("PCB")
-    page.locator("button#createAccount").click()
-    page.wait_for_timeout(500)
-    assert page.locator("text=PCB").first.is_visible()
-    context.close()
-    return "PCB"
-
-
-@pytest.fixture(scope="session")
-def deactivation_account(browser, base_url, auth_state):
-    # scope="session": creates account "PDC" once, used only for deactivate/reactivate tests
-    # keeps created_account (PCB) always active so record tests are unaffected
-    context = browser.new_context(storage_state=auth_state)
-    page = context.new_page()
-    page.goto(f"{base_url}/param/account")
-    page.locator("section#createAccSection summary").click()
-    page.locator("input#accountToCreate").fill("PDC")
-    page.locator("button#createAccount").click()
-    page.wait_for_timeout(500)
-    assert page.locator("text=PDC").first.is_visible()
-    context.close()
-    return "PDC"
-
-
-@pytest.fixture(scope="session")
-def la_account(browser, base_url, auth_state):
-    # scope="session": creates account "PLA" once, needed for transfer tests
-    context = browser.new_context(storage_state=auth_state)
-    page = context.new_page()
-    page.goto(f"{base_url}/param/account")
-    page.locator("section#createAccSection summary").click()
-    page.locator("input#accountToCreate").fill("PLA")
-    page.locator("button#createAccount").click()
-    page.wait_for_timeout(500)
-    assert page.locator("text=PLA").first.is_visible()
-    context.close()
-    return "PLA"
+    return create_account(browser, base_url, auth_state, "PCB")
 
 
 def open_advanced_mode_and_reload(page, account, checked="0"):

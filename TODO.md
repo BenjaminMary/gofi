@@ -3,21 +3,29 @@
 > ☑☐☒❗
 
 - tester le front
-    - avec Playwright Python + Docker ?
+    - reprendre chaque page et vérifier les tests 1à1
 
+pages ok :
 Normal features (authenticated, core flow):
 
 / home — offline + online
 /user/create — offline + online
 /user/login — offline + online
 /user/logout — just a confirmation page
+
+/param/account — account config
+
+
+pages to check : 
+Normal features (authenticated, core flow):
+
+/param/category — category config
+/param/ — misc settings
+
 /record/insert/ — main data entry, most important page
 /record/alter/edit — edit/validate/cancel records
 /stats/... — statistics page
 /budget — budget page
-/param/account — account config
-/param/category — category config
-/param/ — misc settings
 
 Advanced features (hidden by default):
 
@@ -31,6 +39,8 @@ Advanced features (hidden by default):
 Onboarding (checklist):
 
 /checklist and /checklist/1 through /checklist/8
+
+
 
 - ajouter le solde du compte en cours d'utilisation en visuel avant un achat
     - solde avant et après transaction

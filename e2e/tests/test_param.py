@@ -1,4 +1,12 @@
-from conftest import insert_record
+import pytest
+from conftest import create_account, insert_record
+
+
+@pytest.fixture(scope="module")
+def deactivation_account(browser, base_url, auth_state):
+    # created once for this module — PDC is only needed for deactivate/reactivate tests
+    # keeps created_account (PCB) always active so record tests are unaffected
+    return create_account(browser, base_url, auth_state, "PDC")
 
 # Tested:
 # 1.  /param page loads: h1 "Gérer les paramètres"

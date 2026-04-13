@@ -1,9 +1,18 @@
+import pytest
+from conftest import create_account
+
 # Tested:
 # 1. page loads: h1 "Transfert", form section, submit button visible
 # 2. page requires auth
 # 3. both accounts (CB and LA) appear in from and to selects
 # 4. same-account guard: JS alert fires and no new row is added
 # 5. transfer success: creates Transfert+ and Transfert- rows in recap
+
+
+@pytest.fixture(scope="module")
+def la_account(browser, base_url, auth_state):
+    # created once for this module — PLA is only needed for transfer tests
+    return create_account(browser, base_url, auth_state, "PLA")
 
 
 # 1.
