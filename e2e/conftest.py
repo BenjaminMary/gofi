@@ -108,6 +108,22 @@ def created_account(browser, base_url, auth_state):
 
 
 @pytest.fixture(scope="session")
+def deactivation_account(browser, base_url, auth_state):
+    # scope="session": creates account "PDC" once, used only for deactivate/reactivate tests
+    # keeps created_account (PCB) always active so record tests are unaffected
+    context = browser.new_context(storage_state=auth_state)
+    page = context.new_page()
+    page.goto(f"{base_url}/param/account")
+    page.locator("section#createAccSection summary").click()
+    page.locator("input#accountToCreate").fill("PDC")
+    page.locator("button#createAccount").click()
+    page.wait_for_timeout(500)
+    assert page.locator("text=PDC").first.is_visible()
+    context.close()
+    return "PDC"
+
+
+@pytest.fixture(scope="session")
 def la_account(browser, base_url, auth_state):
     # scope="session": creates account "PLA" once, needed for transfer tests
     context = browser.new_context(storage_state=auth_state)
