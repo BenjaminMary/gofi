@@ -94,32 +94,32 @@ def logged_in_page(browser, auth_state):
 
 @pytest.fixture(scope="session")
 def created_account(browser, base_url, auth_state):
-    # scope="session": creates account "CB" once, required by record insert tests
+    # scope="session": creates account "PCB" once, required by record insert tests
     context = browser.new_context(storage_state=auth_state)
     page = context.new_page()
     page.goto(f"{base_url}/param/account")
     page.locator("section#createAccSection summary").click()
-    page.locator("input#accountToCreate").fill("CB")
+    page.locator("input#accountToCreate").fill("PCB")
     page.locator("button#createAccount").click()
     page.wait_for_timeout(500)
-    assert page.locator("text=CB").first.is_visible()
+    assert page.locator("text=PCB").first.is_visible()
     context.close()
-    return "CB"
+    return "PCB"
 
 
 @pytest.fixture(scope="session")
 def la_account(browser, base_url, auth_state):
-    # scope="session": creates account "LA" once, needed for transfer tests
+    # scope="session": creates account "PLA" once, needed for transfer tests
     context = browser.new_context(storage_state=auth_state)
     page = context.new_page()
     page.goto(f"{base_url}/param/account")
     page.locator("section#createAccSection summary").click()
-    page.locator("input#accountToCreate").fill("LA")
+    page.locator("input#accountToCreate").fill("PLA")
     page.locator("button#createAccount").click()
     page.wait_for_timeout(500)
-    assert page.locator("text=LA").first.is_visible()
+    assert page.locator("text=PLA").first.is_visible()
     context.close()
-    return "LA"
+    return "PLA"
 
 
 def open_advanced_mode_and_reload(page, account, checked="0"):

@@ -1,3 +1,5 @@
+import datetime
+
 # Tested:
 # 1. offline home page: gopher image, login and create links visible
 # 2. online simple mode: user email shown, simple-mode links visible, advanced links hidden
@@ -14,6 +16,8 @@ def test_home_offline_page_loads(page, base_url):
     assert page.locator("a[href='/user/create']").is_visible()
     assert page.locator("a[href='/user/login']").is_visible()
     assert page.locator("code").count() == 0
+    current_year = datetime.datetime.now().year
+    assert page.locator("p", has_text=f"©{current_year} Benjamin MARY").is_visible()
 
 
 # 2.
