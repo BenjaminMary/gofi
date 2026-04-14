@@ -14,14 +14,14 @@ Normal features (authenticated, core flow):
 /user/logout — just a confirmation page
 
 /param/account — account config
+/param/category — category config
+/param/ — misc settings
 
 
 pages to check : 
 Normal features (authenticated, core flow):
 
-/param/category — category config
-/param/ — misc settings
-
+> 
 /record/insert/ — main data entry, most important page
 /record/alter/edit — edit/validate/cancel records
 /stats/... — statistics page

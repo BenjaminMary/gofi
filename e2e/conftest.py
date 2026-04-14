@@ -132,7 +132,41 @@ def open_advanced_mode_and_reload(page, account, checked="0"):
     page.wait_for_load_state("networkidle")
 
 
-def insert_record(page, base_url, account, designation="test playwright", amount="10.00", direction="expense"):
+def edit_category(page, base_url, cat_name, where_to_use=None, budget_type=None,
+                  budget_period=None, budget_price=None, budget_start_date=None):
+    """Edit a category's settings via /param/category.
+
+    Only the keyword args that are not None are changed; the rest keep
+    whatever value the JS pre-filled from the stored JSON.
+
+    where_to_use      : "all" | "basic" | "periodic"
+    budget_type       : "-" | "reset" | "cumulative"
+    budget_period     : "-" | "mensuelle" | "annuelle" | "hebdomadaire"
+    budget_price      : int (pass 0 to clear the budget)
+    budget_start_date : ISO date string "YYYY-MM-DD" (sets the period start)
+    """
+    page.goto(f"{base_url}/param/category")
+    row = page.locator("#tableActiveCat tr").filter(
+        has=page.locator("small", has_text=cat_name)
+    ).first
+    row.locator("button[id^='e-']").click()
+    page.wait_for_selector("button#editRR", state="visible")
+    if where_to_use is not None:
+        page.locator("select#catWhereToUse").select_option(where_to_use)
+    if budget_type is not None:
+        page.locator("select#budgetType").select_option(budget_type)
+    if budget_period is not None:
+        page.locator("select#budgetPeriod").select_option(budget_period)
+    if budget_price is not None:
+        page.locator("input#budgetPrice").fill(str(budget_price))
+    if budget_start_date is not None:
+        page.locator("input#BudgetCurrentPeriodStartDate").fill(budget_start_date)
+    with page.expect_navigation():
+        page.locator("button#editRR").click()
+
+
+def insert_record(page, base_url, account, designation="test playwright", amount="10.00",
+                  direction="expense", category=None):
     """Insert one record via the /record/insert/ form.
 
     Use this helper inside a test when you need a fresh record at a specific
@@ -140,10 +174,14 @@ def insert_record(page, base_url, account, designation="test playwright", amount
     /record/insert/ after the call.
 
     direction: "expense" (default) or "gain"
+    category : category name to select (default: first radio in the list)
     """
     page.goto(f"{base_url}/record/insert/")
     page.locator("select[name='compte']").select_option(account)
-    page.locator("input[type='radio'][name='categorie']").first.check()
+    if category is not None:
+        page.locator(f"input[type='radio'][name='categorie'][value='{category}']").check()
+    else:
+        page.locator("input[type='radio'][name='categorie']").first.check()
     page.locator("input[name='prix']").fill(amount)
     page.locator(f"input[value='{direction}']").check()
     page.locator("input[name='designation']").fill(designation)
