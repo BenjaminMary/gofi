@@ -179,8 +179,11 @@ def insert_record(page, base_url, account, designation="test playwright", amount
     page.goto(f"{base_url}/record/insert/")
     page.locator("select[name='compte']").select_option(account)
     if category is not None:
+        # radios are inside a <details> that starts closed — open it first so the target is interactable
+        page.locator("#categoryDropdown summary").click()
         page.locator(f"input[type='radio'][name='categorie'][value='{category}']").check()
     else:
+        # first radio is pre-checked in HTML (categoryNumber=0) — .check() is a no-op, no click needed
         page.locator("input[type='radio'][name='categorie']").first.check()
     page.locator("input[name='prix']").fill(amount)
     page.locator(f"input[value='{direction}']").check()
