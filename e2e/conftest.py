@@ -166,7 +166,7 @@ def edit_category(page, base_url, cat_name, where_to_use=None, budget_type=None,
 
 
 def insert_record(page, base_url, account, designation="test playwright", amount="10.00",
-                  direction="expense", category=None):
+                  direction="expense", category=None, date=None):
     """Insert one record via the /record/insert/ form.
 
     Use this helper inside a test when you need a fresh record at a specific
@@ -175,16 +175,20 @@ def insert_record(page, base_url, account, designation="test playwright", amount
 
     direction: "expense" (default) or "gain"
     category : category name to select (default: first radio in the list)
+    date     : ISO date string "YYYY-MM-DD" (default: today, pre-filled by the server)
     """
     page.goto(f"{base_url}/record/insert/")
     page.locator("select[name='compte']").select_option(account)
+    # radios are inside a <details> that starts closed — always open it first
+    page.locator("#categoryDropdown summary").click()
     if category is not None:
-        # radios are inside a <details> that starts closed — open it first so the target is interactable
-        page.locator("#categoryDropdown summary").click()
-        page.locator(f"input[type='radio'][name='categorie'][value='{category}']").check()
+        page.locator(f"input[type='radio'][name='categorie'][value='{category}']").click()
     else:
-        # first radio is pre-checked in HTML (categoryNumber=0) — .check() is a no-op, no click needed
-        page.locator("input[type='radio'][name='categorie']").first.check()
+        page.locator("input[type='radio'][name='categorie']").first.click()
+    # wait for the JS listener to close the dropdown (prevents it from overlapping the submit button)
+    page.wait_for_selector("#categoryDropdown:not([open])")
+    if date is not None:
+        page.locator("input[name='date']").fill(date)
     page.locator("input[name='prix']").fill(amount)
     page.locator(f"input[value='{direction}']").check()
     page.locator("input[name='designation']").fill(designation)

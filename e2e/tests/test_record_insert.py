@@ -227,12 +227,18 @@ def test_record_insert_row_fields(logged_in_page, base_url):
     # insert a record then verify each column of the rendered row individually
     # row structure (simple mode, no editMode/checkboxMode):
     #   td[0] date | td[1] account | td[2] category icon | td[3] price | td[4] designation
+    insert_record(logged_in_page, base_url, date="2030-04-19",
+        account="LA", category="Besoin", amount="33.33", direction="expense",
+        designation="2030-04-19 LA Besoin -33.33 expense")    
+    insert_record(logged_in_page, base_url, date="2020-01-01",
+        account="LA", category="Epargne", amount="44.44", direction="gain",
+        designation="2020-01-01 LA Epargne 44.44 gain")    
     insert_record(logged_in_page, base_url, 
-        "CB", category="Envie", amount="55.55", 
-        designation="CB Envie -55.55")
+        account="PEA", category="Envie", amount="55.55",
+        designation="PEA Envie -55.55 default today expense")
 
     logged_in_page.goto(f"{base_url}/record/insert/")
-    row = logged_in_page.locator("#lastInsert tr", has_text="CB Envie -55.55").first
+    row = logged_in_page.locator("#lastInsert tr").first
     cells = row.locator("td")
 
     # td[0]: date — verify today's day+year number appears in the cell
@@ -241,7 +247,7 @@ def test_record_insert_row_fields(logged_in_page, base_url):
     assert str(today.year) in cells.nth(0).inner_text()
 
     # td[1]: account
-    assert cells.nth(1).inner_text() == "CB"
+    assert cells.nth(1).inner_text() == "PEA"
 
     # td[2]: category icon — no visible text, only an icomoon span; verify the class is present
     assert "icomoon" in cells.nth(2).locator("span").get_attribute("class")
@@ -251,5 +257,45 @@ def test_record_insert_row_fields(logged_in_page, base_url):
     assert cells.nth(3).inner_text() == "-55.55"
 
     # td[4]: designation
-    assert cells.nth(4).inner_text() == "CB Envie -55.55"
+    assert cells.nth(4).inner_text() == "PEA Envie -55.55 default today expense"
+
+    row = logged_in_page.locator("#lastInsert tr").nth(1)
+    cells = row.locator("td")
+
+    # td[0]: date — verify 1jan\n2020 - not 01
+    assert "1" in cells.nth(0).inner_text()
+    assert "2020" in cells.nth(0).inner_text()
+
+    # td[1]: account
+    assert cells.nth(1).inner_text() == "LA"
+
+    # td[2]: category icon — no visible text, only an icomoon span; verify the class is present
+    assert "icomoon" in cells.nth(2).locator("span").get_attribute("class")
+    assert "invest-cyan" in cells.nth(2).locator("span").get_attribute("class")
+
+    # td[3]: price
+    assert cells.nth(3).inner_text() == "44.44"
+
+    # td[4]: designation
+    assert cells.nth(4).inner_text() == "2020-01-01 LA Epargne 44.44 gain"
+
+    row = logged_in_page.locator("#lastInsert tr").nth(2)
+    cells = row.locator("td")
+
+    # td[0]: date — verify 19avr\n2030
+    assert "19" in cells.nth(0).inner_text()
+    assert "2030" in cells.nth(0).inner_text()
+
+    # td[1]: account
+    assert cells.nth(1).inner_text() == "LA"
+
+    # td[2]: category icon — no visible text, only an icomoon span; verify the class is present
+    assert "icomoon" in cells.nth(2).locator("span").get_attribute("class")
+    assert "needfix-teal" in cells.nth(2).locator("span").get_attribute("class")
+
+    # td[3]: price
+    assert cells.nth(3).inner_text() == "-33.33"
+
+    # td[4]: designation
+    assert cells.nth(4).inner_text() == "2030-04-19 LA Besoin -33.33 expense"
 
