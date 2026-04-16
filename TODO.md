@@ -4,44 +4,14 @@
 
 - tester le front
     - reprendre chaque page et vérifier les tests 1à1
-
-pages ok :
-Normal features (authenticated, core flow):
-
-/ home — offline + online
-/user/create — offline + online
-/user/login — offline + online
-/user/logout — just a confirmation page
-
-/param/account — account config
-/param/category — category config
-/param/ — misc settings
-
-/record/insert/ — main data entry, most important page
-/record/alter/edit — edit records
-/stats/... — statistics page
-
-
-pages to check : 
-Normal features (authenticated, core flow):
-
-> 
-/budget — budget page
-
-Advanced features (hidden by default):
-
-/record/transfer — transfer between accounts
-/record/recurrent — recurring records
-/record/lend-or-borrow — lend/borrow
-/stats/lender-borrower/0 — lend/borrow stats
-/csv/export — CSV export
-/csv/import — CSV import
-
-Onboarding (checklist):
-
-/checklist and /checklist/1 through /checklist/8
-
-
+    - pages to check : 
+    - /budget — budget page
+    - /record/transfer — transfer between accounts
+    - /record/recurrent — recurring records
+    - /record/lend-or-borrow — lend/borrow
+    - /stats/lender-borrower/0 — lend/borrow stats
+    - /csv/export — CSV export
+    - /csv/import — CSV import
 - simplifier la façon de créer un raccourci pré-défini sur le bureau
     - reprise depuis un enregistrement existant ?
 - ajouter le solde du compte en cours d'utilisation en visuel avant un achat
