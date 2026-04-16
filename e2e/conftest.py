@@ -116,7 +116,7 @@ def created_account(browser, base_url, auth_state):
     return create_account(browser, base_url, auth_state, "PCB")
 
 
-def open_advanced_mode_and_reload(page, account, checked="0"):
+def open_advanced_mode_and_reload(page, account, checked="0", limit=None):
     """Open the advanced mode filter panel and trigger the HTMX table reload.
 
     Mimics what a user does: click the advanced mode section to expand filters,
@@ -124,8 +124,12 @@ def open_advanced_mode_and_reload(page, account, checked="0"):
     which POSTs to /record/getviapost and replaces #recap with fresh rows.
 
     checked: "0"=Toutes, "1"=Oui (validated), "2"=Non (default)
+    limit   : max rows to load (default: leave the input at its current value of 8)
+              pass 500 when you need to find a specific record among many
     """
     page.locator("#advancedMode").click()
+    if limit is not None:
+        page.locator("input#limitStr").fill(str(limit))
     page.locator("#checked").select_option(checked)
     # account select starts on "-" (value="") — switching to any account fires the change event
     page.locator("#compte").select_option(account)

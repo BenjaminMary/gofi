@@ -18,13 +18,12 @@ Normal features (authenticated, core flow):
 /param/ — misc settings
 
 /record/insert/ — main data entry, most important page
-
+/record/alter/edit — edit records
 
 pages to check : 
 Normal features (authenticated, core flow):
 
 > 
-/record/alter/edit — edit/validate/cancel records
 /stats/... — statistics page
 /budget — budget page
 
