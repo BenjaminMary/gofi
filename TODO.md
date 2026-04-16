@@ -19,12 +19,13 @@ Normal features (authenticated, core flow):
 
 /record/insert/ — main data entry, most important page
 /record/alter/edit — edit records
+/stats/... — statistics page
+
 
 pages to check : 
 Normal features (authenticated, core flow):
 
 > 
-/stats/... — statistics page
 /budget — budget page
 
 Advanced features (hidden by default):
