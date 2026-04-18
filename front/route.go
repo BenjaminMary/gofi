@@ -426,6 +426,14 @@ func GetRecordEdit(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 	lenJsonFTlist := len(jsonFTlist)
+	jsonUP := api.GetParam(w, r, true, "allinuse", "", false)
+	jsonUserParam := jsonUP.AnyStruct.(appdata.UserParams)
+	lbListActive, _ := sqlite.GetLenderBorrowerStats(r.Context(), appdata.DB, jsonUserParam.GofiID, true)
+	if lenJsonFTlist == 0 {
+		w.WriteHeader(http.StatusNotFound)
+		htmlComponents.GetRecordEdit(0, appdata.LendBorrow{}, jsonUserParam, lbListActive).Render(r.Context(), w)
+		return
+	}
 	lb := appdata.LendBorrow{ModeStr: strconv.Itoa(jsonFTlist[0].Mode), ModeInt: jsonFTlist[0].Mode, Who: "-", FT: jsonFTlist[0]}
 	if lb.ModeInt > 0 && lb.ModeInt < 5 {
 		isErr := sqlite.FindLenderBorrowerFromFTid(r.Context(), appdata.DB, &lb)
@@ -440,9 +448,6 @@ func GetRecordEdit(w http.ResponseWriter, r *http.Request) {
 		lb.FT.PriceDirection = "gain"
 	}
 	// fmt.Printf("lb GetRecordEdit: %#v\n", lb)
-	jsonUP := api.GetParam(w, r, true, "allinuse", "", false)
-	jsonUserParam := jsonUP.AnyStruct.(appdata.UserParams)
-	lbListActive, _ := sqlite.GetLenderBorrowerStats(r.Context(), appdata.DB, jsonUserParam.GofiID, true)
 	htmlComponents.GetRecordEdit(lenJsonFTlist, lb, jsonUserParam, lbListActive).Render(r.Context(), w)
 }
 

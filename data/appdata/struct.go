@@ -13,7 +13,7 @@ type Param struct {
 	ID                  int
 	GofiID              int
 	ParamName           string
-	ParamJSONstringData string
+	ParamJSONstringData string `form:"ParamJSONstringData"`
 	ParamInfo           string
 }
 
@@ -266,9 +266,9 @@ type User struct {
 
 type UserRequest struct {
 	GofiID          int    `json:"gofiID"`    // UNIQUE
-	Email           string `json:"email"`     // UNIQUE
-	SessionID       string `json:"sessionID"` // UNIQUE
-	Password        string `json:"password"`
+	Email           string `form:"email"    json:"email"`     // UNIQUE
+	SessionID       string `json:"sessionID"`                 // UNIQUE
+	Password        string `form:"password" json:"password"`
 	PwHash          string `json:"-"` // "-" = not returned
 	IsAdmin         bool   `json:"-"`
 	IsAuthenticated bool   `json:"-"`
@@ -332,17 +332,17 @@ type Category struct {
 }
 type CategoryPut struct {
 	ID                           int
-	IDstr                        string `json:"idStrJson"`
+	IDstr                        string `form:"IDstr"                        json:"idStrJson"`
 	GofiID                       int
-	Type                         string `json:"type"`
+	Type                         string `form:"Type"                          json:"type"`
 	InStats                      int
-	InStatsStr                   string `json:"inStatsStr"`
-	Description                  string `json:"description"`
+	InStatsStr                   string `form:"InStatsStr"                   json:"inStatsStr"`
+	Description                  string `form:"Description"                  json:"description"`
 	BudgetPrice                  int
-	BudgetPriceStr               string `json:"budgetPriceStr"`
-	BudgetPeriod                 string `json:"budgetPeriod"`
-	BudgetType                   string `json:"budgetType"`
-	BudgetCurrentPeriodStartDate string `json:"budgetCurrentPeriodStartDate"`
+	BudgetPriceStr               string `form:"BudgetPriceStr"               json:"budgetPriceStr"`
+	BudgetPeriod                 string `form:"BudgetPeriod"                 json:"budgetPeriod"`
+	BudgetType                   string `form:"BudgetType"                   json:"budgetType"`
+	BudgetCurrentPeriodStartDate string `form:"BudgetCurrentPeriodStartDate" json:"budgetCurrentPeriodStartDate"`
 }
 
 func (a *CategoryPut) Bind(r *http.Request) error {
@@ -397,10 +397,10 @@ func (a *CategoryPut) Bind(r *http.Request) error {
 
 type CategoryPatchInUse struct {
 	ID       int
-	IDstr    string `json:"idStrJson"`
+	IDstr    string `form:"IDstr"    json:"idStrJson"`
 	GofiID   int
 	InUse    int
-	InUseStr string `json:"inUseStrJson"`
+	InUseStr string `form:"InUseStr" json:"inUseStrJson"`
 }
 
 func (a *CategoryPatchInUse) Bind(r *http.Request) error {
@@ -424,9 +424,9 @@ func (a *CategoryPatchInUse) Bind(r *http.Request) error {
 
 type CategoryPatchOrder struct {
 	ID1    int
-	ID1str string `json:"id1StrJson"`
+	ID1str string `form:"ID1str" json:"id1StrJson"`
 	ID2    int
-	ID2str string `json:"id2StrJson"`
+	ID2str string `form:"ID2str" json:"id2StrJson"`
 	GofiID int
 }
 
@@ -452,20 +452,19 @@ func (a *CategoryPatchOrder) Bind(r *http.Request) error {
 type FilterRows struct {
 	GofiID          int
 	ID				int	   // FT ID UNIQUE
-	WhereAccount    string `json:"compteHidden"`
-	WhereCategory   string `json:"category"`
-	WhereYearStr    string `json:"annee"`
+	WhereAccount    string `form:"WhereAccount" json:"compteHidden"`
+	WhereCategory   string `form:"WhereCategory" json:"category"`
+	WhereYearStr    string `form:"WhereYearStr" json:"annee"`
 	WhereYear       int
-	WhereMonthStr   string `json:"mois"`
+	WhereMonthStr   string `form:"WhereMonthStr" json:"mois"`
 	WhereMonth      int
-	WhereCheckedStr string `json:"checked"`
+	WhereCheckedStr string `form:"WhereCheckedStr" json:"checked"`
 	WhereChecked    int    // 0 default don't use, 1 = True, 2 = False
-	OrderBy         string `json:"orderBy"`
-	OrderSort       string `json:"orderSort"`
-	LimitStr        string `json:"limitStr"`
+	OrderBy         string `form:"OrderBy" json:"orderBy"`
+	OrderSort       string `form:"OrderSort" json:"orderSort"`
+	LimitStr        string `form:"LimitStr" json:"limitStr"`
 	Limit           int
 }
-
 func (a *FilterRows) Bind(r *http.Request) error {
 	return nil
 }
@@ -541,9 +540,12 @@ func RenderAPIorUI(w http.ResponseWriter, r *http.Request, isFrontRequest bool, 
 	HttpStruct.AnyStruct = jsonContent
 	// fmt.Printf("valid: %v, retargetError: %v\n", valid, retargetError)
 	if isFrontRequest {
-		if !valid && retargetError {
-			w.Header().Set("HX-Retarget", "#htmxInfo")
-			w.Header().Set("HX-Reswap", "innerHTML settle:300ms")
+		if !valid {
+			if retargetError {
+				w.Header().Set("HX-Retarget", "#htmxInfo")
+				w.Header().Set("HX-Reswap", "innerHTML settle:300ms")
+			}
+			w.WriteHeader(httpStatus)
 		}
 	} else {
 		render.Status(r, httpStatus)
@@ -561,9 +563,12 @@ func RenderFile(w http.ResponseWriter, r *http.Request, isFrontRequest bool, ret
 	HttpStruct.AnyStruct = jsonContent
 	// fmt.Printf("valid: %v, retargetError: %v\n", valid, retargetError)
 	if isFrontRequest {
-		if !valid && retargetError {
-			w.Header().Set("HX-Retarget", "#htmxInfo")
-			w.Header().Set("HX-Reswap", "innerHTML settle:300ms")
+		if !valid {
+			if retargetError {
+				w.Header().Set("HX-Retarget", "#htmxInfo")
+				w.Header().Set("HX-Reswap", "innerHTML settle:300ms")
+			}
+			w.WriteHeader(httpStatus)
 		}
 	} else {
 		render.Status(r, httpStatus)

@@ -4,6 +4,17 @@
 ### Doing
 
 ### Done
+- 2025-04-11 : 
+    - tests: improvements
+    - tests: refacto
+- 2025-04-10 : tests: improve frontend tests with Playwright workflows
+- 2025-04-09 : tests: improving frontend tests with Playwright
+- 2025-04-08 : chore: local css in dedicated files
+- 2026-04-06 : 
+    - chore: update go modules and go main version
+    - feat: add PORT env var
+    - fix: error handling
+    - feat: start frontend tests with Playwright
 - 2026-02-09 : 
     - chore: update go modules and go main version
     - fix: adapt tests to Linux
