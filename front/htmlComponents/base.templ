@@ -7,7 +7,9 @@ import (
 templ Header() {
     <meta charset="utf-8"/>
     <meta name="viewport" content="width=device-width, initial-scale=1"/>
+    <meta name="theme-color" content="#c5aa78"/>
 
+    <link rel="manifest" href="/manifest.json"/>
     <link rel="shortcut icon" href="/img/favicon-32x32.png"/>
     <link rel="apple-touch-icon" href="/img/apple-touch-icon.png"/>
     <link rel="icon" sizes="192x192" href="/img/android-chrome-192x192.png"/>
@@ -16,6 +18,8 @@ templ Header() {
     <link rel="favicon" href="/img/favicon-32x32.png"/>
     <link rel="stylesheet" href="/css/pico.sand.min.css"/>
     <link rel="stylesheet" href="/css/gofi.css"/>
+
+    <script defer src="/js/pwa-register.js"></script>
 }
 
 templ Nav(hrpos string, href1 string, icon1 string, name1 string, class1 string, href2 string, icon2 string, name2 string, class2 string) {

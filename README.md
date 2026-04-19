@@ -137,6 +137,7 @@ To get a local copy up and running follow these simple example steps.
 
 ### Installation
 - test the app :
+    - test backend and start server
     ```bash
         # generate environment variables :
         export GOFI_PORT="8083"
@@ -159,7 +160,11 @@ To get a local copy up and running follow these simple example steps.
         go test ./back/api/test/csv
         go test ./back/api/test/save
         go test ./back/api/test/shutdown
+        go run .
     ```
+    - the app is now running and the frontend can be tested with Playwright
+        - this is why there is some Python in the project
+        - Playwright tests are in `e2e` folder : [README.md](e2e/README.md)
 - run the app with the real database :
     ```bash
         # only the first time.

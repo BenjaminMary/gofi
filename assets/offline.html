@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="utf-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1"/>
+    <meta name="theme-color" content="#c5aa78"/>
+    <title>GOFI — Hors ligne</title>
+    <link rel="icon" href="/img/favicon-32x32.png"/>
+    <link rel="apple-touch-icon" href="/img/apple-touch-icon.png"/>
+    <style>
+        body {
+            font-family: system-ui, -apple-system, sans-serif;
+            text-align: center;
+            padding: 2rem 1rem;
+            max-width: 600px;
+            margin: 0 auto;
+            color: #333;
+            background: #faf7f0;
+        }
+        h1 { font-size: 2.5rem; margin-bottom: 0.5rem; }
+        h2 { font-size: 1.25rem; font-weight: normal; color: #666; margin-top: 0; }
+        p { margin: 1rem 0; }
+        button {
+            padding: 0.75rem 1.5rem;
+            font-size: 1rem;
+            cursor: pointer;
+            background: #c5aa78;
+            color: #fff;
+            border: none;
+            border-radius: 0.25rem;
+        }
+        button:hover { background: #b59868; }
+        img { width: 96px; height: 96px; }
+    </style>
+</head>
+<body>
+    <img src="/img/android-chrome-192x192.png" alt="GOFI"/>
+    <h1>GOFI</h1>
+    <h2>Hors ligne</h2>
+    <p>Pas de connexion internet pour le moment.</p>
+    <p>Vérifier la connexion puis réessayer.</p>
+    <p><button onclick="location.reload()">Réessayer</button></p>
+</body>
+</html>

@@ -247,4 +247,25 @@ func (s *Server) MountFileServer() {
 	FileServer(s.Router, "/fonts", fontsDir)
 	fileDir := http.Dir(filepath.Join(workDir, "assets", "file"))
 	FileServer(s.Router, "/file", fileDir)
+
+	// PWA files must be served from the root:
+	//   - /sw.js: a service worker's scope is limited to its path, serving from root gives it full-site control
+	//   - /manifest.json: conventional root location referenced by <link rel="manifest">
+	//   - /offline.html: fallback page the service worker returns for failed navigation requests
+	swPath := filepath.Join(workDir, "assets", "js", "sw.js")
+	s.Router.Get("/sw.js", func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Content-Type", "application/javascript")
+		w.Header().Set("Service-Worker-Allowed", "/")
+		w.Header().Set("Cache-Control", "no-cache")
+		http.ServeFile(w, r, swPath)
+	})
+	manifestPath := filepath.Join(workDir, "assets", "manifest.json")
+	s.Router.Get("/manifest.json", func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Content-Type", "application/manifest+json")
+		http.ServeFile(w, r, manifestPath)
+	})
+	offlinePath := filepath.Join(workDir, "assets", "offline.html")
+	s.Router.Get("/offline.html", func(w http.ResponseWriter, r *http.Request) {
+		http.ServeFile(w, r, offlinePath)
+	})
 }
