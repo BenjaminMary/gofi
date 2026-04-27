@@ -4,6 +4,21 @@ import (
     "gofi/gofi/data/appdata"
 )
 
+templ maintenanceBannerStyle() {
+    <style>
+        body::before {
+            content: "Mode maintenance — modifications désactivées";
+            display: block;
+            background: #f0a500;
+            color: #000;
+            text-align: center;
+            padding: 0.6rem;
+            font-weight: bold;
+            font-size: 0.95rem;
+        }
+    </style>
+}
+
 templ Header() {
     <meta charset="utf-8"/>
     <meta name="viewport" content="width=device-width, initial-scale=1"/>
@@ -18,6 +33,9 @@ templ Header() {
     <link rel="favicon" href="/img/favicon-32x32.png"/>
     <link rel="stylesheet" href="/css/pico.sand.min.css"/>
     <link rel="stylesheet" href="/css/gofi.css"/>
+    if appdata.ReadOnlyFlag {
+        @maintenanceBannerStyle()
+    }
 
     <script defer src="/js/pwa-register.js"></script>
 }

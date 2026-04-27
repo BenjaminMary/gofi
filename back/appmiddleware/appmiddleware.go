@@ -22,8 +22,22 @@ func MaintenanceMode(next http.Handler) http.Handler {
 			appdata.RenderAPIorUI(w, r, false, false, false, http.StatusInternalServerError, "the application is shutting down", "")
 			return
 		}
+		// Read-only mode: block writes. The toggle endpoint is GET so it passes
+		// through naturally without needing a path-based exemption here.
+		if appdata.ReadOnlyFlag && isMutatingMethod(r.Method) {
+			fmt.Printf("MaintenanceMode (read-only) blocked %s %s\n", r.Method, r.URL.Path)
+			// HTMX-aware: retarget the error fragment to #htmxInfo so blocked submits
+			// show the message inline instead of replacing the whole page.
+			isHTMX := r.Header.Get("HX-Request") == "true"
+			appdata.RenderAPIorUI(w, r, isHTMX, isHTMX, false, http.StatusServiceUnavailable, "maintenance mode, no change", "")
+			return
+		}
 		next.ServeHTTP(w, r)
 	})
+}
+
+func isMutatingMethod(m string) bool {
+	return m == http.MethodPost || m == http.MethodPut || m == http.MethodPatch || m == http.MethodDelete
 }
 
 func AddContextUserAndTimeout(next http.Handler) http.Handler {
