@@ -7,7 +7,7 @@ import (
 templ maintenanceBannerStyle() {
     <style>
         body::before {
-            content: "Mode maintenance — modifications désactivées";
+            content: "Maintenance, merci de revenir dans quelques minutes";
             display: block;
             background: #f0a500;
             color: #000;
@@ -16,6 +16,8 @@ templ maintenanceBannerStyle() {
             font-weight: bold;
             font-size: 0.95rem;
         }
+        /* Submit buttons get the `disabled` attribute via /js/maintenance-readonly.js;
+           Pico's :disabled rules then style them automatically. */
     </style>
 }
 
@@ -35,6 +37,7 @@ templ Header() {
     <link rel="stylesheet" href="/css/gofi.css"/>
     if appdata.ReadOnlyFlag {
         @maintenanceBannerStyle()
+        <script defer src="/js/maintenance-readonly.js"></script>
     }
 
     <script defer src="/js/pwa-register.js"></script>
