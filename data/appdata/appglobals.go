@@ -14,6 +14,10 @@ type ContextKey string
 var (
 	DB           *sql.DB // https://www.alexedwards.net/blog/organising-database-access
 	ShutDownFlag = false
+	// ReadOnlyFlag: when true, MaintenanceMode middleware blocks all mutating
+	// HTTP methods (POST/PUT/PATCH/DELETE)
+	// In-process flag, resets on restart. Toggled via POST /api/maintenance/readonly/{on|off}.
+	ReadOnlyFlag = false
 
 	executablePath = os.Getenv("EXE_PATH")
 	DbDirPath      = filepath.Join(executablePath, "data", "dbFiles")

@@ -81,8 +81,9 @@ func (s *Server) MountBackHandlers() {
 		// OTHERS PRIVATE
 		r.Group(func(r chi.Router) {
 			r.Use(appmiddleware.AuthenticatedUserOnly)
-			r.Get("/dbpath", api.GetFullDbPath) // GET /api/dbpath
-			r.Get("/shutdown", api.Shutdown)    // GET /api/shutdown
+			r.Get("/dbpath", api.GetFullDbPath)                             // GET /api/dbpath
+			r.Get("/shutdown", api.Shutdown)                                // GET /api/shutdown
+			r.Get("/maintenance/readonly/{state}", api.MaintenanceReadOnly) // GET /api/maintenance/readonly/on|off
 		})
 		// r.With(appmiddleware.AuthenticatedUserOnly).Get("/shutdown", api.Shutdown) // auth needed: GET /api/shutdown
 

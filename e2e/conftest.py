@@ -116,6 +116,51 @@ def created_account(browser, base_url, auth_state):
     return create_account(browser, base_url, auth_state, "PCB")
 
 
+@pytest.fixture(scope="session")
+def admin_email():
+    # email the running server treats as admin (matches ADMIN_EMAIL env var on the
+    # server side). Tests that need admin access skip if this is unset.
+    return os.environ.get("GOFI_E2E_ADMIN_EMAIL")
+
+
+@pytest.fixture(scope="session")
+def admin_password():
+    # fixed across sessions so an admin user created in a prior run can be reused.
+    return os.environ.get("GOFI_E2E_ADMIN_PASSWORD", "admin-test-password")
+
+
+@pytest.fixture(scope="session")
+def admin_session_id(browser, base_url, admin_email, admin_password):
+    # Logs in (creating the user on first run) and returns the sessionID cookie
+    # value. /api/* routes read sessionID from the header — pass this as a header
+    # to authenticate as admin without affecting page-level cookies.
+    assert admin_email, (
+        "GOFI_E2E_ADMIN_EMAIL must be set (matches the server's ADMIN_EMAIL) "
+        "to run admin-only tests"
+    )
+    context = browser.new_context()
+    page = context.new_page()
+    # try to create — first run only; subsequent runs see "already exists" silently
+    page.goto(f"{base_url}/user/create")
+    page.locator("input[name='email']").fill(admin_email)
+    page.locator("input[name='password']").fill(admin_password)
+    page.locator("button[type='submit']").click()
+    page.wait_for_timeout(500)
+    # login regardless — works whether or not creation succeeded this run
+    page.goto(f"{base_url}/user/login")
+    page.locator("input[name='email']").fill(admin_email)
+    page.locator("input[name='password']").fill(admin_password)
+    page.locator("button[type='submit']").click()
+    page.wait_for_timeout(500)
+    cookies = context.cookies()
+    session_id = next((c["value"] for c in cookies if c["name"] == "gofiID"), None)
+    context.close()
+    assert session_id, (
+        f"could not log in as admin {admin_email} — check GOFI_E2E_ADMIN_PASSWORD matches"
+    )
+    return session_id
+
+
 def open_advanced_mode_and_reload(page, account, checked="0", limit=None):
     """Open the advanced mode filter panel and trigger the HTMX table reload.
 

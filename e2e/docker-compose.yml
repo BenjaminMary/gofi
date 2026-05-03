@@ -11,5 +11,7 @@ services:
       - HEADED=${HEADED:-false}
       - PWDEBUG=${PWDEBUG:-0}
       - DISPLAY=${DISPLAY}
+      - GOFI_E2E_ADMIN_EMAIL=${GOFI_E2E_ADMIN_EMAIL}
+      - GOFI_E2E_ADMIN_PASSWORD=${GOFI_E2E_ADMIN_PASSWORD}
     volumes:
       - /tmp/.X11-unix:/tmp/.X11-unix
