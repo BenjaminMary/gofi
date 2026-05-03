@@ -4,6 +4,8 @@
 ### Doing
 
 ### Done
+- 2026-05-02 : update installation method
+- 2026-05-01 : maintenance mode, read only DB on activation
 - 2026-04-19 : PWA v1 install, assets caching, offline page
 - 2026-04-11 : 
     - tests: improvements

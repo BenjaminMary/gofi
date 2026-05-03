@@ -257,5 +257,5 @@ func initDB(folder string, dbName string) {
 
 func main() {
 	dbName := os.Getenv("SQLITE_DB_FILENAME")
-	initDB("dbscripts", dbName)
+	initDB("dbFiles", dbName)
 }

@@ -69,6 +69,10 @@
 [![Go][Golang]][Golang-url] 
 [![HTMX][HTMX-shield]][HTMX-url] 
 
+#### Tested with
+[![Python][Python-shield]][Python-url] 
+[![Playwright][Playwright-shield]][Playwright-url] 
+
 
 ### General informations
 - The purpose of this web app is to record and manage your money.  
@@ -117,6 +121,7 @@
         - tested on Chrome for Android and Chrome for Windows Desktop
             - if you have any visual trouble on a different Browser/OS combination, submit an issue
 - admin features
+    - maintenance mode put the DB in read only and show a frontend banner
     - shutdown the application with SQLite checkpoint, which clean the `db-shm` and `db-wal` files
 
 
@@ -136,62 +141,27 @@ To get a local copy up and running follow these simple example steps.
 
 
 ### Installation
-- test the app :
-    - test backend and start server
-    ```bash
-        # generate environment variables :
-        export GOFI_PORT="8083"
-        export SQLITE_DB_FILENAME="test.db"
-        export COOKIE_LENGTH=64
-        export EXE_PATH="/gofi"
-        export ADMIN_EMAIL="test@test.test"
-        export ADMIN_EMAIL_B="other@test.test"
-        export NOTIFICATION_FLAG=0
-        export NOTIFICATION_URL="https://notification.server/example"
-        export HEADER_IP="header-IP-test"
-        # run the tests (create a new DB named test.db) :
-        cd /gofi
-        templ generate
-        go clean -testcache
-        go test ./data/dbscripts/initDB
-        go test ./back/api/test/users
-        go test ./back/api/test/params
-        go test ./back/api/test/records
-        go test ./back/api/test/csv
-        go test ./back/api/test/save
-        go test ./back/api/test/shutdown
-        go run .
-    ```
-    - the app is now running and the frontend can be tested with Playwright
-        - this is why there is some Python in the project
-        - Playwright tests are in `e2e` folder : [README.md](e2e/README.md)
-- run the app with the real database :
-    ```bash
-        # only the first time.
-        # exec initDB first to create DB file with required tables
-        export SQLITE_DB_FILENAME="gofi.db"
-        export EXE_PATH="/gofi"
-        cd /gofi
-        go run ./data/dbscripts/initDB
-        # the DB is created in the "dbscripts" folder, move it under: "data/dbFiles"
-    ```
-    ```bash
-        export GOFI_PORT="8083"
-        export SQLITE_DB_FILENAME="gofi.db"
-        export COOKIE_LENGTH=64
-        export EXE_PATH="/gofi"
-        export ADMIN_EMAIL="example@gmail.com"
-        export ADMIN_EMAIL_B="exampleb@gmail.com"
-        export NOTIFICATION_FLAG=1
-        export NOTIFICATION_URL="https://notification.server/example"
-        export HEADER_IP="header-IP"
-        cd /gofi
-        templ generate
-        go run .
-    ```
-- on Windows Powershell:
-    - replace `export ` with `$Env:`
-    - replace `cd /gofi` with `cd c:\gofi\`
+- with the codebase on Linux
+    - the `EXE_PATH` in the `.env` must match your installation 
+    - test the app with `test.db` :
+        - test backend and start server
+            - update your `.env` file
+            - run and test the app with `run.sh` file
+        - the app is now running and the frontend can be tested with Playwright
+            - this is why there is some Python in the project
+            - Playwright tests are in `e2e` folder : [README.md](e2e/README.md)
+    - run the app with the real database :
+        - download the database from the `sqlite` folder : [gofi.db](sqlite/gofi.db)
+        - or generate the database with the init script
+        ```bash
+            # only the first time.
+            export SQLITE_DB_FILENAME="gofi.db"
+            export EXE_PATH="/gofi"
+            # exec initDB first to create DB file with required objects
+            cd /gofi
+            go run ./data/dbscripts/initDB
+            # then update the .env file
+        ```
 
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
@@ -283,6 +253,7 @@ Join the community on (limited to 100 invitations, contact me if used):
 
 <!-- MARKDOWN LINKS & IMAGES -->
 <!-- https://www.markdownguide.org/basic-syntax/#reference-style-links -->
+<!-- badges : https://github.com/inttter/md-badges -->
 [contributors-shield]: https://img.shields.io/github/contributors/BenjaminMary/gofi.svg?style=for-the-badge
 [contributors-url]: https://github.com/BenjaminMary/gofi/graphs/contributors
 [stars-shield]: https://img.shields.io/github/stars/BenjaminMary/gofi.svg?style=for-the-badge
@@ -298,6 +269,10 @@ Join the community on (limited to 100 invitations, contact me if used):
 [SQLite-url]: https://www.sqlite.org/
 [HTMX-shield]: https://img.shields.io/badge/HTMX-36C?style=for-the-badge&logo=htmx&logoColor=white
 [HTMX-url]: https://htmx.org/
+[Python-shield]: https://img.shields.io/badge/Python-3776AB?logo=python&logoColor=white&style=for-the-badge
+[Python-url]: https://www.python.org/
+[Playwright-shield]: https://custom-icon-badges.demolab.com/badge/Playwright-2EAD33?logo=playwright&logoColor=white&style=for-the-badge
+[Playwright-url]: https://playwright.dev/python
 
 [Discord-shield]: https://img.shields.io/badge/Discord-7289DA?style=for-the-badge&logo=discord&logoColor=white
 [Discord-url]: https://discord.gg/R9ysnyjayw

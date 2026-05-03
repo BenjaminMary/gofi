@@ -23,8 +23,10 @@ go.work
 
 # specific part
 *.env
+!.env
 *.ps1
 *.sh
+!run.sh
 /data/dbFiles/*.db*
 *_templ.go
 gofi

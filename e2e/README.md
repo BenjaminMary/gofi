@@ -26,12 +26,12 @@ From the `e2e/` folder `cd ~/gofi/e2e`:
 ### main without launching browser
 ```bash
 # headless (default)
-GOFI_E2E_ADMIN_EMAIL="a@b.com" GOFI_E2E_ADMIN_PASSWORD="pw" sudo -E docker compose run --rm playwright
+GOFI_E2E_ADMIN_EMAIL="test@test.test" GOFI_E2E_ADMIN_PASSWORD="test" sudo -E docker compose run --rm playwright
 ```
 
 ```bash
 # run a single file
-GOFI_E2E_ADMIN_EMAIL="a@b.com" GOFI_E2E_ADMIN_PASSWORD="pw" sudo -E docker compose run --rm playwright pytest tests/test_maintenance.py
+GOFI_E2E_ADMIN_EMAIL="test@test.test" GOFI_E2E_ADMIN_PASSWORD="test" sudo -E docker compose run --rm playwright pytest tests/test_maintenance.py
 
 # run 2 files
 sudo docker compose run --rm playwright pytest tests/test_record_alter.py tests/test_record_edit.py

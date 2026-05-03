@@ -89,7 +89,7 @@ func completeUserInfos(userContext *appdata.UserRequest, w http.ResponseWriter, 
 			}
 		}
 		if validAuth {
-			if email == os.Getenv("ADMIN_EMAIL") || email == os.Getenv("ADMIN_EMAIL_B") {
+			if email == os.Getenv("ADMIN_EMAIL") {
 				userContext.IsAdmin = true
 			}
 			userContext.IsAuthenticated = true
